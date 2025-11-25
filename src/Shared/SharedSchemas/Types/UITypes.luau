@@ -37,14 +37,16 @@ export type HandledUIInheritanceSchema
     handleButtonPress
     : (
         self: HandledUI,
+
         button: GuiButton,
         callback: (pos1: number, pos2: number) -> (),
-        isClosingButton: UDim2?
+        isClosingButton: true?
     ) -> (),
 
     handleGuiObjectInput
     : (
         self: HandledUI,
+        
         action: RBXScriptSignal,
         callback: () -> ()
     ) -> (),

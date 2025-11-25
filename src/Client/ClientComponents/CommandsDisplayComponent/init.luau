@@ -81,9 +81,7 @@ function Constructor:__call()
             local clonedCloseBtn = clonedMainFrame:WaitForChild("CloseBtn") :: TextButton
             local clonedTitle = clonedMainFrame:WaitForChild("Title") :: TextLabel
             local clonedHideBtn = clonedMainFrame:WaitForChild("HideBtn") :: TextButton
-
-            local originalCloseBtnSize = clonedCloseBtn.Size
-            local originalHideBtnSize = clonedHideBtn.Size
+            local clonedCredits = clonedMainFrame:WaitForChild("Credits") :: TextLabel
             
             local HandledUi = UIUtilitiesLibrary(clonedCommandsGui)
             HandledUi:hoverAndToggleSizing(1.15)
@@ -104,9 +102,7 @@ function Constructor:__call()
                     function(pos1: number, pos2: number)
                         HandledUi:wipeConnections()
                         clonedCommandsGui:Destroy()
-                    end,
-
-                    originalCloseBtnSize
+                    end
                 )
 
                 HandledUi:handleButtonPress(clonedHideBtn,
@@ -117,24 +113,21 @@ function Constructor:__call()
                         clonedCommandsGuiOpener.Parent = PlayerGui
 
                         local clonedShowBtn = clonedCommandsGuiOpener:WaitForChild("ShowBtn") :: TextButton
-                        local originalShowBtnSize = clonedShowBtn.Size
 
                         local HandledOpenerUi = UIUtilitiesLibrary(clonedCommandsGuiOpener)
                         HandledOpenerUi:hoverAndToggleSizing(1.15)
 
                         HandledOpenerUi:handleButtonPress(clonedShowBtn,
                             function(pos1: number, pos2: number)
+                                clonedCommandsGui.Enabled = true
+
                                 HandledOpenerUi:wipeConnections()
                                 clonedCommandsGuiOpener:Destroy()
-
-                                clonedCommandsGui.Enabled = true
-                            end,
-
-                            originalShowBtnSize
+                            end
                         )
                     end,
 
-                    originalHideBtnSize
+                    true
                 )
             end
 

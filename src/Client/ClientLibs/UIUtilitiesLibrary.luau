@@ -83,6 +83,9 @@ type HandledUIInheritanceSchema = UITypes.HandledUIInheritanceSchema
 
 
 --[[ @section Variables ]]
+local scaleTweenTime = 0.1
+
+
 local Constructor = {}
 local Inheritance = {} :: HandledUIInheritanceSchema
 
@@ -93,21 +96,20 @@ UIUtilities.HandledUI = {} :: { HandledUI }
 --[[ @end_section Variables ]]
 
 
---[[ @section Utility Functions ]]
 --[[
-    @usage Increases the size of a button.
+    @usage Changes the size of a GuiObject.
 
-    @param inst GuiButton
-    @param upscaledInstanceSize UDim2
+    @param inst GuiObject
+    @param scaledInstanceSize UDim2
 
     @return
 ]]
-local function upscaleInstance(inst: GuiButton, upscaledInstanceSize: UDim2)
+local function scaleInstance(inst: GuiObject, scaledInstanceSize: UDim2)
     TweensLibrary(
         inst,
 
 
-        0.1,
+        scaleTweenTime,
 
         Enum.EasingStyle.Sine,
         Enum.EasingDirection.Out,
@@ -117,37 +119,9 @@ local function upscaleInstance(inst: GuiButton, upscaledInstanceSize: UDim2)
         0,
 
 
-        { Size = upscaledInstanceSize }
+        { Size = scaledInstanceSize }
     ):waitForCompletion()
 end
-
---[[
-    @usage Decreases the size of a button.
-
-    @param inst GuiButton
-    @param defaultSize UDim2
-
-    @return
-]]
-local function downscaleInstance(inst: GuiButton, defaultSize: UDim2)
-    TweensLibrary(
-        inst,
-
-
-        0.1,
-
-        Enum.EasingStyle.Sine,
-        Enum.EasingDirection.In,
-
-        0,
-        false,
-        0,
-
-
-        { Size = defaultSize }
-    ):waitForCompletion()
-end
---[[ @end_section Utility Functions ]]
 
 
 --[[ @end_section UserInputService Functions ]]
@@ -186,8 +160,8 @@ local function onInputBegan
     if movingObject.AnchorPoint ~= Vector2.new(0, 0) then movingObject.AnchorPoint = Vector2.new(0, 0) end
 
     while DraggableData.isHovering and DraggableData.isHolding do
-        local xDifference, yDifference = draggingObject.AbsoluteSize.X / 2, draggingObject.AbsoluteSize.Y / 2
-        local newXOffset, newYOffset = playerMouse.X - xDifference, playerMouse.Y - yDifference
+        local mousePosition = Vector2.new(playerMouse.X, playerMouse.Y)
+        local newPos = mousePosition + (movingObject.AbsolutePosition - mousePosition)
 
         TweensLibrary(
             movingObject,
@@ -203,7 +177,7 @@ local function onInputBegan
             0,
 
 
-            { Position = UDim2.new(0, newXOffset, 0, newYOffset) }
+            { Position = UDim2.new(0, newPos.X, 0, newPos.Y) }
         ):waitForCompletion()
     end
 end
@@ -286,10 +260,11 @@ function Inheritance:hoverAndToggleSizing(sizeIncrease: number)
         local newX, newY = defaultInstanceSize.X.Scale * sizeIncrease, defaultInstanceSize.Y.Scale * sizeIncrease
         local upscaledInstanceSize = UDim2.new(newX, 0, newY, 0)
 
-        local UpsizeConnection = inst.MouseEnter:Connect(function() upscaleInstance(inst, upscaledInstanceSize) end)
-        local DownsizeConnection = inst.MouseLeave:Connect(function() downscaleInstance(inst, defaultInstanceSize) end)
-        local UpsizeClickConnection = inst.MouseButton1Up:Connect(function() upscaleInstance(inst, upscaledInstanceSize) end)
-        local DownsizeClickConnection = inst.MouseButton1Down:Connect(function() downscaleInstance(inst, defaultInstanceSize) end)
+        local UpsizeConnection = inst.MouseEnter:Connect(function() scaleInstance(inst, upscaledInstanceSize) end)
+        local DownsizeConnection = inst.MouseLeave:Connect(function() scaleInstance(inst, defaultInstanceSize) end)
+
+        local UpsizeClickConnection = inst.MouseButton1Up:Connect(function() scaleInstance(inst, upscaledInstanceSize) end)
+        local DownsizeClickConnection = inst.MouseButton1Down:Connect(function() scaleInstance(inst, defaultInstanceSize) end)
 
         -- Store sizing Connections.
         do
@@ -336,15 +311,21 @@ function Inheritance:handleButtonPress
 (
     button: GuiButton,
     callback: (pos1: number, pos2: number) -> (),
-    isClosingButton: UDim2?
+    isClosingButton: true?
 )
+    local originalSize = button.Size
+
     local PressConnection = button.MouseButton1Up
     :Connect(
         function(pos1: number, pos2: number)
             callback(pos1, pos2)
 
             if not isClosingButton then return end
-            downscaleInstance(button, isClosingButton)
+            self.ScreenGui.Enabled = false
+
+            task.wait(scaleTweenTime)
+
+            scaleInstance(button, originalSize)
         end
     )
 
