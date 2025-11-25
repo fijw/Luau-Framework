@@ -53,8 +53,8 @@ local ClientComponents = StarterPlayerScripts.ClientComponents
 local ChatComponent = ClientComponents.ChatComponent
 local UIConnectionsComponent = ClientComponents.UIConnectionsComponent
 local FlyComponent = ClientComponents.FlyComponent
-local PermissionsDisplayComponent = ClientComponents.PermissionsDisplayComponent
-local CommandsDisplayComponent = ClientComponents.CommandsDisplayComponent
+local PermissionsDisplayComponent = ClientComponents.DisplayComponents.PermissionsDisplayComponent
+local CommandsDisplayComponent = ClientComponents.DisplayComponents.CommandsDisplayComponent
 --[[ @section Imports ]]
 
 
