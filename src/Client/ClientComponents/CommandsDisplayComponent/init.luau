@@ -72,6 +72,8 @@ function Constructor:__call()
     ChatCommandsNamespace.packets.ClientDisplayHelpListChat
     .listen(
         function(data: { string }, player: Player?)
+            if PlayerGui:FindFirstChild(CommandsGuiComponents.commandsGui.Name) then return end
+
             local clonedCommandsGui = CommandsGuiComponents.commandsGui:Clone()
             clonedCommandsGui.Parent = PlayerGui
 
