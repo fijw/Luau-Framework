@@ -81,7 +81,6 @@ function Constructor:__call()
             local clonedCloseBtn = clonedMainFrame:WaitForChild("CloseBtn") :: TextButton
             local clonedTitle = clonedMainFrame:WaitForChild("Title") :: TextLabel
             local clonedHideBtn = clonedMainFrame:WaitForChild("HideBtn") :: TextButton
-            local clonedCredits = clonedMainFrame:WaitForChild("Credits") :: TextLabel
             
             local HandledUi = UIUtilitiesLibrary(clonedCommandsGui)
             HandledUi:hoverAndToggleSizing(1.15)

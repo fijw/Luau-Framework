@@ -55,6 +55,7 @@
             )
 
             HandledUi:makeGuiObjectDraggable(testDraggableTitleBar, testFrame)
+            HandledUi:makeGuiObjectDraggable(testFrame)
 
             print(HandledUi)
         end
@@ -65,7 +66,7 @@
 
 
 --[[ @section Imports ]]
-local Players = game:GetService("Players")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local StarterPlayer = game:GetService("StarterPlayer")
@@ -126,6 +127,11 @@ end
 
 --[[ @end_section UserInputService Functions ]]
 --[[
+    @NOTE: Currently broken 😓
+    I don't exactly know how to do the perfect math behind this.
+    I'm no math wizz 😂 but I am a fucking code wizz. I'm doomed!
+]]
+--[[
     @usage Handles input began for draggable gui objects.
 
     @param input InputObject
@@ -154,17 +160,20 @@ local function onInputBegan
 
     DraggableData.isHolding = true
 
-    local playerMouse = Players.LocalPlayer:GetMouse()
+    local GuiInset = GuiService:GetGuiInset()
 
-    local movingObject = mainObject or draggingObject
-    if movingObject.AnchorPoint ~= Vector2.new(0, 0) then movingObject.AnchorPoint = Vector2.new(0, 0) end
+    local movedObject = mainObject or draggingObject
+    if movedObject.AnchorPoint == Vector2.new(0, 0) then movedObject.AnchorPoint = Vector2.new(0, 0) end
 
     while DraggableData.isHovering and DraggableData.isHolding do
-        local mousePosition = Vector2.new(playerMouse.X, playerMouse.Y)
-        local newPos = mousePosition + (movingObject.AbsolutePosition - mousePosition)
+        local playerMousePosition = UserInputService:GetMouseLocation()
+        local mousePos = playerMousePosition - GuiInset
+
+        local halfXSize, halfYSize = draggingObject.AbsoluteSize.X / 2, draggingObject.AbsoluteSize.Y / 2
+        local newPos = mousePos - Vector2.new(halfXSize, halfYSize)
 
         TweensLibrary(
-            movingObject,
+            movedObject,
 
 
             0.01,
@@ -177,7 +186,7 @@ local function onInputBegan
             0,
 
 
-            { Position = UDim2.new(0, newPos.X, 0, newPos.Y) }
+            { Position = UDim2.fromOffset(newPos.X, newPos.Y) }
         ):waitForCompletion()
     end
 end
