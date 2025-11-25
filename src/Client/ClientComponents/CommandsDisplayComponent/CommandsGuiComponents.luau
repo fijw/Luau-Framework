@@ -117,6 +117,7 @@ do
     hideBtn.TextScaled = true
     hideBtn.TextSize = 14.000
     hideBtn.TextWrapped = true
+    hideBtn.AutoButtonColor = false
 
     uiListLayout.Name = "UIListLayout"
     uiListLayout.Parent = commandsScroller
@@ -168,6 +169,7 @@ do
     closeBtn.TextScaled = true
     closeBtn.TextSize = 14.000
     closeBtn.TextWrapped = true
+    closeBtn.AutoButtonColor = false
 
     uiCorner_3.Name = "UICorner"
     uiCorner_3.Parent = closeBtn

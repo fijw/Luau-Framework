@@ -26,7 +26,7 @@ do
     showBtn.Name = "ShowBtn"
     showBtn.Parent = commandsGuiOpener
     showBtn.AnchorPoint = Vector2.new(0.5, 0.5)
-    showBtn.BackgroundColor3 = Color3.fromRGB(0, 157, 255)
+    showBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     showBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     showBtn.BorderSizePixel = 0
     showBtn.Position = UDim2.new(0.983250022, 0, 0.0280000009, 0)
@@ -37,6 +37,7 @@ do
     showBtn.TextScaled = true
     showBtn.TextSize = 14.000
     showBtn.TextWrapped = true
+    showBtn.AutoButtonColor = false
 
     uiCorner.Parent = showBtn
 

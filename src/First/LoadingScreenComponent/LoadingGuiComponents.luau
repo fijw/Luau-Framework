@@ -114,6 +114,7 @@ do
     skipBtn.TextSize = 14.000
     skipBtn.TextWrapped = true
     skipBtn.Visible = false
+    skipBtn.AutoButtonColor = false
 
     uiAspectRatioConstraint_2.Parent = skipBtn
     uiAspectRatioConstraint_2.AspectRatio = 1.551
