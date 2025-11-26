@@ -48,7 +48,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local _Pragma = require(ServerScriptService.ServerComponents.Interactive.Pragma)
+local _Pragma = require(ServerScriptService.ServerComponents.Interactive.PragmaComponent)
 
 local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.LoadClient)
 

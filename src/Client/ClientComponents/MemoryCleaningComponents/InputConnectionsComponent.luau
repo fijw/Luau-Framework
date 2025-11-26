@@ -29,46 +29,54 @@
         |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|
     ```
 
-    @Description Loads client modules when the server sends a loading packet.
-
-    @NOTE Modules are required sequentially, then initialized sequentially.
-    @NOTE This is the listener for the framework's main script, the bootstrapper.
+    @Description Wipes the signals left behind once a player leaves.     
+    @NOTE This is for the handled Input Connections only via InputMapper.
 ]]
 --!strict
 --!optimize 2
 
 
 --[[ @section Imports ]]
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterPlayer = game:GetService("StarterPlayer")
-local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
 
-local SideInitialization = require(ReplicatedStorage.StartupLibs.SideInitialization)
+local InputMapper = require(Players.LocalPlayer.PlayerScripts.ClientLibs.InputMapper)
 
-local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.LoadClient)
-
-
-local ClientComponents = StarterPlayerScripts.ClientComponents
-
-local ChatComponent = ClientComponents.ChatComponent
-local UIConnectionsComponent = ClientComponents.MemoryCleaningComponents.UIConnectionsComponent
-local InputConnectionsComponent = ClientComponents.MemoryCleaningComponents.InputConnectionsComponent
-local FlyComponent = ClientComponents.FlyComponent
-local PermissionsDisplayComponent = ClientComponents.DisplayComponents.PermissionsDisplayComponent
-local CommandsDisplayComponent = ClientComponents.DisplayComponents.CommandsDisplayComponent
---[[ @section Imports ]]
+local MemoryCleaning = require(ReplicatedStorage.Networking.Namespaces.Services.MemoryCleaning)
+--[[ @end_section Imports ]]
 
 
-local ClientModules: { ModuleScript }
-= {
-    ChatComponent,
-    UIConnectionsComponent,
-    InputConnectionsComponent,
-    FlyComponent,
-    PermissionsDisplayComponent,
-    CommandsDisplayComponent
-}
+type InputMapper = InputMapper.InputMapper
 
 
--- Initialize the client modules once the server sends a loading packet.
-LoadClientNamespace.packets.LoadClientModules.listenOnce(function(data: string, player: Player?) SideInitialization(ClientModules) end)
+--[[ @section Variables ]]
+local Constructor = {}
+
+local UIConnectionsController = {}
+--[[ @end_section Variables ]]
+
+
+--[[ @section Constructor ]]
+--[[
+    @usage Destroys all signals.
+    
+    @return
+]]
+function Constructor:__call()
+    MemoryCleaning.packets.CleanClientUIConnections
+    .listenOnce(
+        function(data: nil, player: Player?)
+            for i: number, InputMapper: InputMapper in ipairs(InputMapper.HandledInputs) do
+                if not InputMapper.Connections then continue end
+                InputMapper:wipeConnections()
+            end
+        end
+    )
+end
+
+setmetatable(UIConnectionsController, { __call = Constructor.__call })
+--[[ @end_section Constructor ]]
+
+
+table.freeze(UIConnectionsController)
+return UIConnectionsController

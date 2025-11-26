@@ -52,7 +52,7 @@ type InputMapperInheritance = { wipeConnections: (self: InputMapper) -> () }
 
 type UtilityFunctions = { inputMapperCallback: InputMapperCallback }
 
-type InputMapper = setmetatable
+export type InputMapper = setmetatable
 <
     { Connections: { RBXScriptConnection } },
 
@@ -70,6 +70,9 @@ local Inheritance = {} :: InputMapperInheritance
 local Constructor = {}
 
 local InputMapper = {}
+
+
+InputMapper.HandledInputs = {} :: { InputMapper }
 --[[ @end_section Variables ]]
 
 
