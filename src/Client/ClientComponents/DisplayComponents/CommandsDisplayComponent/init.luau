@@ -81,7 +81,6 @@ function Constructor:__call()
             local clonedCommandsScroller = clonedMainFrame:WaitForChild("CommandsScroller") :: ScrollingFrame
             local clonedTemplateCommand = clonedCommandsScroller:WaitForChild("TemplateCommand") :: TextLabel
             local clonedCloseBtn = clonedMainFrame:WaitForChild("CloseBtn") :: TextButton
-            local clonedTitle = clonedMainFrame:WaitForChild("Title") :: TextLabel
             local clonedHideBtn = clonedMainFrame:WaitForChild("HideBtn") :: TextButton
             
             local HandledUi = UIUtilitiesLibrary(clonedCommandsGui)
@@ -132,7 +131,7 @@ function Constructor:__call()
                 )
             end
 
-            HandledUi:makeGuiObjectDraggable(clonedTitle, clonedMainFrame)
+            HandledUi:makeGuiObjectDraggable(clonedMainFrame, "top")
         end
     )
 end

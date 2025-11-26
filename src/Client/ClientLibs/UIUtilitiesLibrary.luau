@@ -54,8 +54,7 @@
                 end
             )
 
-            HandledUi:makeGuiObjectDraggable(testDraggableTitleBar, testFrame)
-            HandledUi:makeGuiObjectDraggable(testFrame)
+            HandledUi:makeGuiObjectDraggable(testFrame, "top")
 
             print(HandledUi)
         end
@@ -78,13 +77,18 @@ local TweensLibrary = require(StarterPlayerScripts.ClientLibs.TweensLibrary)
 --[[ @end_section Imports ]]
 
 
+--[[ @section Types ]]
 type HandledUISchema = UITypes.HandledUISchema
 type HandledUI = UITypes.HandledUI
 type HandledUIInheritanceSchema = UITypes.HandledUIInheritanceSchema
 
+type SideType = UITypes.SideType
+--[[ @end_section Types ]]
+
 
 --[[ @section Variables ]]
 local scaleTweenTime = 0.1
+local offsetPositionDivision = 10
 
 
 local Constructor = {}
@@ -127,17 +131,13 @@ end
 
 --[[ @end_section UserInputService Functions ]]
 --[[
-    @NOTE: Currently broken 😓
-    I don't exactly know how to do the perfect math behind this.
-    I'm no math wizz 😂 but I am a fucking code wizz. I'm doomed!
-]]
---[[
     @usage Handles input began for draggable gui objects.
 
     @param input InputObject
     @param gameProcessed boolean
 
     @param guiObject GuiObject
+    @param side SideType
 
     @param HandledUICalledFrom HandledUI
 
@@ -149,7 +149,7 @@ local function onInputBegan
     gameProcessed: boolean,
 
     draggingObject: GuiObject,
-    mainObject: GuiObject?,
+    side: SideType,
 
     HandledUICalledFrom: HandledUI
 )
@@ -162,18 +162,36 @@ local function onInputBegan
 
     local GuiInset = GuiService:GetGuiInset()
 
-    local movedObject = mainObject or draggingObject
-    if movedObject.AnchorPoint == Vector2.new(0, 0) then movedObject.AnchorPoint = Vector2.new(0, 0) end
+    if draggingObject.AnchorPoint == Vector2.new(0, 0) then draggingObject.AnchorPoint = Vector2.new(0, 0) end
 
+    -- While the draggable object is hovering and is being held, update its position.
     while DraggableData.isHovering and DraggableData.isHolding do
         local playerMousePosition = UserInputService:GetMouseLocation()
         local mousePos = playerMousePosition - GuiInset
 
-        local halfXSize, halfYSize = draggingObject.AbsoluteSize.X / 2, draggingObject.AbsoluteSize.Y / 2
-        local newPos = mousePos - Vector2.new(halfXSize, halfYSize)
+        local xPos: number, yPos: number
+
+        if side == "center" then
+            xPos = draggingObject.AbsoluteSize.X / 2
+            yPos = draggingObject.AbsoluteSize.Y / 2
+        elseif side == "top" then
+            xPos = draggingObject.AbsoluteSize.X / 2
+            yPos = draggingObject.AbsoluteSize.Y / offsetPositionDivision
+        elseif side == "bottom" then
+            xPos = draggingObject.AbsoluteSize.X / 2
+            yPos = draggingObject.AbsoluteSize.Y - (draggingObject.AbsoluteSize.Y / offsetPositionDivision)
+        elseif side == "left" then
+            xPos = draggingObject.AbsoluteSize.X / offsetPositionDivision
+            yPos = draggingObject.AbsoluteSize.Y / 2
+        elseif side == "right" then
+            xPos = draggingObject.AbsoluteSize.X - (draggingObject.AbsoluteSize.X / offsetPositionDivision)
+            yPos = draggingObject.AbsoluteSize.Y / 2
+        end
+        
+        local newPos = mousePos - Vector2.new(xPos, yPos)
 
         TweensLibrary(
-            movedObject,
+            draggingObject,
 
 
             0.01,
@@ -347,16 +365,16 @@ end
     @param self HandledUI
 
     @param guiObject GuiObject
+    @param side SideType
 
     @return
 ]]
-function Inheritance:makeGuiObjectDraggable(guiObjectToDrag: GuiObject, mainGuiObject: GuiObject?)
+function Inheritance:makeGuiObjectDraggable(guiObjectToDrag: GuiObject, side: SideType)
     local draggingObjectName = guiObjectToDrag.Name
 
     self.DraggableObjects[draggingObjectName]
     = {
         draggingObject = guiObjectToDrag,
-        mainObject = mainGuiObject,
 
         isHovering = false,
         isHolding = false
@@ -367,7 +385,7 @@ function Inheritance:makeGuiObjectDraggable(guiObjectToDrag: GuiObject, mainGuiO
         local InputBeganConnection = UserInputService.InputBegan
         :Connect(
             function(input: InputObject, gameProcessed: boolean)
-                onInputBegan(input, gameProcessed, guiObjectToDrag, mainGuiObject, self)
+                onInputBegan(input, gameProcessed, guiObjectToDrag, side, self)
             end
         )
 

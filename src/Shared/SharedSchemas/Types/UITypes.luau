@@ -3,6 +3,9 @@
 
 
 --[[ @section Types ]]
+export type SideType = "center" | "top" | "bottom" | "left" | "right"
+
+
 export type HandledUISchema
 = {
     ScreenGui: ScreenGui,
@@ -16,7 +19,6 @@ export type HandledUISchema
         [string]
         : {
             draggingObject: GuiObject,
-            mainObject: GuiObject?,
 
             isHovering: boolean,
             isHolding: boolean
@@ -51,7 +53,7 @@ export type HandledUIInheritanceSchema
         callback: () -> ()
     ) -> (),
 
-    makeGuiObjectDraggable: (self: HandledUI, guiObjectToDrag: GuiObject, mainGuiObject: GuiObject?) -> (),
+    makeGuiObjectDraggable: (self: HandledUI, guiObjectToDrag: GuiObject, side: SideType) -> (),
 
     wipeConnections: (self: HandledUI) -> ()
 }

@@ -1721,7 +1721,7 @@ end
 function ProfileStore:RemoveAsync(profile_key)
 	local is_mock = ReadMockFlag()
 
-	if type(profile_key) ~= "string" or string.len(profile_key) == 0 then
+	if type(profile_key) ~= "string" or string.len(profile_key :: any) == 0 then
 		error(`[{script.Name}]: Invalid profile_key`)
 	end
 
