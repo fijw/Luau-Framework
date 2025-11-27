@@ -236,9 +236,7 @@ function Constructor.__call()
 
     MemoryCleaningNamespace.packets.CleanClientChatConnections
     .listen(
-        function(data: nil, player: Player?)
-            renderSteppedConnection:Disconnect()
-        end
+        function(data: nil, player: Player?) renderSteppedConnection:Disconnect() end
     )
 end
 
