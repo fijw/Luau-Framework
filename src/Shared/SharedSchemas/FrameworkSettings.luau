@@ -75,7 +75,7 @@ local FrameworkSettings
         moderationActionLoggingWebhookExtension = "1429616026982547456/an3RQ9joHLKfIUjeuStx6YyIF-w100-ERDxqu3hsb9ISzGyW1Ojmb-gePt2_FylfVbPB"
     },
 
-    registryProfileStorageTag = "hermmm"
+    registryProfileStorageTag = "hermmm 3"
 }
 
 

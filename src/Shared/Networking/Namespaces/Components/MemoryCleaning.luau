@@ -20,7 +20,8 @@ function wipingNamespace()
         = {
             -- All Client Received !ONLY!
             CleanClientUIConnections = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
-            CleanClientChatConnections = ByteNetMax.definePacket({ value = ByteNetMax.nothing })
+            CleanClientChatConnections = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
+            CleanClientInputConnections = ByteNetMax.definePacket({ value = ByteNetMax.nothing })
         }
     }
 

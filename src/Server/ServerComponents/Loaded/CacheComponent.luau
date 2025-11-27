@@ -50,7 +50,7 @@ local Registry = require(ServerScriptService.ServerLibs.Registry)
 
 local Classify = require(ServerScriptService.ServerLibs.UtilityLibs.Classify)
 
-local MemoryCleaningNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.MemoryCleaning)
+local MemoryCleaningNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.MemoryCleaning)
 --[[ @end_section Imports ]]
 
 
@@ -198,6 +198,7 @@ end
 local function onPlayerRemoving(player: Player)
     MemoryCleaningNamespace.packets.CleanClientUIConnections.sendTo(nil, player)
     MemoryCleaningNamespace.packets.CleanClientChatConnections.sendTo(nil, player)
+    MemoryCleaningNamespace.packets.CleanClientInputConnections.sendTo(nil, player)
 
     -- Update the players record & ensure it's savable.
     do

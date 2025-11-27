@@ -49,7 +49,7 @@ local FrameworkSettings = require(ReplicatedStorage.SharedSchemas.FrameworkSetti
 local CmdReader = require(script.CmdReader)
 local ChatsDisplayer = require(script.ChatsDisplayer)
 
-local MemoryCleaningNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.MemoryCleaning)
+local MemoryCleaningNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.MemoryCleaning)
 --[[ @end_section Imports ]]
 
 

@@ -5,7 +5,7 @@
 --[[ @section Imports ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local ChatCommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.ChatCommands)
+local ChatCommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.ChatCommands)
 --[[ @end_section Imports ]]
 
 

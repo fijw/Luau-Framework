@@ -45,7 +45,7 @@ local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
 local CommandsGuiComponents = require(script.CommandsGuiComponents)
 local CommandsGuiOpenerComponents = require(script.CommandsGuiOpenerComponents)
 
-local ChatCommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.ChatCommands)
+local ChatCommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.ChatCommands)
 
 local UIUtilitiesLibrary = require(StarterPlayerScripts.ClientLibs.UIUtilitiesLibrary)
 --[[ @end_section Imports ]]

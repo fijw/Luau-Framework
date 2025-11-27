@@ -76,7 +76,7 @@ do
     SideInitialization(ServerModules)
 
     local CurrentPlayers = Players:GetPlayers()
-    LoadClientNamespace.packets.LoadClientModules.sendToList("load client modules", CurrentPlayers)
+    LoadClientNamespace.packets.LoadClientModules.sendToList(nil, CurrentPlayers)
 end
 
 
@@ -89,7 +89,7 @@ end
     @return
 ]]
 local function onPlayerAdded(player: Player)
-    LoadClientNamespace.packets.LoadClientModules.sendTo("load client modules", player)
+    LoadClientNamespace.packets.LoadClientModules.sendTo(nil, player)
 end
 
 Players.PlayerAdded:Connect(onPlayerAdded)

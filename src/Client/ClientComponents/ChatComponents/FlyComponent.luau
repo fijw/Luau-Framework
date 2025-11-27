@@ -47,7 +47,7 @@ local UserInputService = game:GetService("UserInputService")
 local StarterPlayer = game:GetService("StarterPlayer")
 local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
 
-local ChatCommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.ChatCommands)
+local ChatCommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.ChatCommands)
 
 local TweensLibrary = require(StarterPlayerScripts.ClientLibs.TweensLibrary)
 --[[ @end_section Imports ]]

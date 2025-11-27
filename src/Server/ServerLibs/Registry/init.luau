@@ -212,7 +212,7 @@ local PLAYER_DATA_TEMPLATE
     }
 } :: RecordSchema
 
-local PROFILES_STORAGE = ProfileStore.New(`Registry Profiles [tag: {FrameworkSettings.registryProfileStorageTag}]`, PLAYER_DATA_TEMPLATE :: any)
+local PROFILES_STORAGE = ProfileStore.New(`Registry [t: {FrameworkSettings.registryProfileStorageTag}]`, PLAYER_DATA_TEMPLATE :: any)
 --[[ @end_section Variables ]]
 
 
@@ -242,7 +242,7 @@ end
     @return RecordType?
 ]]
 function ConstructorSchema:__call(player: Player | number): RecordType?
-    if not ServerScriptService.ServerComponents.Interactive:FindFirstChild("Pragma") then return nil end
+    if not ServerScriptService.ServerComponents.Interactive:FindFirstChild("PragmaComponent") then return nil end
 
     local id = typeof(player) == "number" and player or player.UserId
 

@@ -50,10 +50,10 @@ local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.Load
 
 local ClientComponents = StarterPlayerScripts.ClientComponents
 
-local ChatComponent = ClientComponents.ChatComponent
+local ChatHandlingComponent = ClientComponents.ChatComponents.ChatHandlingComponent
 local UIConnectionsComponent = ClientComponents.MemoryCleaningComponents.UIConnectionsComponent
 local InputConnectionsComponent = ClientComponents.MemoryCleaningComponents.InputConnectionsComponent
-local FlyComponent = ClientComponents.FlyComponent
+local FlyComponent = ClientComponents.ChatComponents.FlyComponent
 local PermissionsDisplayComponent = ClientComponents.DisplayComponents.PermissionsDisplayComponent
 local CommandsDisplayComponent = ClientComponents.DisplayComponents.CommandsDisplayComponent
 --[[ @section Imports ]]
@@ -61,7 +61,7 @@ local CommandsDisplayComponent = ClientComponents.DisplayComponents.CommandsDisp
 
 local ClientModules: { ModuleScript }
 = {
-    ChatComponent,
+    ChatHandlingComponent,
     UIConnectionsComponent,
     InputConnectionsComponent,
     FlyComponent,
@@ -71,4 +71,4 @@ local ClientModules: { ModuleScript }
 
 
 -- Initialize the client modules once the server sends a loading packet.
-LoadClientNamespace.packets.LoadClientModules.listenOnce(function(data: string, player: Player?) SideInitialization(ClientModules) end)
+LoadClientNamespace.packets.LoadClientModules.listenOnce(function(data: nil, player: Player?) SideInitialization(ClientModules) end)

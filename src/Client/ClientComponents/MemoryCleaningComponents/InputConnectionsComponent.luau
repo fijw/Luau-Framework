@@ -42,7 +42,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local InputMapper = require(Players.LocalPlayer.PlayerScripts.ClientLibs.InputMapper)
 
-local MemoryCleaning = require(ReplicatedStorage.Networking.Namespaces.Services.MemoryCleaning)
+local MemoryCleaning = require(ReplicatedStorage.Networking.Namespaces.Components.MemoryCleaning)
 --[[ @end_section Imports ]]
 
 
@@ -63,7 +63,7 @@ local UIConnectionsController = {}
     @return
 ]]
 function Constructor:__call()
-    MemoryCleaning.packets.CleanClientUIConnections
+    MemoryCleaning.packets.CleanClientInputConnections
     .listenOnce(
         function(data: nil, player: Player?)
             for i: number, InputMapper: InputMapper in ipairs(InputMapper.HandledInputs) do

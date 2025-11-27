@@ -19,7 +19,7 @@ function loadingNamespace()
         packets
         = {
             -- Client Received !ONLY!
-            LoadClientModules = ByteNetMax.definePacket({ value = ByteNetMax.string })
+            LoadClientModules = ByteNetMax.definePacket({ value = ByteNetMax.nothing })
         }
     }
     return LoadingNamespace

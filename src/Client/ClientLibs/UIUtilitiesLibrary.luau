@@ -88,7 +88,7 @@ type SideType = UITypes.SideType
 
 --[[ @section Variables ]]
 local scaleTweenTime = 0.1
-local offsetPositionDivision = 10
+local offsetPositionDivision = 16
 
 
 local Constructor = {}

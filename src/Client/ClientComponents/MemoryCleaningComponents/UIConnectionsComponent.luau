@@ -44,7 +44,7 @@ local UITypes = require(ReplicatedStorage.SharedSchemas.Types.UITypes)
 
 local UIUtilitiesLibrary = require(Players.LocalPlayer.PlayerScripts.ClientLibs.UIUtilitiesLibrary)
 
-local MemoryCleaning = require(ReplicatedStorage.Networking.Namespaces.Services.MemoryCleaning)
+local MemoryCleaning = require(ReplicatedStorage.Networking.Namespaces.Components.MemoryCleaning)
 --[[ @end_section Imports ]]
 
 
