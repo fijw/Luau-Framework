@@ -155,11 +155,12 @@ export type Class<T> = setmetatable
     ClassSchema<T>,
 
     {
+        -- These metamethods are added by default but can be changed.
         __index: ClassInheritance<T>,
         __call: ClassCallbackType<T>,
         __add: ClassAddCallbackType<T>,
 
-        -- All available metamethods to use below.
+        -- All available metamethods to add usage for below.
         __tostring: ClassUnknownCallbackType<T>,
         __concat: ClassUnknownCallbackType<T>,
         __div: ClassUnknownCallbackType<T>,

@@ -66,23 +66,69 @@
 
 --[[ @section Imports ]]
 local GuiService = game:GetService("GuiService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local StarterPlayer = game:GetService("StarterPlayer")
 local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
-
-local UITypes = require(ReplicatedStorage.SharedSchemas.Types.UITypes)
 
 local TweensLibrary = require(StarterPlayerScripts.ClientLibs.TweensLibrary)
 --[[ @end_section Imports ]]
 
 
 --[[ @section Types ]]
-type HandledUISchema = UITypes.HandledUISchema
-type HandledUI = UITypes.HandledUI
-type HandledUIInheritanceSchema = UITypes.HandledUIInheritanceSchema
+type SideType = "center" | "top" | "bottom" | "left" | "right"
 
-type SideType = UITypes.SideType
+
+type HandledUISchema
+= {
+    ScreenGui: ScreenGui,
+
+    SizingConnections: { [any]: RBXScriptConnection },
+    PressConnections: { RBXScriptConnection },
+    OtherConnections: { RBXScriptConnection },
+
+    DraggableObjects
+    : {
+        [string]
+        : {
+            draggingObject: GuiObject,
+
+            isHovering: boolean,
+            isHolding: boolean
+        }
+    }
+}
+
+export type HandledUI = setmetatable
+<
+    HandledUISchema,
+    { __index: HandledUIInheritanceSchema }
+>
+
+type HandledUIInheritanceSchema
+= {
+    hoverAndToggleSizing: (self: HandledUI, sizeIncrease: number) -> (),
+
+    handleButtonPress
+    : (
+        self: HandledUI,
+
+        button: GuiButton,
+        callback: (pos1: number, pos2: number) -> (),
+        isClosingButton: true?
+    ) -> (),
+
+    handleGuiObjectInput
+    : (
+        self: HandledUI,
+        
+        action: RBXScriptSignal,
+        callback: () -> ()
+    ) -> (),
+
+    makeGuiObjectDraggable: (self: HandledUI, guiObjectToDrag: GuiObject, side: SideType) -> (),
+
+    wipeConnections: (self: HandledUI) -> ()
+}
 --[[ @end_section Types ]]
 
 
