@@ -1,46 +1,15 @@
 --[[
-    @header
-    ```
-        ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀  
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-        █           ▄    ▄          ▀                                  █   
-        █           █  ▄▀   ▄▄▄   ▄▄▄     ▄ ▄▄   ▄▄▄    ▄▄▄            █   
-        █           █▄█    ▀   █    █     █▀  ▀ █▀ ▀█  █   ▀           █   
-        █           █  █▄  ▄▀▀▀█    █     █     █   █   ▀▀▀▄           █   
-        █           █   ▀▄ ▀▄▄▀█  ▄▄█▄▄   █     ▀█▄█▀  ▀▄▄▄▀           █   
-        █                                                              █   
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-        ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀  
-
-        @author Kairos (Roblox: @roblox_user_5618502527)
-        @version 1.0.1
-    ```
-
-    @description Reactor is a state engine library for Roblox.
-
-    @note Anything and everything (including instances) can
-    @note be used & have extra functionality added to
-    @note it.
-
-    @note Can range from making the inputted state object
-    @note callable, subscribing to the object, locking the
-    @note object, and adding extra functionality to it, such
-    @note as addition, subtraction, division, and more,
-    @note methods.
-
-    @note By default, the callback functionality for a
-    @note inputted object is to change the inputted
-    @note object's data.
-    @note This can be used to do things like: add, change, or
-    @note completely remove values in the inputted object.
-    @note This usually applies to Arrays and Dictionaries.
+    ----------------------------------------------------
+    | @author Kairos (Roblox: @roblox_user_5618502527) |
+    | @version 1.0.1                                   |
+    | @description Library for managing reactive       |
+    | states. Includes features such as a callback to  |
+    | change the state data or return the state data,  |
+    | the ability to subscribe to state changes, the   |
+    | ability to subscribe to peeks at the state data, |
+    | the ability to lock or unlock the state, and the |
+    | ability to add more metamethods to the state.    |
+    ----------------------------------------------------
 
     @usage
     ```luau

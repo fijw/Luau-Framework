@@ -1,3 +1,50 @@
+--[[
+    ----------------------------------------------------
+    | @author Kairos (Roblox: @roblox_user_5618502527) |
+    | @version 1.0.0                                   |
+    | @description Library for compressing or          |
+    | decompressing data into buffers. This library    |
+    | currently only works with data that can be       |
+    | converted to a string format via JSONEncode.     |
+    ----------------------------------------------------
+
+    @usage
+    ```luau
+        local TestCompressionData
+        = {
+            value1 = 123_456,
+            value2 = "random string",
+            value3 = true
+        }
+
+        -- Compression and Decompression.
+        do
+            local CompressedData = {}
+
+            -- Compression.
+            do
+                for i: string, v: any in pairs(TestCompressionData) do
+                    CompressedData[i] = Compression(v)
+                end
+
+                print(CompressedData, "Compressed data.")
+
+                CompressedData = Compression(CompressedData)
+            end
+
+            -- Decompression.
+            do
+                local DecompressedData = Compression(CompressedData, "decompress") :: { [string]: buffer }
+
+                for i: string, v: buffer in pairs(DecompressedData) do
+                    DecompressedData[i] = Compression(v, "decompress")
+                end
+
+                print(DecompressedData, "Decompressed data.")
+            end
+        end
+    ```
+]]
 --!strict
 --!native
 --!optimize 2

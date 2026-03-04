@@ -11,15 +11,19 @@ local BanModule = require(script.Moderation.Ban)
 local UnbanModule = require(script.Moderation.Unban)
 
 local ChatCommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.ChatCommands)
+
+local CrossServerCommandsHandler = require(script.CrossServerCommandsHandler)
 --[[ @end_section Imports ]]
 
 
+--[[ @section Variables ]]
 local CommandCallbackMap: { [string]: (sender: Player, Args: { string }) -> () }
 = {
     ban = BanModule,
     kick = KickModule,
     unban = UnbanModule
 }
+--[[ @end_section Variables ]]
 
 
 --[[ @section Constructor ]]
@@ -29,6 +33,8 @@ local CommandCallbackMap: { [string]: (sender: Player, Args: { string }) -> () }
     @return
 ]]
 local function constructorCallback()
+    CrossServerCommandsHandler()
+
     ChatCommandsNamespace.packets.ServerHandleCommandMessage
     .listen(
         function(data: { string }, player: Player?)

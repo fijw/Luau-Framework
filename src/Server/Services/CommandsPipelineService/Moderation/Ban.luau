@@ -7,16 +7,24 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreService = game:GetService("DataStoreService")
+local MessagingService = game:GetService("MessagingService")
+local Players = game:GetService("Players")
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.Compression)
 local Store = require(ServerScriptService.Libraries.Store)
+local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
 
 
+--[[ @section Types ]]
 type StoredPlayerDataClass = Store.StoredPlayerDataClass
+
+--[[ @generic T Source type. ]]
+type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+--[[ @end_section Types ]]
 
 
 local DataStore = DataStoreService:GetDataStore(Settings.PLAYER_DATA_STORAGE_KEY)
@@ -38,6 +46,21 @@ local function constructorCallback(sender: Player, args: { string })
     table.remove(args, 1)
 
     local reason = table.concat(args, " ")
+
+    -- If the player is in this server, update their player data class here.
+    do
+        local player = Players:GetPlayerByUserId(tonumber(targetId) :: number)
+        
+        if player then
+            local PlayerDataClass = Store(tonumber(targetId) :: number)
+            if not PlayerDataClass then return end
+
+            (PlayerDataClass() :: { [string]: StateEngine<any> }).banReason = Reactor(reason);
+            (PlayerDataClass() :: { [string]: StateEngine<any> }).isBanned(true)
+
+            return
+        end
+    end
 
     Chronovisor(
         function()
@@ -76,6 +99,16 @@ local function constructorCallback(sender: Player, args: { string })
         end
     )
     :onError(function(err: string?) print(`Error updating player data class moderation data. Error: {err}`) end)
+
+    MessagingService:PublishAsync("commands",
+        Compression(
+            {
+                targetId = tonumber(targetId) :: number,
+                commandType = "ban",
+                reason = reason
+            }
+        )
+    )
 end
 
 return constructorCallback

@@ -38,12 +38,12 @@ local function initializeModule(module: any, i: number, LoadedModules: { any })
             )
 
             task.defer(function()
-                if not finishedLoading then print(`Module {i} in {LoadedModules} yielded when initializing!`) end
+                if not finishedLoading then print(LoadedModules, `Module {i} yielded when initializing, side: {runningFrom}`) end
             end)
         end
     )
     :onError(function(err: string?)
-        print(`Failed to initialize module in {LoadedModules}, error: {err}, side: {runningFrom}`)
+        print(LoadedModules, `Failed to initialize module, error: {err}, side: {runningFrom}`)
 
         task.wait(1)
 
@@ -79,7 +79,7 @@ local function constructorCallback(ModulesToLoad: { ModuleScript }): boolean
             end
         end
     )
-    :onError(function(err: string?) print(`Failed to require module in {ModulesToLoad}, error: {err}, side: {runningFrom}`) end)
+    :onError(function(err: string?) print(ModulesToLoad, `Failed to require module, error: {err}, side: {runningFrom}`) end)
 
     for i: number, module: any in ipairs(LoadedModules) do initializeModule(module, i, LoadedModules) end
 

@@ -3,24 +3,10 @@
 --!optimize 2
 
 
---[[ @section Imports ]]
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
---[[ @end_section Imports ]]
-
-
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
-
-
 local Settings
 = {
     DATA_TEMPLATE
     = {
-        coins = 12_000,
-        level = 15,
-
         Inventory
         = {
             Pets
@@ -36,10 +22,13 @@ local Settings
                 Shield = 1,
                 Bow = 1
             }
-        }
+        },
+
+        coins = 12_000,
+        level = 15,
     },
 
-    PLAYER_DATA_STORAGE_KEY = "hahaa1a"
+    PLAYER_DATA_STORAGE_KEY = "hahaa11a11"
 }
 
 

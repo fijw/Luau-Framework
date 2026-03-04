@@ -1,3 +1,51 @@
+--[[
+    ----------------------------------------------------
+    | @author Kairos (Roblox: @roblox_user_5618502527) |
+    | @version 1.0.0                                   |
+    | @description Library for storing and retrieving  |
+    | player data. Includes features such as           |
+    | auto-saving, session locking, and reactive data. |
+    ----------------------------------------------------
+
+    @usage
+    ```luau
+        local function onPlayerAdded(player: Player)
+            local PlayerDataClass = Store(player.UserId, DataTemplate, DataStoreKey)
+            if not PlayerDataClass then return end
+
+            task.spawn(
+                function()
+                    while true do
+                        if not Store(player.UserId) then break end
+
+                        PlayerDataClass().level(PlayerDataClass().level() + 100)
+                        PlayerDataClass().coins(PlayerDataClass().coins() + 100_000)
+
+                        task.wait(5)
+                    end
+                end
+            )
+        end
+
+        local function onPlayerRemoving(player: Player)
+            local PlayerDataClass = Store(player.UserId)
+            if not PlayerDataClass then return end
+
+            PlayerDataClass:saveClassState()
+            PlayerDataClass:removeClassCache()
+        end
+
+        -- Handle player data on join and leave.
+        do
+            for i: number, player: Player in pairs(Players:GetPlayers()) do onPlayerAdded(player) end
+
+            Players.PlayerAdded:Connect(onPlayerAdded)
+            Players.PlayerRemoving:Connect(onPlayerRemoving)
+        end
+
+        game:BindToClose(function() task.wait(1) end)
+    ```
+]]
 --!strict
 --!native
 --!optimize 2
@@ -35,7 +83,7 @@ export type PlayerDataClass<D> = setmetatable
     {
         __index
         : {
-            saveClassState: (self: PlayerDataClass<D>) -> (),
+            saveClassState: (self: PlayerDataClass<D>, keepCurrentSessionId: true?) -> (),
             removeClassCache: (self: PlayerDataClass<D>) -> ()
         },
 
@@ -52,6 +100,7 @@ local PlayerDataClassCache = {} :: { [string]: PlayerDataClass<any> }
 --[[ @end_section Variables ]]
 
 
+--[[ @section Utility Functions ]]
 --[[
     @usage Compares two tables to see if they match.
 
@@ -80,18 +129,48 @@ local function tableMatchComparison
     return "match"
 end
 
+--[[
+    @usage Continuously saves the player data class to the data store.
+
+    @param PlayerDataClass PlayerDataClass<any>
+
+    @return
+]]
+local function autoSaveClassState(PlayerDataClass: PlayerDataClass<any>)
+    while true do
+        task.wait(60)
+
+        if not PlayerDataClassCache[`{PlayerDataClass.classIdentifier}`] then break end
+
+        PlayerDataClass:saveClassState(true)
+    end
+end
+--[[ @end_section Utility Functions ]]
+
 
 --[[ @section Class Callbacks ]]
 --[[
     @usage Save the player data class to the data store.
 
     @param self PlayerDataClass<any>
+    @param keepCurrentSessionId true?
 
     @return
 ]]
-local function saveClassStateCallback(self: PlayerDataClass<any>)
+local function saveClassStateCallback(self: PlayerDataClass<any>, keepCurrentSessionId: true?): ()
     Chronovisor(
         function()
+            local savingSessionId = nil
+
+            if keepCurrentSessionId == true then
+                local FetchedPlayerDataClass: StoredPlayerDataClass?
+
+                FetchedPlayerDataClass = self.classDataStore:GetAsync(self.classIdentifier)
+                if not FetchedPlayerDataClass then return end
+
+                savingSessionId = FetchedPlayerDataClass.sessionId
+            end
+
             local SavingData = {}
 
             for i: string, v: any in pairs(self()) do
@@ -103,7 +182,7 @@ local function saveClassStateCallback(self: PlayerDataClass<any>)
             self.classDataStore:SetAsync(`{self.classIdentifier}`,
                 {
                     Data = Compression(SavingData),
-                    sessionId = nil
+                    sessionId = savingSessionId
                 }
             )
         end
@@ -120,7 +199,7 @@ local function saveClassStateCallback(self: PlayerDataClass<any>)
                 return
             end
 
-            if FetchedPlayerDataClass.sessionId ~= nil then print("Session ID still exists after saving!") end
+            if FetchedPlayerDataClass.sessionId ~= nil and keepCurrentSessionId ~= true then print("Session ID still exists after saving!") end
 
             -- Decompress the data and compare it.
             do
@@ -270,6 +349,8 @@ local function constructorCallback
             (NewPlayerDataClass.Data :: any)[i] = Reactor(Compression(v, "decompress"))
         end
     end
+
+    task.spawn(function() autoSaveClassState(NewPlayerDataClass :: any) end)
 
     PlayerDataClassCache[`{classIdentifier}`] = (NewPlayerDataClass :: any) :: PlayerDataClass<D>
 

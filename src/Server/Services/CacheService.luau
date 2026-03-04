@@ -29,6 +29,7 @@ local ModifiedDataTemplate
 }
 
 
+-- Modifying the settings data template.
 for i: string, v: any in pairs(Settings.DATA_TEMPLATE :: { [string]: any }) do ModifiedDataTemplate[i] = v end
 
 
@@ -42,7 +43,7 @@ for i: string, v: any in pairs(Settings.DATA_TEMPLATE :: { [string]: any }) do M
 ]]
 local function onPlayerAdded(player: Player)
     local PlayerDataClass = Store(player.UserId, ModifiedDataTemplate, Settings.PLAYER_DATA_STORAGE_KEY)
-    if not PlayerDataClass then player:Kick("Please try rejoining, your data couldn't be loaded."); return end
+    if not PlayerDataClass then return end
 
     task.spawn(
         function()
@@ -67,7 +68,7 @@ end
 ]]
 local function onPlayerRemoving(player: Player)
     local PlayerDataClass = Store(player.UserId)
-    if not PlayerDataClass then print("Possible data loss, can't fetch player data class to save it."); return end
+    if not PlayerDataClass then return end
 
     PlayerDataClass:saveClassState()
     PlayerDataClass:removeClassCache()

@@ -11,11 +11,7 @@ local ChatCommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Se
 --[[ @end_section Imports ]]
 
 
---[[ @section Variables ]]
 local PREFIX = "do/"
-
-local ChatCmdsService = {}
---[[ @end_section Variables ]]
 
 
 --[[ @section Constructor ]]
@@ -25,21 +21,25 @@ local ChatCmdsService = {}
     @return
 ]]
 local function constructorCallback()
-    TextChatService.OnChatWindowAdded
+    local cmdDuplicatePreventionCount = 0
+
+    TextChatService.OnIncomingMessage
     = function(message: TextChatMessage)
         if not message.TextSource then return end
+
+        -- Prevent duplicate commands by not handling the duplicate signal.
+        do
+            cmdDuplicatePreventionCount += 1
+            if cmdDuplicatePreventionCount == 2 then cmdDuplicatePreventionCount = 0; return end
+        end
 
         local text = string.lower(message.Text)
         if text:sub(1, #PREFIX) ~= PREFIX then return end
 
-        local args = text:sub(#PREFIX + 1):split("/")
-        ChatCommandsNamespace.packets.ServerHandleCommandMessage.send(args)
+        local Args = text:sub(#PREFIX + 1):split("/")
+        ChatCommandsNamespace.packets.ServerHandleCommandMessage.send(Args)
     end
 end
 
-setmetatable(ChatCmdsService, { __call = constructorCallback })
+return constructorCallback
 --[[ @end_section Constructor ]]
-
-
-table.freeze(ChatCmdsService)
-return ChatCmdsService

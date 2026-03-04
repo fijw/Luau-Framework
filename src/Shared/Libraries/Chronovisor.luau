@@ -1,34 +1,13 @@
 --[[
-    @Banner
-    ```
-        ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀  
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-        █           ▄    ▄          ▀                                  █   
-        █           █  ▄▀   ▄▄▄   ▄▄▄     ▄ ▄▄   ▄▄▄    ▄▄▄            █   
-        █           █▄█    ▀   █    █     █▀  ▀ █▀ ▀█  █   ▀           █   
-        █           █  █▄  ▄▀▀▀█    █     █     █   █   ▀▀▀▄           █   
-        █           █   ▀▄ ▀▄▄▀█  ▄▄█▄▄   █     ▀█▄█▀  ▀▄▄▄▀           █   
-        █                                                              █   
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-        ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀    ▀▀▀  
+    ----------------------------------------------------
+    | @author Kairos (Roblox: @roblox_user_5618502527) |
+    | @version 1.0.2                                   |
+    | @description Library for handling sequential     |
+    | time-based tasks with advanced error handling    |
+    | and loop capabilities.                           |
+    ----------------------------------------------------
 
-        @Author Kairos (Roblox @: roblox_user_5618502527)
-        @Version 1.0.3
-    ```
-
-    @Description Executes a function and allows for error handling.
-    @Description This can be used to double check things like
-    @Description trading, or other important functions, fully
-    @Description execute their sequential actions.
-
-    @Example
+    @usage
     ```luau
         local testFnPrint
         = function(inputNum: number)
@@ -52,7 +31,7 @@
                 
             Test:afterSeconds(1):execute(testFnPrint, 2):afterSeconds(2):execute(testFnPrint, 3)
                         
-            Test:execute(testFnPrint, 4):execute(testFnPrint, 5)
+            Test:execute(testFnPrint, 4):destroy():execute(testFnPrint, 5)
         end
 
         -- Loop testing.
@@ -145,6 +124,7 @@ local HttpService = game:GetService("HttpService")
 type ChronovisorStop = "Chronovisor Stop"
 
 
+--[[ @generic_pack T... Inputted function arguments. ]]
 type ErrorCallbackType<T...> = (err: string?, T...) -> (...any)
 type ExecuteCallbackType<T...> = (T...) -> (...any)
 
@@ -168,7 +148,10 @@ type DestroyedChronovisor = setmetatable
     }
 >
 
-
+--[[
+    @generic_pack U... Inputted error function arguments.
+    @generic_pack P... Inputted execute function arguments.
+]]
 type Chronovisor = setmetatable
 <
     {

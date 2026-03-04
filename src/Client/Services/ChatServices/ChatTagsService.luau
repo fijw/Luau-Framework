@@ -1,38 +1,5 @@
---[[
-    @Framework
-    ```
-         ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ 
-        |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|
-                                                                                                    
-                                                                                                    
-         _                                                                                       _   
-        | |                     _____                   _   _                                   | |  
-        | |                    |  _  |___ ___ _____ ___| |_| |_ ___ _ _ ___                     | |  
-        | |                    |   __|  _| . |     | -_|  _|   | -_| | |_ -|                    | |  
-        | |                    |__|  |_| |___|_|_|_|___|_| |_|_|___|___|___|                    | |  
-        |_|                                                                                     |_|  
-         _                                                                                       _   
-        | |            _____     _   _            _____                                 _       | |  
-        | |     ___   | __  |___| |_| |___ _ _   |   __|___ ___ _____ ___ _ _ _ ___ ___| |_     | |  
-        | |    | .'|  |    -| . | . | | . |_'_|  |   __|  _| .'|     | -_| | | | . |  _| '_|    | |  
-        | |    |__,|  |__|__|___|___|_|___|_,_|  |__|  |_| |__,|_|_|_|___|_____|___|_| |_,_|    | |  
-        |_|                                                                                     |_|  
-         _                                                                                       _   
-        | |                           _        _          _____     _                           | |  
-        | |               _____ ___ _| |___   | |_ _ _   |  |  |___|_|___ ___ ___               | |  
-        | |              |     | .'| . | -_|  | . | | |  |    -| .'| |  _| . |_ -|              | |  
-        | |              |_|_|_|__,|___|___|  |___|_  |  |__|__|__,|_|_| |___|___|              | |  
-        |_|                                       |___|                                         |_|  
-                                                                                                    
-                                                                                                    
-         ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ 
-        |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|
-    ```
-
-    @Description TextChatServcice handler for specific rank-specific chat
-	@Description tags, and sending chat command packets to the server.
-]]
 --!strict
+--!native
 --!optimize 2
 
 
@@ -76,9 +43,6 @@ local USERNAME_COLORS
 local SpecialMessages: { SpecialMessage } = {}
 
 local accumulatedTime = 0
-
-
-local ChatTagsService = {}
 --[[ @end_section Variables ]]
 
 
@@ -199,14 +163,10 @@ end
 
 
 --[[ @section Constructor ]]
-local function constructorCallback(self: unknown)
+local function constructorCallback()
     TextChatService.OnChatWindowAdded = onChatSent
     local _renderSteppedConnection = RunService.RenderStepped:Connect(onRenderStepped)
 end
 
-setmetatable(ChatTagsService, { __call = constructorCallback })
+return constructorCallback
 --[[ @end_section Constructor ]]
-
-
-table.freeze(ChatTagsService)
-return ChatTagsService

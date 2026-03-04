@@ -8,8 +8,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
-local Compression = require(ServerScriptService.Libraries.Compression)
 local Store = require(ServerScriptService.Libraries.Store)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 --[[ @end_section Imports ]]
@@ -26,52 +24,6 @@ type PlayerDataClass<D> = Store.PlayerDataClass<D>
 --[[ @end_section Types ]]
 
 
-local ModerationDataKeys = { "banReason", "kickReason", "isBanned", "isKicked" }
-
-
---[[ @section Utility Functions ]]
---[[
-    @usage Compare the player's moderation data to the stored data.
-
-    @param PlayerDataClass PlayerDataClass<any>
-
-    @return
-]]
-local function moderationDataCheck(PlayerDataClass: PlayerDataClass<any>)
-    Chronovisor(
-        function()
-            local FetchedPlayerDataClass: StoredPlayerDataClass?
-
-            FetchedPlayerDataClass = PlayerDataClass.classDataStore:GetAsync(`{PlayerDataClass.classIdentifier}`)
-            if not FetchedPlayerDataClass then return end
-
-            -- Decompress the data and compare it.
-            do
-                local DecompressedData = {} :: { [string]: any }
-
-                for i: string, v: buffer in pairs(Compression(FetchedPlayerDataClass.Data, "decompress") :: { [string]: buffer }) do
-                    DecompressedData[i] = Compression(v, "decompress")
-                end
-
-                for i: number, key: string in ipairs(ModerationDataKeys) do
-                    if DecompressedData[key] == nil then continue end
-
-                    if not PlayerDataClass()[key] then
-                        PlayerDataClass()[key] = Reactor(DecompressedData[key])
-
-                        continue
-                    end
-
-                    if DecompressedData[key] ~= PlayerDataClass()[key]() then
-                        PlayerDataClass()[key](DecompressedData[key])
-                    end
-                end
-            end
-        end
-    )
-    :onError(function(err: string?) print(`Error checking player data class moderation data. Error: {err}`) end)
-end
-
 --[[
     @usage Kick the player and clear their moderation data.
 
@@ -83,12 +35,11 @@ end
 local function kickPlayer(player: Player, PlayerDataClass: PlayerDataClass<any>)
     local kickReason = (PlayerDataClass() :: { [string]: StateEngine<any> }).kickReason();
 
-    (PlayerDataClass() :: { [string]: StateEngine<any> }).isKicked(false);
-    (PlayerDataClass() :: { [string]: StateEngine<any> }).kickReason = nil
+    PlayerDataClass().isKicked(false);
+    PlayerDataClass().kickReason = nil
 
     player:Kick(kickReason :: string)
 end
---[[ @end_section Utility Functions ]]
 
 
 --[[
@@ -135,18 +86,6 @@ local function onPlayerAdded(player: Player)
             end
         )
     end
-
-    task.spawn(
-        function()
-            while true do
-                task.wait(10)
-
-                if (Store(player.UserId) :: any) == nil then break end
-
-                moderationDataCheck(PlayerDataClass)
-            end
-        end
-    )
 end
 
 
