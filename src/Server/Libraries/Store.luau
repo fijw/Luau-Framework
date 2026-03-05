@@ -1,10 +1,22 @@
 --[[
     ----------------------------------------------------
-    | @author Kairos (Roblox: @roblox_user_5618502527) |
+    | @author                                          |
+    | ```                                              |
+    |   Roblox: @roblox_user_5618502527                |
+    |   GitHub: @fijw                                  |
+    |   Twitter: @Xjwfi                                |
+    |   Discord: @vfjx                                 |
+    | ```                                              |
+    |                                                  |
     | @version 1.0.0                                   |
-    | @description Library for storing and retrieving  |
-    | player data. Includes features such as           |
-    | auto-saving, session locking, and reactive data. |
+    |                                                  |
+    | @description                                     |
+    | ```                                              |
+    |   Library for storing and retrieving             |
+    |   player data. Includes features such as         |
+    |   auto-saving, session locking, and reactive     |
+    |   data.                                          |
+    | ```                                              |
     ----------------------------------------------------
 
     @usage
