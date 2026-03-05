@@ -2,20 +2,21 @@
     ----------------------------------------------------
     | @author                                          |
     | ```                                              |
-    |   Roblox: @roblox_user_5618502527                |
-    |   GitHub: @fijw                                  |
-    |   Twitter: @Xjwfi                                |
-    |   Discord: @vfjx                                 |
+    |     Roblox: @roblox_user_5618502527              |
+    |     GitHub: @fijw                                |
+    |     Twitter: @Xjwfi                              |
+    |     Discord: @vfjx                               |
     | ```                                              |
     |                                                  |
     | @version 1.0.0                                   |
     |                                                  |
     | @description                                     |
     | ```                                              |
-    |   Library for compressing or                     |
-    |   decompressing data into buffers. This library  |
-    |   currently only works with data that can be     |
-    |   converted to a string format via JSONEncode.   |
+    |     Library for compressing or                   |
+    |     decompressing data into buffers. This        |
+    |     library currently only works with data that  |
+    |     can be converted to a string format via      |
+    |     JSONEncode.                                  |
     | ```                                              |
     ----------------------------------------------------
 
@@ -107,8 +108,11 @@ end
 
 --[[ @section Compression Constructor ]]
 --[[
-    @usage Compress / Decompress data. If compressionMode is true,
-    @usage data will be decompressed.
+    @usage
+    ```
+        Compress / Decompress data. If compressionMode is true,
+        data will be decompressed.
+    ```
 
     @param data any | buffer
     @param compressionMode "decompress"?

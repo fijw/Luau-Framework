@@ -2,20 +2,20 @@
     ----------------------------------------------------
     | @author                                          |
     | ```                                              |
-    |   Roblox: @roblox_user_5618502527                |
-    |   GitHub: @fijw                                  |
-    |   Twitter: @Xjwfi                                |
-    |   Discord: @vfjx                                 |
+    |     Roblox: @roblox_user_5618502527              |
+    |     GitHub: @fijw                                |
+    |     Twitter: @Xjwfi                              |
+    |     Discord: @vfjx                               |
     | ```                                              |
     |                                                  |
     | @version 1.0.0                                   |
     |                                                  |
     | @description                                     |
     | ```                                              |
-    |   Library for storing and retrieving             |
-    |   player data. Includes features such as         |
-    |   auto-saving, session locking, and reactive     |
-    |   data.                                          |
+    |     Library for storing and retrieving           |
+    |     player data. Includes features such as       |
+    |     auto-saving, session locking, and reactive   |
+    |     data.                                        |
     | ```                                              |
     ----------------------------------------------------
 

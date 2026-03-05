@@ -2,24 +2,24 @@
     ----------------------------------------------------
     | @author                                          |
     | ```                                              |
-    |   Roblox: @roblox_user_5618502527                |
-    |   GitHub: @fijw                                  |
-    |   Twitter: @Xjwfi                                |
-    |   Discord: @vfjx                                 |
+    |     Roblox: @roblox_user_5618502527              |
+    |     GitHub: @fijw                                |
+    |     Twitter: @Xjwfi                              |
+    |     Discord: @vfjx                               |
     | ```                                              |
     |                                                  |
     | @version 1.0.0                                   |
     |                                                  |
     | @description                                     |
     | ```                                              |
-    |   Library for managing reactive states. Includes |
-    |   features such as a callback to change the      |
-    |   state data or return the state data, the       |
-    |   ability to subscribe to state changes, the     |
-    |   ability to subscribe to peeks at the state     |
-    |   data, the ability to lock or unlock the state, |
-    |   and the ability to add more metamethods to the |
-    |   state.                                         |
+    |     Library for managing reactive states.        |
+    |     Includes features such as a callback to      |
+    |     change the state data or return the state    |
+    |     data, the ability to subscribe to state      |
+    |     changes, the ability to subscribe to peeks   |
+    |     at the state data, the ability to lock or    |
+    |     unlock the state, and the ability to add     |
+    |     more metamethods to the state.               |
     | ```                                              |
     ----------------------------------------------------
 
