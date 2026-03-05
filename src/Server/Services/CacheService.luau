@@ -39,7 +39,7 @@ for i: string, v: any in pairs(Settings.DATA_TEMPLATE :: { [string]: any }) do M
 
     @param player Player
 
-    @return
+    @return void
 ]]
 local function onPlayerAdded(player: Player)
     local PlayerDataClass = Store(player.UserId, ModifiedDataTemplate, Settings.PLAYER_DATA_STORAGE_KEY)
@@ -64,7 +64,7 @@ end
 
     @param player Player
 
-    @return
+    @return void
 ]]
 local function onPlayerRemoving(player: Player)
     local PlayerDataClass = Store(player.UserId)
@@ -80,7 +80,7 @@ end
 --[[
     @usage Initialize the service.
 
-    @return
+    @return void
 ]]
 local function constructorCallback()
     for i: number, player: Player in pairs(Players:GetPlayers()) do onPlayerAdded(player) end

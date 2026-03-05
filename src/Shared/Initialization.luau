@@ -22,7 +22,7 @@ local runningFrom = if isServer then "Server" else "Client"
     @param i number
     @param LoadedModules { any }
 
-    @return
+    @return void
 ]]
 local function initializeModule(module: any, i: number, LoadedModules: { any })
     Chronovisor(

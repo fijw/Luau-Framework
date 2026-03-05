@@ -145,7 +145,7 @@ end
 
     @param PlayerDataClass PlayerDataClass<any>
 
-    @return
+    @return void
 ]]
 local function autoSaveClassState(PlayerDataClass: PlayerDataClass<any>)
     while true do
@@ -166,7 +166,7 @@ end
     @param self PlayerDataClass<any>
     @param keepCurrentSessionId true?
 
-    @return
+    @return void
 ]]
 local function saveClassStateCallback(self: PlayerDataClass<any>, keepCurrentSessionId: true?): ()
     Chronovisor(
@@ -236,7 +236,7 @@ end
 
     @param self PlayerDataClass<any>
 
-    @return
+    @return void
 ]]
 local function removeClassCacheCallback(self: PlayerDataClass<any>)
     if not PlayerDataClassCache[`{self.classIdentifier}`] then
@@ -255,7 +255,7 @@ end
 
     @param self PlayerDataClass<any>
 
-    @return
+    @return any
 ]]
 local function playerDataClassCallback(self: PlayerDataClass<any>): any
     return self.Data

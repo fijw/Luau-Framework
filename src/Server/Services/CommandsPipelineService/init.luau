@@ -30,7 +30,7 @@ local CommandCallbackMap: { [string]: (sender: Player, Args: { string }) -> () }
 --[[
     @usage Initialize the service.
 
-    @return
+    @return void
 ]]
 local function constructorCallback()
     CrossServerCommandsHandler()

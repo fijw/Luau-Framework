@@ -20,6 +20,11 @@ type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the cross-server commands handling.
+
+    @return void
+]]
 local function constructorCallback()
     MessagingService:SubscribeAsync("commands",
         function

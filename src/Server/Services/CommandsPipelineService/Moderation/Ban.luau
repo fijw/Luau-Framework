@@ -37,7 +37,7 @@ local DataStore = DataStoreService:GetDataStore(Settings.PLAYER_DATA_STORAGE_KEY
     @param sender Player
     @param args { string }
 
-    @return
+    @return void
 ]]
 local function constructorCallback(sender: Player, args: { string })
     local targetId = args[1]

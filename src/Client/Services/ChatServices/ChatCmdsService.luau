@@ -18,7 +18,7 @@ local PREFIX = "do/"
 --[[
     @usage Initialize the service.
 
-    @return
+    @return void
 ]]
 local function constructorCallback()
     local cmdDuplicatePreventionCount = 0

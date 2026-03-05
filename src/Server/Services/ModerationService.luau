@@ -30,7 +30,7 @@ type PlayerDataClass<D> = Store.PlayerDataClass<D>
     @param player Player
     @param PlayerDataClass PlayerDataClass<any>
 
-    @return
+    @return void
 ]]
 local function kickPlayer(player: Player, PlayerDataClass: PlayerDataClass<any>)
     local kickReason = (PlayerDataClass() :: { [string]: StateEngine<any> }).kickReason();
@@ -47,7 +47,7 @@ end
 
     @param player Player
 
-    @return
+    @return void
 ]]
 local function onPlayerAdded(player: Player)
     repeat task.wait() until Store(player.UserId)
@@ -93,7 +93,7 @@ end
 --[[
     @usage Initialize the service.
 
-    @return
+    @return void
 ]]
 local function constructorCallback()
     for i: number, player: Player in ipairs(Players:GetPlayers()) do

@@ -106,7 +106,7 @@ end
 
     @param deltaTime number
 
-    @return
+    @return void
 ]]
 local function onRenderStepped(deltaTime: number)
 	accumulatedTime += deltaTime
@@ -163,6 +163,11 @@ end
 
 
 --[[ @section Constructor ]]
+--[[
+	@usage Initialize the service.
+
+	@return void
+]]
 local function constructorCallback()
     TextChatService.OnChatWindowAdded = onChatSent
     local _renderSteppedConnection = RunService.RenderStepped:Connect(onRenderStepped)
