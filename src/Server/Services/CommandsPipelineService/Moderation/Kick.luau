@@ -20,7 +20,7 @@ local Settings = require(ReplicatedStorage.Settings)
 
 
 --[[ @section Types ]]
-type StoredPlayerDataClass = Store.StoredPlayerDataClass
+type StoredPlayerDataClassSchema = Store.StoredPlayerDataClassSchema
 
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
@@ -64,7 +64,7 @@ local function constructorCallback(sender: Player, args: { string })
 
     Chronovisor(
         function()
-            local FetchedPlayerDataClass: StoredPlayerDataClass?
+            local FetchedPlayerDataClass: StoredPlayerDataClassSchema?
 
             FetchedPlayerDataClass = DataStore:GetAsync(targetId)
             if not FetchedPlayerDataClass then return end

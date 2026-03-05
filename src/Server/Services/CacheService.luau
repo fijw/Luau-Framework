@@ -14,14 +14,6 @@ local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
 
 
---[[ @section Types ]]
-type StoredPlayerDataClass = Store.StoredPlayerDataClass
-
---[[ @generic D Data template type. ]]
-type PlayerDataClass<D> = Store.PlayerDataClass<D>
---[[ @end_section Types ]]
-
-
 local ModifiedDataTemplate
 = {
     isBanned = false,
@@ -87,8 +79,6 @@ local function constructorCallback()
 
     Players.PlayerAdded:Connect(onPlayerAdded)
     Players.PlayerRemoving:Connect(onPlayerRemoving)
-
-    game:BindToClose(function() task.wait(1) end)
 end
 
 return constructorCallback

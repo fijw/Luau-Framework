@@ -14,8 +14,6 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 
 --[[ @section Types ]]
-type StoredPlayerDataClass = Store.StoredPlayerDataClass
-
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 

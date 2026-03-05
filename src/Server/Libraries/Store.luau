@@ -75,7 +75,7 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 
 --[[ @section Types ]]
-export type StoredPlayerDataClass
+export type StoredPlayerDataClassSchema
 = {
     Data: buffer,
     sessionId: string?
@@ -108,6 +108,8 @@ export type PlayerDataClass<D> = setmetatable
 local sessionId = game.JobId
 
 local PlayerDataClassCache = {} :: { [string]: PlayerDataClass<any> }
+
+local executedCrashHandler = false
 --[[ @end_section Variables ]]
 
 
@@ -156,6 +158,42 @@ local function autoSaveClassState(PlayerDataClass: PlayerDataClass<any>)
         PlayerDataClass:saveClassState(true)
     end
 end
+
+--[[
+    @usage
+    ```
+        Handles crashes by saving the still cached player data classes
+        to the data store.
+    ```
+
+    @return void
+]]
+local function crashHandler()
+    game:BindToClose(
+        function()
+            local numberOfPlayerDataClasses: number? = nil
+
+            repeat
+                task.wait()
+
+                for i: string, PlayerDataClass: PlayerDataClass<any> in pairs(PlayerDataClassCache) do
+                    if not numberOfPlayerDataClasses then
+                        numberOfPlayerDataClasses = 1
+
+                        continue
+                    end
+                    
+                    numberOfPlayerDataClasses += 1
+                end
+
+                if not numberOfPlayerDataClasses then break end
+                numberOfPlayerDataClasses = nil
+            until numberOfPlayerDataClasses == 0
+        end
+    )
+
+    executedCrashHandler = true
+end
 --[[ @end_section Utility Functions ]]
 
 
@@ -168,13 +206,17 @@ end
 
     @return void
 ]]
-local function saveClassStateCallback(self: PlayerDataClass<any>, keepCurrentSessionId: true?): ()
+local function saveClassStateCallback
+(
+    self: PlayerDataClass<any>,
+    keepCurrentSessionId: true?
+)
     Chronovisor(
         function()
             local savingSessionId = nil
 
             if keepCurrentSessionId == true then
-                local FetchedPlayerDataClass: StoredPlayerDataClass?
+                local FetchedPlayerDataClass: StoredPlayerDataClassSchema?
 
                 FetchedPlayerDataClass = self.classDataStore:GetAsync(self.classIdentifier)
                 if not FetchedPlayerDataClass then return end
@@ -202,7 +244,7 @@ local function saveClassStateCallback(self: PlayerDataClass<any>, keepCurrentSes
 
     :execute(
         function()
-            local FetchedPlayerDataClass: StoredPlayerDataClass? = self.classDataStore:GetAsync(`{self.classIdentifier}`)
+            local FetchedPlayerDataClass: StoredPlayerDataClassSchema? = self.classDataStore:GetAsync(`{self.classIdentifier}`)
 
             if not FetchedPlayerDataClass then
                 print("No fetched player data class after saving! Possible data mismatch.")
@@ -210,7 +252,9 @@ local function saveClassStateCallback(self: PlayerDataClass<any>, keepCurrentSes
                 return
             end
 
-            if FetchedPlayerDataClass.sessionId ~= nil and keepCurrentSessionId ~= true then print("Session ID still exists after saving!") end
+            if FetchedPlayerDataClass.sessionId ~= nil and keepCurrentSessionId ~= true then
+                print("Session ID still exists after saving!")
+            end
 
             -- Decompress the data and compare it.
             do
@@ -257,9 +301,7 @@ end
 
     @return any
 ]]
-local function playerDataClassCallback(self: PlayerDataClass<any>): any
-    return self.Data
-end
+local function playerDataClassCallback(self: PlayerDataClass<any>): any return self.Data end
 
 
 --[[ @section Constructor ]]
@@ -280,6 +322,8 @@ local function constructorCallback
     DataTemplate: D?,
     classDataStoreIdentifier: string?
 ): PlayerDataClass<D>?
+    if executedCrashHandler == false then crashHandler() end
+
     local ExistingClass = PlayerDataClassCache[`{classIdentifier}`]
     if ExistingClass or not DataTemplate or not classDataStoreIdentifier then return ExistingClass end
 
@@ -307,7 +351,7 @@ local function constructorCallback
 
     Chronovisor(
         function()
-            local FetchedPlayerDataClass: StoredPlayerDataClass? = classDataStore:GetAsync(`{classIdentifier}`)
+            local FetchedPlayerDataClass: StoredPlayerDataClassSchema? = classDataStore:GetAsync(`{classIdentifier}`)
 
             if FetchedPlayerDataClass then
                 if FetchedPlayerDataClass.sessionId ~= sessionId and FetchedPlayerDataClass.sessionId ~= nil then

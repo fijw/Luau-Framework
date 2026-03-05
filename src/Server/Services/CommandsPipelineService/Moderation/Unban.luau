@@ -16,7 +16,7 @@ local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
 
 
-type StoredPlayerDataClass = Store.StoredPlayerDataClass
+type StoredPlayerDataClassSchema = Store.StoredPlayerDataClassSchema
 
 
 local DataStore = DataStoreService:GetDataStore(Settings.PLAYER_DATA_STORAGE_KEY)
@@ -39,7 +39,7 @@ local function constructorCallback(sender: Player, args: { string })
 
     Chronovisor(
         function()
-            local FetchedPlayerDataClass: StoredPlayerDataClass?
+            local FetchedPlayerDataClass: StoredPlayerDataClassSchema?
 
             FetchedPlayerDataClass = DataStore:GetAsync(targetId)
             if not FetchedPlayerDataClass then return end
