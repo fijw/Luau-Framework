@@ -1,22 +1,24 @@
 --[[
-    ----------------------------------------------------------------------
-    | @author                                                            |
-    | ```                                                                |
-    |     Roblox: @roblox_user_5618502527                                |
-    |     GitHub: @fijw                                                  |
-    |     Twitter: @Xjwfi                                                |
-    |     Discord: @vfjx                                                 |
-    | ```                                                                |
-    |                                                                    |
-    | @version 1.0.0                                                     |
-    |                                                                    |
-    | @description                                                       |
-    | ```                                                                |
-    |     Library for compressing or decompressing data into buffers.    |
-    |     This library currently only works with data that can be        |
-    |     converted to a string format via JSONEncode.                   |
-    | ```                                                                |
-    ----------------------------------------------------------------------
+    -------------------------------------------------------------------------
+    |                                                                       |
+    |    @author                                                            |
+    |    ```                                                                |
+    |        Roblox: @roblox_user_5618502527                                |
+    |        GitHub: @fijw                                                  |
+    |        Twitter: @Xjwfi                                                |
+    |        Discord: @vfjx                                                 |
+    |    ```                                                                |
+    |                                                                       |
+    |    @version 1.0.0                                                     |
+    |                                                                       |
+    |    @description                                                       |
+    |    ```                                                                |
+    |        Library for compressing or decompressing data into buffers.    |
+    |        This library currently only works with data that can be        |
+    |        converted to a string format via JSONEncode.                   |
+    |    ```                                                                |
+    |                                                                       |
+    -------------------------------------------------------------------------
 
     @usage
     ```luau
