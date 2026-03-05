@@ -1,21 +1,21 @@
 --[[
-    ---------------------------------------------------------------------
-    | @author                                                           |
-    | ```                                                               |
-    |     Roblox: @roblox_user_5618502527                               |
-    |     GitHub: @fijw                                                 |
-    |     Twitter: @Xjwfi                                               |
-    |     Discord: @vfjx                                                |
-    | ```                                                               |
-    |                                                                   |
-    | @version 1.0.0                                                    |
-    |                                                                   |
-    | @description                                                      |
-    | ```                                                               |
-    |     Library for handling sequential time-based tasks with         |
-    |     advanced error handling and loop capabilities.                |
-    | ```                                                               |
-    ---------------------------------------------------------------------
+    ----------------------------------------------------------------------
+    | @author                                                            |
+    | ```                                                                |
+    |     Roblox: @roblox_user_5618502527                                |
+    |     GitHub: @fijw                                                  |
+    |     Twitter: @Xjwfi                                                |
+    |     Discord: @vfjx                                                 |
+    | ```                                                                |
+    |                                                                    |
+    | @version 1.0.0                                                     |
+    |                                                                    |
+    | @description                                                       |
+    | ```                                                                |
+    |     Library for handling sequential time-based tasks with          |
+    |     advanced error handling and loop capabilities.                 |
+    | ```                                                                |
+    ----------------------------------------------------------------------
 
     @usage
     ```luau
