@@ -4,9 +4,9 @@
     |    @author                                                            |
     |    ```                                                                |
     |        Roblox: @roblox_user_5618502527                                |
-    |        GitHub: @fijw                                                  |
-    |        Twitter: @Xjwfi                                                |
-    |        Discord: @vfjx                                                 |
+    |        GitHub: @fijw (k4)                                             |
+    |        Twitter: @Xjwfi (k4)                                           |
+    |        Discord: @vfjx (k4)                                            |
     |    ```                                                                |
     |                                                                       |
     |    @version 1.0.0                                                     |
@@ -90,7 +90,7 @@ export type PlayerDataClass<D> = setmetatable
         Data: D,
 
         classIdentifier: string,
-        classDataStore: DataStore
+        ClassDataStore: DataStore
     },
 
     {
@@ -162,11 +162,7 @@ local function autoSaveClassState(PlayerDataClass: PlayerDataClass<any>)
 end
 
 --[[
-    @usage
-    ```
-        Handles crashes by saving the still cached player data classes
-        to the data store.
-    ```
+    @usage Handles crashes by saving the still cached player data classes to the data store.
 
     @return void
 ]]
@@ -196,6 +192,79 @@ local function crashHandler()
 
     executedCrashHandler = true
 end
+
+--[[
+    @usage
+    ```
+        Retries saving the player data class to the data store a specified number of times until it
+        succeeds or the maximum number of attempts is reached.
+    ```
+
+    @param PlayerDataClass PlayerDataClass<any>
+    @param maxAttempts number
+    @param keepCurrentSessionId true?
+    @param newSessionId string?
+
+    @return void
+]]
+local function saveClassStateSafely
+(
+    PlayerDataClass: PlayerDataClass<any>,
+    maxAttempts: number,
+    keepCurrentSessionId: true?,
+    newSessionId: string?
+)
+    local savedSuccess = false
+    local errorWhileSaving: string?
+
+    for i: number = 1, maxAttempts do
+        -- Retry saving the player data class to the data store.
+        Chronovisor(
+            function()
+                local savingSessionId = newSessionId
+
+                if keepCurrentSessionId == true then
+                    local FetchedPlayerDataClass: StoredPlayerDataClassSchema?
+
+                    FetchedPlayerDataClass = PlayerDataClass.ClassDataStore:GetAsync(PlayerDataClass.classIdentifier)
+                    if not FetchedPlayerDataClass then return end
+
+                    savingSessionId = FetchedPlayerDataClass.sessionId
+                end
+
+                local SavingData = {}
+
+                -- Compress the class data and save it.
+                do
+                    if newSessionId then SavingData = PlayerDataClass()
+                    else
+                        for i: string, v: any in pairs(PlayerDataClass()) do
+                            SavingData[i] = Compression(v())
+                        end
+
+                        SavingData = Compression(SavingData)
+                    end
+
+                    PlayerDataClass.ClassDataStore:SetAsync(PlayerDataClass.classIdentifier,
+                        {
+                            Data = SavingData,
+                            sessionId = savingSessionId
+                        }
+                    )
+                end
+
+                savedSuccess = true
+            end
+        )
+        :onError(function(err: string?) errorWhileSaving = err end)
+
+        if savedSuccess then break end
+    end
+
+    if savedSuccess then return end
+
+    if errorWhileSaving then print(`Error while saving player data class. Error: {errorWhileSaving}`) end
+end
 --[[ @end_section Utility Functions ]]
 
 
@@ -213,49 +282,24 @@ local function saveClassStateCallback
     self: PlayerDataClass<any>,
     keepCurrentSessionId: true?
 )
+    saveClassStateSafely(self, 5, keepCurrentSessionId)
+
+    -- Ensure the data saved successfully and matches the player data class data.
     Chronovisor(
         function()
-            local savingSessionId = nil
+            local FetchedPlayerDataClass: StoredPlayerDataClassSchema? = self.ClassDataStore:GetAsync(`{self.classIdentifier}`)
 
-            if keepCurrentSessionId == true then
-                local FetchedPlayerDataClass: StoredPlayerDataClassSchema?
+            -- Ensure there is saved data and the session ID doesn't still exist if it shouldn't.
+            do
+                if not FetchedPlayerDataClass then
+                    print("No fetched player data class after saving! Possible data mismatch.")
 
-                FetchedPlayerDataClass = self.classDataStore:GetAsync(self.classIdentifier)
-                if not FetchedPlayerDataClass then return end
+                    return
+                end
 
-                savingSessionId = FetchedPlayerDataClass.sessionId
-            end
-
-            local SavingData = {}
-
-            for i: string, v: any in pairs(self()) do
-                SavingData[i] = Compression(v())
-            end
-
-            print(SavingData, "Saving player data class.")
-
-            self.classDataStore:SetAsync(`{self.classIdentifier}`,
-                {
-                    Data = Compression(SavingData),
-                    sessionId = savingSessionId
-                }
-            )
-        end
-    )
-    :onError(function(err: string?) print(`Failed to save player data class data. Error: {err}`) end)
-
-    :execute(
-        function()
-            local FetchedPlayerDataClass: StoredPlayerDataClassSchema? = self.classDataStore:GetAsync(`{self.classIdentifier}`)
-
-            if not FetchedPlayerDataClass then
-                print("No fetched player data class after saving! Possible data mismatch.")
-
-                return
-            end
-
-            if FetchedPlayerDataClass.sessionId ~= nil and keepCurrentSessionId ~= true then
-                print("Session ID still exists after saving!")
+                if FetchedPlayerDataClass.sessionId ~= nil and keepCurrentSessionId ~= true then
+                    print("Session ID still exists after saving!")
+                end
             end
 
             -- Decompress the data and compare it.
@@ -324,17 +368,20 @@ local function constructorCallback
     DataTemplate: D?,
     classDataStoreIdentifier: string?
 ): PlayerDataClass<D>?
-    if executedCrashHandler == false then crashHandler() end
+    -- Ensure the crash handler has been executed and return the existing player data class if available.
+    do
+        if executedCrashHandler == false then crashHandler() end
 
-    local ExistingClass = PlayerDataClassCache[`{classIdentifier}`]
-    if ExistingClass or not DataTemplate or not classDataStoreIdentifier then return ExistingClass end
+        local ExistingClass = PlayerDataClassCache[`{classIdentifier}`]
+        if ExistingClass or not DataTemplate or not classDataStoreIdentifier then return ExistingClass end
+    end
 
-    local classDataStore = DataStoreService:GetDataStore(classDataStoreIdentifier)
+    local ClassDataStore = DataStoreService:GetDataStore(classDataStoreIdentifier)
 
     local NewPlayerDataClass
     = {
         classIdentifier = classIdentifier,
-        classDataStore = classDataStore
+        ClassDataStore = ClassDataStore
     }
 
     setmetatable(NewPlayerDataClass, 
@@ -349,11 +396,12 @@ local function constructorCallback
         }
     )
 
-    local isInUse: boolean
+    local isInUseOrUnavailable: boolean
 
+    -- Fetch the player data class data and ensure it's not in use.
     Chronovisor(
         function()
-            local FetchedPlayerDataClass: StoredPlayerDataClassSchema? = classDataStore:GetAsync(`{classIdentifier}`)
+            local FetchedPlayerDataClass: StoredPlayerDataClassSchema? = ClassDataStore:GetAsync(`{classIdentifier}`)
 
             if FetchedPlayerDataClass then
                 if FetchedPlayerDataClass.sessionId ~= sessionId and FetchedPlayerDataClass.sessionId ~= nil then
@@ -362,7 +410,7 @@ local function constructorCallback
 
                     player:Kick(`Your data session is already in use.`)
 
-                    isInUse = true
+                    isInUseOrUnavailable = true
 
                     return
                 end
@@ -378,25 +426,24 @@ local function constructorCallback
                 NewPlayerDataClass.Data = Compression(NewPlayerDataClass.Data)
             end
 
-            isInUse = false
+            isInUseOrUnavailable = false
         end
     )
-    :onError(function(err: string?) print(`Failed to fetch compressed player data class data. Error: {err}`) end)
+    :onError(
+        function(err: string?)
+            print(`Failed to fetch compressed player data class data. Error: {err}`)
 
-    repeat task.wait() until isInUse ~= nil
-    if isInUse == true then return nil end
-
-    Chronovisor(
-        function()
-            classDataStore:SetAsync(`{classIdentifier}`,
-                {
-                    Data = NewPlayerDataClass.Data,
-                    sessionId = sessionId
-                }
-            )
+            isInUseOrUnavailable = true
         end
     )
-    :onError(function(err: string?) print(`Failed to update the player data class session id. Error: {err}`) end)
+
+    -- If available, save the new session id to the player data class.
+    do
+        repeat task.wait() until isInUseOrUnavailable ~= nil
+        if isInUseOrUnavailable == true then return nil end
+
+        saveClassStateSafely(NewPlayerDataClass :: any, 5, nil, sessionId)
+    end
 
     -- Decompress the data and make it reactive.
     do
@@ -407,11 +454,12 @@ local function constructorCallback
         end
     end
 
-    task.spawn(function() autoSaveClassState(NewPlayerDataClass :: any) end)
+    -- Add the player data class to the cache and start its auto-saving loop.
+    do
+        task.spawn(function() autoSaveClassState(NewPlayerDataClass :: any) end)
 
-    PlayerDataClassCache[`{classIdentifier}`] = (NewPlayerDataClass :: any) :: PlayerDataClass<D>
-
-    print(NewPlayerDataClass(), "New player data class created.")
+        PlayerDataClassCache[`{classIdentifier}`] = (NewPlayerDataClass :: any) :: PlayerDataClass<D>
+    end
 
     return (NewPlayerDataClass :: any) :: PlayerDataClass<D>
 end

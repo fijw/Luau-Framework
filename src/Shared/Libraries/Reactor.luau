@@ -4,9 +4,9 @@
     |    @author                                                            |
     |    ```                                                                |
     |        Roblox: @roblox_user_5618502527                                |
-    |        GitHub: @fijw                                                  |
-    |        Twitter: @Xjwfi                                                |
-    |        Discord: @vfjx                                                 |
+    |        GitHub: @fijw (k4)                                             |
+    |        Twitter: @Xjwfi (k4)                                           |
+    |        Discord: @vfjx (k4)                                            |
     |    ```                                                                |
     |                                                                       |
     |    @version 1.0.0                                                     |
