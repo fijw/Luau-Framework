@@ -253,7 +253,7 @@ type StateEngine<S> = setmetatable
     @return AbstractedStateEngine<any>
 ]]
 local function subscribeCallback
-<D>(
+(
     self: AbstractedStateEngine<any>,
     callback: SubscriptionCallbackType<AbstractedStateEngine<any>, any>,
     once: true?
