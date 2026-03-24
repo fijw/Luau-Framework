@@ -3,9 +3,9 @@
 --!optimize 2
 
 
-local Settings
+local DataSettings
 = {
-    DATA_TEMPLATE
+    DataTemplate
     = {
         Inventory
         = {
@@ -32,5 +32,5 @@ local Settings
 }
 
 
-table.freeze(Settings)
-return Settings
+table.freeze(DataSettings)
+return DataSettings

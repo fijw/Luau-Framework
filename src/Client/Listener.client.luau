@@ -11,15 +11,18 @@ local Initialization = require(ReplicatedStorage.Initialization)
 
 local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.LoadClient)
 
-local ChatTagsService = StarterPlayer.StarterPlayerScripts.Services.ChatServices.ChatTagsService
-local ChatCmdsService = StarterPlayer.StarterPlayerScripts.Services.ChatServices.ChatCmdsService
+local ChatTagsService = StarterPlayer.StarterPlayerScripts.Services.ChatTagsService
+local FlyingService = StarterPlayer.StarterPlayerScripts.Services.FlyingService
+local PermissionsDisplayService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.PermissionsDisplayService
+local CommandConsoleUIService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIService
 --[[ @end_section Imports ]]
 
 
-local ModulesToLoad = { ChatTagsService, ChatCmdsService }
+local ModulesToLoad = { ChatTagsService, FlyingService, PermissionsDisplayService, CommandConsoleUIService }
 
 
-LoadClientNamespace.packets.LoadClientModules.listenOnce(
+LoadClientNamespace.packets.LoadClientModules
+.listenOnce(
     function(data: nil, player: Player?)
         if not Initialization(ModulesToLoad :: { ModuleScript }) then print("Failed to initialize client modules.") end
     end

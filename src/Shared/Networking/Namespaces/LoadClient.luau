@@ -13,7 +13,7 @@ local ByteNetMax = require(ReplicatedStorage.Networking["ByteNet-Max"])
     @NOTE No type checking here.
     The new Luau Type Solver hates ByteNet-Max.
 ]]
-function loadingNamespace()
+local function loadingNamespace()
     local LoadingNamespace
     = {
         packets

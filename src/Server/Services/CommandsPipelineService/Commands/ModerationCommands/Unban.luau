@@ -8,9 +8,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreService = game:GetService("DataStoreService")
 
+local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.Compression)
 local Store = require(ServerScriptService.Libraries.Store)
+
+local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 
 local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
@@ -19,7 +23,7 @@ local Settings = require(ReplicatedStorage.Settings)
 type StoredPlayerDataClassSchema = Store.StoredPlayerDataClassSchema
 
 
-local DataStore = DataStoreService:GetDataStore(Settings.PLAYER_DATA_STORAGE_KEY)
+local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
 
 
 --[[ @section Constructor ]]
@@ -37,6 +41,8 @@ local function constructorCallback(sender: Player, args: { string })
 
     table.remove(args, 1)
 
+    local reason = table.concat(args, " ")
+
     Chronovisor(
         function()
             local FetchedPlayerDataClass: StoredPlayerDataClassSchema?
@@ -52,6 +58,7 @@ local function constructorCallback(sender: Player, args: { string })
                     DecompressedData[i] = Compression(v, "decompress")
                 end
 
+                DecompressedData.banDuration = nil
                 DecompressedData.banReason = nil
                 DecompressedData.isBanned = false
             end
@@ -74,6 +81,18 @@ local function constructorCallback(sender: Player, args: { string })
         end
     )
     :onError(function(err: string?) print(`Error updating player data class moderation data. Error: {err}`) end)
+
+    CommandsNamespace.packets.DisplayConsoleResponse
+    .sendTo(
+        {
+            response = `Changed [{targetId}]'s data to be unbanned. Reason: "{reason}".`,
+            color = "white"
+        },
+        
+        sender
+    )
+
+    LogsHandler("Unban", sender.UserId, tonumber(targetId) :: number, reason)
 end
 
 return constructorCallback

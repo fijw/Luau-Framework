@@ -108,11 +108,7 @@ end
 
 --[[ @section Compression Constructor ]]
 --[[
-    @usage
-    ```
-        Compress / Decompress data. If compressionMode is true,
-        data will be decompressed.
-    ```
+    @usage Compress / Decompress data. If compressionMode is true, data will be decompressed.
 
     @param data any | buffer
     @param compressionMode "decompress"?

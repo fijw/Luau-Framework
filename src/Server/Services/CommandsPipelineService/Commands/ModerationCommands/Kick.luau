@@ -9,9 +9,13 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 
+local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+
 local Compression = require(ServerScriptService.Libraries.Compression)
 local Store = require(ServerScriptService.Libraries.Store)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+
+local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 --[[ @end_section Imports ]]
 
 
@@ -29,7 +33,7 @@ type StateEngine<T> = Reactor.AbstractedStateEngine<T>
     @return void
 ]]
 local function constructorCallback(sender: Player, args: { string })
-    local targetId = args[1]
+    local targetId = tonumber(args[1]) :: number
     if not targetId then return end
 
     table.remove(args, 1)
@@ -38,28 +42,52 @@ local function constructorCallback(sender: Player, args: { string })
 
     -- If the player is in this server, update their player data class here.
     do
-        local player = Players:GetPlayerByUserId(tonumber(targetId) :: number)
+        local player = Players:GetPlayerByUserId(targetId)
         
         if player then
-            local PlayerDataClass = Store(tonumber(targetId) :: number)
+            local PlayerDataClass = Store(targetId)
             if not PlayerDataClass then return end
 
             (PlayerDataClass() :: { [string]: StateEngine<any> }).kickReason = Reactor(reason);
             (PlayerDataClass() :: { [string]: StateEngine<any> }).isKicked(true)
 
+            CommandsNamespace.packets.DisplayConsoleResponse
+            .sendTo(
+                {
+                    response = `Kicked [{targetId}] in this server. Reason: "{reason}".`,
+                    color = "white"
+                },
+                
+                sender
+            )
+
+            LogsHandler("Kick", sender.UserId, targetId, reason)
+
             return
         end
     end
 
+    CommandsNamespace.packets.DisplayConsoleResponse
+    .sendTo(
+        {
+            response = `Sending a global request to kick [{targetId}]. Reason: "{reason}".`,
+            color = "white"
+        },
+        
+        sender
+    )
+
     MessagingService:PublishAsync("commands",
         Compression(
             {
-                targetId = tonumber(targetId) :: number,
+                targetId = targetId,
                 commandType = "kick",
                 reason = reason
             }
         )
     )
+
+    LogsHandler("Kick", sender.UserId, targetId, reason)
 end
 
 return constructorCallback

@@ -1,0 +1,148 @@
+--!strict
+--!native
+--!optimize 2
+
+
+--[[ @section Imports ]]
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
+local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
+
+local Components = require(script.Components)
+
+local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+
+local Settings = require(ReplicatedStorage.Settings)
+
+local InputMapper = require(StarterPlayerScripts.Libraries.InputMapper)
+--[[ @end_section Imports ]]
+
+
+local localPlayer = Players.LocalPlayer :: Player
+local PlayerGui = localPlayer:WaitForChild("PlayerGui")
+
+
+--[[ @section Constructor ]]
+--[[
+    @usage Handles displaying the commands list UI.
+    
+    @return void
+]]
+local function constructorCallback()
+    local currentInputBoxConnection: RBXScriptConnection?
+    local currentCommandsBar: ScreenGui?
+    local currentInputBox: TextBox?
+
+    InputMapper(true, Enum.KeyCode.F2,
+        function()
+            if PlayerGui:FindFirstChild(Components.CommandsBar.Name) then
+                if currentCommandsBar then
+                    currentCommandsBar.Enabled = not currentCommandsBar.Enabled
+
+                    if not currentCommandsBar.Enabled then
+                        if currentInputBox then currentInputBox:ReleaseFocus() end
+                    else
+                        if currentInputBox then currentInputBox:CaptureFocus() end
+                    end
+                end
+
+                return
+            end
+
+            currentCommandsBar = Components.CommandsBar:Clone()
+            currentCommandsBar.Parent = PlayerGui
+
+            local clonedMainFrame = currentCommandsBar:WaitForChild("MainFrame") :: Frame
+            local clonedScrollingFrame = clonedMainFrame:WaitForChild("ScrollingFrame") :: ScrollingFrame
+            local clonedInputFrame = clonedScrollingFrame:WaitForChild("InputFrame") :: Frame
+            local clonedResponseTemplate = clonedScrollingFrame:WaitForChild("ResponseTemplate") :: Frame
+            local clonedPermissionsTitle = clonedInputFrame:WaitForChild("PermissionsTitle") :: TextLabel
+            local clonedUIListLayout = clonedScrollingFrame:WaitForChild("UIListLayout") :: UIListLayout
+
+            local idPermissions = Settings.ChatSettings.ChatCommandSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
+            local rankPermissions = Settings.ChatSettings.ChatCommandSettings.RanksWithCommandPermissions[localPlayer:GetRankInGroupAsync(game.CreatorId)]
+
+            if idPermissions or rankPermissions then
+                clonedPermissionsTitle.Text = `{idPermissions or rankPermissions}@cmcs`
+            else
+                clonedPermissionsTitle.Text = "player@cmcs"
+            end
+
+            currentInputBox = clonedInputFrame:WaitForChild("InputBox") :: TextBox
+            currentInputBox:CaptureFocus()
+
+            clonedResponseTemplate.Visible = false
+
+            -- Set up the input box and response connections.
+            do
+                currentInputBoxConnection = currentInputBox.FocusLost
+                :Connect(
+                    function(enterPressed: boolean, Input: InputObject)
+                        if not enterPressed or not currentInputBox then return end
+
+                        local lowerText = if currentInputBox then currentInputBox.Text:lower() else nil
+
+                        if lowerText == "close" then
+                            if currentInputBoxConnection then currentInputBoxConnection:Disconnect() end
+                            if currentCommandsBar then currentCommandsBar:Destroy() end
+
+                            CommandsNamespace.packets.DisplayConsoleResponse.disconnectAll()
+                        end
+
+                        local splitText = string.split(if lowerText then lowerText else "", " ")
+                        CommandsNamespace.packets.ServerHandleCommand.send(splitText)
+
+                        if currentInputBox then currentInputBox:CaptureFocus() end
+
+                        if currentInputBox then repeat task.wait() until currentInputBox:IsFocused() end
+                        if currentInputBox then currentInputBox.Text = "" end
+                    end
+                )
+
+                --local StoredResponses = {}
+
+                CommandsNamespace.packets.DisplayConsoleResponse
+                .listen(
+                    function(
+                        data
+                        : {
+                            response: string,
+                            color: string
+                        }
+                    )
+                        local newResponse = clonedResponseTemplate:Clone()
+                        newResponse.Visible = true
+                        newResponse.Parent = clonedScrollingFrame
+
+                        local newResponseText = newResponse:WaitForChild("TextLabel") :: TextLabel
+                        newResponseText.Text = data.response
+
+                        if data.color == "red" then
+                            newResponseText.TextColor3 = Color3.fromRGB(255, 100, 100)
+                        elseif data.color == "yellow" then
+                            newResponseText.TextColor3 = Color3.fromRGB(255, 255, 100)
+                        else
+                            newResponseText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        end
+
+                        clonedScrollingFrame.CanvasSize = UDim2.fromOffset(0, clonedUIListLayout.AbsoluteContentSize.Y)
+                        clonedScrollingFrame.CanvasPosition = Vector2.new(0, 999999)
+                    end
+                )
+
+                CommandsNamespace.packets.ChangeCmdPermissionsTxt
+                .listen(
+                    function(data: string)
+                        if rankPermissions or idPermissions then return end
+                        
+                        clonedPermissionsTitle.Text = `{data}@cmcs`
+                    end
+                )
+            end
+        end
+    )
+end
+
+return constructorCallback
+--[[ @end_section Constructor ]]

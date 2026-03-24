@@ -22,7 +22,7 @@ local ModifiedDataTemplate
 
 
 -- Modifying the settings data template.
-for i: string, v: any in pairs(Settings.DATA_TEMPLATE :: { [string]: any }) do ModifiedDataTemplate[i] = v end
+for i: string, v: any in pairs(Settings.DataSettings.DataTemplate :: { [string]: any }) do ModifiedDataTemplate[i] = v end
 
 
 --[[ @section Adding and Removing Player Functions ]]
@@ -34,7 +34,7 @@ for i: string, v: any in pairs(Settings.DATA_TEMPLATE :: { [string]: any }) do M
     @return void
 ]]
 local function onPlayerAdded(player: Player)
-    local PlayerDataClass = Store(player.UserId, ModifiedDataTemplate, Settings.PLAYER_DATA_STORAGE_KEY)
+    local PlayerDataClass = Store(player.UserId, ModifiedDataTemplate, Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
     if not PlayerDataClass then return end
 
     task.spawn(
@@ -64,6 +64,11 @@ local function onPlayerRemoving(player: Player)
 
     PlayerDataClass:saveClassState()
     PlayerDataClass:removeClassCache()
+
+    local foundFunPermissionsIndex = table.find(Settings.ServerUsersWithFunCommands, player.UserId)
+    if not foundFunPermissionsIndex then return end
+
+    table.remove(Settings.ServerUsersWithFunCommands, foundFunPermissionsIndex)
 end
 --[[ @end_section Adding and Removing Player Functions ]]
 

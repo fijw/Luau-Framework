@@ -22,6 +22,16 @@ type PlayerDataClass<D> = Store.PlayerDataClass<D>
 --[[ @end_section Types ]]
 
 
+local SecondsPerUnit
+= {
+    minutes = 60,
+    hours = 60 * 60,
+    days = 60 * 60 * 24,
+    years = 60 * 60 * 24 * 365
+}
+
+
+--[[ @section Utility Functions ]]
 --[[
     @usage Kick the player and clear their moderation data.
 
@@ -36,8 +46,47 @@ local function kickPlayer(player: Player, PlayerDataClass: PlayerDataClass<any>)
     PlayerDataClass().isKicked(false);
     PlayerDataClass().kickReason = nil
 
-    player:Kick(kickReason :: string)
+    player:Kick(`\n\nYou have been kicked.\n\nReason: "{kickReason :: string}".\n\n\n`)
 end
+
+--[[
+    @usage Format time to a human readable format.
+
+    @param seconds number
+
+    @return string
+]]
+local function formatTime(seconds: number): string
+    local years = math.floor(seconds / SecondsPerUnit.years)
+    seconds = seconds % SecondsPerUnit.years
+
+    local days = math.floor(seconds / SecondsPerUnit.days)
+    seconds = seconds % SecondsPerUnit.days
+
+    local hours = math.floor(seconds / SecondsPerUnit.hours)
+    seconds = seconds % (SecondsPerUnit.hours)
+
+    local minutes = math.floor(seconds / SecondsPerUnit.minutes)
+    seconds = seconds % SecondsPerUnit.minutes
+
+    local result = {}
+
+    -- Get the time results.
+    do
+        local yearsTag = if years == 1 then "year" else "years"
+        local daysTag = if days == 1 then "day" else "days"
+        local hoursTag = if hours == 1 then "hour" else "hours"
+        local minutesTag = if minutes == 1 then "minute" else "minutes"
+
+        if years > 0 then table.insert(result, `{years} {yearsTag}`) end
+        if days > 0 then table.insert(result, `{days} {daysTag}`) end
+        if hours > 0 then table.insert(result, `{hours} {hoursTag}`) end
+        if minutes > 0 then table.insert(result, `{minutes} {minutesTag}`) end
+    end
+
+    return table.concat(result, " ")
+end
+--[[ @end_section Utility Functions ]]
 
 
 --[[
@@ -56,7 +105,18 @@ local function onPlayerAdded(player: Player)
     -- Check for existing moderation data.
     do
         if (PlayerDataClass() :: { [string]: StateEngine<any> }).isBanned() then
-            player:Kick((PlayerDataClass() :: { [string]: any }).banReason())
+            if (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration ~= nil then
+                if os.time() >= (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration() then
+                    (PlayerDataClass() :: { [string]: StateEngine<any> }).isBanned = Reactor(false);
+                    (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration = nil
+                    (PlayerDataClass() :: { [string]: StateEngine<any> }).banReason = nil
+                else
+                    local timeLeft = (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration() - os.time()
+                    player:Kick(`\n\nYou have been temporarily banned.\n\nDuration Left: {formatTime(timeLeft)}.\n\nReason: "{(PlayerDataClass() :: { [string]: any }).banReason()}".\n\n\n`)
+                end
+            else
+                player:Kick(`\n\nYou have been permanently banned.\n\nReason: "{(PlayerDataClass() :: { [string]: any }).banReason()}".\n\n\n`)
+            end
         end
 
         if (PlayerDataClass() :: { [string]: StateEngine<any> }).isKicked() then
@@ -71,7 +131,12 @@ local function onPlayerAdded(player: Player)
             function(self, data, key, ...)
                 if data ~= true then return end
 
-                player:Kick((PlayerDataClass() :: { [string]: any }).banReason())
+                if (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration ~= nil then
+                    local timeLeft = (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration() - os.time()
+                    player:Kick(`\n\nYou have been temporarily banned.\n\nDuration Left: {formatTime(timeLeft)}.\n\nReason: "{(PlayerDataClass() :: { [string]: any }).banReason()}".\n\n\n`)
+                else
+                    player:Kick(`\n\nYou have been permanently banned.\n\nReason: "{(PlayerDataClass() :: { [string]: any }).banReason()}".\n\n\n`)
+                end
             end
         );
 

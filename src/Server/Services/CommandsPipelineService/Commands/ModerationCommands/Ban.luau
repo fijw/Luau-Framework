@@ -10,10 +10,14 @@ local DataStoreService = game:GetService("DataStoreService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 
+local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.Compression)
 local Store = require(ServerScriptService.Libraries.Store)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+
+local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 
 local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
@@ -27,7 +31,7 @@ type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 --[[ @end_section Types ]]
 
 
-local DataStore = DataStoreService:GetDataStore(Settings.PLAYER_DATA_STORAGE_KEY)
+local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
 
 
 --[[ @section Constructor ]]
@@ -40,7 +44,7 @@ local DataStore = DataStoreService:GetDataStore(Settings.PLAYER_DATA_STORAGE_KEY
     @return void
 ]]
 local function constructorCallback(sender: Player, args: { string })
-    local targetId = args[1]
+    local targetId = tonumber(args[1]) :: number
     if not targetId then return end
 
     table.remove(args, 1)
@@ -49,14 +53,26 @@ local function constructorCallback(sender: Player, args: { string })
 
     -- If the player is in this server, update their player data class here.
     do
-        local player = Players:GetPlayerByUserId(tonumber(targetId) :: number)
+        local player = Players:GetPlayerByUserId(targetId)
         
         if player then
-            local PlayerDataClass = Store(tonumber(targetId) :: number)
+            local PlayerDataClass = Store(targetId)
             if not PlayerDataClass then return end
 
             (PlayerDataClass() :: { [string]: StateEngine<any> }).banReason = Reactor(reason);
             (PlayerDataClass() :: { [string]: StateEngine<any> }).isBanned(true)
+
+            CommandsNamespace.packets.DisplayConsoleResponse
+            .sendTo(
+                {
+                    response = `Banned [{targetId}] in this server. Reason: "{reason}".`,
+                    color = "white"
+                },
+                
+                sender
+            )
+
+            LogsHandler("Ban", sender.UserId, targetId, reason)
 
             return
         end
@@ -66,7 +82,7 @@ local function constructorCallback(sender: Player, args: { string })
         function()
             local FetchedPlayerDataClass: StoredPlayerDataClassSchema?
 
-            FetchedPlayerDataClass = DataStore:GetAsync(targetId)
+            FetchedPlayerDataClass = DataStore:GetAsync(`{targetId}`)
             if not FetchedPlayerDataClass then return end
 
             local DecompressedData = {}
@@ -89,7 +105,7 @@ local function constructorCallback(sender: Player, args: { string })
                     RecompressedData[i] = Compression(v)
                 end
 
-                DataStore:SetAsync(targetId,
+                DataStore:SetAsync(`{targetId}`,
                     {
                         Data = Compression(RecompressedData),
                         currentSessionId = FetchedPlayerDataClass.currentSessionId
@@ -99,16 +115,28 @@ local function constructorCallback(sender: Player, args: { string })
         end
     )
     :onError(function(err: string?) print(`Error updating player data class moderation data. Error: {err}`) end)
+    
+    CommandsNamespace.packets.DisplayConsoleResponse
+    .sendTo(
+        {
+            response = `Sending a global request to ban [{targetId}]. Reason: "{reason}".`,
+            color = "white"
+        },
+        
+        sender
+    )
 
     MessagingService:PublishAsync("commands",
         Compression(
             {
-                targetId = tonumber(targetId) :: number,
+                targetId = targetId,
                 commandType = "ban",
                 reason = reason
             }
         )
     )
+
+    LogsHandler("Ban", sender.UserId, targetId, reason)
 end
 
 return constructorCallback
