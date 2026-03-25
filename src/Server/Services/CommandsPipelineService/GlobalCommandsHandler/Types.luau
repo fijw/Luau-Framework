@@ -6,8 +6,9 @@
 export type DecompressedDataSchema
 = {
     targetId: number?,
-    commandType: "ban" | "kick" | "bring_player_to_server",
+    commandType: "ban" | "kick" | "bring_player_to_server" | "temp_ban",
     reason: string?,
+    duration: number?,
     senderId: number?
 }
 

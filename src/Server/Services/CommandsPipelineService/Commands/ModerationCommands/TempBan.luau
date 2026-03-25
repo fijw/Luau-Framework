@@ -14,7 +14,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.Compression)
-local Store = require(ServerScriptService.Libraries.Store)
+local DataLib = require(ServerScriptService.Libraries.DataLib)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
@@ -24,7 +24,7 @@ local Settings = require(ReplicatedStorage.Settings)
 
 
 --[[ @section Types ]]
-type StoredPlayerDataClassSchema = Store.StoredPlayerDataClassSchema
+type StoredDataClassSchema = DataLib.StoredDataClassSchema
 
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
@@ -96,17 +96,18 @@ local function constructorCallback(sender: Player, args: { string })
         local player = Players:GetPlayerByUserId(targetId)
         
         if player then
-            local PlayerDataClass = Store(targetId)
+            local PlayerDataClass = DataLib(player)
             if not PlayerDataClass then return end
 
-            (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration = Reactor(addTimeUp(timeInteger, timeFrame));
-            (PlayerDataClass() :: { [string]: StateEngine<any> }).banReason = Reactor(reason);
-            (PlayerDataClass() :: { [string]: StateEngine<any> }).isBanned(true)
+            PlayerDataClass().ModerationData(addTimeUp(timeInteger, timeFrame), "banDuration", "BanData")
+            PlayerDataClass().ModerationData(false, "permanent", "BanData")
+            PlayerDataClass().ModerationData(reason, "banReason", "BanData")
+            PlayerDataClass().ModerationData(true, "isBanned", "BanData")
 
             CommandsNamespace.packets.DisplayConsoleResponse
             .sendTo(
                 {
-                    response = `Temporarily banned [{targetId}] in this server. Duration: {timeInteger} {timeFrame}. Reason: "{reason}".`,
+                    response = `Temporarily banned [{targetId}]. Duration: {timeInteger} {timeFrame}. Reason: "{reason}".`,
                     color = "white"
                 },
                 
@@ -115,69 +116,111 @@ local function constructorCallback(sender: Player, args: { string })
 
             LogsHandler("Ban", sender.UserId, targetId, reason)
 
+            CommandsNamespace.packets.DisplayConsoleResponse
+            .sendTo(
+                {
+                    response = `Your moderation action for {targetId} has been logged.`,
+                    color = "blue"
+                },
+                
+                sender
+            )
+
             return
         end
     end
 
-    Chronovisor(
-        function()
-            local FetchedPlayerDataClass: StoredPlayerDataClassSchema?
+    local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
+    if not AsyncData then return end
 
-            FetchedPlayerDataClass = DataStore:GetAsync(`{targetId}`)
-            if not FetchedPlayerDataClass then return end
+    if AsyncData.inUse then
+        MessagingService:PublishAsync("commands",
+            Compression(
+                {
+                    targetId = targetId,
+                    commandType = "temp_ban",
+                    reason = reason,
+                    duration = addTimeUp(timeInteger, timeFrame)
+                }
+            )
+        )
 
-            local DecompressedData = {}
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Sent a global request to temporarily ban [{targetId}]. Duration: {timeInteger} {timeFrame}. Reason: "{reason}".`,
+                color = "white"
+            },
+            
+            sender
+        )
 
-            -- Decompressing the data and modifying it.
-            do
-                for i: string, v: buffer in pairs(Compression(FetchedPlayerDataClass.Data, "decompress") :: { [string]: buffer }) do
-                    DecompressedData[i] = Compression(v, "decompress")
-                end
+        LogsHandler("Ban", sender.UserId, targetId, reason)
 
-                DecompressedData.banReason = reason
-                DecompressedData.isBanned = true
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Your moderation action for {targetId} has been logged.`,
+                color = "blue"
+            },
+            
+            sender
+        )
+    else
+        local ModifyingData = {}
+
+        -- Decompressing the data and modifying it.
+        do
+            for i: string, v: any in pairs(Compression(AsyncData.Data, "decompress") :: { [string]: any }) do
+                ModifyingData[i] = Compression(v, "decompress")
             end
 
-            -- Compressing the decompressed data and saving it.
-            do
-                local RecompressedData = DecompressedData
+            ModifyingData.ModerationData.BanData.isBanned = true
+            ModifyingData.ModerationData.BanData.permanent = false
+            ModifyingData.ModerationData.BanData.banDuration = addTimeUp(timeInteger, timeFrame)
+            ModifyingData.ModerationData.BanData.banReason = reason
+        end
 
-                for i: string, v: any in pairs(RecompressedData :: { [string]: any }) do
-                    RecompressedData[i] = Compression(v)
-                end
+        local SavingData = {}
+    
+        for i: string, v: any in pairs(ModifyingData) do
+            SavingData[i] = Compression(v)
+        end
 
+        Chronovisor(
+            function()
                 DataStore:SetAsync(`{targetId}`,
                     {
-                        Data = Compression(RecompressedData),
-                        currentSessionId = FetchedPlayerDataClass.currentSessionId
+                        Data = Compression(SavingData),
+                        inUse = AsyncData.inUse
                     }
                 )
             end
-        end
-    )
-    :onError(function(err: string?) print(`Error updating player data class moderation data. Error: {err}`) end)
-    
-    CommandsNamespace.packets.DisplayConsoleResponse
-    .sendTo(
-        {
-            response = `Sending a global request to temporarily ban [{targetId}]. Duration: {timeInteger} {timeFrame}. Reason: "{reason}".`,
-            color = "white"
-        },
-        
-        sender
-    )
-
-    MessagingService:PublishAsync("commands",
-        Compression(
-            {
-                targetId = targetId,
-                commandType = "ban",
-                reason = reason
-            }
         )
-    )
+        :onError(function(err: string?) print(`Failed to save moderation data changes. Error: {err}`) end)
 
-    LogsHandler("Ban", sender.UserId, targetId, reason)
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Changed [{targetId}]'s stored data to be temporarily banned. Reason: "{reason}".`,
+                color = "white"
+            },
+            
+            sender
+        )
+
+        LogsHandler("Ban", sender.UserId, targetId, reason)
+
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Your moderation action for {targetId} has been logged.`,
+                color = "blue"
+            },
+            
+            sender
+        )
+    end
 end
 
 return constructorCallback

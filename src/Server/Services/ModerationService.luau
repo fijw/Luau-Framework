@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Store = require(ServerScriptService.Libraries.Store)
+local DataLib = require(ServerScriptService.Libraries.DataLib)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 --[[ @end_section Imports ]]
 
@@ -17,13 +17,13 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 
---[[ @generic D Data template type. ]]
-type PlayerDataClass<D> = Store.PlayerDataClass<D>
+type DataClass = DataLib.DataClass
 --[[ @end_section Types ]]
 
 
 local SecondsPerUnit
 = {
+    seconds = 1,
     minutes = 60,
     hours = 60 * 60,
     days = 60 * 60 * 24,
@@ -32,23 +32,6 @@ local SecondsPerUnit
 
 
 --[[ @section Utility Functions ]]
---[[
-    @usage Kick the player and clear their moderation data.
-
-    @param player Player
-    @param PlayerDataClass PlayerDataClass<any>
-
-    @return void
-]]
-local function kickPlayer(player: Player, PlayerDataClass: PlayerDataClass<any>)
-    local kickReason = (PlayerDataClass() :: { [string]: StateEngine<any> }).kickReason();
-
-    PlayerDataClass().isKicked(false);
-    PlayerDataClass().kickReason = nil
-
-    player:Kick(`\n\nYou have been kicked.\n\nReason: "{kickReason :: string}".\n\n\n`)
-end
-
 --[[
     @usage Format time to a human readable format.
 
@@ -69,7 +52,7 @@ local function formatTime(seconds: number): string
     local minutes = math.floor(seconds / SecondsPerUnit.minutes)
     seconds = seconds % SecondsPerUnit.minutes
 
-    local result = {}
+    local Results = {}
 
     -- Get the time results.
     do
@@ -77,93 +60,144 @@ local function formatTime(seconds: number): string
         local daysTag = if days == 1 then "day" else "days"
         local hoursTag = if hours == 1 then "hour" else "hours"
         local minutesTag = if minutes == 1 then "minute" else "minutes"
+        local secondsTag = if seconds == 1 then "second" else "seconds"
 
-        if years > 0 then table.insert(result, `{years} {yearsTag}`) end
-        if days > 0 then table.insert(result, `{days} {daysTag}`) end
-        if hours > 0 then table.insert(result, `{hours} {hoursTag}`) end
-        if minutes > 0 then table.insert(result, `{minutes} {minutesTag}`) end
+        if years > 0 then
+            if days > 0 then
+                table.insert(Results, `{years} {yearsTag},`)
+            else
+                table.insert(Results, `{years} {yearsTag}`)
+            end
+        end
+
+        if days > 0 then
+            if hours > 0 then
+                table.insert(Results, `{days} {daysTag},`)
+            else
+                table.insert(Results, `{days} {daysTag}`)
+            end 
+        end
+
+        if hours > 0 then
+            if minutes > 0 then
+                table.insert(Results, `{hours} {hoursTag},`)
+            else
+                table.insert(Results, `{hours} {hoursTag}`)
+            end
+        end
+
+        if minutes > 0 then
+            if seconds > 0 then
+                table.insert(Results, `{minutes} {minutesTag} and`)
+            else
+                table.insert(Results, `{minutes} {minutesTag}`)
+            end
+        end
+
+        if seconds > 0 then table.insert(Results, `{seconds} {secondsTag}`) end
     end
 
-    return table.concat(result, " ")
+    return table.concat(Results, " ")
+end
+
+--[[
+    @usage Kick a banned player.
+
+    @param player Player
+    @param isPermanent boolean
+    @param banDuration number
+    @param banReason string
+
+    @return void
+]]
+local function kickBannedPlayer(player: Player, isPermanent: boolean, banDuration: number, banReason: string)
+    if isPermanent == true then
+        if banReason == "" then
+            player:Kick(`\n\nYou have been permanently banned.\nThere is no reason attached to this ban.\n\n\n`)
+        else
+            player:Kick(`\n\nYou have been permanently banned.\nReason: "{banReason}".\n\n\n`)
+        end
+    else
+        local timeLeft = banDuration - os.time()
+
+        if banReason == "" then
+            player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nThere is no reason attached to this ban.\n\n\n`)
+        else
+            player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nReason: "{banReason}".\n\n\n`)
+        end
+    end
 end
 --[[ @end_section Utility Functions ]]
 
 
---[[
-    @usage Check for moderation data or moderation data changes.
+--[[ @section Constructor ]]
+local function constructorCallback()
+    local function onPlayerAdded(player: Player)
+        local PlrDataClass = DataLib(player)
+        if not PlrDataClass then return end
 
-    @param player Player
-
-    @return void
-]]
-local function onPlayerAdded(player: Player)
-    repeat task.wait() until Store(player.UserId)
-
-    local PlayerDataClass = Store(player.UserId)
-    if not PlayerDataClass then return end
-
-    -- Check for existing moderation data.
-    do
-        if (PlayerDataClass() :: { [string]: StateEngine<any> }).isBanned() then
-            if (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration ~= nil then
-                if os.time() >= (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration() then
-                    (PlayerDataClass() :: { [string]: StateEngine<any> }).isBanned = Reactor(false);
-                    (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration = nil
-                    (PlayerDataClass() :: { [string]: StateEngine<any> }).banReason = nil
-                else
-                    local timeLeft = (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration() - os.time()
-                    player:Kick(`\n\nYou have been temporarily banned.\n\nDuration Left: {formatTime(timeLeft)}.\n\nReason: "{(PlayerDataClass() :: { [string]: any }).banReason()}".\n\n\n`)
-                end
-            else
-                player:Kick(`\n\nYou have been permanently banned.\n\nReason: "{(PlayerDataClass() :: { [string]: any }).banReason()}".\n\n\n`)
-            end
+        if (PlrDataClass().ModerationData :: any) == nil then
+            PlrDataClass().ModerationData
+            = Reactor(
+                {
+                    BanData
+                    = {
+                        isBanned = false,
+                        permanent = false,
+                        banDuration = 0,
+                        banReason = ""
+                    }
+                }
+            )
         end
 
-        if (PlayerDataClass() :: { [string]: StateEngine<any> }).isKicked() then
-            kickPlayer(player, PlayerDataClass)
-        end
-    end
-
-    -- Subscribe to moderation data changes.
-    do
-        (PlayerDataClass() :: { [string]: StateEngine<any> }).isBanned
+        PlrDataClass().ModerationData
         :subscribe(
             function(self, data, key, ...)
-                if data ~= true then return end
+                if data ~= true or key ~= "isBanned" then return end
 
-                if (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration ~= nil then
-                    local timeLeft = (PlayerDataClass() :: { [string]: StateEngine<any> }).banDuration() - os.time()
-                    player:Kick(`\n\nYou have been temporarily banned.\n\nDuration Left: {formatTime(timeLeft)}.\n\nReason: "{(PlayerDataClass() :: { [string]: any }).banReason()}".\n\n\n`)
-                else
-                    player:Kick(`\n\nYou have been permanently banned.\n\nReason: "{(PlayerDataClass() :: { [string]: any }).banReason()}".\n\n\n`)
-                end
-            end
-        );
-
-        (PlayerDataClass() :: { [string]: StateEngine<any> }).isKicked
-        :subscribe(
-            function(self, data, key, ...)
-                if data ~= true then return end
-
-                kickPlayer(player, PlayerDataClass)
+                kickBannedPlayer(
+                    player,
+                    PlrDataClass().ModerationData().BanData.permanent,
+                    PlrDataClass().ModerationData().BanData.banDuration,
+                    PlrDataClass().ModerationData().BanData.banReason
+                )
             end
         )
+
+        local BanData = PlrDataClass().ModerationData().BanData
+
+        if BanData.isBanned == true then
+            if BanData.permanent == false then
+                if BanData.banDuration <= os.time() then
+                    PlrDataClass().ModerationData(false, "isBanned", "BanData")
+                    PlrDataClass().ModerationData(0, "banDuration", "BanData")
+                    PlrDataClass().ModerationData("", "banReason", "BanData")
+                else
+                    kickBannedPlayer(
+                        player,
+                        BanData.permanent,
+                        BanData.banDuration,
+                        BanData.banReason
+                    )
+                end
+            elseif BanData.permanent == true then
+                kickBannedPlayer(
+                    player,
+                    BanData.permanent,
+                    BanData.banDuration,
+                    BanData.banReason
+                )
+            end
+        end
     end
-end
 
+    -- Handle player data on join and leave.
+    do
+        for i: number, player: Player in pairs(Players:GetPlayers()) do onPlayerAdded(player) end
 
---[[ @section Constructor ]]
---[[
-    @usage Initialize the service.
-
-    @return void
-]]
-local function constructorCallback()
-    for i: number, player: Player in ipairs(Players:GetPlayers()) do
-        onPlayerAdded(player)
+        Players.PlayerAdded:Connect(onPlayerAdded)
     end
-
-    Players.PlayerAdded:Connect(onPlayerAdded)
 end
 
 return constructorCallback

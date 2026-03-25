@@ -108,8 +108,13 @@ local function constructorCallback(actionType: string, senderId: number, targetI
         }
     }
 
-    local encodedData = HttpService:JSONEncode(EmbeddedData)
-    HttpService:PostAsync(Settings.ChatSettings.ChatCommandSettings.loggingDiscordWebhookUrl, encodedData)
+    Chronovisor(
+        function()
+            local encodedData = HttpService:JSONEncode(EmbeddedData)
+            HttpService:PostAsync(Settings.ChatSettings.ChatCommandSettings.loggingDiscordWebhookUrl, encodedData)
+        end
+    )
+    :onError(function(err: string?) print(`Failed to log command of type: {actionType}. Error: {err}`) end)
 end
 
 return constructorCallback

@@ -25,14 +25,6 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local isHere, _currentInstance, placeId, jobId = TeleportService:GetPlayerPlaceInstanceAsync(senderId)
     if isHere then return end
 
-    --[[if message.Data.code then
-        Record.CommandsData._reservedCode = Classify(message.Data.code)
-
-        TeleportService:TeleportToPrivateServer(PLACE_ID, message.Data.code, { player })
-
-        return
-    end]]
-
     TeleportService:TeleportToPlaceInstance(placeId, jobId, player)
 end
 

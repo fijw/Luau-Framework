@@ -5,25 +5,16 @@
 
 --[[ @section Imports ]]
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Store = require(ServerScriptService.Libraries.Store)
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+local DataLib = require(ServerScriptService.Libraries.DataLib)
 
 local Types = require(script.Parent.Parent.Types)
 --[[ @end_section Imports ]]
 
 
---[[ @section Types ]]
---[[ @generic D Data template type. ]]
-type PlayerDataClass<D> = Store.PlayerDataClass<D>
-
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
-
+type DataClass = DataLib.DataClass
 type DecompressedDataSchema = Types.DecompressedDataSchema
---[[ @end_section Types ]]
 
 
 --[[ @section Constructor ]]
@@ -34,11 +25,7 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local FoundPlayer = Players:GetPlayerByUserId(targetId)
     if not FoundPlayer then return end
 
-    local PlayerDataClass = Store(targetId)
-    if not PlayerDataClass then return end
-
-    (PlayerDataClass() :: { [string]: StateEngine<any> }).kickReason = Reactor(reason);
-    (PlayerDataClass() :: { [string]: StateEngine<any> }).isKicked(true)
+    FoundPlayer:Kick(`\n\nYou have been kicked.\nReason: "{reason}".\n\n\n`)
 end
 
 return constructorCallback

@@ -10,6 +10,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local OnGlobalBanAsync = require(script.AsyncFunctions.OnGlobalBanAsync)
 local OnGlobalKickAsync = require(script.AsyncFunctions.OnGlobalKickAsync)
+local OnGlobalTempBanAsync = require(script.AsyncFunctions.OnGlobalTempBanAsync)
 local OnGlobalBringPlayerToServerAsync = require(script.AsyncFunctions.OnGlobalBringPlayerToServerAsync)
 
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
@@ -25,7 +26,8 @@ local AsyncFunctionsMap
 = {
     ban = OnGlobalBanAsync,
     kick = OnGlobalKickAsync,
-    bring_player_to_server = OnGlobalBringPlayerToServerAsync
+    bring_player_to_server = OnGlobalBringPlayerToServerAsync,
+    temp_ban = OnGlobalTempBanAsync
 }
 
 
@@ -57,3 +59,8 @@ end
 
 return constructorCallback
 --[[ @end_section Constructor ]]
+
+
+--[[
+    @todo fix the weird duration glitch in temp banning, then pen test the offline and cross-server functionalities of all moderation cmds.
+]]

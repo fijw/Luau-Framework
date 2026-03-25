@@ -3,10 +3,6 @@
 --!optimize 2
 
 
-export type ChatTagSchema = ChatSettings.ChatTagSchema
-export type PermissionTypes = ChatSettings.PermissionTypes
-
-
 local DataSettings = require(script.DataSettings)
 local ChatSettings = require(script.ChatSettings)
 

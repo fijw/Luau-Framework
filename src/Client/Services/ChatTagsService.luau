@@ -12,7 +12,7 @@ local MarketplaceService = game:GetService("MarketplaceService")
 
 local ChatWindowConfiguration = TextChatService.ChatWindowConfiguration
 
-local Settings = require(ReplicatedStorage.Settings)
+local ChatSettings = require(ReplicatedStorage.Settings.ChatSettings)
 --[[ @end_section Imports ]]
 
 
@@ -26,7 +26,7 @@ type RainbowMessageSchema
     rawMessageText: string
 }
 
-type ChatTagSchema = Settings.ChatTagSchema
+type ChatTagSchema = ChatSettings.ChatTagSchema
 --[[ @end_section Types ]]
 
 
@@ -149,16 +149,19 @@ local function onChatSent(message: TextChatMessage): ChatWindowMessageProperties
 
 	local textSourcePlayerRank = textSourcePlayer:GetRankInGroupAsync(game.CreatorId)
 	
-	local IdTagData = Settings.ChatSettings.ChatTagSettings.UserIdsWithChatTags[textSourcePlayer.UserId]
-	local RankTagData = Settings.ChatSettings.ChatTagSettings.RanksWithChatTags[textSourcePlayerRank]
+	local IdTagData = ChatSettings.ChatTagSettings.UserIdsWithChatTags[textSourcePlayer.UserId]
+	local RankTagData = ChatSettings.ChatTagSettings.RanksWithChatTags[textSourcePlayerRank]
 
 	local GamepassTags = {} :: { ChatTagSchema }
 
-	for i: number, TagData: ChatTagSchema in pairs(Settings.ChatSettings.ChatTagSettings.GamepassesWithChatTags) do
+	for i: number, TagData: ChatTagSchema in pairs(ChatSettings.ChatTagSettings.GamepassesWithChatTags) do
 		if not MarketplaceService:UserOwnsGamePassAsync(textSourcePlayer.UserId, i) then continue end
 
 		table.insert(GamepassTags, TagData)
 	end
+
+	-- No tags found.
+	if not IdTagData and not RankTagData and #GamepassTags < 1 then return nil end
 
 	local textSourceTag = ""
 

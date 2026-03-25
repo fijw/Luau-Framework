@@ -39,12 +39,12 @@ do
     MainFrame.BorderSizePixel = 0
     MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     MainFrame.Size = UDim2.new(0.442939043, 0, 0.509259284, 0)
+    MainFrame.Active = false
 
     UIAspectRatioConstraint.Parent = MainFrame
     UIAspectRatioConstraint.AspectRatio = 1.545
 
     ScrollingFrame.Parent = MainFrame
-    ScrollingFrame.Active = true
     ScrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     ScrollingFrame.BackgroundTransparency = 1.000
     ScrollingFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -52,6 +52,7 @@ do
     ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
     ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     ScrollingFrame.ScrollBarThickness = 6
+    ScrollingFrame.Active = false
 
     InputFrame.Name = "InputFrame"
     InputFrame.Parent = ScrollingFrame

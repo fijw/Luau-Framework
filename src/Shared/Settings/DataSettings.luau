@@ -3,6 +3,35 @@
 --!optimize 2
 
 
+--[[ @section Imports ]]
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+--[[ @end_section Imports ]]
+
+
+--[[ @section Types ]]
+--[[ @generic T Source type. ]]
+type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+
+export type DataTemplateSchema
+= {
+    Inventory: StateEngine
+    <
+        {
+            Pets: { [string]: { str: number, spe: number } },
+            Items: { [string]: { dam: number, dur: number } }
+        }
+    >,
+
+    coins: StateEngine<number>,
+    level: StateEngine<number>,
+
+    [string]: StateEngine<any>
+}
+--[[ @end_section Types ]]
+
+
 local DataSettings
 = {
     DataTemplate
@@ -11,24 +40,24 @@ local DataSettings
         = {
             Pets
             = {
-                Cat = 25,
-                Dog = 3,
-                Rabbit = 1
+                Cat = { str = 1, spe = 2 },
+                Dog = { str = 1, spe = 2 },
+                Rabbit = { str = 1, spe = 2 }
             },
 
             Items
             = {
-                Sword = 1,
-                Shield = 1,
-                Bow = 1
+                Sword = { dam = 1, dur = 1 },
+                Shield = { dam = 1, dur = 1 },
+                Bow = { dam = 1, dur = 1 }
             }
-        },
+        } :: DataTemplateSchema,
 
         coins = 12_000,
         level = 15,
     },
 
-    PLAYER_DATA_STORAGE_KEY = "hahaa11a11"
+    PLAYER_DATA_STORAGE_KEY = "aaa1aq1"
 }
 
 

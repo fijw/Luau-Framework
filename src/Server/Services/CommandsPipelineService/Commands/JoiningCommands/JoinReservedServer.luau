@@ -11,9 +11,6 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 --[[ @end_section Imports ]]
 
 
-local PLACE_ID = game.PlaceId
-
-
 --[[ @section Constructor ]]
 --[[
     @usage Initialize the command.
@@ -24,13 +21,13 @@ local PLACE_ID = game.PlaceId
     @return void
 ]]
 local function constructorCallback(sender: Player, args: { string })
-    local reservedCode = TeleportService:ReserveServerAsync(PLACE_ID)
-    TeleportService:TeleportToPrivateServer(PLACE_ID, reservedCode, { sender })
+    local code = TeleportService:ReserveServerAsync(game.PlaceId)
+    TeleportService:TeleportToPrivateServer(game.PlaceId, code, { sender })
 
     CommandsNamespace.packets.DisplayConsoleResponse
     .sendTo(
         {
-            response = `Attempting to join reserved server [{reservedCode}].`,
+            response = `Attempting to join reserved server [{code}].`,
             color = "white"
         },
         

@@ -6,21 +6,32 @@
 --[[ @section Imports ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local DataStoreService = game:GetService("DataStoreService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
+local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.Compression)
-local Store = require(ServerScriptService.Libraries.Store)
+local DataLib = require(ServerScriptService.Libraries.DataLib)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
+
+local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
 
 
+--[[ @section Types ]]
+type StoredDataClassSchema = DataLib.StoredDataClassSchema
+
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+--[[ @end_section Types ]]
+
+
+local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
 
 
 --[[ @section Constructor ]]
@@ -45,16 +56,12 @@ local function constructorCallback(sender: Player, args: { string })
         local player = Players:GetPlayerByUserId(targetId)
         
         if player then
-            local PlayerDataClass = Store(targetId)
-            if not PlayerDataClass then return end
-
-            (PlayerDataClass() :: { [string]: StateEngine<any> }).kickReason = Reactor(reason);
-            (PlayerDataClass() :: { [string]: StateEngine<any> }).isKicked(true)
+            player:Kick(`\n\nYou have been kicked.\nReason: "{reason}".\n\n\n`)
 
             CommandsNamespace.packets.DisplayConsoleResponse
             .sendTo(
                 {
-                    response = `Kicked [{targetId}] in this server. Reason: "{reason}".`,
+                    response = `Kicked [{targetId}]. Reason: "{reason}".`,
                     color = "white"
                 },
                 
@@ -63,31 +70,57 @@ local function constructorCallback(sender: Player, args: { string })
 
             LogsHandler("Kick", sender.UserId, targetId, reason)
 
+            CommandsNamespace.packets.DisplayConsoleResponse
+            .sendTo(
+                {
+                    response = `Your moderation action for {targetId} has been logged.`,
+                    color = "blue"
+                },
+                
+                sender
+            )
+
             return
         end
     end
 
-    CommandsNamespace.packets.DisplayConsoleResponse
-    .sendTo(
-        {
-            response = `Sending a global request to kick [{targetId}]. Reason: "{reason}".`,
-            color = "white"
-        },
-        
-        sender
-    )
+    local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
+    if not AsyncData or not AsyncData.inUse then return end
 
-    MessagingService:PublishAsync("commands",
-        Compression(
-            {
-                targetId = targetId,
-                commandType = "kick",
-                reason = reason
-            }
+    -- If the player is not in this server but has a player data class, send a global request to kick them.
+    do
+        MessagingService:PublishAsync("commands",
+            Compression(
+                {
+                    targetId = targetId,
+                    commandType = "kick",
+                    reason = reason
+                }
+            )
         )
-    )
 
-    LogsHandler("Kick", sender.UserId, targetId, reason)
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Sent a global request to kick [{targetId}]. Reason: "{reason}".`,
+                color = "white"
+            },
+            
+            sender
+        )
+
+        LogsHandler("Kick", sender.UserId, targetId, reason)
+
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Your moderation action for {targetId} has been logged.`,
+                color = "blue"
+            },
+            
+            sender
+        )
+    end
 end
 
 return constructorCallback

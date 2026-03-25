@@ -79,7 +79,11 @@ local function constructorCallback()
                 currentInputBoxConnection = currentInputBox.FocusLost
                 :Connect(
                     function(enterPressed: boolean, Input: InputObject)
-                        if not enterPressed or not currentInputBox then return end
+                        if not enterPressed then
+                            if currentCommandsBar then currentCommandsBar.Enabled = false end
+
+                            return
+                        end
 
                         local lowerText = if currentInputBox then currentInputBox.Text:lower() else nil
 
@@ -100,8 +104,6 @@ local function constructorCallback()
                     end
                 )
 
-                --local StoredResponses = {}
-
                 CommandsNamespace.packets.DisplayConsoleResponse
                 .listen(
                     function(
@@ -118,11 +120,18 @@ local function constructorCallback()
                         local newResponseText = newResponse:WaitForChild("TextLabel") :: TextLabel
                         newResponseText.Text = data.response
 
+                        --[[
+                            Red for errors (e.g. invalid commands or insufficient permissions),
+                            yellow for tips (eg. help list), white for basic command responses,
+                            and blue for important or informational responses / messages.
+                        ]]
                         if data.color == "red" then
                             newResponseText.TextColor3 = Color3.fromRGB(255, 100, 100)
                         elseif data.color == "yellow" then
                             newResponseText.TextColor3 = Color3.fromRGB(255, 255, 100)
-                        else
+                        elseif data.color == "blue" then
+                            newResponseText.TextColor3 = Color3.fromRGB(100, 100, 255)
+                        elseif data.color == "white" then
                             newResponseText.TextColor3 = Color3.fromRGB(255, 255, 255)
                         end
 

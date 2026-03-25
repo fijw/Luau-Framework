@@ -18,7 +18,7 @@ local CommandsPipelineService = ServerScriptService.Services.CommandsPipelineSer
 --[[ @end_section Imports ]]
 
 
-local ModulesToLoad = { CacheService, ModerationService, CommandsPipelineService }
+local ModulesToLoad = { CommandsPipelineService, CacheService, ModerationService }
 
 
 -- Initialize server modules then signal clients to initialize their modules.
