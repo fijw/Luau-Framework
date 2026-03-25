@@ -178,8 +178,6 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
         SavingClassData[i] = Compression(v())
     end
 
-    print(SavingClassData, "saving data")
-
     Chronovisor(
         function()
             self.ClassDataStore:SetAsync(self.classKey,
@@ -241,12 +239,13 @@ local function constructorCallback(self: unknown, player: Player): DataClass?
             Data = Compression(CompressedDataTemplate),
             inUse = true
         }
+    else
+        if existingData.inUse == true then
+            player:Kick("\n\nYour data is already in use.\n\n\n")
+
+            return nil
+        end
     end
-
-    existingData.inUse = true
-
-    Chronovisor(function() SettingsDataStore:SetAsync(`{player.UserId}`, existingData) end)
-    :onError(function(err: string?) print(`Error saving new in-use status to {player.UserId}'s data class. Error: {err}`) end)
 
     local ModifiedClassData = {}
 
@@ -271,11 +270,12 @@ local function constructorCallback(self: unknown, player: Player): DataClass?
 
             __call = dataClassCallback
         }
-    )
+    );
+
+    ((NewDataClass :: any) :: DataClass):saveClass(true)
+    task.spawn(function() autoSaveDataClass((NewDataClass :: any) :: DataClass) end)
 
     CachedDataClasses[player.UserId] = (NewDataClass :: any) :: DataClass
-
-    task.spawn(function() autoSaveDataClass((NewDataClass :: any) :: DataClass) end)
 
     return (NewDataClass :: any) :: DataClass
 end
@@ -286,3 +286,8 @@ setmetatable(DataLib, { __call = constructorCallback })
 
 table.freeze(DataLib)
 return DataLib
+
+
+--[[
+    @todo clone over the data verifying stuff for saving data and also include the 5 retries for saving data on failure.
+]]

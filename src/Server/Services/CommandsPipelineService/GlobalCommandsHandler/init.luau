@@ -63,4 +63,5 @@ return constructorCallback
 
 --[[
     @todo fix the weird duration glitch in temp banning, then pen test the offline and cross-server functionalities of all moderation cmds.
+    ^ might've fixed duration glitch, but cross-server functionality is not working as planned.
 ]]

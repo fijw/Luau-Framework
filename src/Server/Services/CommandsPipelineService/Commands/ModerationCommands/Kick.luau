@@ -6,32 +6,22 @@
 --[[ @section Imports ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
-local DataStoreService = game:GetService("DataStoreService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
-local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.Compression)
 local DataLib = require(ServerScriptService.Libraries.DataLib)
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+
+local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
 
 local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
-
-local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
 
 
---[[ @section Types ]]
 type StoredDataClassSchema = DataLib.StoredDataClassSchema
-
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
---[[ @end_section Types ]]
-
-
-local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
+type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
 
 
 --[[ @section Constructor ]]
@@ -85,7 +75,7 @@ local function constructorCallback(sender: Player, args: { string })
     end
 
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
-    if not AsyncData or not AsyncData.inUse then return end
+    if not AsyncData or AsyncData.inUse == false then return end
 
     -- If the player is not in this server but has a player data class, send a global request to kick them.
     do
@@ -95,7 +85,7 @@ local function constructorCallback(sender: Player, args: { string })
                     targetId = targetId,
                     commandType = "kick",
                     reason = reason
-                }
+                } :: DecompressedDataSchema
             )
         )
 

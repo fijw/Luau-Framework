@@ -19,12 +19,15 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 
+local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
+
 local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
 
 
 --[[ @section Types ]]
 type StoredDataClassSchema = DataLib.StoredDataClassSchema
+type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
 
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
@@ -59,8 +62,6 @@ local function constructorCallback(sender: Player, args: { string })
             local PlayerDataClass = DataLib(player)
             if not PlayerDataClass then return end
 
-            print(PlayerDataClass(), "banning")
-
             PlayerDataClass().ModerationData(true, "permanent", "BanData")
             PlayerDataClass().ModerationData(reason, "banReason", "BanData")
             PlayerDataClass().ModerationData(true, "isBanned", "BanData")
@@ -94,14 +95,14 @@ local function constructorCallback(sender: Player, args: { string })
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
     if not AsyncData then return end
 
-    if AsyncData.inUse then
+    if AsyncData.inUse == true then
         MessagingService:PublishAsync("commands",
             Compression(
                 {
                     targetId = targetId,
                     commandType = "ban",
                     reason = reason
-                }
+                } :: DecompressedDataSchema
             )
         )
 
