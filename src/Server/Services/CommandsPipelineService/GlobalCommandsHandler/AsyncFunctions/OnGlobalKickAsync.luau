@@ -18,6 +18,13 @@ type DecompressedDataSchema = Types.DecompressedDataSchema
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the global command.
+
+    @param DecompressedData DecompressedDataSchema
+
+    @return void
+]]
 local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local reason, targetId = DecompressedData.reason, DecompressedData.targetId
     if not reason or not targetId then return end

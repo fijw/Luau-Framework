@@ -62,9 +62,14 @@ local function constructorCallback(sender: Player, args: { string })
             local PlayerDataClass = DataLib(player)
             if not PlayerDataClass then return end
 
-            PlayerDataClass().ModerationData(true, "permanent", "BanData")
-            PlayerDataClass().ModerationData(reason, "banReason", "BanData")
-            PlayerDataClass().ModerationData(true, "isBanned", "BanData")
+            PlayerDataClass().ModerationData(
+                {
+                    permanent = true,
+                    banReason = reason
+                },
+                
+                "BanData"
+            )
 
             CommandsNamespace.packets.DisplayConsoleResponse
             .sendTo(
@@ -136,10 +141,11 @@ local function constructorCallback(sender: Player, args: { string })
                 ModifyingData[i] = Compression(v, "decompress")
             end
 
-            ModifyingData.ModerationData.BanData.isBanned = true
-            ModifyingData.ModerationData.BanData.permanent = true
-            ModifyingData.ModerationData.BanData.banDuration = 0
-            ModifyingData.ModerationData.BanData.banReason = reason
+            ModifyingData.ModerationData.BanData
+            = {
+                permanent = true,
+                banReason = reason
+            }
         end
 
         local SavingData = {}

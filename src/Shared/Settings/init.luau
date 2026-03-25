@@ -7,6 +7,9 @@ local DataSettings = require(script.DataSettings)
 local ChatSettings = require(script.ChatSettings)
 
 
+type PermissionTypes = ChatSettings.PermissionTypes
+
+
 local Settings
 = {
     DataSettings = DataSettings,
@@ -14,7 +17,7 @@ local Settings
 
     serverIsLocked = false,
 
-    ServerUsersWithFunCommands = {} :: { number }
+    ServerUsersGivenFunCommands = {} :: { [number]: PermissionTypes }
 }
 
 

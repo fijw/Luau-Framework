@@ -19,8 +19,13 @@ local InputMapper = require(StarterPlayerScripts.Libraries.InputMapper)
 --[[ @end_section Imports ]]
 
 
+--[[ @section Variables ]]
 local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
+
+local idPermissions = Settings.ChatSettings.ChatCommandSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
+local rankPermissions = Settings.ChatSettings.ChatCommandSettings.RanksWithCommandPermissions[localPlayer:GetRankInGroupAsync(game.CreatorId)]
+--[[ @end_section Variables ]]
 
 
 --[[ @section Constructor ]]
@@ -60,11 +65,8 @@ local function constructorCallback()
             local clonedPermissionsTitle = clonedInputFrame:WaitForChild("PermissionsTitle") :: TextLabel
             local clonedUIListLayout = clonedScrollingFrame:WaitForChild("UIListLayout") :: UIListLayout
 
-            local idPermissions = Settings.ChatSettings.ChatCommandSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
-            local rankPermissions = Settings.ChatSettings.ChatCommandSettings.RanksWithCommandPermissions[localPlayer:GetRankInGroupAsync(game.CreatorId)]
-
             if idPermissions or rankPermissions then
-                clonedPermissionsTitle.Text = `{idPermissions or rankPermissions}@cmcs`
+                clonedPermissionsTitle.Text = `{rankPermissions or idPermissions}@cmcs`
             else
                 clonedPermissionsTitle.Text = "player@cmcs"
             end

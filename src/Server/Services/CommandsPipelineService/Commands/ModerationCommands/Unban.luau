@@ -64,10 +64,7 @@ local function constructorCallback(sender: Player, args: { string })
                 ModifyingData[i] = Compression(v, "decompress")
             end
 
-            ModifyingData.ModerationData.BanData.isBanned = false
-            ModifyingData.ModerationData.BanData.permanent = false
-            ModifyingData.ModerationData.BanData.banDuration = 0
-            ModifyingData.ModerationData.BanData.banReason = ""
+            ModifyingData.ModerationData.BanData = nil
         end
 
         local SavingData = {}

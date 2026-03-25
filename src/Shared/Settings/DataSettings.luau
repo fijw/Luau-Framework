@@ -25,7 +25,20 @@ export type DataTemplateSchema
     >,
 
     coins: StateEngine<number>,
-    level: StateEngine<number>,
+    level: StateEngine<number>
+}
+& {
+    ModerationData: StateEngine
+    <
+        {
+            BanData
+            : {
+                permanent: true?,
+                banDuration: number?,
+                banReason: string
+            }?
+        }
+    >,
 
     [string]: StateEngine<any>
 }
@@ -57,7 +70,7 @@ local DataSettings
         level = 15,
     },
 
-    PLAYER_DATA_STORAGE_KEY = "aaa1aq1"
+    PLAYER_DATA_STORAGE_KEY = "aqaa222"
 }
 
 

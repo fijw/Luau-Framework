@@ -15,6 +15,11 @@ local Settings = require(ReplicatedStorage.Settings)
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Handles player cache upon joining and leaving.
+    
+    @return void
+]]
 local function constructorCallback()
     local function onPlayerAdded(player: Player)
         local PlrDataClass = DataLib(player)
@@ -30,19 +35,12 @@ local function constructorCallback()
         PlrDataClass:saveClass()
         PlrDataClass:deleteClass()
 
-        local foundFunPermissionsIndex = table.find(Settings.ServerUsersWithFunCommands, player.UserId)
-        if not foundFunPermissionsIndex then return end
-
-        table.remove(Settings.ServerUsersWithFunCommands, foundFunPermissionsIndex)
+        if not Settings.ServerUsersGivenFunCommands[player.UserId] then return end
+        Settings.ServerUsersGivenFunCommands[player.UserId] = nil
     end
 
-    -- Handle player data on join and leave.
-    do
-        for i: number, player: Player in pairs(Players:GetPlayers()) do onPlayerAdded(player) end
-
-        Players.PlayerAdded:Connect(onPlayerAdded)
-        Players.PlayerRemoving:Connect(onPlayerRemoving)
-    end
+    Players.PlayerAdded:Connect(onPlayerAdded)
+    Players.PlayerRemoving:Connect(onPlayerRemoving)
 end
 
 return constructorCallback

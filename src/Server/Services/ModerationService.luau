@@ -110,17 +110,17 @@ end
 
     @return void
 ]]
-local function kickBannedPlayer(player: Player, isPermanent: boolean, banDuration: number, banReason: string)
+local function kickBannedPlayer(player: Player, isPermanent: true?, banDuration: number?, banReason: string?)
     if isPermanent == true then
-        if banReason == "" then
+        if banReason == nil or banReason == "" then
             player:Kick(`\n\nYou have been permanently banned.\nThere is no reason attached to this ban.\n\n\n`)
         else
             player:Kick(`\n\nYou have been permanently banned.\nReason: "{banReason}".\n\n\n`)
         end
-    else
+    elseif banDuration ~= nil then
         local timeLeft = banDuration - os.time()
 
-        if banReason == "" then
+        if banReason == nil or banReason == "" then
             player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nThere is no reason attached to this ban.\n\n\n`)
         else
             player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nReason: "{banReason}".\n\n\n`)
@@ -131,57 +131,41 @@ end
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the service.
+
+    @return void
+]]
 local function constructorCallback()
     local function onPlayerAdded(player: Player)
         local PlrDataClass = DataLib(player)
         if not PlrDataClass then return end
 
-        if (PlrDataClass().ModerationData :: any) == nil then
-            PlrDataClass().ModerationData
-            = Reactor(
-                {
-                    BanData
-                    = {
-                        isBanned = false,
-                        permanent = false,
-                        banDuration = 0,
-                        banReason = ""
-                    }
-                }
-            )
-        end
+        if (PlrDataClass().ModerationData :: any) == nil then PlrDataClass().ModerationData = Reactor({}) :: any end
 
         PlrDataClass().ModerationData
         :subscribe(
             function(self, data, key, ...)
-                if data ~= true or key ~= "isBanned" then return end
+                if data == nil or key ~= "BanData" then return end
+
+                local TypedData = data :: { [string]: any }
 
                 kickBannedPlayer(
                     player,
-                    PlrDataClass().ModerationData().BanData.permanent,
-                    PlrDataClass().ModerationData().BanData.banDuration,
-                    PlrDataClass().ModerationData().BanData.banReason
+                    TypedData.permanent,
+                    TypedData.banDuration,
+                    TypedData.banReason
                 )
             end
         )
 
-        local BanData = PlrDataClass().ModerationData().BanData
+        local BanData = (PlrDataClass().ModerationData() :: { [string]: { [string]: any } }).BanData
+        if not BanData then return end
 
-        if BanData.isBanned == true then
-            if BanData.permanent == false then
-                if BanData.banDuration <= os.time() then
-                    PlrDataClass().ModerationData(false, "isBanned", "BanData")
-                    PlrDataClass().ModerationData(0, "banDuration", "BanData")
-                    PlrDataClass().ModerationData("", "banReason", "BanData")
-                else
-                    kickBannedPlayer(
-                        player,
-                        BanData.permanent,
-                        BanData.banDuration,
-                        BanData.banReason
-                    )
-                end
-            elseif BanData.permanent == true then
+        if BanData.permanent ~= true then
+            if BanData.banDuration <= os.time() then
+                PlrDataClass().ModerationData(nil, "BanData")
+            else
                 kickBannedPlayer(
                     player,
                     BanData.permanent,
@@ -189,15 +173,17 @@ local function constructorCallback()
                     BanData.banReason
                 )
             end
+        else
+            kickBannedPlayer(
+                player,
+                BanData.permanent,
+                BanData.banDuration,
+                BanData.banReason
+            )
         end
     end
 
-    -- Handle player data on join and leave.
-    do
-        for i: number, player: Player in pairs(Players:GetPlayers()) do onPlayerAdded(player) end
-
-        Players.PlayerAdded:Connect(onPlayerAdded)
-    end
+    Players.PlayerAdded:Connect(onPlayerAdded)
 end
 
 return constructorCallback

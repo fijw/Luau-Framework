@@ -11,7 +11,7 @@ export type ChatTagSchema
     tagColor: Color3?
 }
 
-export type PermissionTypes = "mod_perms" | "owner_perms" | "fun_perms"
+export type PermissionTypes = "moderator" | "developer" | "fun_perms"
 --[[ @end_section Types ]]
 
 
@@ -99,17 +99,17 @@ local ChatSettings
     = {
         RanksWithCommandPermissions
         = {
-            [255] = "mod_perms",
-            [254] = "owner_perms",
-            [253] = "mod_perms"
+            [255] = "developer" ,
+            [254] = "developer",
+            [253] = "moderator"
         },
 
         UserIdsWithCommandPermissions
         = {
-            [1] = "owner_perms",
-            [2] = "owner_perms",
-            [3] = "owner_perms",
-            [5618502527] = "mod_perms"
+            [1] = "developer",
+            [2] = "developer",
+            [3] = "developer",
+            [5618502527] = "moderator"
         },
 
         loggingDiscordWebhookUrl

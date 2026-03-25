@@ -18,6 +18,13 @@ type DecompressedDataSchema = Types.DecompressedDataSchema
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the global command.
+
+    @param DecompressedData DecompressedDataSchema
+
+    @return void
+]]
 local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local reason, targetId, duration = DecompressedData.reason, DecompressedData.targetId, DecompressedData.duration
     if not reason or not targetId or not duration then return end
@@ -28,10 +35,14 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local PlayerDataClass = DataLib(FoundPlayer)
     if not PlayerDataClass then return end
 
-    PlayerDataClass().ModerationData(false, "permanent", "BanData")
-    PlayerDataClass().ModerationData(reason, "banReason", "BanData")
-    PlayerDataClass().ModerationData(true, "isBanned", "BanData")
-    PlayerDataClass().ModerationData(duration, "banDuration", "BanData")
+    PlayerDataClass().ModerationData(
+        {
+            banDuration = duration,
+            banReason = reason
+        },
+
+        "BanData"
+    )
 end
 
 return constructorCallback

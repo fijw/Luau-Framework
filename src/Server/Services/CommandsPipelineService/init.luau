@@ -92,7 +92,7 @@ local CommandCallbackMap: { [string]: CommandSchema }
 
 local PermissionsMap: { [PermissionTypes]: { string } }
 = {
-    owner_perms
+    developer
     = {
         "ban", "kick", "unban", "temp_ban",
         "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling",
@@ -101,13 +101,11 @@ local PermissionsMap: { [PermissionTypes]: { string } }
         "give_fun_cmds"
     },
 
-    mod_perms
+    moderator
     = {
         "ban", "kick", "unban", "temp_ban",
         "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling",
-        "bring_player_to_server", "join_player_server", "join_reserved_server",
-        "shutdown_server", "lock_server", "unlock_server",
-        "give_fun_cmds"
+        "bring_player_to_server", "join_player_server", "join_reserved_server"
     },
 
     fun_perms = { "fly", "unfly", "freeze", "unfreeze", "invisible", "visible", "teleport", "speed", "kill", "fling" }
@@ -133,12 +131,25 @@ local function constructorCallback()
 
             local rankPermissions = ChatSettings.ChatCommandSettings.RanksWithCommandPermissions[playerRank]
             local idPermissions = ChatSettings.ChatCommandSettings.UserIdsWithCommandPermissions[player.UserId]
-            local funPermissions = table.find(Settings.ServerUsersWithFunCommands, player.UserId)
+            local funPermissions = Settings.ServerUsersGivenFunCommands[player.UserId]
 
-            local MappedPermissions = if rankPermissions or idPermissions then PermissionsMap[rankPermissions or idPermissions] else nil
-            if MappedPermissions == nil and funPermissions ~= nil then MappedPermissions = (PermissionsMap :: { [string]: { string } }).fun_perms end
+            local MappedPermissions = if rankPermissions or idPermissions or funPermissions then PermissionsMap[rankPermissions or idPermissions or funPermissions] else nil
 
             if data[1] == "help" then
+                if not MappedPermissions and not debugging then
+                    CommandsNamespace.packets.DisplayConsoleResponse
+                    .sendTo(
+                        {
+                            response = `You do not have permissions to view the list of commands.`,
+                            color = "red"
+                        },
+                        
+                        player
+                    )
+
+                    return
+                end
+
                 for i: string, CommandData: CommandSchema in pairs(CommandCallbackMap) do
                     if MappedPermissions then if not table.find(MappedPermissions, i) and not debugging then continue end end
 
@@ -162,7 +173,7 @@ local function constructorCallback()
                 CommandsNamespace.packets.DisplayConsoleResponse
                 .sendTo(
                     {
-                        response = `Use "help" to see a list of all available commands.`,
+                        response = `Send "help" to see a list of all available commands.`,
                         color = "red"
                     },
                     
@@ -174,16 +185,11 @@ local function constructorCallback()
 
             -- Check if the player has the required permissions.
             do
-                if
-                    not rankPermissions
-                    and not idPermissions
-                    and not debugging
-                    and not funPermissions
-                then
+                if not MappedPermissions and not debugging then
                     CommandsNamespace.packets.DisplayConsoleResponse
                     .sendTo(
                         {
-                            response = `You do not have permissions to use any commands.`,
+                            response = `You do not have permissions to use commands.`,
                             color = "red"
                         },
                         
@@ -193,14 +199,12 @@ local function constructorCallback()
                     return
                 end
 
-                if not MappedPermissions and not debugging and not funPermissions then return end
-
                 if MappedPermissions and not debugging then
                     if not table.find(MappedPermissions, data[1]) then
                         CommandsNamespace.packets.DisplayConsoleResponse
                         .sendTo(
                             {
-                                response = `You do not have permissions to use this command.`,
+                                response = `You do not have permissions to use "{data[1]}".`,
                                 color = "red"
                             },
                             

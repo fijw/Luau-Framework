@@ -55,6 +55,7 @@ export type StoredDataClassSchema
 local SettingsDataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE_KEY)
 
 local CachedDataClasses = {} :: { [number]: DataClass }
+local CachedHandledPlayers = {} :: { number }
 
 local DataLib = {}
 --[[ @end_section Variables ]]
@@ -198,7 +199,14 @@ end
 
     @return void
 ]]
-local function deleteClassCallback(self: DataClass) CachedDataClasses[tonumber(self.classKey) :: number] = nil end
+local function deleteClassCallback(self: DataClass)
+    CachedDataClasses[tonumber(self.classKey) :: number] = nil
+    
+    local foundPlayerIdCache = table.find(CachedHandledPlayers, tonumber(self.classKey) :: number)
+    if not foundPlayerIdCache then return end
+
+    table.remove(CachedHandledPlayers, foundPlayerIdCache)
+end
 --[[ @end_section Inheritance Functions ]]
 
 
@@ -224,6 +232,9 @@ local function dataClassCallback(self: DataClass): DataTemplateSchema return sel
 local function constructorCallback(self: unknown, player: Player): DataClass?
     local CachedDataClass = CachedDataClasses[player.UserId]
     if CachedDataClass then return CachedDataClass end
+
+    if table.find(CachedHandledPlayers, player.UserId) then return nil end
+    table.insert(CachedHandledPlayers, player.UserId)
 
     local existingData = DataLib.forciblyFetchStoredPlayerData(player.UserId) :: StoredDataClassSchema
 

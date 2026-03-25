@@ -28,7 +28,7 @@ local function constructorCallback(sender: Player, args: { string })
     table.remove(args, 1)
 
     -- Add the user to the server users with fun commands table.
-    table.insert(Settings.ServerUsersWithFunCommands, targetId)
+    Settings.ServerUsersGivenFunCommands[targetId] = "fun_perms"
 
     CommandsNamespace.packets.DisplayConsoleResponse
     .sendTo(
@@ -46,7 +46,7 @@ local function constructorCallback(sender: Player, args: { string })
         if not targetPlayer then return end
 
         CommandsNamespace.packets.DisplayNewPermissions.sendTo(nil, targetPlayer)
-        CommandsNamespace.packets.ChangeCmdPermissionsTxt.sendTo("fun_perms", targetPlayer)
+        CommandsNamespace.packets.ChangeCmdPermissionsTxt.sendTo(Settings.ServerUsersGivenFunCommands[targetId], targetPlayer)
     end
 end
 
