@@ -37,18 +37,22 @@ local function initializeModule(module: any, i: number, LoadedModules: { any })
                 end
             )
 
-            task.defer(function()
-                if not finishedLoading then print(LoadedModules, `Module {i} yielded when initializing, side: {runningFrom}`) end
-            end)
+            task.defer(
+                function()
+                    if not finishedLoading then print(LoadedModules, `Module {i} yielded when initializing, side: {runningFrom}`) end
+                end
+            )
         end
     )
-    :onError(function(err: string?)
-        print(LoadedModules, `Failed to initialize module, error: {err}, side: {runningFrom}`)
+    :onError(
+        function(err: string?)
+            print(LoadedModules, `Failed to initialize module, error: {err}, side: {runningFrom}`)
 
-        task.wait(1)
+            task.wait(1)
 
-        initializeModule(module, i, LoadedModules)
-    end)
+            initializeModule(module, i, LoadedModules)
+        end
+    )
 end
 
 
