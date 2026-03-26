@@ -76,7 +76,7 @@ local DataSettings
         level = 15,
     },
 
-    PLAYER_DATA_STORAGE_KEY = "aqaa2222e31"
+    PLAYER_DATA_STORAGE_KEY = "ace123"
 }
 
 

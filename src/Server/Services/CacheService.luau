@@ -24,8 +24,6 @@ local function constructorCallback()
     local function onPlayerAdded(player: Player)
         local PlrDataClass = DataLib(player)
         if not PlrDataClass then return end
-
-        print(PlrDataClass(), "start data")
     end
 
     local function onPlayerRemoving(player: Player)
