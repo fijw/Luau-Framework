@@ -15,15 +15,28 @@ local ChatTagsService = StarterPlayer.StarterPlayerScripts.Services.ChatTagsServ
 local FlyingService = StarterPlayer.StarterPlayerScripts.Services.FlyingService
 local PermissionsDisplayService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.PermissionsDisplayService
 local CommandConsoleUIService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIService
+
+local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
 --[[ @end_section Imports ]]
 
 
-local ModulesToLoad = { ChatTagsService, FlyingService, PermissionsDisplayService, CommandConsoleUIService }
+local ModulesToLoad
+= {
+    ChatTagsService,
+    FlyingService,
+    PermissionsDisplayService,
+    CommandConsoleUIService
+}
 
 
-LoadClientNamespace.packets.LoadClientModules
-.listenOnce(
-    function(data: nil, player: Player?)
-        if not Initialization(ModulesToLoad :: { ModuleScript }) then print("Failed to initialize client modules.") end
-    end
-)
+-- Initialize client modules.
+do
+    task.spawn(function() LoadingScreenService() end)
+
+    LoadClientNamespace.packets.LoadClientModules
+    .listenOnce(
+        function(data: nil, player: Player?)
+            if not Initialization(ModulesToLoad :: { ModuleScript }) then print("Failed to initialize client modules.") end
+        end
+    )
+end

@@ -110,21 +110,12 @@ end
 
     @return void
 ]]
-local function kickBannedPlayer(player: Player, isPermanent: true?, banDuration: number?, banReason: string?)
+local function kickBannedPlayer(player: Player, isPermanent: true?, banDuration: number?, banReason: string)
     if isPermanent == true then
-        if banReason == nil or banReason == "" then
-            player:Kick(`\n\nYou have been permanently banned.\nThere is no reason attached to this ban.\n\n\n`)
-        else
-            player:Kick(`\n\nYou have been permanently banned.\nReason: "{banReason}".\n\n\n`)
-        end
+        player:Kick(`\n\nYou have been permanently banned.\nReason: "{banReason}".\n\n\n`)
     elseif banDuration ~= nil then
         local timeLeft = banDuration - os.time()
-
-        if banReason == nil or banReason == "" then
-            player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nThere is no reason attached to this ban.\n\n\n`)
-        else
-            player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nReason: "{banReason}".\n\n\n`)
-        end
+        player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nReason: "{banReason}".\n\n\n`)
     end
 end
 --[[ @end_section Utility Functions ]]
@@ -143,8 +134,7 @@ local function constructorCallback()
 
         if (PlrDataClass().ModerationData :: any) == nil then PlrDataClass().ModerationData = Reactor({}) :: any end
 
-        PlrDataClass().ModerationData
-        :subscribe(
+        PlrDataClass().ModerationData:subscribe(
             function(self, data, key, ...)
                 if data == nil or key ~= "BanData" then return end
 

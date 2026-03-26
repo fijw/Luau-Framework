@@ -5,7 +5,6 @@
 
 --[[ @section Imports ]]
 local MessagingService = game:GetService("MessagingService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local OnGlobalBanAsync = require(script.AsyncFunctions.OnGlobalBanAsync)
@@ -13,13 +12,8 @@ local OnGlobalKickAsync = require(script.AsyncFunctions.OnGlobalKickAsync)
 local OnGlobalTempBanAsync = require(script.AsyncFunctions.OnGlobalTempBanAsync)
 local OnGlobalBringPlayerToServerAsync = require(script.AsyncFunctions.OnGlobalBringPlayerToServerAsync)
 
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Compression = require(ServerScriptService.Libraries.Compression)
 --[[ @end_section Imports ]]
-
-
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 
 
 local AsyncFunctionsMap

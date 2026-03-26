@@ -13,7 +13,6 @@ local Types = require(script.Parent.Parent.Types)
 --[[ @end_section Imports ]]
 
 
-type DataClass = DataLib.DataClass
 type DecompressedDataSchema = Types.DecompressedDataSchema
 
 

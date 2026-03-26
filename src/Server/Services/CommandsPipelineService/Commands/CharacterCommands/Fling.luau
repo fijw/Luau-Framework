@@ -11,6 +11,28 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 --[[ @end_section Imports ]]
 
 
+--[[
+    @usage Display a failed message to the console.
+
+    @param targetId number
+    @param sender Player
+    @param inputText string
+
+    @return void
+]]
+local function failedToExecute(targetId: number, sender: Player, inputText: string)
+    CommandsNamespace.packets.DisplayConsoleResponse
+    .sendTo(
+        {
+            response = `Failed to fling [{targetId}]. {inputText}.`,
+            color = "red"
+        },
+        
+        sender
+    )
+end
+
+
 --[[ @section Constructor ]]
 --[[
     @usage Initialize the command.
@@ -29,13 +51,13 @@ local function constructorCallback(sender: Player, args: { string })
     -- Fling the player's character.
     do
         local targetPlayer = Players:GetPlayerByUserId(targetId)
-        if not targetPlayer then return end
+        if not targetPlayer then failedToExecute(targetId, sender, "Target player not found"); return end
 
         local targetCharacter = targetPlayer.Character
-        if not targetCharacter then return end
+        if not targetCharacter then failedToExecute(targetId, sender, "Target character not found"); return end
 
         local rootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-        if not rootPart then return end
+        if not rootPart then failedToExecute(targetId, sender, "Target root part not found"); return end
 
 		local bodyAngularVelocity = Instance.new("BodyAngularVelocity")
 		bodyAngularVelocity.AngularVelocity = Vector3.new(0, 99999, 0)
@@ -48,7 +70,7 @@ local function constructorCallback(sender: Player, args: { string })
 		bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
 		bodyVelocity.Parent = rootPart
 
-        task.wait(1)
+        task.wait()
 
         bodyAngularVelocity:Destroy()
         bodyVelocity:Destroy()

@@ -28,21 +28,34 @@ local function constructorCallback(sender: Player, args: { string })
 
     -- If the player the sender's trying to join is joinable, teleport the sender.
     do
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Attempting to join [{targetId}]'s server.`,
+                color = "white"
+            },
+            
+            sender
+        )
+
         local isHere, _currentInstance, placeId, jobId = TeleportService:GetPlayerPlaceInstanceAsync(targetId)
-        if isHere then return end
+
+        if isHere then
+            CommandsNamespace.packets.DisplayConsoleResponse
+            .sendTo(
+                {
+                    response = `[{targetId}] is already here.`,
+                    color = "yellow"
+                },
+                
+                sender
+            )
+            
+            return
+        end
 
         TeleportService:TeleportToPlaceInstance(placeId, jobId, sender)
     end
-
-    CommandsNamespace.packets.DisplayConsoleResponse
-    .sendTo(
-        {
-            response = `Attempting to join [{targetId}]'s server.`,
-            color = "white"
-        },
-        
-        sender
-    )
 end
 
 return constructorCallback

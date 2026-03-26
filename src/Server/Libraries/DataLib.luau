@@ -1,3 +1,52 @@
+--[[
+    -------------------------------------------------------------------------
+    |                                                                       |
+    |    @author                                                            |
+    |    ```                                                                |
+    |        Roblox: @roblox_user_5618502527                                |
+    |        GitHub: @fijw (k4)                                             |
+    |        Twitter: @Xjwfi (k4)                                           |
+    |        Discord: @vfjx (k4)                                            |
+    |    ```                                                                |
+    |                                                                       |
+    |    @version 1.0.0                                                     |
+    |                                                                       |
+    |    @description                                                       |
+    |    ```                                                                |
+    |        Library for storing and retrieving player data. Includes       |
+    |        features such as auto-saving, session locking, and reactive    |
+    |        data.                                                          |
+    |    ```                                                                |
+    |                                                                       |
+    -------------------------------------------------------------------------
+
+    @usage
+    ```luau
+        local function onPlayerAdded(player: Player)
+            local PlrDataClass = DataLib(player)
+            if not PlrDataClass then return end
+
+            print(PlrDataClass(), `{player.UserId}'s data upon joining`)
+
+            PlrDataClass().coins:subscribe(function(self, data, key, ...) print(`new coins: {data}`) end)
+            PlrDataClass().coins:wrapToPeek(function(self, data) print(`peeked coins: {data}`) end)
+
+            local oldCoins = PlrDataClass().coins() :: number
+            PlrDataClass().coins(oldCoins + 100_000)
+        end
+
+        local function onPlayerRemoving(player: Player)
+            local PlrDataClass = DataLib(player)
+            if not PlrDataClass then return end
+
+            PlrDataClass:saveClass()
+            PlrDataClass:deleteClass()
+        end
+
+        Players.PlayerAdded:Connect(onPlayerAdded)
+        Players.PlayerRemoving:Connect(onPlayerRemoving)
+    ```
+]]
 --!strict
 --!native
 --!optimize 2
@@ -26,6 +75,8 @@ type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 export type DataClass = setmetatable
 <
     {
+        retryCount: number?,
+
         classKey: string,
         ClassDataStore: DataStore,
 
@@ -131,9 +182,6 @@ local function autoSaveDataClass(DataClass: DataClass)
 end
 
 --[[
-    @todo to be used
-]]
---[[
     @usage Compares two tables to see if they match.
 
     @param tableComparison1 { [any]: any }
@@ -190,6 +238,33 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
         end
     )
     :onError(function(err: string?) print(`Failed to save {self.classKey}'s data class. Error: {err}`) end)
+
+    local FetchedStoredData = DataLib.forciblyFetchStoredPlayerData(tonumber(self.classKey) :: number)
+    if not FetchedStoredData then return end
+
+    -- Prevent data mismatches by comparing the stored data and the saving data.
+    do
+        local DecompressedStoredData = {}
+
+        for i: string, v: buffer in pairs(Compression(FetchedStoredData.Data, "decompress") :: { [string]: buffer }) do
+            DecompressedStoredData[i] = Compression(v, "decompress")
+        end
+
+        local DecompressedSavingData = {}
+
+        for i: string, v: buffer in pairs(SavingClassData :: { [string]: buffer }) do
+            DecompressedSavingData[i] = Compression(v, "decompress")
+        end
+
+        if tableMatchComparison(DecompressedStoredData, DecompressedSavingData) == "match" then return end
+
+        print(`Data mismatch when saving [{self.classKey}]'s data.`)
+
+        self.retryCount = if self.retryCount then self.retryCount + 1 else 1
+        if self.retryCount and self.retryCount >= 5 then self.retryCount = nil; return end
+
+        self:saveClass(keepInUseStatus)
+    end
 end
 
 --[[
@@ -297,8 +372,3 @@ setmetatable(DataLib, { __call = constructorCallback })
 
 table.freeze(DataLib)
 return DataLib
-
-
---[[
-    @todo clone over the data verifying stuff for saving data and also include the 5 retries for saving data on failure.
-]]

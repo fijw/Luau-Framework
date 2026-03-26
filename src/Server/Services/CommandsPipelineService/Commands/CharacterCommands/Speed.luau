@@ -11,6 +11,28 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 --[[ @end_section Imports ]]
 
 
+--[[
+    @usage Display a failed message to the console.
+
+    @param targetId number
+    @param sender Player
+    @param inputText string
+
+    @return void
+]]
+local function failedToExecute(targetId: number, sender: Player, inputText: string)
+    CommandsNamespace.packets.DisplayConsoleResponse
+    .sendTo(
+        {
+            response = `Failed to change [{targetId}]'s speed. {inputText}.`,
+            color = "red"
+        },
+        
+        sender
+    )
+end
+
+
 --[[ @section Constructor ]]
 --[[
     @usage Initialize the command.
@@ -29,13 +51,13 @@ local function constructorCallback(sender: Player, args: { string })
     -- Anchor the player's character.
     do
         local targetPlayer = Players:GetPlayerByUserId(targetId)
-        if not targetPlayer then return end
+        if not targetPlayer then failedToExecute(targetId, sender, "Target player not found"); return end
 
         local targetCharacter = targetPlayer.Character
-        if not targetCharacter then return end
+        if not targetCharacter then failedToExecute(targetId, sender, "Target character not found"); return end
 
         local humanoid = targetCharacter:FindFirstChildOfClass("Humanoid")
-        if not humanoid then return end
+        if not humanoid then failedToExecute(targetId, sender, "Target humanoid not found"); return end
 
         humanoid.WalkSpeed = tonumber(args[1]) :: number
     end

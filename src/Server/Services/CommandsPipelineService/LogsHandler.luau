@@ -20,11 +20,12 @@ local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
     @param actionType string
     @param senderId number
     @param targetId number
-    @param reason string?
+    @param reason string
+    @param duration string?
 
     @return void
 ]]
-local function constructorCallback(actionType: string, senderId: number, targetId: number, reason: string?)
+local function constructorCallback(actionType: string, senderId: number, targetId: number, reason: string, duration: string?)
     local currentTime = DateTime.now():ToIsoDate()
 
     local senderHeadshotUrl: string
@@ -91,10 +92,18 @@ local function constructorCallback(actionType: string, senderId: number, targetI
                         inline = true
                     },
 
+                    if duration then
+                        {
+                            name = "Duration",
+                            value = duration,
+                            inline = true
+                        }
+                    else nil,
+
                     {
                         name = "Reason",
-                        value = reason or "No reason provided.",
-                        inline = false
+                        value = reason,
+                        inline = true
                     }
                 },
 
@@ -111,7 +120,12 @@ local function constructorCallback(actionType: string, senderId: number, targetI
     Chronovisor(
         function()
             local encodedData = HttpService:JSONEncode(EmbeddedData)
-            HttpService:PostAsync(Settings.ChatSettings.ChatCommandSettings.loggingDiscordWebhookUrl, encodedData)
+
+            HttpService:PostAsync(
+                Settings.ChatSettings.ChatCommandSettings.loggingDiscordWebhookUrl,
+                encodedData,
+                Enum.HttpContentType.ApplicationJson
+            )
         end
     )
     :onError(function(err: string?) print(`Failed to log command of type: {actionType}. Error: {err}`) end)

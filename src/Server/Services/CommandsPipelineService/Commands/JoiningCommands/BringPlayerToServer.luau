@@ -42,7 +42,7 @@ local function constructorCallback(sender: Player, args: { string })
     CommandsNamespace.packets.DisplayConsoleResponse
     .sendTo(
         {
-            response = `Sent a global request to bring [{targetId}] to this server.`,
+            response = `Sent a request to bring [{targetId}] to this server.`,
             color = "white"
         },
         

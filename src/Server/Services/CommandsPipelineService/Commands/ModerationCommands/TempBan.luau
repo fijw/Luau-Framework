@@ -15,7 +15,6 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.Compression)
 local DataLib = require(ServerScriptService.Libraries.DataLib)
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 
@@ -25,15 +24,8 @@ local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
 
 
---[[ @section Types ]]
 type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
-type StoredDataClassSchema = DataLib.StoredDataClassSchema
-
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
-
 type TimeFrameTypes = "minutes" | "hours" | "days" | "years" | "minute" | "hour" | "day" | "year"
---[[ @end_section Types ]]
 
 
 local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
@@ -93,6 +85,7 @@ local function constructorCallback(sender: Player, args: { string })
     table.remove(args, 1)
 
     local reason = table.concat(args, " ")
+    if #reason < 1 then reason = "No reason provided" end
 
     -- If the player is in this server, update their player data class here.
     do
@@ -114,14 +107,14 @@ local function constructorCallback(sender: Player, args: { string })
             CommandsNamespace.packets.DisplayConsoleResponse
             .sendTo(
                 {
-                    response = `Temporarily banned [{targetId}]. Duration: {timeInteger} {timeFrame}. Reason: "{reason}".`,
+                    response = `Temp-banned [{targetId}]. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
                     color = "white"
                 },
                 
                 sender
             )
 
-            LogsHandler("Ban", sender.UserId, targetId, reason)
+            LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
 
             CommandsNamespace.packets.DisplayConsoleResponse
             .sendTo(
@@ -138,7 +131,20 @@ local function constructorCallback(sender: Player, args: { string })
     end
 
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
-    if not AsyncData then return end
+
+    if not AsyncData then
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Failed to temp-ban [{targetId}]. Could not fetch stored player data.`,
+                color = "red"
+            },
+            
+            sender
+        )
+        
+        return
+    end
 
     if AsyncData.inUse == true then
         MessagingService:PublishAsync("commands",
@@ -155,14 +161,14 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.DisplayConsoleResponse
         .sendTo(
             {
-                response = `Sent a global request to temporarily ban [{targetId}]. Duration: {timeInteger} {timeFrame}. Reason: "{reason}".`,
+                response = `Sent a request to temp-ban [{targetId}]. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
                 color = "white"
             },
             
             sender
         )
 
-        LogsHandler("Ban", sender.UserId, targetId, reason)
+        LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
 
         CommandsNamespace.packets.DisplayConsoleResponse
         .sendTo(
@@ -210,14 +216,14 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.DisplayConsoleResponse
         .sendTo(
             {
-                response = `Changed [{targetId}]'s stored data to be temporarily banned. Reason: "{reason}".`,
+                response = `Set [{targetId}] as temp-banned. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
                 color = "white"
             },
             
             sender
         )
 
-        LogsHandler("Ban", sender.UserId, targetId, reason)
+        LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
 
         CommandsNamespace.packets.DisplayConsoleResponse
         .sendTo(

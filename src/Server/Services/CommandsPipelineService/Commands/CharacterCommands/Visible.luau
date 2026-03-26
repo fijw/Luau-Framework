@@ -11,6 +11,28 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 --[[ @end_section Imports ]]
 
 
+--[[
+    @usage Display a failed message to the console.
+
+    @param targetId number
+    @param sender Player
+    @param inputText string
+
+    @return void
+]]
+local function failedToExecute(targetId: number, sender: Player, inputText: string)
+    CommandsNamespace.packets.DisplayConsoleResponse
+    .sendTo(
+        {
+            response = `Failed to make [{targetId}] visible. {inputText}.`,
+            color = "red"
+        },
+        
+        sender
+    )
+end
+
+
 --[[ @section Constructor ]]
 --[[
     @usage Initialize the command.
@@ -27,10 +49,10 @@ local function constructorCallback(sender: Player, args: { string })
     table.remove(args, 1)
 
     local targetPlayer = Players:GetPlayerByUserId(targetId)
-    if not targetPlayer then return end
+    if not targetPlayer then failedToExecute(targetId, sender, "Target player not found"); return end
 
     local targetCharacter = targetPlayer.Character
-    if not targetCharacter then return end
+    if not targetCharacter then failedToExecute(targetId, sender, "Target character not found"); return end
 
     local CharacterDescendants = targetCharacter:GetDescendants()
 

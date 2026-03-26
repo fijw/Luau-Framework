@@ -5,15 +5,11 @@
 
 --[[ @section Imports ]]
 local Players = game:GetService("Players")
-local ServerScriptService = game:GetService("ServerScriptService")
-
-local DataLib = require(ServerScriptService.Libraries.DataLib)
 
 local Types = require(script.Parent.Parent.Types)
 --[[ @end_section Imports ]]
 
 
-type DataClass = DataLib.DataClass
 type DecompressedDataSchema = Types.DecompressedDataSchema
 
 

@@ -20,7 +20,6 @@ local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService
 --[[ @end_section Imports ]]
 
 
-type StoredDataClassSchema = DataLib.StoredDataClassSchema
 type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
 
 
@@ -40,6 +39,7 @@ local function constructorCallback(sender: Player, args: { string })
     table.remove(args, 1)
 
     local reason = table.concat(args, " ")
+    if #reason < 1 then reason = "No reason provided" end
 
     -- If the player is in this server, update their player data class here.
     do
@@ -75,7 +75,20 @@ local function constructorCallback(sender: Player, args: { string })
     end
 
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
-    if not AsyncData or AsyncData.inUse == false then return end
+
+    if not AsyncData or AsyncData.inUse == false then
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Failed to kick [{targetId}]. Could not fetch stored player data.`,
+                color = "red"
+            },
+            
+            sender
+        )
+
+        return
+    end
 
     -- If the player is not in this server but has a player data class, send a global request to kick them.
     do
@@ -92,7 +105,7 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.DisplayConsoleResponse
         .sendTo(
             {
-                response = `Sent a global request to kick [{targetId}]. Reason: "{reason}".`,
+                response = `Sent a request to kick [{targetId}]. Reason: "{reason}".`,
                 color = "white"
             },
             

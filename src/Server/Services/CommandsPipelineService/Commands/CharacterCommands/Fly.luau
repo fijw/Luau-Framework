@@ -11,6 +11,28 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 --[[ @end_section Imports ]]
 
 
+--[[
+    @usage Display a failed message to the console.
+
+    @param targetId number
+    @param sender Player
+    @param inputText string
+
+    @return void
+]]
+local function failedToExecute(targetId: number, sender: Player, inputText: string)
+    CommandsNamespace.packets.DisplayConsoleResponse
+    .sendTo(
+        {
+            response = `Failed to make [{targetId}] fly. {inputText}.`,
+            color = "red"
+        },
+        
+        sender
+    )
+end
+
+
 --[[ @section Constructor ]]
 --[[
     @usage Initialize the command.
@@ -31,7 +53,7 @@ local function constructorCallback(sender: Player, args: { string })
     -- Anchor the player's character.
     do
         targetPlayer = Players:GetPlayerByUserId(targetId)
-        if not targetPlayer then return end
+        if not targetPlayer then failedToExecute(targetId, sender, "Target player not found"); return end
 
         CommandsNamespace.packets.ClientFlyCharacter.sendTo(nil, targetPlayer)
     end

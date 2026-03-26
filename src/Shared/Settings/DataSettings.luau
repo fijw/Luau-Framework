@@ -14,34 +14,40 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 
-export type DataTemplateSchema
-= {
-    Inventory: StateEngine
-    <
-        {
-            Pets: { [string]: { str: number, spe: number } },
-            Items: { [string]: { dam: number, dur: number } }
-        }
-    >,
+export type DataTemplateSchema = setmetatable
+<
+    {
+        Inventory: StateEngine
+        <
+            {
+                Pets: { [string]: { str: number, spe: number } },
+                Items: { [string]: { dam: number, dur: number } }
+            }
+        >,
 
-    coins: StateEngine<number>,
-    level: StateEngine<number>
-}
-& {
-    ModerationData: StateEngine
-    <
-        {
-            BanData
-            : {
-                permanent: true?,
-                banDuration: number?,
-                banReason: string
-            }?
-        }
-    >,
+        coins: StateEngine<number>,
+        level: StateEngine<number>
+    },
 
-    [string]: StateEngine<any>
-}
+    {
+        __index
+        : {
+            ModerationData: StateEngine
+            <
+                {
+                    BanData
+                    : {
+                        permanent: true?,
+                        banDuration: number?,
+                        banReason: string
+                    }?
+                }
+            >,
+
+            [string]: StateEngine<any>
+        }
+    }
+>
 --[[ @end_section Types ]]
 
 
@@ -70,7 +76,7 @@ local DataSettings
         level = 15,
     },
 
-    PLAYER_DATA_STORAGE_KEY = "aqaa222"
+    PLAYER_DATA_STORAGE_KEY = "aqaa2222e31"
 }
 
 

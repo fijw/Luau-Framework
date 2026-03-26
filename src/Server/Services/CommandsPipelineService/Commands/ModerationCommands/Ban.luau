@@ -15,26 +15,19 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.Compression)
 local DataLib = require(ServerScriptService.Libraries.DataLib)
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
 
-local Settings = require(ReplicatedStorage.Settings)
+local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 --[[ @end_section Imports ]]
 
 
---[[ @section Types ]]
-type StoredDataClassSchema = DataLib.StoredDataClassSchema
 type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
 
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
---[[ @end_section Types ]]
 
-
-local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
+local DataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE_KEY)
 
 
 --[[ @section Constructor ]]
@@ -53,6 +46,7 @@ local function constructorCallback(sender: Player, args: { string })
     table.remove(args, 1)
 
     local reason = table.concat(args, " ")
+    if #reason < 1 then reason = "No reason provided" end
 
     -- If the player is in this server, update their player data class here.
     do
@@ -74,7 +68,7 @@ local function constructorCallback(sender: Player, args: { string })
             CommandsNamespace.packets.DisplayConsoleResponse
             .sendTo(
                 {
-                    response = `Banned [{targetId}]. Reason: "{reason}".`,
+                    response = `Perm-banned [{targetId}]. Reason: "{reason}".`,
                     color = "white"
                 },
                 
@@ -98,7 +92,20 @@ local function constructorCallback(sender: Player, args: { string })
     end
 
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
-    if not AsyncData then return end
+
+    if not AsyncData then
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Failed to perm-ban [{targetId}]. Could not fetch stored player data.`,
+                color = "red"
+            },
+            
+            sender
+        )
+
+        return
+    end
 
     if AsyncData.inUse == true then
         MessagingService:PublishAsync("commands",
@@ -114,7 +121,7 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.DisplayConsoleResponse
         .sendTo(
             {
-                response = `Sent a global request to ban [{targetId}]. Reason: "{reason}".`,
+                response = `Sent a request to perm-ban [{targetId}]. Reason: "{reason}".`,
                 color = "white"
             },
             
@@ -169,7 +176,7 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.DisplayConsoleResponse
         .sendTo(
             {
-                response = `Changed [{targetId}]'s stored data to be banned. Reason: "{reason}".`,
+                response = `Set [{targetId}] as perm-banned. Reason: "{reason}".`,
                 color = "white"
             },
             

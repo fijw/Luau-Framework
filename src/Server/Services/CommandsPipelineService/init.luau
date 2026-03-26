@@ -55,7 +55,7 @@ type PermissionTypes = ChatSettings.PermissionTypes
 
 
 --[[ @section Variables ]]
-local debugging = false
+local debugging = true
 
 local idAndReasonTag = "[User Id] [Reason]"
 local idTag = "[User Id]"

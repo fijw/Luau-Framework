@@ -7,8 +7,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreService = game:GetService("DataStoreService")
-local MessagingService = game:GetService("MessagingService")
-local Players = game:GetService("Players")
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
@@ -50,9 +48,23 @@ local function constructorCallback(sender: Player, args: { string })
     table.remove(args, 1)
 
     local reason = table.concat(args, " ")
+    if #reason < 1 then reason = "No reason provided" end
 
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
-    if not AsyncData then return end
+
+    if not AsyncData then
+        CommandsNamespace.packets.DisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Failed to unban [{targetId}]. Could not fetch stored player data.`,
+                color = "red"
+            },
+            
+            sender
+        )
+        
+        return
+    end
 
     -- Change the player's stored data to be unbanned.
     do
@@ -88,7 +100,7 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.DisplayConsoleResponse
         .sendTo(
             {
-                response = `Changed [{targetId}]'s stored data to be unbanned. Reason: "{reason}".`,
+                response = `Set [{targetId}] as unbanned. Reason: "{reason}".`,
                 color = "white"
             },
             

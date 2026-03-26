@@ -7,7 +7,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
-local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
 
 local Components = require(script.Components)
 
@@ -15,7 +14,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 
 local Settings = require(ReplicatedStorage.Settings)
 
-local InputMapper = require(StarterPlayerScripts.Libraries.InputMapper)
+local InputMapper = require(StarterPlayer.StarterPlayerScripts.Libraries.InputMapper)
 --[[ @end_section Imports ]]
 
 
