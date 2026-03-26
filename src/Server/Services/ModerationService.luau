@@ -13,14 +13,6 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 --[[ @end_section Imports ]]
 
 
---[[ @section Types ]]
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
-
-type DataClass = DataLib.DataClass
---[[ @end_section Types ]]
-
-
 local SecondsPerUnit
 = {
     seconds = 1,
