@@ -165,6 +165,7 @@ local function constructorCallback()
         end
     end
 
+    for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end
     Players.PlayerAdded:Connect(onPlayerAdded)
 end
 

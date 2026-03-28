@@ -24,7 +24,7 @@ local Settings = require(ReplicatedStorage.Settings)
 local function constructorCallback(sender: Player, args: { string })
     Settings.serverIsLocked = false
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Unlocked the server, allowing for new players to join.`,

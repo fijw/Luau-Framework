@@ -25,7 +25,7 @@ local function cmdsNamespace()
             ClientFlyCharacter = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
             ClientUnflyCharacter = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
 
-            DisplayConsoleResponse = ByteNetMax
+            ClientDisplayConsoleResponse = ByteNetMax
             .definePacket(
                 {
                     value
@@ -38,8 +38,10 @@ local function cmdsNamespace()
                 }
             ),
 
-            DisplayNewPermissions = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
-            ChangeCmdPermissionsTxt = ByteNetMax.definePacket({ value = ByteNetMax.string })
+            ClientDisplayNewPermissions = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
+            ClientChangeCmdPermissionsTxt = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+
+            ClientSpectateTarget = ByteNetMax.definePacket({ value = ByteNetMax.string })
         }
     }
 

@@ -34,7 +34,7 @@ local function constructorCallback()
     local idPermissions = Settings.ChatSettings.ChatCommandSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
 
     if not rankPermissions and not idPermissions then
-        CommandsNamespace.packets.DisplayNewPermissions
+        CommandsNamespace.packets.ClientDisplayNewPermissions
         .listenOnce(
             function(data: nil)
                 StarterGui:SetCore("SendNotification",

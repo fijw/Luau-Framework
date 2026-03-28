@@ -13,6 +13,7 @@ local Players = game:GetService("Players")
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
+local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Compression = require(ServerScriptService.Libraries.Compression)
 local DataLib = require(ServerScriptService.Libraries.DataLib)
 
@@ -24,7 +25,12 @@ local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 --[[ @end_section Imports ]]
 
 
+--[[ @section Types ]]
+--[[ @generic T Source type. ]]
+type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+
 type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
+--[[ @end_section Types ]]
 
 
 local DataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE_KEY)
@@ -56,26 +62,23 @@ local function constructorCallback(sender: Player, args: { string })
             local PlayerDataClass = DataLib(player)
             if not PlayerDataClass then return end
 
-            PlayerDataClass().ModerationData(
-                {
-                    permanent = true,
-                    banReason = reason
-                },
-                
-                "BanData"
-            )
+            for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
+                (PlayerDataClass() :: { [string]: StateEngine<any> })[i](v)
+            end
+
+            player:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)
 
             CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
                 {
-                    response = `Perm-banned [{targetId}]. Reason: "{reason}".`,
+                    response = `Reset [{targetId}]'s player data. Reason: "{reason}".`,
                     color = "white"
                 },
                 
                 sender
             )
 
-            LogsHandler("Ban", sender.UserId, targetId, reason)
+            LogsHandler("Reset Data", sender.UserId, targetId, reason)
 
             CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
@@ -97,7 +100,7 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
-                response = `Failed to perm-ban [{targetId}]. Could not fetch stored player data.`,
+                response = `Failed to reset [{targetId}]'s player data. Could not fetch stored player data.`,
                 color = "red"
             },
             
@@ -112,7 +115,7 @@ local function constructorCallback(sender: Player, args: { string })
             Compression(
                 {
                     targetId = targetId,
-                    commandType = "ban",
+                    commandType = "reset_data",
                     reason = reason
                 } :: DecompressedDataSchema
             )
@@ -121,14 +124,14 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
-                response = `Sent a request to perm-ban [{targetId}]. Reason: "{reason}".`,
+                response = `Sent a request to reset [{targetId}]'s player data. Reason: "{reason}".`,
                 color = "white"
             },
             
             sender
         )
 
-        LogsHandler("Ban", sender.UserId, targetId, reason)
+        LogsHandler("Reset Data", sender.UserId, targetId, reason)
 
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
@@ -148,11 +151,7 @@ local function constructorCallback(sender: Player, args: { string })
                 ModifyingData[i] = Compression(v, "decompress")
             end
 
-            ModifyingData.ModerationData.BanData
-            = {
-                permanent = true,
-                banReason = reason
-            }
+            for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do ModifyingData[i] = v end
         end
 
         local SavingData = {}
@@ -176,14 +175,14 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
-                response = `Set [{targetId}] as perm-banned. Reason: "{reason}".`,
+                response = `Reset [{targetId}]'s stored player data. Reason: "{reason}".`,
                 color = "white"
             },
             
             sender
         )
 
-        LogsHandler("Ban", sender.UserId, targetId, reason)
+        LogsHandler("Reset Data", sender.UserId, targetId, reason)
 
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(

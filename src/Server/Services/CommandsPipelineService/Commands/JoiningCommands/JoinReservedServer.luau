@@ -24,7 +24,7 @@ local function constructorCallback(sender: Player, args: { string })
     local code = TeleportService:ReserveServerAsync(game.PlaceId)
     TeleportService:TeleportToPrivateServer(game.PlaceId, code, { sender })
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Attempting to join reserved server [{code}].`,

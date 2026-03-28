@@ -106,7 +106,6 @@ export type StoredDataClassSchema
 local SettingsDataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE_KEY)
 
 local CachedDataClasses = {} :: { [number]: DataClass }
-local CachedHandledPlayers = {} :: { number }
 
 local DataLib = {}
 --[[ @end_section Variables ]]
@@ -274,14 +273,7 @@ end
 
     @return void
 ]]
-local function deleteClassCallback(self: DataClass)
-    CachedDataClasses[tonumber(self.classKey) :: number] = nil
-    
-    local foundPlayerIdCache = table.find(CachedHandledPlayers, tonumber(self.classKey) :: number)
-    if not foundPlayerIdCache then return end
-
-    table.remove(CachedHandledPlayers, foundPlayerIdCache)
-end
+local function deleteClassCallback(self: DataClass) CachedDataClasses[tonumber(self.classKey) :: number] = nil end
 --[[ @end_section Inheritance Functions ]]
 
 
@@ -301,41 +293,53 @@ local function dataClassCallback(self: DataClass): DataTemplateSchema return sel
 
     @param self unknown
     @param player Player
+    @param create true?
 
     @return DataClass?
 ]]
-local function constructorCallback(self: unknown, player: Player): DataClass?
+local function constructorCallback(self: unknown, player: Player, create: true?): DataClass?
     local CachedDataClass = CachedDataClasses[player.UserId]
     if CachedDataClass then return CachedDataClass end
 
-    if table.find(CachedHandledPlayers, player.UserId) then return nil end
-    table.insert(CachedHandledPlayers, player.UserId)
+    if not create and not CachedDataClass then
+        repeat task.wait() until CachedDataClasses[player.UserId]
+        return CachedDataClasses[player.UserId]
+    end
 
-    local existingData = DataLib.forciblyFetchStoredPlayerData(player.UserId) :: StoredDataClassSchema
+    local ExistingData = DataLib.forciblyFetchStoredPlayerData(player.UserId) :: StoredDataClassSchema
 
-    if not existingData then
+    if not ExistingData then
         local CompressedDataTemplate = {}
 
         for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
             CompressedDataTemplate[i] = Compression(v)
         end
 
-        existingData
+        ExistingData
         = {
             Data = Compression(CompressedDataTemplate),
             inUse = true
         }
     else
-        if existingData.inUse == true then
+        if ExistingData.inUse == true then
             player:Kick("\n\nYour data is already in use.\n\n\n")
 
             return nil
         end
+
+        local DecompressedExistingData: { [string]: buffer } = Compression(ExistingData.Data, "decompress")
+
+        for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
+            if DecompressedExistingData[i] then continue end
+            DecompressedExistingData[i] = Compression(v)
+        end
+
+        ExistingData.Data = Compression(DecompressedExistingData)
     end
 
     local ModifiedClassData = {}
 
-    for i: string, v: any in pairs(Compression(existingData.Data, "decompress") :: { [string]: any }) do
+    for i: string, v: any in pairs(Compression(ExistingData.Data, "decompress") :: { [string]: any }) do
         ModifiedClassData[i] = Reactor(Compression(v, "decompress"))
     end
 

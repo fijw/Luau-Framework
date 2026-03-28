@@ -24,7 +24,7 @@ local function failedToExecute(targetId: number, sender: Player, inputText: stri
     CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
-            response = `Failed to freeze [{targetId}]. {inputText}.`,
+            response = `Failed to make [{targetId}] fly. {inputText}.`,
             color = "red"
         },
         
@@ -48,26 +48,18 @@ local function constructorCallback(sender: Player, args: { string })
 
     table.remove(args, 1)
 
-    -- Anchor the player's character.
-    do
-        local targetPlayer = Players:GetPlayerByUserId(targetId)
-        if not targetPlayer then failedToExecute(targetId, sender, "Target player not found"); return end
-
-        local targetCharacter = targetPlayer.Character
-        if not targetCharacter then failedToExecute(targetId, sender, "Target character not found"); return end
-
-        local CharacterDescendants = targetCharacter:GetDescendants()
-
-        for i: number, child: Instance in ipairs(CharacterDescendants) do
-            if not child:IsA("BasePart") or child.Anchored == true then continue end
-            child.Anchored = true
-        end
+    if not Players:GetPlayerByUserId(targetId) then
+        failedToExecute(targetId, sender, "Target player not found")
+        
+        return
     end
+
+    CommandsNamespace.packets.ClientSpectateTarget.sendTo(`{targetId}`, sender)
 
     CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
-            response = `Froze [{targetId}].`,
+            response = `Spectating [{targetId}].`,
             color = "white"
         },
         

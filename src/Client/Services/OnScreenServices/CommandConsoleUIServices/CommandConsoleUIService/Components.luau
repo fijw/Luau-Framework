@@ -29,6 +29,7 @@ local ComponentsMap = { CommandsBar = CommandsBar }
 do
     CommandsBar.Name = "CommandsBar"
     CommandsBar.ResetOnSpawn = false
+    CommandsBar.DisplayOrder = 1000
 
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = CommandsBar

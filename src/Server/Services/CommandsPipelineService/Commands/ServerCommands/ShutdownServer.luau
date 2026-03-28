@@ -23,7 +23,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 local function constructorCallback(sender: Player, args: { string })
     local reason = table.concat(args, " ")
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Shutting down the server.`,

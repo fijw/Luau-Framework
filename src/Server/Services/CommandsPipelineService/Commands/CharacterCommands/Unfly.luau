@@ -21,7 +21,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Failed to take away [{targetId}]'s flying abilities. {inputText}.`,
@@ -56,7 +56,7 @@ local function constructorCallback(sender: Player, args: { string })
         CommandsNamespace.packets.ClientUnflyCharacter.sendTo(nil, targetPlayer)
     end
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Stopped [{targetId}]'s flying abilities.`,

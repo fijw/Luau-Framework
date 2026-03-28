@@ -22,6 +22,7 @@ local ComponentsMap = { LoadingScreen = LoadingScreen }
 do
     LoadingScreen.Name = "LoadingScreen"
     LoadingScreen.IgnoreGuiInset = true
+    LoadingScreen.DisplayOrder = 999
 
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = LoadingScreen

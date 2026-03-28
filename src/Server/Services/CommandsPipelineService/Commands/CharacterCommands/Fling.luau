@@ -21,7 +21,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Failed to fling [{targetId}]. {inputText}.`,
@@ -76,7 +76,7 @@ local function constructorCallback(sender: Player, args: { string })
         bodyVelocity:Destroy()
     end
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Flung [{targetId}].`,

@@ -38,7 +38,7 @@ local function constructorCallback(sender: Player, args: { string })
         connection = Players.PlayerAdded:Connect(onPlayerAdded)
     end
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Locked the server, stopping it from receiving new players.`,

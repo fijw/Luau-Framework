@@ -13,6 +13,7 @@ local KickModule = require(script.Commands.ModerationCommands.Kick)
 local BanModule = require(script.Commands.ModerationCommands.Ban)
 local UnbanModule = require(script.Commands.ModerationCommands.Unban)
 local TempBanModule = require(script.Commands.ModerationCommands.TempBan)
+local ResetDataModule = require(script.Commands.ModerationCommands.ResetData)
 
 local FlyModule = require(script.Commands.CharacterCommands.Fly)
 local UnflyModule = require(script.Commands.CharacterCommands.Unfly)
@@ -24,6 +25,7 @@ local TeleportModule = require(script.Commands.CharacterCommands.Teleport)
 local SpeedModule = require(script.Commands.CharacterCommands.Speed)
 local KillModule = require(script.Commands.CharacterCommands.Kill)
 local FlingModule = require(script.Commands.CharacterCommands.Fling)
+local SpectateModule = require(script.Commands.CharacterCommands.Spectate)
 
 local BringPlayerToServerModule = require(script.Commands.JoiningCommands.BringPlayerToServer)
 local JoinPlayerServerModule = require(script.Commands.JoiningCommands.JoinPlayerServer)
@@ -55,7 +57,7 @@ type PermissionTypes = ChatSettings.PermissionTypes
 
 
 --[[ @section Variables ]]
-local debugging = true
+local debugging = false
 
 local idAndReasonTag = "[User Id] [Reason]"
 local idTag = "[User Id]"
@@ -63,6 +65,7 @@ local reasonTag = "[Reason]"
 
 local CommandCallbackMap: { [string]: CommandSchema }
 = {
+    reset_data = { func = ResetDataModule, helpTag = idAndReasonTag },
     temp_ban = { func = TempBanModule, helpTag = "[User Id] [Time Amount] [Time Frame (minutes, hours, days, years)] [Reason]" },
     ban = { func = BanModule, helpTag = idAndReasonTag },
     kick = { func = KickModule, helpTag = idAndReasonTag },
@@ -78,6 +81,7 @@ local CommandCallbackMap: { [string]: CommandSchema }
     speed = { func = SpeedModule, helpTag = "[User Id] [Speed]" },
     kill = { func = KillModule, helpTag = idTag },
     fling = { func = FlingModule, helpTag = idTag },
+    spectate = { func = SpectateModule, helpTag = idTag },
 
     bring_player_to_server = { func = BringPlayerToServerModule, helpTag = idTag },
     join_player_server = { func = JoinPlayerServerModule, helpTag = idTag },
@@ -94,8 +98,8 @@ local PermissionsMap: { [PermissionTypes]: { string } }
 = {
     developer
     = {
-        "ban", "kick", "unban", "temp_ban",
-        "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling",
+        "ban", "kick", "unban", "temp_ban", "reset_data",
+        "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling", "spectate",
         "bring_player_to_server", "join_player_server", "join_reserved_server",
         "shutdown_server", "lock_server", "unlock_server",
         "give_fun_cmds"
@@ -104,13 +108,16 @@ local PermissionsMap: { [PermissionTypes]: { string } }
     moderator
     = {
         "ban", "kick", "unban", "temp_ban",
-        "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling",
+        "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling", "spectate",
         "bring_player_to_server", "join_player_server", "join_reserved_server"
     },
 
-    fun_perms = { "fly", "unfly", "freeze", "unfreeze", "invisible", "visible", "teleport", "speed", "kill", "fling" }
+    fun_perms = { "fly", "unfly", "freeze", "unfreeze", "invisible", "visible", "teleport", "speed", "kill", "fling", "spectate" }
 }
 --[[ @end_section Variables ]]
+
+
+-- add spectate and reset data
 
 
 --[[ @section Constructor ]]
@@ -137,7 +144,7 @@ local function constructorCallback()
 
             if data[1] == "help" then
                 if not MappedPermissions and not debugging then
-                    CommandsNamespace.packets.DisplayConsoleResponse
+                    CommandsNamespace.packets.ClientDisplayConsoleResponse
                     .sendTo(
                         {
                             response = `You do not have permissions to view the list of commands.`,
@@ -153,7 +160,7 @@ local function constructorCallback()
                 for i: string, CommandData: CommandSchema in pairs(CommandCallbackMap) do
                     if MappedPermissions then if not table.find(MappedPermissions, i) and not debugging then continue end end
 
-                    CommandsNamespace.packets.DisplayConsoleResponse
+                    CommandsNamespace.packets.ClientDisplayConsoleResponse
                     .sendTo(
                         {
                             response = if CommandData.helpTag then `{i} {CommandData.helpTag}` else i,
@@ -170,7 +177,7 @@ local function constructorCallback()
             local MappedCommand = CommandCallbackMap[data[1]]
 
             if not MappedCommand then
-                CommandsNamespace.packets.DisplayConsoleResponse
+                CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .sendTo(
                     {
                         response = `Send "help" to see a list of all available commands.`,
@@ -186,7 +193,7 @@ local function constructorCallback()
             -- Check if the player has the required permissions.
             do
                 if not MappedPermissions and not debugging then
-                    CommandsNamespace.packets.DisplayConsoleResponse
+                    CommandsNamespace.packets.ClientDisplayConsoleResponse
                     .sendTo(
                         {
                             response = `You do not have permissions to use commands.`,
@@ -201,7 +208,7 @@ local function constructorCallback()
 
                 if MappedPermissions and not debugging then
                     if not table.find(MappedPermissions, data[1]) then
-                        CommandsNamespace.packets.DisplayConsoleResponse
+                        CommandsNamespace.packets.ClientDisplayConsoleResponse
                         .sendTo(
                             {
                                 response = `You do not have permissions to use "{data[1]}".`,

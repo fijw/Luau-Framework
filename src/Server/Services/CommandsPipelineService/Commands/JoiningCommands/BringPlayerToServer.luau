@@ -39,7 +39,7 @@ local function constructorCallback(sender: Player, args: { string })
         )
     )
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Sent a request to bring [{targetId}] to this server.`,

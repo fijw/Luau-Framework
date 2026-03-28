@@ -92,7 +92,7 @@ local function constructorCallback()
                             if currentInputBoxConnection then currentInputBoxConnection:Disconnect() end
                             if currentCommandsBar then currentCommandsBar:Destroy() end
 
-                            CommandsNamespace.packets.DisplayConsoleResponse.disconnectAll()
+                            CommandsNamespace.packets.ClientDisplayConsoleResponse.disconnectAll()
                         end
 
                         local splitText = string.split(if lowerText then lowerText else "", " ")
@@ -105,7 +105,7 @@ local function constructorCallback()
                     end
                 )
 
-                CommandsNamespace.packets.DisplayConsoleResponse
+                CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .listen(
                     function(
                         data
@@ -141,7 +141,7 @@ local function constructorCallback()
                     end
                 )
 
-                CommandsNamespace.packets.ChangeCmdPermissionsTxt
+                CommandsNamespace.packets.ClientChangeCmdPermissionsTxt
                 .listen(
                     function(data: string)
                         if rankPermissions or idPermissions then return end

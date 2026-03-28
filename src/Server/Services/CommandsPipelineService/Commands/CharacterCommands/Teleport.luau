@@ -21,7 +21,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Failed to teleport [{targetId}]. {inputText}.`,
@@ -86,7 +86,7 @@ local function constructorCallback(sender: Player, args: { string })
 
     teleportingPlayerRootPart.CFrame = rootPlayerRootPart.CFrame
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Teleported [{targetId1}] to [{targetId2}].`,

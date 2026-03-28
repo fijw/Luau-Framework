@@ -1,0 +1,54 @@
+--!strict
+--!native
+--!optimize 2
+
+
+--[[ @section Imports ]]
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+
+local DataLib = require(ServerScriptService.Libraries.DataLib)
+local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+
+local Types = require(script.Parent.Parent.Types)
+
+local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
+--[[ @end_section Imports ]]
+
+
+--[[ @section Types ]]
+--[[ @generic T Source type. ]]
+type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+
+type DecompressedDataSchema = Types.DecompressedDataSchema
+--[[ @end_section Types ]]
+
+
+--[[ @section Constructor ]]
+--[[
+    @usage Initialize the global command.
+
+    @param DecompressedData DecompressedDataSchema
+
+    @return void
+]]
+local function constructorCallback(DecompressedData: DecompressedDataSchema)
+    local reason, targetId = DecompressedData.reason, DecompressedData.targetId
+    if not reason or not targetId then return end
+
+    local FoundPlayer = Players:GetPlayerByUserId(targetId)
+    if not FoundPlayer then return end
+
+    local PlayerDataClass = DataLib(FoundPlayer)
+    if not PlayerDataClass then return end
+
+    for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
+        (PlayerDataClass() :: { [string]: StateEngine<any> })[i](v)
+    end
+
+    FoundPlayer:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)
+end
+
+return constructorCallback
+--[[ @end_section Constructor ]]

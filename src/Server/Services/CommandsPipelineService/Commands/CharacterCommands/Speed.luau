@@ -21,7 +21,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Failed to change [{targetId}]'s speed. {inputText}.`,
@@ -62,7 +62,7 @@ local function constructorCallback(sender: Player, args: { string })
         humanoid.WalkSpeed = tonumber(args[1]) :: number
     end
 
-    CommandsNamespace.packets.DisplayConsoleResponse
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
             response = `Changed [{targetId}]'s speed to {args[1]}.`,

@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
@@ -200,6 +201,15 @@ local function constructorCallback()
 
             local CharacterStuff = getCharacterSchema()
             enableFlying(CharacterStuff.Humanoid, CharacterStuff.rootPart)
+
+            StarterGui:SetCore("SendNotification",
+                {
+                    Title = "You are now flying.",
+                    Text = `Press "F" to stop/start flying.\nPress "Shift" for faster flying.\nPress "Space" to ascend.\nPress "LeftControl" to descend.`,
+                    
+                    Duration = 10
+                }
+            )
         end
     )
 

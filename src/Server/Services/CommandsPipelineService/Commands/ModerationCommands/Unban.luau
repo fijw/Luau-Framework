@@ -53,7 +53,7 @@ local function constructorCallback(sender: Player, args: { string })
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData then
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Failed to unban [{targetId}]. Could not fetch stored player data.`,
@@ -97,7 +97,7 @@ local function constructorCallback(sender: Player, args: { string })
         )
         :onError(function(err: string?) print(`Failed to save moderation data changes. Error: {err}`) end)
 
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Set [{targetId}] as unbanned. Reason: "{reason}".`,
@@ -109,7 +109,7 @@ local function constructorCallback(sender: Player, args: { string })
 
         LogsHandler("Unban", sender.UserId, targetId, reason)
 
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Your moderation action for {targetId} has been logged.`,

@@ -22,8 +22,23 @@ local Settings = require(ReplicatedStorage.Settings)
 ]]
 local function constructorCallback()
     local function onPlayerAdded(player: Player)
-        local PlrDataClass = DataLib(player)
+        local PlrDataClass = DataLib(player, true)
         if not PlrDataClass then return end
+
+        print(PlrDataClass().coins(), `{player.UserId}'s coins.`)
+
+        task.spawn(
+            function()
+                while true do
+                    if not Players:GetPlayerByUserId(player.UserId) then break end
+
+                    local oldCoins = PlrDataClass().coins() :: number
+                    PlrDataClass().coins(oldCoins + 100_000)
+
+                    task.wait(5)
+                end
+            end
+        )
     end
 
     local function onPlayerRemoving(player: Player)
@@ -37,8 +52,13 @@ local function constructorCallback()
         Settings.ServerUsersGivenFunCommands[player.UserId] = nil
     end
 
-    Players.PlayerAdded:Connect(onPlayerAdded)
-    Players.PlayerRemoving:Connect(onPlayerRemoving)
+    -- Handle player joining and leaving connections.
+    do
+        for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end
+
+        Players.PlayerAdded:Connect(onPlayerAdded)
+        Players.PlayerRemoving:Connect(onPlayerRemoving)
+    end
 end
 
 return constructorCallback

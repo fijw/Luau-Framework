@@ -48,7 +48,7 @@ local function constructorCallback(sender: Player, args: { string })
         if player then
             player:Kick(`\n\nYou have been kicked.\nReason: "{reason}".\n\n\n`)
 
-            CommandsNamespace.packets.DisplayConsoleResponse
+            CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
                 {
                     response = `Kicked [{targetId}]. Reason: "{reason}".`,
@@ -60,7 +60,7 @@ local function constructorCallback(sender: Player, args: { string })
 
             LogsHandler("Kick", sender.UserId, targetId, reason)
 
-            CommandsNamespace.packets.DisplayConsoleResponse
+            CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
                 {
                     response = `Your moderation action for {targetId} has been logged.`,
@@ -77,7 +77,7 @@ local function constructorCallback(sender: Player, args: { string })
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData or AsyncData.inUse == false then
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Failed to kick [{targetId}]. Could not fetch stored player data.`,
@@ -102,7 +102,7 @@ local function constructorCallback(sender: Player, args: { string })
             )
         )
 
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Sent a request to kick [{targetId}]. Reason: "{reason}".`,
@@ -114,7 +114,7 @@ local function constructorCallback(sender: Player, args: { string })
 
         LogsHandler("Kick", sender.UserId, targetId, reason)
 
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Your moderation action for {targetId} has been logged.`,

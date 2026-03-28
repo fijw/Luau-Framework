@@ -104,7 +104,7 @@ local function constructorCallback(sender: Player, args: { string })
                 "BanData"
             )
 
-            CommandsNamespace.packets.DisplayConsoleResponse
+            CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
                 {
                     response = `Temp-banned [{targetId}]. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
@@ -116,7 +116,7 @@ local function constructorCallback(sender: Player, args: { string })
 
             LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
 
-            CommandsNamespace.packets.DisplayConsoleResponse
+            CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
                 {
                     response = `Your moderation action for {targetId} has been logged.`,
@@ -133,7 +133,7 @@ local function constructorCallback(sender: Player, args: { string })
     local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData then
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Failed to temp-ban [{targetId}]. Could not fetch stored player data.`,
@@ -158,7 +158,7 @@ local function constructorCallback(sender: Player, args: { string })
             )
         )
 
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Sent a request to temp-ban [{targetId}]. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
@@ -170,7 +170,7 @@ local function constructorCallback(sender: Player, args: { string })
 
         LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
 
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Your moderation action for {targetId} has been logged.`,
@@ -213,7 +213,7 @@ local function constructorCallback(sender: Player, args: { string })
         )
         :onError(function(err: string?) print(`Failed to save moderation data changes. Error: {err}`) end)
 
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Set [{targetId}] as temp-banned. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
@@ -225,7 +225,7 @@ local function constructorCallback(sender: Player, args: { string })
 
         LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
 
-        CommandsNamespace.packets.DisplayConsoleResponse
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(
             {
                 response = `Your moderation action for {targetId} has been logged.`,
