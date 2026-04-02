@@ -12,7 +12,7 @@ local Components = require(script.Components)
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
-local Settings = require(ReplicatedStorage.Settings)
+local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 
 local InputMapper = require(StarterPlayer.StarterPlayerScripts.Libraries.InputMapper)
 --[[ @end_section Imports ]]
@@ -22,8 +22,8 @@ local InputMapper = require(StarterPlayer.StarterPlayerScripts.Libraries.InputMa
 local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
 
-local idPermissions = Settings.ChatSettings.ChatCommandSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
-local rankPermissions = Settings.ChatSettings.ChatCommandSettings.RanksWithCommandPermissions[localPlayer:GetRankInGroupAsync(game.CreatorId)]
+local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
+local rankPermissions = CmdsSettings.RanksWithCommandPermissions[localPlayer:GetRankInGroupAsync(game.CreatorId)]
 --[[ @end_section Variables ]]
 
 

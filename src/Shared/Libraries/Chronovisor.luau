@@ -214,7 +214,7 @@ type Chronovisor = setmetatable
 
     @return Chronovisor | DestroyedChronovisor
 ]]
-function onErrorCallback
+local function onErrorCallback
 <U...>(
     self: Chronovisor,
     input: ErrorCallbackType<U...> | ChronovisorStop,
@@ -263,7 +263,7 @@ end
 
     @return Chronovisor?
 ]]
-function afterSecondsCallback(self: Chronovisor, seconds: number): Chronovisor?
+local function afterSecondsCallback(self: Chronovisor, seconds: number): Chronovisor?
     -- Add the waits seconds to the self steps.
     do
         local FoundChronovisor = (self.PreviousSteps :: { [string]: Chronovisor })[self.id]
@@ -287,7 +287,7 @@ end
 
     @return Chronovisor?
 ]]
-function executeCallback<P...>(self: Chronovisor, func: ExecuteCallbackType<P...>, ...: P...): Chronovisor?
+local function executeCallback<P...>(self: Chronovisor, func: ExecuteCallbackType<P...>, ...: P...): Chronovisor?
     local NewChronovisor = constructorCallback(func, ...)
     if not NewChronovisor then return nil end
 
@@ -305,7 +305,7 @@ end
 
     @return DestroyedChronovisor
 ]]
-function destroyCallback(self: Chronovisor): DestroyedChronovisor
+local function destroyCallback(self: Chronovisor): DestroyedChronovisor
     self.success = nil
     self.err = nil
 
@@ -334,7 +334,7 @@ end
     
     @return Chronovisor
 ]]
-function loopCallback(self: Chronovisor, delay: number?): Chronovisor
+local function loopCallback(self: Chronovisor, delay: number?): Chronovisor
     while task.wait(delay) do
         for i: string, v: Chronovisor in pairs(self.PreviousSteps :: { [string]: Chronovisor }) do
             local unpackedParams = table.unpack((v.executes :: { [string]: any }).params)

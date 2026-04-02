@@ -149,12 +149,12 @@ local function onChatSent(message: TextChatMessage): ChatWindowMessageProperties
 
 	local textSourcePlayerRank = textSourcePlayer:GetRankInGroupAsync(game.CreatorId)
 	
-	local IdTagData = ChatSettings.ChatTagSettings.UserIdsWithChatTags[textSourcePlayer.UserId]
-	local RankTagData = ChatSettings.ChatTagSettings.RanksWithChatTags[textSourcePlayerRank]
+	local IdTagData = ChatSettings.UserIdsWithChatTags[textSourcePlayer.UserId]
+	local RankTagData = ChatSettings.RanksWithChatTags[textSourcePlayerRank]
 
 	local GamepassTags = {} :: { ChatTagSchema }
 
-	for i: number, TagData: ChatTagSchema in pairs(ChatSettings.ChatTagSettings.GamepassesWithChatTags) do
+	for i: number, TagData: ChatTagSchema in pairs(ChatSettings.GamepassesWithChatTags) do
 		if not MarketplaceService:UserOwnsGamePassAsync(textSourcePlayer.UserId, i) then continue end
 
 		table.insert(GamepassTags, TagData)

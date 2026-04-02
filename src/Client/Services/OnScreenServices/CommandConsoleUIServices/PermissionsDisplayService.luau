@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 
-local Settings = require(ReplicatedStorage.Settings)
+local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 --[[ @end_section Imports ]]
@@ -30,8 +30,8 @@ local localPlayer = Players.LocalPlayer :: Player
 local function constructorCallback()
     local playerRank = localPlayer:GetRankInGroupAsync(CREATOR_ID)
 
-    local rankPermissions = Settings.ChatSettings.ChatCommandSettings.RanksWithCommandPermissions[playerRank]
-    local idPermissions = Settings.ChatSettings.ChatCommandSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
+    local rankPermissions = CmdsSettings.RanksWithCommandPermissions[playerRank]
+    local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
 
     if not rankPermissions and not idPermissions then
         CommandsNamespace.packets.ClientDisplayNewPermissions

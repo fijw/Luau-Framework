@@ -5,15 +5,17 @@
 
 local DataSettings = require(script.DataSettings)
 local ChatSettings = require(script.ChatSettings)
+local CmdsSettings = require(script.CmdsSettings)
 
 
-type PermissionTypes = ChatSettings.PermissionTypes
+type PermissionTypes = CmdsSettings.PermissionTypes
 
 
 local Settings
 = {
     DataSettings = DataSettings,
     ChatSettings = ChatSettings,
+    CmdsSettings = CmdsSettings,
 
     serverIsLocked = false,
 

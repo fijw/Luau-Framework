@@ -7,7 +7,7 @@
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Settings = require(ReplicatedStorage.Settings)
+local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 --[[ @end_section Imports ]]
@@ -122,7 +122,7 @@ local function constructorCallback(actionType: string, senderId: number, targetI
             local encodedData = HttpService:JSONEncode(EmbeddedData)
 
             HttpService:PostAsync(
-                Settings.ChatSettings.ChatCommandSettings.loggingDiscordWebhookUrl,
+                CmdsSettings.loggingDiscordWebhookUrl,
                 encodedData,
                 Enum.HttpContentType.ApplicationJson
             )

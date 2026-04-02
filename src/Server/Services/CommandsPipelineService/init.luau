@@ -41,7 +41,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 local GlobalCommandsHandler = require(script.GlobalCommandsHandler)
 
 local Settings = require(ReplicatedStorage.Settings)
-local ChatSettings = require(ReplicatedStorage.Settings.ChatSettings)
+local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
 
 
@@ -52,7 +52,7 @@ type CommandSchema
     helpTag: string?
 }
 
-type PermissionTypes = ChatSettings.PermissionTypes
+type PermissionTypes = CmdsSettings.PermissionTypes
 --[[ @end_section Types ]]
 
 
@@ -136,8 +136,8 @@ local function constructorCallback()
 
             local playerRank = player:GetRankInGroupAsync(game.CreatorId)
 
-            local rankPermissions = ChatSettings.ChatCommandSettings.RanksWithCommandPermissions[playerRank]
-            local idPermissions = ChatSettings.ChatCommandSettings.UserIdsWithCommandPermissions[player.UserId]
+            local rankPermissions = CmdsSettings.RanksWithCommandPermissions[playerRank]
+            local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[player.UserId]
             local funPermissions = Settings.ServerUsersGivenFunCommands[player.UserId]
 
             local MappedPermissions = if rankPermissions or idPermissions or funPermissions then PermissionsMap[rankPermissions or idPermissions or funPermissions] else nil
