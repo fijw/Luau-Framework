@@ -63,7 +63,7 @@ local idAndReasonTag = "[User Id] [Reason]"
 local idTag = "[User Id]"
 local reasonTag = "[Reason]"
 
-local CommandCallbackMap: { [string]: CommandSchema }
+local CommandDataCallbackMap: { [string]: CommandSchema }
 = {
     reset_data = { func = ResetDataModule, helpTag = idAndReasonTag },
     temp_ban = { func = TempBanModule, helpTag = "[User Id] [Time Amount] [Time Frame (minutes, hours, days, years)] [Reason]" },
@@ -94,30 +94,54 @@ local CommandCallbackMap: { [string]: CommandSchema }
     give_fun_cmds = { func = GiveFunCmdsModule, helpTag = idTag }
 }
 
+local MappedCommands
+= {
+    ModerationCmds = { "ban", "kick", "unban", "temp_ban" },
+    CharacterCmds = { "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling", "spectate" },
+    JoiningCmds = { "bring_player_to_server", "join_player_server", "join_reserved_server" },
+    ServerCmds = { "shutdown_server", "lock_server", "unlock_server" },
+    SpecialCmds = { "give_fun_cmds", "reset_data" }
+}
+
 local PermissionsMap: { [PermissionTypes]: { string } }
 = {
     developer
-    = {
-        "ban", "kick", "unban", "temp_ban", "reset_data",
-        "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling", "spectate",
-        "bring_player_to_server", "join_player_server", "join_reserved_server",
-        "shutdown_server", "lock_server", "unlock_server",
-        "give_fun_cmds"
-    },
+    = combineMappedCommands(
+        MappedCommands.ModerationCmds,
+        MappedCommands.CharacterCmds,
+        MappedCommands.JoiningCmds,
+        MappedCommands.ServerCmds,
+        MappedCommands.SpecialCmds
+    ),
 
     moderator
-    = {
-        "ban", "kick", "unban", "temp_ban",
-        "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling", "spectate",
-        "bring_player_to_server", "join_player_server", "join_reserved_server"
-    },
+    = combineMappedCommands(
+        MappedCommands.ModerationCmds,
+        MappedCommands.CharacterCmds,
+        MappedCommands.JoiningCmds
+    ),
 
-    fun_perms = { "fly", "unfly", "freeze", "unfreeze", "invisible", "visible", "teleport", "speed", "kill", "fling", "spectate" }
+    fun_perms = MappedCommands.CharacterCmds
 }
 --[[ @end_section Variables ]]
 
 
--- add spectate and reset data
+--[[
+    @usage Combines multiple arrays into one.
+
+    @param ... { string }
+
+    @return { string }
+]]
+function combineMappedCommands(...: { string }): { string }
+    local CombinedMappedCommands = {}
+
+    for i: number, v: { string } in ipairs({ ... }) do
+        for i: number, cmdName: string in ipairs(v) do table.insert(CombinedMappedCommands, cmdName) end
+    end
+
+    return CombinedMappedCommands
+end
 
 
 --[[ @section Constructor ]]
@@ -157,7 +181,7 @@ local function constructorCallback()
                     return
                 end
 
-                for i: string, CommandData: CommandSchema in pairs(CommandCallbackMap) do
+                for i: string, CommandData: CommandSchema in pairs(CommandDataCallbackMap) do
                     if MappedPermissions then if not table.find(MappedPermissions, i) and not debugging then continue end end
 
                     CommandsNamespace.packets.ClientDisplayConsoleResponse
@@ -174,7 +198,7 @@ local function constructorCallback()
                 return
             end
 
-            local MappedCommand = CommandCallbackMap[data[1]]
+            local MappedCommand = CommandDataCallbackMap[data[1]]
 
             if not MappedCommand then
                 CommandsNamespace.packets.ClientDisplayConsoleResponse
