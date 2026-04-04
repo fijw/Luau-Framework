@@ -25,7 +25,8 @@ type CharacterSchema
 
 
 --[[ @section Variables ]]
-local LOCAL_PLAYER = Players.LocalPlayer :: Player
+local localPlayer = Players.LocalPlayer :: Player
+
 
 local SPEED = 50
 
@@ -65,25 +66,28 @@ local function onRenderStepped(deltaTime: number, rootPart: BasePart)
 
     if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then SPEED = 100 else SPEED = 50 end
 
-    TweensLibrary(
-        bodyGyro,
+    if move.Magnitude > 0 then
+        bodyVelocity.Velocity = move.Unit * SPEED
+
+        TweensLibrary(
+            bodyGyro,
 
 
-        0.15,
+            0.15,
 
-        Enum.EasingStyle.Sine,
-        Enum.EasingDirection.Out,
+            Enum.EasingStyle.Sine,
+            Enum.EasingDirection.Out,
 
-        0,
-        false,
-        0,
+            0,
+            false,
+            0,
 
 
-        { CFrame = CFrame.lookAt(rootPart.Position, rootPart.Position + cam.CFrame.LookVector) }
-    )
-
-    if move.Magnitude > 0 then bodyVelocity.Velocity = move.Unit * SPEED
-    else bodyVelocity.Velocity = Vector3.zero end
+            { CFrame = CFrame.lookAt(rootPart.Position, rootPart.Position + cam.CFrame.LookVector) }
+        )
+    else
+        bodyVelocity.Velocity = Vector3.zero
+    end
 end
 
 
@@ -169,8 +173,8 @@ end
     @return CharacterSchema
 ]]
 local function getCharacterSchema(): CharacterSchema
-    local character = LOCAL_PLAYER.Character :: Model
-    if not character then character = LOCAL_PLAYER.CharacterAdded:Wait() end
+    local character = localPlayer.Character :: Model
+    if not character then character = localPlayer.CharacterAdded:Wait() end
 
     local humanoid = character:WaitForChild("Humanoid") :: Humanoid
     local rootPart = character:WaitForChild("HumanoidRootPart") :: BasePart

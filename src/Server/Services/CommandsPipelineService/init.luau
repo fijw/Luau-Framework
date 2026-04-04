@@ -4,6 +4,7 @@
 
 
 --[[ @section Imports ]]
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
@@ -171,7 +172,7 @@ local function constructorCallback()
                     CommandsNamespace.packets.ClientDisplayConsoleResponse
                     .sendTo(
                         {
-                            response = `You do not have permissions to view the list of commands.`,
+                            response = `You do not have permission to view the list of commands.`,
                             color = "red"
                         },
                         
@@ -220,7 +221,7 @@ local function constructorCallback()
                     CommandsNamespace.packets.ClientDisplayConsoleResponse
                     .sendTo(
                         {
-                            response = `You do not have permissions to use commands.`,
+                            response = `You do not have permission to use commands.`,
                             color = "red"
                         },
                         
@@ -235,7 +236,7 @@ local function constructorCallback()
                         CommandsNamespace.packets.ClientDisplayConsoleResponse
                         .sendTo(
                             {
-                                response = `You do not have permissions to use "{data[1]}".`,
+                                response = `You do not have permission to use "{data[1]}".`,
                                 color = "red"
                             },
                             
@@ -249,6 +250,20 @@ local function constructorCallback()
 
             -- Replace all "me" arguments with the sender's id.
             for i: number, arg: string in ipairs(data) do if arg:lower() == "me" then data[i] = `{player.UserId}` end end
+
+            -- Replace all player username arguments with their corresponding user ids.
+            do
+                local StoredPlayers = {} :: { Player }
+                for i: number, loopedPlayer: Player in ipairs(Players:GetPlayers()) do table.insert(StoredPlayers, loopedPlayer) end
+
+                for i: number, arg: string in ipairs(data) do
+                    for storedPlrIndex: number, storedPlayer: Player in ipairs(StoredPlayers) do
+                        if not string.find(storedPlayer.Name:lower(), arg:lower()) then continue end
+
+                        data[i] = `{storedPlayer.UserId}`
+                    end
+                end
+            end
 
             table.remove(data, 1)
 

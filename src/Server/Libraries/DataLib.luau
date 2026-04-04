@@ -308,6 +308,7 @@ local function constructorCallback(self: unknown, player: Player, create: true?)
 
     local ExistingData = DataLib.forciblyFetchStoredPlayerData(player.UserId) :: StoredDataClassSchema
 
+    -- If there's no existing data then use the template data. If there's existing data but it's in use then kick the player.
     if not ExistingData then
         local CompressedDataTemplate = {}
 
