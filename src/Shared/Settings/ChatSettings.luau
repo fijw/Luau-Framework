@@ -17,73 +17,73 @@ local ChatSettings
     = {
         [255]
         = {
-            tagText = "Holder",
+            tagText = "🔒 Holder",
             isRainbow = true
         },
 
         [254]
         = {
-            tagText = "Owner",
+            tagText = "👑 Owner",
             isRainbow = true
         },
 
         [253]
         = {
-            tagText = "Developer",
-            tagColor = Color3.fromRGB(0, 255, 0)
+            tagText = "🔨 Developer",
+            isRainbow = true
         },
 
         [252]
         = {
-            tagText = "Moderator",
+            tagText = "👀 Manager",
+            tagColor = Color3.fromRGB(119, 0, 255)
+        },
+
+        [251]
+        = {
+            tagText = "⚖ Moderator",
+            tagColor = Color3.fromRGB(0, 132, 255)
+        },
+
+        [250]
+        = {
+            tagText = "🕵️‍♂️ Tester",
             tagColor = Color3.fromRGB(255, 0, 0)
+        },
+
+        [249]
+        = {
+            tagText = "✅ Verified",
+            tagColor = Color3.fromRGB(0, 255, 0)
         }
     },
 
     UserIdsWithChatTags
     = {
-        [1]
-        = {
-            tagText = "Roblox",
-            tagColor = Color3.fromRGB(255, 0, 0)
-        },
-
-        [2]
-        = {
-            tagText = "John Doe",
-            tagColor = Color3.fromRGB(255, 0, 0)
-        },
-
-        [3]
-        = {
-            tagText = "Jane Doe",
-            tagColor = Color3.fromRGB(255, 0, 0)
-        },
-
         [5618502527]
         = {
-            tagText = "Lewis",
+            tagText = "🤫 Lewis",
             tagColor = Color3.fromRGB(255, 255, 0)
+        },
+
+        [5575325013]
+        = {
+            tagText = "🤔 Alice",
+            tagColor = Color3.fromRGB(0, 255, 0)
         }
     },
 
     GamepassesWithChatTags
     = {
-        [123456789]
+        [1784888719]
         = {
-            tagText = "VIP",
-            tagColor = Color3.fromRGB(255, 255, 0)
+            tagText = "🌹 Paid1",
+            tagColor = Color3.fromRGB(255, 0, 255)
         },
 
-        [987654321]
+        [1783948225]
         = {
-            tagText = "MVP",
-            tagColor = Color3.fromRGB(255, 0, 0)
-        },
-
-        [1764385010]
-        = {
-            tagText = "Test Tag",
+            tagText = "🌷 Paid2",
             isRainbow = true
         }
     }

@@ -3,6 +3,7 @@
 --!optimize 2
 
 
+-- "fun_perms" is not able to be assigned to a user or rank.
 export type PermissionTypes = "moderator" | "developer" | "fun_perms"
 
 
@@ -10,9 +11,12 @@ local CmdsSettings
 = {
     RanksWithCommandPermissions
     = {
-        [255] = "developer" ,
+        [255] = "developer",
         [254] = "developer",
-        [253] = "moderator"
+        [253] = "developer",
+
+        [252] = "moderator",
+        [251] = "moderator"
     },
 
     UserIdsWithCommandPermissions
@@ -20,6 +24,7 @@ local CmdsSettings
         [1] = "developer",
         [2] = "developer",
         [3] = "developer",
+        
         [5618502527] = "moderator"
     },
 

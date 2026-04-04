@@ -56,6 +56,24 @@ type PermissionTypes = CmdsSettings.PermissionTypes
 --[[ @end_section Types ]]
 
 
+--[[
+    @usage Combines multiple arrays into one.
+
+    @param ... { string }
+
+    @return { string }
+]]
+local function combineMappedCommands(...: { string }): { string }
+    local CombinedMappedCommands = {}
+
+    for i: number, v: { string } in ipairs({ ... }) do
+        for i: number, cmdName: string in ipairs(v) do table.insert(CombinedMappedCommands, cmdName) end
+    end
+
+    return CombinedMappedCommands
+end
+
+
 --[[ @section Variables ]]
 local debugging = false
 
@@ -124,24 +142,6 @@ local PermissionsMap: { [PermissionTypes]: { string } }
     fun_perms = MappedCommands.CharacterCmds
 }
 --[[ @end_section Variables ]]
-
-
---[[
-    @usage Combines multiple arrays into one.
-
-    @param ... { string }
-
-    @return { string }
-]]
-function combineMappedCommands(...: { string }): { string }
-    local CombinedMappedCommands = {}
-
-    for i: number, v: { string } in ipairs({ ... }) do
-        for i: number, cmdName: string in ipairs(v) do table.insert(CombinedMappedCommands, cmdName) end
-    end
-
-    return CombinedMappedCommands
-end
 
 
 --[[ @section Constructor ]]

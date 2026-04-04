@@ -172,8 +172,8 @@ local function onChatSent(message: TextChatMessage): ChatWindowMessageProperties
 		if IdTagData then
 			if not IdTagData.isRainbow then
 				local tagColor = (IdTagData.tagColor or Color3.fromRGB(255, 0, 0)):ToHex()
-				textSourceTag = `<font color="#{tagColor}">[{IdTagData.tagText}]</font>`
-			else table.insert(RainbowTagsPresent, IdTagData.tagText) end
+				textSourceTag ..= `<font color="#{tagColor}">[{IdTagData.tagText}]</font>`
+			else table.insert(RainbowTagsPresent, IdTagData.tagText :: string) end
 		end
 
 		if RankTagData then
@@ -187,8 +187,8 @@ local function onChatSent(message: TextChatMessage): ChatWindowMessageProperties
 
 			if not RankTagData.isRainbow then
 				local tagColor = (RankTagData.tagColor or Color3.fromRGB(255, 0, 0)):ToHex()
-				textSourceTag = `<font color="#{tagColor}">{rankTagText}</font>`
-			else table.insert(RainbowTagsPresent, RankTagData.tagText) end
+				textSourceTag ..= `<font color="#{tagColor}">{rankTagText}</font>`
+			else table.insert(RainbowTagsPresent, RankTagData.tagText :: string) end
 		end
 
 		local gamepassTagCount = 0
