@@ -105,7 +105,7 @@
                 methodName = "__div",
 
                 methodCallback
-                = function<X>(self: AbstractedStateEngine<any>, data: X): AbstractedStateEngine<any>
+                = function<X>(self: StateEngine<any>, data: X): StateEngine<any>
                     print(data, "__div callback")
 
                     return self
@@ -191,9 +191,6 @@ type MethodDetailsSchema<M>
 }
 
 
-type MetamethodTypes = "__div" | "__idiv" | "__sub" | "__mul" | "__mod" | "__pow" | "__eq"
-
-
 --[[
     @generic_pack P... Path types.
 
@@ -232,7 +229,14 @@ type StateEngine<S> = setmetatable
         __call: <D, K, P...>(self: StateEngine<S>, freshData: D?, freshKey: K?, P...) -> (S | StateEngine<S>),
         __add: (self: StateEngine<S>, MethodDetails: MethodDetailsSchema<StateEngine<S>>) -> (StateEngine<S>),
 
-        [MetamethodTypes]: MethodCallbackType<StateEngine<S>>
+        -- Available operators to override
+        __div: MethodCallbackType<StateEngine<S>>,
+        __idiv: MethodCallbackType<StateEngine<S>>,
+        __sub: MethodCallbackType<StateEngine<S>>,
+        __mul: MethodCallbackType<StateEngine<S>>,
+        __mod: MethodCallbackType<StateEngine<S>>,
+        __pow: MethodCallbackType<StateEngine<S>>,
+        __eq: MethodCallbackType<StateEngine<S>>
     }
 >
 --[[ @end_section Types ]]

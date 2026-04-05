@@ -8,10 +8,15 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
+local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
+
+
+--[[ @generic T Source type. ]]
+type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 
 
 --[[ @section Constructor ]]
@@ -26,6 +31,20 @@ local function constructorCallback()
         if not PlrDataClass then return end
 
         print(PlrDataClass().coins(), `{player.UserId}'s coins.`)
+
+        PlrDataClass().coins
+        += {
+            methodName = "__div",
+
+            methodCallback
+            = function<X>(self: StateEngine<any>, data: X): StateEngine<any>
+                print(data, "__div callback")
+
+                return self
+            end
+        }
+
+        PlrDataClass().coins /= 5
 
         task.spawn(
             function()
