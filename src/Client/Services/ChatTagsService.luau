@@ -126,15 +126,15 @@ local function onRenderStepped(deltaTime: number)
 		local ArrayOfRainbowTags: { string } = {}
 
 		for i: number, tagText: string in ipairs(Message.TagsArray) do
-			table.insert(ArrayOfRainbowTags, generateRainbowText(tagText, (accumulatedTime * EFFECT_SPEED) % 1))
+			table.insert(ArrayOfRainbowTags, generateRainbowText(`[{tagText}]`, (accumulatedTime * EFFECT_SPEED) % 1))
 		end
 		
 		-- Combine the rainbow tags and change the message properties.
 		do
 			local combinedRainbowTagText = ""
 
-			for i: number, tagText: string in ipairs(ArrayOfRainbowTags) do
-				if i > 1 then combinedRainbowTagText ..= ` [{tagText}]` else combinedRainbowTagText ..= `[{tagText}]` end
+			for rainbowTagIndex: number, tagText: string in ipairs(ArrayOfRainbowTags) do
+				if rainbowTagIndex > 1 then combinedRainbowTagText ..= ` {tagText}` else combinedRainbowTagText ..= `{tagText}` end
 			end
 
 			Message.MessageProperties.PrefixText = `{combinedRainbowTagText} {Message.rawNameText}`
