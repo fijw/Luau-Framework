@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local DataLib = require(ServerScriptService.Libraries.DataLib)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local Types = require(script.Parent.Parent.Types)
 --[[ @end_section Imports ]]
@@ -31,7 +31,7 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local FoundPlayer = Players:GetPlayerByUserId(targetId)
     if not FoundPlayer then return end
 
-    local PlayerDataClass = DataLib(FoundPlayer)
+    local PlayerDataClass = Registry(FoundPlayer)
     if not PlayerDataClass then return end
 
     PlayerDataClass().ModerationData(

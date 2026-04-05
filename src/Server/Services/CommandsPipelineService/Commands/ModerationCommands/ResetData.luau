@@ -14,8 +14,8 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
-local Compression = require(ServerScriptService.Libraries.Compression)
-local DataLib = require(ServerScriptService.Libraries.DataLib)
+local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 
@@ -59,7 +59,7 @@ local function constructorCallback(sender: Player, args: { string })
         local player = Players:GetPlayerByUserId(targetId)
         
         if player then
-            local PlayerDataClass = DataLib(player)
+            local PlayerDataClass = Registry(player)
             if not PlayerDataClass then return end
 
             for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
@@ -94,7 +94,7 @@ local function constructorCallback(sender: Player, args: { string })
         end
     end
 
-    local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
+    local AsyncData = Registry.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData then
         CommandsNamespace.packets.ClientDisplayConsoleResponse

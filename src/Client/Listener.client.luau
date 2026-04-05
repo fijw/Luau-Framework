@@ -23,11 +23,11 @@ local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services
 
 local ModulesToLoad
 = {
-    ChatTagsService,
-    FlyingService,
-    PermissionsDisplayService,
-    CommandConsoleUIService,
-    SpectateService
+    [ChatTagsService.Name] = ChatTagsService,
+    [FlyingService.Name] = FlyingService,
+    [PermissionsDisplayService.Name] = PermissionsDisplayService,
+    [CommandConsoleUIService.Name] = CommandConsoleUIService,
+    [SpectateService.Name] = SpectateService
 }
 
 
@@ -38,7 +38,7 @@ do
     LoadClientNamespace.packets.LoadClientModules
     .listenOnce(
         function(data: nil, player: Player?)
-            if not Initialization(ModulesToLoad :: { ModuleScript }) then print("Failed to initialize client modules.") end
+            if not Initialization(ModulesToLoad :: { [string]: ModuleScript }) then print("Failed to initialize client modules.") end
         end
     )
 end

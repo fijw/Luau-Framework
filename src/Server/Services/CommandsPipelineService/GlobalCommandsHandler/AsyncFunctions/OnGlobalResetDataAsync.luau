@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local DataLib = require(ServerScriptService.Libraries.DataLib)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 local Types = require(script.Parent.Parent.Types)
@@ -40,7 +40,7 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local FoundPlayer = Players:GetPlayerByUserId(targetId)
     if not FoundPlayer then return end
 
-    local PlayerDataClass = DataLib(FoundPlayer)
+    local PlayerDataClass = Registry(FoundPlayer)
     if not PlayerDataClass then return end
 
     for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do

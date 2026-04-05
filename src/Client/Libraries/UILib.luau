@@ -196,6 +196,7 @@ local function onInputBegan
 
         local xPos: number, yPos: number
 
+        -- Set the dragging position based on the side argument.
         if side == "center" then
             xPos = draggingObject.AbsoluteSize.X / 2
             yPos = draggingObject.AbsoluteSize.Y / 2

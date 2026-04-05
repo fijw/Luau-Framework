@@ -16,15 +16,15 @@ local runningFrom = if isServer then "Server" else "Client"
 
 
 --[[
-    @usage Initialize a module.
+    @usage Attempt to initialize a module until it succeeds.
 
     @param module any
-    @param i number
-    @param LoadedModules { any }
+    @param i string
+    @param LoadedModules { [string]: any }
 
     @return void
 ]]
-local function initializeModule(module: any, i: number, LoadedModules: { any })
+local function initializeModule(module: any, i: string, LoadedModules: { [string]: any })
     Chronovisor(
         function()
             local finishedLoading = false
@@ -60,16 +60,17 @@ end
 --[[
     @usage Initialize modules.
 
-    @param ModulesToLoad { ModuleScript }
+    @param ModulesToLoad { [string]: ModuleScript }
 
     @return boolean
 ]]
-local function constructorCallback(ModulesToLoad: { ModuleScript }): boolean
-    local LoadedModules: { any } = {}
+local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): boolean
+    local LoadedModules: { [string]: any } = {}
 
+    -- Attempt to require all modules and store them in a table.
     Chronovisor(
         function()
-            for i: number, module: any in ipairs(ModulesToLoad) do
+            for i: string, module: any in pairs(ModulesToLoad) do
                 local RequiredModule = require(module) :: any
 
                 if not RequiredModule then
@@ -79,13 +80,13 @@ local function constructorCallback(ModulesToLoad: { ModuleScript }): boolean
                     until RequiredModule
                 end
 
-                table.insert(LoadedModules, RequiredModule)
+                LoadedModules[i] = RequiredModule
             end
         end
     )
     :onError(function(err: string?) print(ModulesToLoad, `Failed to require module, error: {err}, side: {runningFrom}`) end)
 
-    for i: number, module: any in ipairs(LoadedModules) do initializeModule(module, i, LoadedModules) end
+    for i: string, module: any in pairs(LoadedModules) do initializeModule(module, i, LoadedModules) end
 
     return true
 end

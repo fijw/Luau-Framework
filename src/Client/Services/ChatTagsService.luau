@@ -21,9 +21,9 @@ type RainbowMessageSchema
 = {
     MessageProperties: ChatWindowMessageProperties,
 
-    rawPrefixText: string,
-    rawTagText: string,
-    rawMessageText: string
+    rawNameText: string,
+    rawMessageText: string,
+	TagsArray: { string }
 }
 
 type ChatTagSchema = ChatSettings.ChatTagSchema
@@ -121,10 +121,24 @@ local function onRenderStepped(deltaTime: number)
 	accumulatedTime += deltaTime
 	
 	for i: number, Message: RainbowMessageSchema in RainbowMessages do
-		if not Message.MessageProperties or not Message.rawPrefixText then return end
+		if not Message.MessageProperties or not Message.rawNameText then return end
+
+		local ArrayOfRainbowTags: { string } = {}
+
+		for i: number, tagText: string in ipairs(Message.TagsArray) do
+			table.insert(ArrayOfRainbowTags, generateRainbowText(tagText, (accumulatedTime * EFFECT_SPEED) % 1))
+		end
 		
-		local rainbowTag = generateRainbowText(`{Message.rawTagText}`, (accumulatedTime * EFFECT_SPEED) % 1)
-		Message.MessageProperties.PrefixText = `{rainbowTag} {Message.rawPrefixText}`
+		-- Combine the rainbow tags and change the message properties.
+		do
+			local combinedRainbowTagText = ""
+
+			for i: number, tagText: string in ipairs(ArrayOfRainbowTags) do
+				if i > 1 then combinedRainbowTagText ..= ` [{tagText}]` else combinedRainbowTagText ..= `[{tagText}]` end
+			end
+
+			Message.MessageProperties.PrefixText = `{combinedRainbowTagText} {Message.rawNameText}`
+		end
 	end
 	
 	local flickerColor = Color3.new((math.floor(accumulatedTime * 60) % 2 == 0) and 1 or 254/255, 1, 1)
@@ -220,19 +234,13 @@ local function onChatSent(message: TextChatMessage): ChatWindowMessageProperties
 		local hexNameColor = nameColor:ToHex()
 
 		if RainbowTagsPresent then
-			local combinedTagText = ""
-
-			for i: number, tagText: string in ipairs(RainbowTagsPresent) do
-				if i > 1 then combinedTagText ..= ` [{tagText}]` else combinedTagText ..= `[{tagText}]` end
-			end
-
 			table.insert(RainbowMessages,
 				{
 					MessageProperties = properties,
 
-					rawPrefixText = `<font color="#{hexNameColor}">{textSourceTag} {message.PrefixText}</font>`,
-					rawTagText = combinedTagText,
-					rawMessageText = message.Text
+					rawNameText = `<font color="#{hexNameColor}">{textSourceTag} {message.PrefixText}</font>`,
+					rawMessageText = message.Text,
+					TagsArray = RainbowTagsPresent
 				} :: RainbowMessageSchema
 			)
 		else properties.PrefixText = `{textSourceTag} <font color="#{hexNameColor}">{message.PrefixText}</font>` end

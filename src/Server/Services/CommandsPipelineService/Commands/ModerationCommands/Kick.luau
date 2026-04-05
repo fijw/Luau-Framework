@@ -11,8 +11,8 @@ local Players = game:GetService("Players")
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
-local Compression = require(ServerScriptService.Libraries.Compression)
-local DataLib = require(ServerScriptService.Libraries.DataLib)
+local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
 
@@ -74,7 +74,7 @@ local function constructorCallback(sender: Player, args: { string })
         end
     end
 
-    local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
+    local AsyncData = Registry.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData or AsyncData.inUse == false then
         CommandsNamespace.packets.ClientDisplayConsoleResponse

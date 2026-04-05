@@ -41,7 +41,6 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 
 local GlobalCommandsHandler = require(script.GlobalCommandsHandler)
 
-local Settings = require(ReplicatedStorage.Settings)
 local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
 
@@ -163,10 +162,11 @@ local function constructorCallback()
 
             local rankPermissions = CmdsSettings.RanksWithCommandPermissions[playerRank]
             local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[player.UserId]
-            local funPermissions = Settings.ServerUsersGivenFunCommands[player.UserId]
+            local funPermissions = CmdsSettings.ServerUsersGivenFunCommands[player.UserId]
 
             local MappedPermissions = if rankPermissions or idPermissions or funPermissions then PermissionsMap[rankPermissions or idPermissions or funPermissions] else nil
 
+            -- If the player sends "help" and they have permission to use commands then send them a list of all available commands.
             if data[1] == "help" then
                 if not MappedPermissions and not debugging then
                     CommandsNamespace.packets.ClientDisplayConsoleResponse

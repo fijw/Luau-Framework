@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
-local Settings = require(ReplicatedStorage.Settings)
+local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
 
 
@@ -28,7 +28,7 @@ local function constructorCallback(sender: Player, args: { string })
     table.remove(args, 1)
 
     -- Add the user to the server users with fun commands table.
-    Settings.ServerUsersGivenFunCommands[targetId] = "fun_perms"
+    CmdsSettings.ServerUsersGivenFunCommands[targetId] = "fun_perms"
 
     CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
@@ -46,7 +46,7 @@ local function constructorCallback(sender: Player, args: { string })
         if not targetPlayer then return end
 
         CommandsNamespace.packets.ClientDisplayNewPermissions.sendTo(nil, targetPlayer)
-        CommandsNamespace.packets.ClientChangeCmdPermissionsTxt.sendTo(Settings.ServerUsersGivenFunCommands[targetId], targetPlayer)
+        CommandsNamespace.packets.ClientChangeCmdPermissionsTxt.sendTo(CmdsSettings.ServerUsersGivenFunCommands[targetId], targetPlayer)
     end
 end
 

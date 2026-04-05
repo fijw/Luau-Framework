@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local DataLib = require(ServerScriptService.Libraries.DataLib)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 --[[ @end_section Imports ]]
 
@@ -121,7 +121,7 @@ end
 ]]
 local function constructorCallback()
     local function onPlayerAdded(player: Player)
-        local PlrDataClass = DataLib(player)
+        local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 
         if (PlrDataClass().ModerationData :: any) == nil then PlrDataClass().ModerationData = Reactor({}) :: any end

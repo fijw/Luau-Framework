@@ -11,22 +11,13 @@ local DataStoreService = game:GetService("DataStoreService")
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
-local Compression = require(ServerScriptService.Libraries.Compression)
-local DataLib = require(ServerScriptService.Libraries.DataLib)
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 
 local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
-
-
---[[ @section Types ]]
-type StoredDataClassSchema = DataLib.StoredDataClassSchema
-
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
---[[ @end_section Types ]]
 
 
 local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
@@ -50,7 +41,7 @@ local function constructorCallback(sender: Player, args: { string })
     local reason = table.concat(args, " ")
     if #reason < 1 then reason = "No reason provided" end
 
-    local AsyncData = DataLib.forciblyFetchStoredPlayerData(targetId)
+    local AsyncData = Registry.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData then
         CommandsNamespace.packets.ClientDisplayConsoleResponse

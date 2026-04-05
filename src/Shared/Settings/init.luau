@@ -17,9 +17,7 @@ local Settings
     ChatSettings = ChatSettings,
     CmdsSettings = CmdsSettings,
 
-    serverIsLocked = false,
-
-    ServerUsersGivenFunCommands = {} :: { [number]: PermissionTypes }
+    version = `1.0.0`
 }
 
 

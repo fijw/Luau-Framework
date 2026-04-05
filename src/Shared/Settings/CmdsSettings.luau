@@ -28,13 +28,22 @@ local CmdsSettings
         [5618502527] = "moderator"
     },
 
+
     loggingDiscordWebhookUrl
     = "https://webhook.lewisakura.moe/api/webhooks/1485411995787202752/"
-    .. "7laGnAIijqNmmSbiBEQl3h0PzaqrASaliE9r9p1W8h_uBkWvmTDSPlqecRiwt0uYsNke"
+    .. "7laGnAIijqNmmSbiBEQl3h0PzaqrASaliE9r9p1W8h_uBkWvmTDSPlqecRiwt0uYsNke",
+
+
+    serverIsLocked = false,
+
+
+    ServerUsersGivenFunCommands = {}
 } :: {
     RanksWithCommandPermissions: { [number]: PermissionTypes },
     UserIdsWithCommandPermissions: { [number]: PermissionTypes },
-    loggingDiscordWebhookUrl: string
+    loggingDiscordWebhookUrl: string,
+    serverIsLocked: boolean,
+    ServerUsersGivenFunCommands: { [number]: PermissionTypes }
 }
 
 

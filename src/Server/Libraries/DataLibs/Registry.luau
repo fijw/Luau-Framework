@@ -23,7 +23,7 @@
     @usage
     ```luau
         local function onPlayerAdded(player: Player)
-            local PlrDataClass = DataLib(player)
+            local PlrDataClass = Registry(player)
             if not PlrDataClass then return end
 
             print(PlrDataClass(), `{player.UserId}'s data upon joining`)
@@ -36,7 +36,7 @@
         end
 
         local function onPlayerRemoving(player: Player)
-            local PlrDataClass = DataLib(player)
+            local PlrDataClass = Registry(player)
             if not PlrDataClass then return end
 
             PlrDataClass:saveClass()
@@ -59,7 +59,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
-local Compression = require(ServerScriptService.Libraries.Compression)
+local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 --[[ @end_section Imports ]]
@@ -107,7 +107,7 @@ local SettingsDataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA
 
 local CachedDataClasses = {} :: { [number]: DataClass }
 
-local DataLib = {}
+local Registry = {}
 --[[ @end_section Variables ]]
 
 
@@ -145,7 +145,7 @@ end
 
     @return StoredDataClassSchema?
 ]]
-function DataLib.forciblyFetchStoredPlayerData(playerId: number): StoredDataClassSchema?
+function Registry.forciblyFetchStoredPlayerData(playerId: number): StoredDataClassSchema?
     local ExistingData: StoredDataClassSchema?
 
     Chronovisor(
@@ -238,7 +238,7 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
     )
     :onError(function(err: string?) print(`Failed to save {self.classKey}'s data class. Error: {err}`) end)
 
-    local FetchedStoredData = DataLib.forciblyFetchStoredPlayerData(tonumber(self.classKey) :: number)
+    local FetchedStoredData = Registry.forciblyFetchStoredPlayerData(tonumber(self.classKey) :: number)
     if not FetchedStoredData then return end
 
     -- Prevent data mismatches by comparing the stored data and the saving data.
@@ -306,7 +306,7 @@ local function constructorCallback(self: unknown, player: Player, create: true?)
         return CachedDataClasses[player.UserId]
     end
 
-    local ExistingData = DataLib.forciblyFetchStoredPlayerData(player.UserId) :: StoredDataClassSchema
+    local ExistingData = Registry.forciblyFetchStoredPlayerData(player.UserId) :: StoredDataClassSchema
 
     -- If there's no existing data then use the template data. If there's existing data but it's in use then kick the player.
     if not ExistingData then
@@ -371,9 +371,9 @@ local function constructorCallback(self: unknown, player: Player, create: true?)
     return (NewDataClass :: any) :: DataClass
 end
 
-setmetatable(DataLib, { __call = constructorCallback })
+setmetatable(Registry, { __call = constructorCallback })
 --[[ @end_section Constructor ]]
 
 
-table.freeze(DataLib)
-return DataLib
+table.freeze(Registry)
+return Registry

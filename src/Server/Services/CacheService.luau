@@ -8,9 +8,9 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local DataLib = require(ServerScriptService.Libraries.DataLib)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
-local Settings = require(ReplicatedStorage.Settings)
+local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
 
 
@@ -22,7 +22,7 @@ local Settings = require(ReplicatedStorage.Settings)
 ]]
 local function constructorCallback()
     local function onPlayerAdded(player: Player)
-        local PlrDataClass = DataLib(player, true)
+        local PlrDataClass = Registry(player, true)
         if not PlrDataClass then return end
 
         print(PlrDataClass().coins(), `{player.UserId}'s coins.`)
@@ -42,14 +42,14 @@ local function constructorCallback()
     end
 
     local function onPlayerRemoving(player: Player)
-        local PlrDataClass = DataLib(player)
+        local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 
         PlrDataClass:saveClass()
         PlrDataClass:deleteClass()
 
-        if not Settings.ServerUsersGivenFunCommands[player.UserId] then return end
-        Settings.ServerUsersGivenFunCommands[player.UserId] = nil
+        if not CmdsSettings.ServerUsersGivenFunCommands[player.UserId] then return end
+        CmdsSettings.ServerUsersGivenFunCommands[player.UserId] = nil
     end
 
     -- Handle player joining and leaving connections.
