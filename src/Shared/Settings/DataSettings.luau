@@ -70,11 +70,11 @@ local DataSettings
                 Shield = { dam = 1, dur = 1 },
                 Bow = { dam = 1, dur = 1 }
             }
-        } :: DataTemplateSchema,
+        } :: any,
 
-        coins = 12_000,
-        level = 15,
-    },
+        coins = 12_000 :: any,
+        level = 15 :: any
+    } :: DataTemplateSchema,
 
     PLAYER_DATA_STORAGE_KEY = "ace123456"
 }
