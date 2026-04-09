@@ -145,7 +145,7 @@ type ExecuteCallbackType<T...> = (T...) -> (...any)
     @generic_pack U... Inputted error function arguments.
     @generic_pack P... Inputted execute function arguments.
 ]]
-type Chronovisor = setmetatable
+export type Chronovisor = setmetatable
 <
     {
         id: string,
