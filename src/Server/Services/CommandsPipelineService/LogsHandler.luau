@@ -120,12 +120,7 @@ local function constructorCallback(actionType: string, senderId: number, targetI
     Chronovisor(
         function()
             local encodedData = HttpService:JSONEncode(EmbeddedData)
-
-            HttpService:PostAsync(
-                CmdsSettings.loggingDiscordWebhookUrl,
-                encodedData,
-                Enum.HttpContentType.ApplicationJson
-            )
+            HttpService:PostAsync(CmdsSettings.loggingDiscordWebhookUrl, encodedData)
         end
     )
     :onError(function(err: string?) print(`Failed to log command of type: {actionType}. Error: {err}`) end)
