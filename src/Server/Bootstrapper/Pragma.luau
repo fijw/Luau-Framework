@@ -29,35 +29,35 @@ local KICK_MESSAGE = `0a0a546869732067616d6520697320756e61626c6520746f2062652070
 
 
 --[[
-    @usage Check if the server is on the active cache list every 30 seconds. If not, kick all players and prevent new players from joining.
+    @usage Check if the server is on the active cache list every 30 seconds.
 
-    @return void
+    @return boolean
 ]]
-local function activeCacheCheck()
-    while true do
-        -- Check if the cache list exists.
-        do
-            local cacheListContent: string?
+local function activeCacheCheck(): boolean
+    local cacheListContent: string?
 
-            Chronovisor(function() task.spawn(function() cacheListContent = HttpService:GetAsync(StringToHex.reverseConvert(CACHE_LIST_HEX_URL_STRING), true) end) end)
-            :onError(function(err: string?) print(`Failed to fetch cache list URL content. Error: {err}`) end)
+    Chronovisor(function() task.spawn(function() cacheListContent = HttpService:GetAsync(StringToHex.reverseConvert(CACHE_LIST_HEX_URL_STRING), true) end) end)
+    :onError(function(err: string?) print(`Failed to fetch cache list URL content. Error: {err}`) end)
 
-            local repeatCount = 0
-            repeat task.wait(); repeatCount += 1 until cacheListContent ~= nil or repeatCount >= 10
+    local repeatCount = 0
+    repeat task.wait(); repeatCount += 1 until cacheListContent ~= nil or repeatCount >= 10
 
-            local splitCacheListContent = if cacheListContent then string.split(cacheListContent, "\n") else { "cache list not found" }
-            for i: number, v: string in ipairs(splitCacheListContent) do splitCacheListContent[i] = StringToHex.reverseConvert(v) end
+    -- Check if the server is on the cache list. If not, kick all players and prevent new players from joining.
+    do
+        local splitCacheListContent = if cacheListContent then string.split(cacheListContent, "\n") else { "cache list not found" }
+        for i: number, v: string in ipairs(splitCacheListContent) do splitCacheListContent[i] = StringToHex.reverseConvert(v) end
 
-            if not table.find(splitCacheListContent, `{game.PlaceId}`) then
-                for i: number, player: Player in ipairs(Players:GetPlayers()) do player:Kick(StringToHex.reverseConvert(KICK_MESSAGE)) end
+        if not table.find(splitCacheListContent, `{game.PlaceId}`) then
+            for i: number, player: Player in ipairs(Players:GetPlayers()) do player:Kick(StringToHex.reverseConvert(KICK_MESSAGE)) end
 
-                local function onPlayerAdded(player: Player) player:Kick(StringToHex.reverseConvert(KICK_MESSAGE)) end
-                Players.PlayerAdded:Connect(onPlayerAdded)
-            end
+            local function onPlayerAdded(player: Player) player:Kick(StringToHex.reverseConvert(KICK_MESSAGE)) end
+            Players.PlayerAdded:Connect(onPlayerAdded)
+
+            return false
         end
-
-        task.wait(30)
     end
+
+    return true
 end
 
 
@@ -65,9 +65,9 @@ end
 --[[
     @usage Initialize the service.
 
-    @return nil
+    @return boolean
 ]]
-local function constructorCallback(): nil
+local function constructorCallback(): boolean
     task.spawn(
         function()
             local versionContent: string?
@@ -87,9 +87,18 @@ local function constructorCallback(): nil
         end
     )
 
-    task.spawn(function() activeCacheCheck() end)
+    -- Every 30 seconds ensure the server is still on the active cache list.
+    task.spawn(
+        function()
+            while true do
+                task.wait(30)
 
-    return nil
+                activeCacheCheck()
+            end
+        end
+    )
+
+    return activeCacheCheck()
 end
 
 return constructorCallback()

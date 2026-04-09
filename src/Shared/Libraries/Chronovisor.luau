@@ -141,25 +141,6 @@ type ErrorCallbackType<T...> = (err: string?, T...) -> (...any)
 type ExecuteCallbackType<T...> = (T...) -> (...any)
 
 
-type DestroyedChronovisor = setmetatable
-<
-    {},
-
-    {
-        __call: (self: DestroyedChronovisor) -> (DestroyedChronovisor),
-
-        __index
-        : {
-            onError: (self: DestroyedChronovisor) -> (DestroyedChronovisor),
-            execute: (self: DestroyedChronovisor) -> (DestroyedChronovisor),
-            afterSeconds: (self: DestroyedChronovisor) -> (DestroyedChronovisor),
-
-            destroy: (self: DestroyedChronovisor) -> (DestroyedChronovisor),
-            loop: (self: DestroyedChronovisor) -> (DestroyedChronovisor)
-        }
-    }
->
-
 --[[
     @generic_pack U... Inputted error function arguments.
     @generic_pack P... Inputted execute function arguments.
@@ -195,7 +176,7 @@ type Chronovisor = setmetatable
             execute: <P...>(self: Chronovisor, func: ExecuteCallbackType<P...>, P...) -> (Chronovisor),
             afterSeconds: (self: Chronovisor, seconds: number) -> (Chronovisor),
 
-            destroy: (self: Chronovisor) -> (DestroyedChronovisor),
+            destroy: (self: Chronovisor) -> (Chronovisor),
             loop: (self: Chronovisor, delay: number?) -> (Chronovisor)
         }
     }
@@ -209,17 +190,18 @@ type Chronovisor = setmetatable
 
     @generic_pack U... Inputted error function args
 
-    @param func ErrorCallbackType<U...> | ChronovisorStop
+    @param self Chronovisor
+    @param input ErrorCallbackType<U...> | ChronovisorStop
     @param ... U...
 
-    @return Chronovisor | DestroyedChronovisor
+    @return Chronovisor
 ]]
 local function onErrorCallback
 <U...>(
     self: Chronovisor,
     input: ErrorCallbackType<U...> | ChronovisorStop,
     ...: U...
-): Chronovisor | DestroyedChronovisor
+): Chronovisor
     -- Add the catches errors table to the self steps.
     do
         local FoundChronovisor = (self.PreviousSteps :: { [string]: Chronovisor })[self.id]
@@ -259,6 +241,7 @@ end
 --[[
     @usage Waits for a number of seconds.
 
+    @param self Chronovisor
     @param seconds number
 
     @return Chronovisor?
@@ -282,6 +265,7 @@ end
 
     @generic_pack P... Inputted function args
 
+    @param self Chronovisor
     @param func ExecuteCallbackType<P...>
     @param ... P...
 
@@ -303,13 +287,15 @@ end
 --[[
     @usage Destroys the Chronovisor.
 
-    @return DestroyedChronovisor
+    @param self Chronovisor
+
+    @return Chronovisor
 ]]
-local function destroyCallback(self: Chronovisor): DestroyedChronovisor
+local function destroyCallback(self: Chronovisor): Chronovisor
     self.success = nil
     self.err = nil
 
-    setmetatable(self :: DestroyedChronovisor,
+    setmetatable(self,
         {
             __call = function() return self end,
 
@@ -325,12 +311,15 @@ local function destroyCallback(self: Chronovisor): DestroyedChronovisor
         }
     )
 
-    local DestroyedChronovisor = self :: DestroyedChronovisor
+    local DestroyedChronovisor = self
     return DestroyedChronovisor
 end
 
 --[[
     @usage Loops the Chronovisor.
+
+    @param self Chronovisor
+    @param delay number?
     
     @return Chronovisor
 ]]

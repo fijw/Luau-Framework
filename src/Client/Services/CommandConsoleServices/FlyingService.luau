@@ -73,7 +73,7 @@ local function onRenderStepped(deltaTime: number, rootPart: BasePart)
             bodyGyro,
 
 
-            0.15,
+            0.25,
 
             Enum.EasingStyle.Sine,
             Enum.EasingDirection.Out,
@@ -147,7 +147,6 @@ end
 
     @param input InputObject
     @param gameProcessed boolean
-
     @param humanoid Humanoid
     @param rootPart BasePart
 
@@ -157,7 +156,6 @@ local function onInputBegan
 (
     input: InputObject,
     gameProcessed: boolean,
-
     humanoid: Humanoid,
     rootPart: BasePart
 )

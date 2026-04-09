@@ -62,9 +62,9 @@ end
 
     @param ModulesToLoad { [string]: ModuleScript }
 
-    @return boolean
+    @return void
 ]]
-local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): boolean
+local function constructorCallback(ModulesToLoad: { [string]: ModuleScript })
     local LoadedModules: { [string]: any } = {}
 
     -- Attempt to require all modules and store them in a table.
@@ -87,8 +87,6 @@ local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): b
     :onError(function(err: string?) print(ModulesToLoad, `Failed to require module, error: {err}, side: {runningFrom}`) end)
 
     for i: string, module: any in pairs(LoadedModules) do initializeModule(module, i, LoadedModules) end
-
-    return true
 end
 
 return constructorCallback

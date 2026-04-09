@@ -11,7 +11,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.LoadClient)
 
 local Initialization = require(ReplicatedStorage.Initialization)
-local _Pragma = require(script.Pragma)
+local Pragma = require(script.Pragma)
 
 local CacheService = ServerScriptService.Services.CacheService
 local ModerationService = ServerScriptService.Services.ModerationService
@@ -29,12 +29,9 @@ local ModulesToLoad
 
 -- Initialize server modules then signal clients to initialize their modules.
 do
-    if not Initialization(ModulesToLoad :: { [string]: ModuleScript }) then
-        print("Failed to initialize server modules.")
+    if not Pragma then print("Server initialization cancelled."); return end
 
-        return
-    end
-
+    Initialization(ModulesToLoad :: { [string]: ModuleScript })
     LoadClientNamespace.packets.LoadClientModules.sendToAll(nil)
 
     -- Handle new players.

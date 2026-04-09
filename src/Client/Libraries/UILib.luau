@@ -70,6 +70,7 @@ local TweensLibrary = require(ReplicatedStorage.Libraries.TweensLib)
 --[[ @section Types ]]
 type SideType = "center" | "top" | "bottom" | "left" | "right"
 
+--[[ @generic_pack A... Callback argument types. ]]
 export type HandledUI = setmetatable
 <
     {
@@ -110,7 +111,7 @@ export type HandledUI = setmetatable
                 self: HandledUI,
                 
                 action: RBXScriptSignal,
-                callback: () -> ()
+                callback: <A...>(A...) -> ()
             ) -> (),
 
             makeGuiObjectDraggable: (self: HandledUI, guiObjectToDrag: GuiObject, side: SideType) -> (),
@@ -132,7 +133,7 @@ local offsetPositionDivision = 16
     @param inst GuiObject
     @param scaledInstanceSize UDim2
 
-    @return
+    @return void
 ]]
 local function scaleInstance(inst: GuiObject, scaledInstanceSize: UDim2)
     TweensLibrary(
@@ -160,22 +161,18 @@ end
 
     @param input InputObject
     @param gameProcessed boolean
-
     @param guiObject GuiObject
     @param side SideType
-
     @param HandledUICalledFrom HandledUI
 
-    @return
+    @return void
 ]]
 local function onInputBegan
 (
     input: InputObject,
     gameProcessed: boolean,
-
     draggingObject: GuiObject,
     side: SideType,
-
     HandledUICalledFrom: HandledUI
 )
     local DraggableData = HandledUICalledFrom.DraggableObjects[draggingObject.Name]
@@ -240,18 +237,15 @@ end
 
     @param input InputObject
     @param gameProcessed boolean
-
     @param HandledUICalledFrom HandledUI
 
-    @return
+    @return void
 ]]
 local function onInputEnded
 (
     input: InputObject,
     gameProcessed: boolean,
-
     draggingObjectName: string,
-
     HandledUICalledFrom: HandledUI
 )
     if gameProcessed or not HandledUICalledFrom.DraggableObjects[draggingObjectName].isHovering then return end
@@ -269,7 +263,7 @@ end
     @param self HandledUI
     @param sizeIncrease number
 
-    @return
+    @return void
 ]]
 local function hoverAndToggleSizingCallback(self: HandledUI, sizeIncrease: number)
     local Descendants = self.ScreenGui:GetDescendants()
@@ -302,18 +296,19 @@ end
 --[[
     @usage Handles GuiObject inputs.
 
+    @generic_pack A... Callback argument types.
+
     @param self HandledUI
-
     @param action RBXScriptConnection
-    @param callback (pos1: number, pos2: number) -> ()
+    @param callback <A...>(A...) -> ()
 
-    @return
+    @return void
 ]]
 local function handleGuiObjectInputCallback
 (
     self: HandledUI,
     action: RBXScriptSignal,
-    callback: (pos1: number, pos2: number) -> ()
+    callback: <A...>(A...) -> ()
 )
     local InputConnection = action:Connect(callback)
     table.insert(self.OtherConnections, InputConnection)
@@ -323,12 +318,11 @@ end
     @usage Handles button presses.
 
     @param self HandledUI
-
     @param button GuiButton
     @param callback (pos1: number, pos2: number) -> ()
     @param isClosingButton true?
-
-    @return
+    
+    @return void
 ]]
 local function handleButtonPressCallback
 (
@@ -360,11 +354,10 @@ end
     @usage Makes a GuiObject draggable.
 
     @param self HandledUI
-
     @param guiObject GuiObject
     @param side SideType
 
-    @return
+    @return void
 ]]
 local function makeGuiObjectDraggableCallback(self: HandledUI, guiObjectToDrag: GuiObject, side: SideType)
     local draggingObjectName = guiObjectToDrag.Name
@@ -408,7 +401,7 @@ end
     
     @param self HandledUI
 
-    @return
+    @return void
 ]]
 local function wipeConnectionsCallback(self: HandledUI)
     for i: number, Connection: RBXScriptConnection in ipairs(self.SizingConnections) do

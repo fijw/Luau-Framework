@@ -56,6 +56,7 @@
 local UserInputService = game:GetService("UserInputService")
 
 
+--[[ @generic_pack A... Argument types for the binded function. ]]
 export type InputMapper = setmetatable
 <
     { Connections: { RBXScriptConnection } },
