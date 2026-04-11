@@ -29,7 +29,7 @@
         
         -- Test multiple state changes.
         (
-            StateEngineTest(51, "bob") :: AbstractedStateEngine<any>
+            StateEngineTest(51, "bob") :: StateEngine<any>
         )(
             123,
             "test name 1",
@@ -65,11 +65,11 @@
                 end
             );
 
-            (StateEngineTest(100_000, "bobs_bank_balance", "bank_state", "bank_balances") :: AbstractedStateEngine<any>)()
+            (StateEngineTest(100_000, "bobs_bank_balance", "bank_state", "bank_balances") :: StateEngine<any>)()
 
             StateEngineTest:unsubscribe():unwrapToPeek();
 
-            (StateEngineTest(123_456) :: AbstractedStateEngine<any>)()
+            (StateEngineTest(123_456) :: StateEngine<any>)()
 
             StateEngineTest:subscribe(
                 function(self, data, key, ...)
@@ -86,7 +86,7 @@
                 true
             );
 
-            (StateEngineTest(7_891_011) :: AbstractedStateEngine<any>)()(121_314)()
+            (StateEngineTest(7_891_011) :: StateEngine<any>)()(121_314)()
         end
 
         -- Test locking.
@@ -208,7 +208,7 @@ type StateEngine<S> = setmetatable
         subscriptionOnce: true?,
 
         peekCallback: WrappedPeekCallbackType<StateEngine<S>, S>?,
-        peekObserveOnce: true?,
+        peekObserveOnce: true?
     },
 
     {

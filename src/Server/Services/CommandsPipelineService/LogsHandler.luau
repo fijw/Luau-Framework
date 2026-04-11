@@ -117,6 +117,7 @@ local function constructorCallback(actionType: string, senderId: number, targetI
         }
     }
 
+    -- Send the data to the webhook using Chronovisor for error handling.
     Chronovisor(
         function()
             local encodedData = HttpService:JSONEncode(EmbeddedData)
