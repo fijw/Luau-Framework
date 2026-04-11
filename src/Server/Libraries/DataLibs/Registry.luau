@@ -175,7 +175,6 @@ local function autoSaveDataClass(DataClass: DataClass)
         task.wait(60)
 
         if not CachedDataClasses[tonumber(DataClass.classKey) :: number] then break end
-
         DataClass:saveClass(true)
     end
 end
