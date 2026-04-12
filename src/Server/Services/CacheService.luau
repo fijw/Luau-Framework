@@ -8,15 +8,10 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
-
-
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 
 
 --[[ @section Constructor ]]
