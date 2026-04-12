@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 --[[ @end_section Imports ]]
 
 

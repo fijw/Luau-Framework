@@ -9,7 +9,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 --[[ @end_section Imports ]]
 
 
