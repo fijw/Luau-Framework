@@ -11,7 +11,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 --[[ @end_section Imports ]]

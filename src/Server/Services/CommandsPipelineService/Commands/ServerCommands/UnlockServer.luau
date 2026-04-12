@@ -8,7 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
-local Settings = require(ReplicatedStorage.Settings)
+local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
 
 
@@ -22,7 +22,8 @@ local Settings = require(ReplicatedStorage.Settings)
     @return void
 ]]
 local function constructorCallback(sender: Player, args: { string })
-    Settings.serverIsLocked = false
+    table.remove(CmdsSettings.serverIsLocked, table.find(CmdsSettings.serverIsLocked, true))
+    table.insert(CmdsSettings.serverIsLocked, false)
 
     CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(

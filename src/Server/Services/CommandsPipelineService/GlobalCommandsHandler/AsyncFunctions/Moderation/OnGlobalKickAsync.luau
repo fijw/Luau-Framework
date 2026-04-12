@@ -6,7 +6,7 @@
 --[[ @section Imports ]]
 local Players = game:GetService("Players")
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 --[[ @end_section Imports ]]
 
 

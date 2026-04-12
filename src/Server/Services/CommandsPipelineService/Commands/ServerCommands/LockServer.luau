@@ -9,7 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
-local Settings = require(ReplicatedStorage.Settings)
+local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
 
 
@@ -23,14 +23,15 @@ local Settings = require(ReplicatedStorage.Settings)
     @return void
 ]]
 local function constructorCallback(sender: Player, args: { string })
-    Settings.serverIsLocked = true
+    table.remove(CmdsSettings.serverIsLocked, table.find(CmdsSettings.serverIsLocked, false))
+    table.insert(CmdsSettings.serverIsLocked, true)
 
     -- Prevent new players from joining with a player added connection.
     do
         local connection: RBXScriptConnection
 
         local function onPlayerAdded(player: Player)
-            if Settings.serverIsLocked == false then connection:Disconnect(); return end
+            if not table.find(CmdsSettings.serverIsLocked, true) then connection:Disconnect(); return end
 
             player:Kick("\n\nThis server is locked.\n\n\n")
         end

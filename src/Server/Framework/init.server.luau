@@ -60,7 +60,7 @@ do
     Listener.Parent = StarterPlayer.StarterPlayerScripts
 
     Initialization.Parent = ReplicatedStorage
-    Initialization = require(ReplicatedStorage:WaitForChild("Initialization"))
+    Initialization = require(ReplicatedStorage:WaitForChild("Initialization")) :: any
 end
 
 
