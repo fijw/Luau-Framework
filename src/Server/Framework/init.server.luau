@@ -78,6 +78,8 @@ do
         return
     end
 
+    LoadClientNamespace.packets.LoadClientModules.sendToAll(nil)
+
     -- Handle new players.
     do
         local function onPlayerAdded(player: Player)

@@ -41,7 +41,12 @@ local ModulesToLoad
 -- Check if the script is running on the server and prepare the initialization module.
 do
     if isServer then return end
-    if Initialization then Initialization = require(Initialization) :: any else return end
+
+    if Initialization then Initialization = require(Initialization) :: any
+    else
+        print("Client failed to find the Initialization module.")
+        return 
+    end
 end
 
 

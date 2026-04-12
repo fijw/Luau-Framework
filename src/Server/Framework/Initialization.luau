@@ -12,7 +12,7 @@ local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 
 
 local runningFrom = if RunService:IsServer() then "Server" else "Client"
-local maxInitAttempts = 5
+local maxRetryAttempts = 5
 
 
 --[[
@@ -49,9 +49,9 @@ local function initializeModule(module: any, i: string, LoadedModules: { [string
     )
     :onError(
         function(err: string?)
-            if attempts > maxInitAttempts then returningStatus = "failure"; return else attempts += 1 end
+            if attempts > maxRetryAttempts then returningStatus = "failure"; return else attempts += 1 end
 
-            print(`Failed to initialize module {i}, attempt {attempts} out of {maxInitAttempts}, error: {err}, side: {runningFrom}`)
+            print(`Failed to initialize module {i}, attempt {attempts} out of {maxRetryAttempts}, error: {err}, side: {runningFrom}`)
 
             task.wait(1)
 
@@ -84,10 +84,14 @@ local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): "
                 local RequiredModule = require(module) :: any; lastRequiredModuleIndex = i
 
                 if not RequiredModule then
+                    local attempts = 0
+
                     repeat
-                        task.wait()
+                        attempts += 1
                         RequiredModule = require(module) :: any
-                    until RequiredModule
+
+                        task.wait()
+                    until RequiredModule or attempts > maxRetryAttempts
                 end
 
                 RequiredModules[i] = RequiredModule
@@ -105,7 +109,10 @@ local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): "
         requiredCount += 1
     end
 
-    if loadedCount >= requiredCount then return "success"
+    if loadedCount >= requiredCount then
+        print(`Successfully initialized all {loadedCount} modules, side: {runningFrom}`)
+        
+        return "success"
     else
         print(`Failed to initialize all modules, only initialized {loadedCount} out of {requiredCount}, side: {runningFrom}`)
 
