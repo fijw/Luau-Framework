@@ -98,19 +98,16 @@
             StateEngineTest("should be this now since it's unlocked")
         end
 
-        -- Test adding methods.
+        -- Test adding operators.
         do
-            StateEngineTest
-            += {
-                methodName = "__div",
-
-                methodCallback
-                = function<X>(self: StateEngine<any>, data: X): StateEngine<any>
+            StateEngineTest:addOperator(
+                "__div",
+                
+                function(self, data)
                     print(data, "__div callback")
-
                     return self
                 end
-            }
+            )
 
             StateEngineTest /= 5
         end
@@ -183,12 +180,8 @@ type StateEngineStartingSchema<M, S>
     locked: true?
 }
 
---[[ @generic M Self type. ]]
-type MethodDetailsSchema<M>
-= {
-    methodName: string,
-    methodCallback: MethodCallbackType<M>
-}
+
+type AvailableOperators = "__div" | "__idiv" | "__sub" | "__mul" | "__mod" | "__pow" | "__eq" | "__add"
 
 
 --[[
@@ -212,8 +205,17 @@ type StateEngine<S> = setmetatable
     },
 
     {
+        __call: <D, K, P...>(self: StateEngine<S>, freshData: D?, freshKey: K?, P...) -> (S | StateEngine<S>),
+
         __index
         : {
+            addOperator
+            : (
+                self: StateEngine<S>,
+                methodName: AvailableOperators,
+                methodCallback: MethodCallbackType<StateEngine<S>>
+            ) -> (StateEngine<S>),
+
             subscribe: (self: StateEngine<S>, callback: SubscriptionCallbackType<StateEngine<S>, S>, once: true?) -> (StateEngine<S>),
             unsubscribe: (self: StateEngine<S>) -> (StateEngine<S>),
 
@@ -226,9 +228,6 @@ type StateEngine<S> = setmetatable
             getStateDetails: (self: StateEngine<S>) -> (StateDetailsSchema)
         },
 
-        __call: <D, K, P...>(self: StateEngine<S>, freshData: D?, freshKey: K?, P...) -> (S | StateEngine<S>),
-        __add: (self: StateEngine<S>, MethodDetails: MethodDetailsSchema<StateEngine<S>>) -> (StateEngine<S>),
-
         -- Available operators to override
         __div: MethodCallbackType<StateEngine<S>>,
         __idiv: MethodCallbackType<StateEngine<S>>,
@@ -236,7 +235,8 @@ type StateEngine<S> = setmetatable
         __mul: MethodCallbackType<StateEngine<S>>,
         __mod: MethodCallbackType<StateEngine<S>>,
         __pow: MethodCallbackType<StateEngine<S>>,
-        __eq: MethodCallbackType<StateEngine<S>>
+        __eq: MethodCallbackType<StateEngine<S>>,
+        __add: MethodCallbackType<StateEngine<S>>
     }
 >
 --[[ @end_section Types ]]
@@ -365,7 +365,7 @@ end
 --[[ @end_section Lock Methods ]]
 
 
---[[ @section State Engine Methods ]]
+--[[ @section Operator Methods ]]
 --[[
     @usage Returns the current state of the class or edits it.
 
@@ -429,28 +429,29 @@ end
     @usage Adds a method to the class.
 
     @param self AbstractedStateEngine<any>
-    @param MethodDetails MethodDetailsSchema<AbstractedStateEngine<any>>
+    @param methodName string
+    @param methodCallback MethodCallbackType<AbstractedStateEngine<any>>
 
     @return AbstractedStateEngine<any>
 ]]
-local function stateEngineAddCallback
+local function addOperatorCallback
 (
     self: AbstractedStateEngine<any>,
-    MethodDetails: MethodDetailsSchema<AbstractedStateEngine<any>>
+    methodName: AvailableOperators,
+    methodCallback: MethodCallbackType<AbstractedStateEngine<any>>
 ): AbstractedStateEngine<any>
     if table.isfrozen(self :: any)
-        or MethodDetails.methodName == "__call"
-        or MethodDetails.methodName == "__index"
-        or MethodDetails.methodName == "__add"
+        or methodName == "__call"
+        or methodName == "__index"
     then return self end
 
     local TempMetatable = getmetatable(self) :: { [string]: any }
-    TempMetatable[MethodDetails.methodName] = MethodDetails.methodCallback
+    TempMetatable[methodName] = methodCallback
     setmetatable(self, TempMetatable)
 
     return self
 end
---[[ @end_section State Engine Methods ]]
+--[[ @end_section Operator Methods ]]
 
 
 --[[
@@ -501,6 +502,8 @@ local function stateEngineConstructor
         {
             __index
             = {
+                addOperator = addOperatorCallback,
+
                 subscribe = subscribeCallback,
                 unsubscribe = unsubscribeCallback,
 
@@ -513,8 +516,7 @@ local function stateEngineConstructor
                 getStateDetails = getStateDetailsCallback
             },
 
-            __call = stateEngineCallback,
-            __add = stateEngineAddCallback
+            __call = stateEngineCallback
         }
     ) :: AbstractedStateEngine<S>
 

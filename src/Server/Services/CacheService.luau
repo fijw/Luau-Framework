@@ -32,19 +32,19 @@ local function constructorCallback()
 
         print(PlrDataClass().coins(), `{player.UserId}'s coins.`)
 
-        PlrDataClass().coins
-        += {
-            methodName = "__div",
+        -- Make the coins divisible using a custom callback.
+        do
+            PlrDataClass().coins:addOperator(
+                "__div",
+                
+                function(self, data)
+                    print(data, "__div callback")
+                    return self
+                end
+            )
 
-            methodCallback
-            = function<X>(self: StateEngine<any>, data: X): StateEngine<any>
-                print(data, "__div callback")
-
-                return self
-            end
-        }
-
-        PlrDataClass().coins /= 5
+            PlrDataClass().coins /= 5
+        end
 
         task.spawn(
             function()
