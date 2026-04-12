@@ -75,8 +75,6 @@ type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 export type DataClass = setmetatable
 <
     {
-        retryCount: number?,
-
         classKey: string,
         ClassDataStore: DataStore,
 
@@ -257,9 +255,6 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
         if tableMatchComparison(DecompressedStoredData, DecompressedSavingData) == "match" then return end
 
         print(`Data mismatch when saving [{self.classKey}]'s data.`)
-
-        self.retryCount = if self.retryCount then self.retryCount + 1 else 1
-        if self.retryCount and self.retryCount >= 5 then self.retryCount = nil; return end
 
         self:saveClass(keepInUseStatus)
     end

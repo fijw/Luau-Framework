@@ -37,8 +37,8 @@ function StringToHex.reverseConvert(hex: string): string
 
     for i = 1, #hex, 2 do
         local byteHex = string.sub(hex, i, i + 1)
-        local byte = tonumber(byteHex, 16) :: number
-        str ..= string.char(byte)
+        local byte = tonumber(byteHex, 16)
+        str ..= if byte then string.char(byte) else ""
     end
 
     return str
