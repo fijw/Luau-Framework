@@ -25,22 +25,6 @@ local function constructorCallback()
         local PlrDataClass = Registry(player, true)
         if not PlrDataClass then return end
 
-        print(PlrDataClass().coins(), `{player.UserId}'s coins.`)
-
-        -- Make the coins divisible using a custom callback.
-        do
-            PlrDataClass().coins:addOperator(
-                "__div",
-                
-                function(self, data)
-                    print(data, "__div callback")
-                    return self
-                end
-            )
-
-            PlrDataClass().coins /= 5
-        end
-
         task.spawn(
             function()
                 while true do

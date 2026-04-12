@@ -66,7 +66,7 @@ end
 
 -- Initialize server modules then signal clients to initialize their modules.
 do
-    if not require(script.Pragma) then print("Server initialization cancelled."); return end
+    --if not require(script.Pragma) then print("Server initialization cancelled."); return end
 
     local initResult: "success" | "failure" = Initialization(ModulesToLoad :: { [string]: ModuleScript }) :: any
 

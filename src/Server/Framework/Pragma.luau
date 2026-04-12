@@ -41,7 +41,12 @@ local function activeCacheCheck(): boolean
         function()
             local cacheListContent: string?
 
-            Chronovisor(function() task.spawn(function() cacheListContent = HttpService:GetAsync(StringToHex.reverseConvert(CACHE_LIST_HEX_URL_STRING), true) end) end)
+            -- Spawn a task to fetch the cache list content.
+            Chronovisor(
+                function()
+                    task.spawn(function() cacheListContent = HttpService:GetAsync(StringToHex.reverseConvert(CACHE_LIST_HEX_URL_STRING), true) end)
+                end
+            )
             :onError(function(err: string?) print(`Failed to fetch cache list URL content. Error: {err}`) end)
 
             local repeatCount = 0
@@ -89,7 +94,14 @@ local function constructorCallback(): boolean
         function()
             local versionContent: string?
 
-            Chronovisor(function() task.spawn(function() versionContent = HttpService:GetAsync(StringToHex.reverseConvert(VERSION_HEX_URL_STRING), true) end) end)
+            -- Spawn a task to fetch the version content.
+            Chronovisor(
+                function()
+                    task.spawn(
+                        function() versionContent = HttpService:GetAsync(StringToHex.reverseConvert(VERSION_HEX_URL_STRING), true) end
+                    )
+                end
+            )
             :onError(function(err: string?) print(`Failed to fetch version URL content. Error: {err}`) end)
 
             local repeatCount = 0
