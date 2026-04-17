@@ -135,8 +135,8 @@ local HttpService = game:GetService("HttpService")
 --[[ @section Types ]]
 type ChronovisorStop = "Chronovisor Stop"
 
-type ErrorCallbackType = (err: string?, ...any) -> (...any)
-type ExecuteCallbackType = (...any) -> (...any)
+type ErrorCallbackType = (err: string?, ...any) -> ()
+type ExecuteCallbackType = (...any) -> ()
 
 export type Chronovisor = setmetatable
 <
@@ -149,8 +149,8 @@ export type Chronovisor = setmetatable
 
         waits: number?,
         
-        catchesErrors: { func: ErrorCallbackType, params: { any } }?,
-        executes: { func: ExecuteCallbackType, params: { any } }?,
+        catchesErrors: { func: ErrorCallbackType, Params: { any } }?,
+        executes: { func: ExecuteCallbackType, Params: { any } },
 
 
         PreviousSteps: { [string]: Chronovisor }?
@@ -201,7 +201,7 @@ local function onErrorCallback
         FoundChronovisor.catchesErrors
         = {
             func = input :: ErrorCallbackType,
-            params = { ... }
+            Params = { ... }
         }
     end
 
@@ -371,10 +371,10 @@ function constructorCallback(func: ExecuteCallbackType, ...: any): Chronovisor
         local ClonedChronovisor = NewChronovisor
 
         ClonedChronovisor.PreviousSteps = nil
-        ClonedChronovisor.executes = { func = func, params = { ... } }
+        ClonedChronovisor.executes = { func = func, Params = { ... } }
 
         ClonedChronovisor.success = success
-        ClonedChronovisor.err = err;
+        ClonedChronovisor.err = if err and typeof(err) == "string" then err :: string else nil
 
         NewChronovisor.PreviousSteps = { [NewChronovisor.id] = ClonedChronovisor }
     end
