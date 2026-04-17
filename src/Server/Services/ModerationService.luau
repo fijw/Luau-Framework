@@ -44,7 +44,7 @@ local function formatTime(seconds: number): string
     local minutes = math.floor(seconds / SecondsPerUnit.minutes)
     seconds = seconds % SecondsPerUnit.minutes
 
-    local Results = {}
+    local Results: { string } = {}
 
     -- Get the time results.
     do

@@ -76,7 +76,7 @@ local DataSettings
         level = 15 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "ace1234567"
+    PLAYER_DATA_STORAGE_KEY = "ace12345678"
 }
 
 

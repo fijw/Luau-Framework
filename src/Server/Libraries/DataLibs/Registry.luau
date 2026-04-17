@@ -22,7 +22,11 @@
 
     @usage
     ```luau
+        local LoggedJoinedPlrs: { Player } = {}
+
         local function onPlayerAdded(player: Player)
+            table.insert(LoggedJoinedPlrs, player)
+
             local PlrDataClass = Registry(player)
             if not PlrDataClass then return end
 
@@ -33,9 +37,41 @@
 
             local oldCoins = PlrDataClass().coins() :: number
             PlrDataClass().coins(oldCoins + 100_000)
+
+            -- Attempt to transfer 100,000 coins from the first player to the second player.
+            if #LoggedJoinedPlrs > 1 and #LoggedJoinedPlrs < 3 or #LoggedJoinedPlrs == 2 then
+                local txPlr1, txPlr2 = LoggedJoinedPlrs[1], LoggedJoinedPlrs[2]
+                if not txPlr1 or not txPlr2 then return end
+
+                Registry.atomicTransaction(LoggedJoinedPlrs,
+                    function(PlayerStates)
+                        local oldPlr1Coins = PlayerStates[txPlr1].coins() :: number
+                        local oldPlr2Coins = PlayerStates[txPlr2].coins() :: number
+                        if oldPlr1Coins < 100_000 then print("not enough coins from plr1"); return false end
+
+                        PlayerStates[txPlr1].coins(oldPlr1Coins - 100_000)
+                        PlayerStates[txPlr2].coins(oldPlr2Coins + 100_000)
+
+                        local changedPlr1Coins = PlayerStates[txPlr1].coins() :: number
+                        local changedPlr2Coins = PlayerStates[txPlr2].coins() :: number
+
+                        if changedPlr1Coins ~= oldPlr1Coins - 100_000 or changedPlr2Coins ~= oldPlr2Coins + 100_000 then
+                            print("transfer didn't work correctly, data doesn't match expected values")
+                            return false
+                        end
+
+                        print(`Gave {txPlr2.UserId} 100_000 coins from {txPlr1.UserId}.`)
+
+                        return true
+                    end
+                )
+            end
         end
 
         local function onPlayerRemoving(player: Player)
+            local IndexedJoinedPlr = table.find(LoggedJoinedPlrs, player)
+            if IndexedJoinedPlr then table.remove(LoggedJoinedPlrs, IndexedJoinedPlr) end
+
             local PlrDataClass = Registry(player)
             if not PlrDataClass then return end
 
@@ -71,7 +107,6 @@ type DataTemplateSchema = DataSettings.DataTemplateSchema
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 
---[[ @generic D Data template type. ]]
 export type DataClass = setmetatable
 <
     {
@@ -103,7 +138,7 @@ export type StoredDataClassSchema
 --[[ @section Variables ]]
 local SettingsDataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE_KEY)
 
-local CachedDataClasses = {} :: { [number]: DataClass }
+local CachedDataClasses = {}
 
 local Registry = {}
 --[[ @end_section Variables ]]
@@ -136,35 +171,11 @@ do
 end
 
 
---[[
-    @usage Fetches the player's stored data from the data store.
-
-    @param playerId number
-
-    @return StoredDataClassSchema?
-]]
-function Registry.forciblyFetchStoredPlayerData(playerId: number): StoredDataClassSchema?
-    local ExistingData: StoredDataClassSchema?
-
-    Chronovisor(
-        function()
-            local AsyncData: StoredDataClassSchema? = SettingsDataStore:GetAsync(`{playerId}`)
-            if not AsyncData then return end
-
-            ExistingData = AsyncData
-        end
-    )
-    :onError(function(err: string?) print(`Failed to forcibly fetch stored player data. Error: {err}`) end)
-
-    return ExistingData
-end
-
-
 --[[ @section Utility Functions ]]
 --[[
     @usage Continuously saves the player data class to the data store.
 
-    @param PlayerDataClass PlayerDataClass<any>
+    @param PlayerDataClass PlayerDataClass
 
     @return void
 ]]
@@ -205,6 +216,82 @@ local function tableMatchComparison
     return "match"
 end
 --[[ @end_section Utility Functions ]]
+
+
+--[[
+    @usage Fetches the player's stored data from the data store.
+
+    @param playerId number
+
+    @return StoredDataClassSchema?
+]]
+function Registry.forciblyFetchStoredPlayerData(playerId: number): StoredDataClassSchema?
+    local ExistingData: StoredDataClassSchema?
+
+    Chronovisor(
+        function()
+            local AsyncData: StoredDataClassSchema? = SettingsDataStore:GetAsync(`{playerId}`)
+            if not AsyncData then return end
+
+            ExistingData = AsyncData
+        end
+    )
+    :onError(function(err: string?) print(`Failed to forcibly fetch stored player data. Error: {err}`) end)
+
+    return ExistingData
+end
+
+--[[
+    @usage Commences an atomic transaction between multiple players.
+
+    @param Players { Player }
+    @param transformFunction (state: DataTemplateSchema) -> (boolean)
+
+    @return boolean
+]]
+function Registry.atomicTransaction
+(
+    Players: { Player },
+    transformFunction: (PlayerStates: { [Player]: DataTemplateSchema }) -> (boolean)
+): boolean
+    if #Players < 2 or not Players[1] or not Players[2] then return false end
+
+    local StateClones: { [Player]: DataTemplateSchema } = {}
+
+    -- Clone the players' states.
+    for i: number, player: Player in ipairs(Players) do
+        local PlrDataClass = constructorCallback(nil :: any, player)
+        if not PlrDataClass then return false end
+
+        local StateClone = {}
+
+        for stateEngineIndex: string, v: StateEngine<any> in pairs(PlrDataClass() :: { [string]: StateEngine<any> }) do
+            StateClone[stateEngineIndex] = Reactor(v())
+        end
+
+        StateClones[player] = StateClone :: DataTemplateSchema
+    end
+
+    -- Attempt to commence the atomic transaction and return if it fails.
+    do
+        local successResult = false
+
+        Chronovisor(function() if transformFunction(StateClones) then successResult = true end end)
+        :onError(function(err: string?) print(`Failed to commence an atomic transaction. Error: {err}`); successResult = false end)
+
+        if not successResult then return false end
+    end
+
+    -- Update the players' states.
+    for i: number, player: Player in ipairs(Players) do
+        local PlrDataClass = constructorCallback(nil :: any, player)
+        if not PlrDataClass then return false end
+
+        PlrDataClass.ClassData = StateClones[player]
+    end
+
+    return true
+end
 
 
 --[[ @section Inheritance Functions ]]
@@ -285,13 +372,13 @@ local function dataClassCallback(self: DataClass): DataTemplateSchema return sel
 --[[
     @usage Return the player's data class.
 
-    @param self unknown
+    @param self typeof(Registry)
     @param player Player
     @param create true?
 
     @return DataClass?
 ]]
-local function constructorCallback(self: unknown, player: Player, create: true?): DataClass?
+function constructorCallback(self: typeof(Registry), player: Player, create: true?): DataClass?
     local CachedDataClass = CachedDataClasses[player.UserId]
     if CachedDataClass then return CachedDataClass end
 

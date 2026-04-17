@@ -136,14 +136,10 @@ export type AbstractedStateEngine<S> = AbstractedType<AbstractedType<AbstractedT
 
 
 --[[
-    @generic_pack P... Path types.
-
     @generic M Self type.
     @generic S Source type.
-    @generic D Data type.
-    @generic K Key type.
 ]]
-type SubscriptionCallbackType<M, S> = <D, K, P...>(self: M, data: D | S, key: K?, P...) -> ()
+type SubscriptionCallbackType<M, S> = (self: M, data: any | S, key: any?, ...any) -> ()
 
 --[[
     @generic M Self type.
@@ -151,11 +147,8 @@ type SubscriptionCallbackType<M, S> = <D, K, P...>(self: M, data: D | S, key: K?
 ]]
 type WrappedPeekCallbackType<M, S> = (self: M, data: S) -> ()
 
---[[
-    @generic M Self type.
-    @generic X Method data type.
-]]
-type MethodCallbackType<M> = <X>(self: M, data: X) -> (M)
+--[[ @generic M Self type. ]]
+type UnmappedMethodCallbackType<M> = (self: M, data: any) -> (M)
 
 
 type StateDetailsSchema
@@ -184,14 +177,7 @@ type StateEngineStartingSchema<M, S>
 type AvailableOperators = "__div" | "__idiv" | "__sub" | "__mul" | "__mod" | "__pow" | "__eq" | "__add"
 
 
---[[
-    @generic_pack P... Path types.
-
-    @generic S Source type.
-    @generic D Data type.
-    @generic K Fresh key type.
-    @generic X Method data type.
-]]
+--[[ @generic S Source type. ]]
 type StateEngine<S> = setmetatable
 <
     {
@@ -205,7 +191,7 @@ type StateEngine<S> = setmetatable
     },
 
     {
-        __call: <D, K, P...>(self: StateEngine<S>, freshData: D?, freshKey: K?, P...) -> (S | StateEngine<S>),
+        __call: (self: StateEngine<S>, freshData: any?, freshKey: any?, ...any) -> (S | StateEngine<S>),
 
         __index
         : {
@@ -213,7 +199,7 @@ type StateEngine<S> = setmetatable
             : (
                 self: StateEngine<S>,
                 methodName: AvailableOperators,
-                methodCallback: MethodCallbackType<StateEngine<S>>
+                methodCallback: UnmappedMethodCallbackType<StateEngine<S>>
             ) -> (StateEngine<S>),
 
             subscribe: (self: StateEngine<S>, callback: SubscriptionCallbackType<StateEngine<S>, S>, once: true?) -> (StateEngine<S>),
@@ -229,14 +215,14 @@ type StateEngine<S> = setmetatable
         },
 
         -- Available operators to override
-        __div: MethodCallbackType<StateEngine<S>>,
-        __idiv: MethodCallbackType<StateEngine<S>>,
-        __sub: MethodCallbackType<StateEngine<S>>,
-        __mul: MethodCallbackType<StateEngine<S>>,
-        __mod: MethodCallbackType<StateEngine<S>>,
-        __pow: MethodCallbackType<StateEngine<S>>,
-        __eq: MethodCallbackType<StateEngine<S>>,
-        __add: MethodCallbackType<StateEngine<S>>
+        __div: UnmappedMethodCallbackType<StateEngine<S>>,
+        __idiv: UnmappedMethodCallbackType<StateEngine<S>>,
+        __sub: UnmappedMethodCallbackType<StateEngine<S>>,
+        __mul: UnmappedMethodCallbackType<StateEngine<S>>,
+        __mod: UnmappedMethodCallbackType<StateEngine<S>>,
+        __pow: UnmappedMethodCallbackType<StateEngine<S>>,
+        __eq: UnmappedMethodCallbackType<StateEngine<S>>,
+        __add: UnmappedMethodCallbackType<StateEngine<S>>
     }
 >
 --[[ @end_section Types ]]
@@ -369,24 +355,19 @@ end
 --[[
     @usage Returns the current state of the class or edits it.
 
-    @generic_pack P... Path types.
-
-    @generic D Data type.
-    @generic K Key type.
-
     @param self AbstractedStateEngine<any>
-    @param freshData D?
-    @param freshKey K?
-    @param ... P...
+    @param freshData any?
+    @param freshKey any?
+    @param ... any
 
     @return any | AbstractedStateEngine<any>
 ]]
 local function stateEngineCallback
-<D, K, P...>(
+(
     self: AbstractedStateEngine<any>,
-    freshData: D?,
-    freshKey: K?,
-    ...: P...
+    freshData: any?,
+    freshKey: any?,
+    ...: any
 ): any | AbstractedStateEngine<any>
     -- Checks for nil or frozen data to just return the source.
     if freshData == nil or table.isfrozen(self :: any) then
@@ -430,7 +411,7 @@ end
 
     @param self AbstractedStateEngine<any>
     @param methodName string
-    @param methodCallback MethodCallbackType<AbstractedStateEngine<any>>
+    @param methodCallback UnmappedMethodCallbackType<AbstractedStateEngine<any>>
 
     @return AbstractedStateEngine<any>
 ]]
@@ -438,7 +419,7 @@ local function addOperatorCallback
 (
     self: AbstractedStateEngine<any>,
     methodName: AvailableOperators,
-    methodCallback: MethodCallbackType<AbstractedStateEngine<any>>
+    methodCallback: UnmappedMethodCallbackType<AbstractedStateEngine<any>>
 ): AbstractedStateEngine<any>
     if table.isfrozen(self :: any)
         or methodName == "__call"

@@ -135,16 +135,9 @@ local HttpService = game:GetService("HttpService")
 --[[ @section Types ]]
 type ChronovisorStop = "Chronovisor Stop"
 
+type ErrorCallbackType = (err: string?, ...any) -> (...any)
+type ExecuteCallbackType = (...any) -> (...any)
 
---[[ @generic_pack T... Inputted function arguments. ]]
-type ErrorCallbackType<T...> = (err: string?, T...) -> (...any)
-type ExecuteCallbackType<T...> = (T...) -> (...any)
-
-
---[[
-    @generic_pack U... Inputted error function arguments.
-    @generic_pack P... Inputted execute function arguments.
-]]
 export type Chronovisor = setmetatable
 <
     {
@@ -156,8 +149,8 @@ export type Chronovisor = setmetatable
 
         waits: number?,
         
-        catchesErrors: { func: ErrorCallbackType<...any>, params: { any } }?,
-        executes: { func: ExecuteCallbackType<...any>, params: { any } }?,
+        catchesErrors: { func: ErrorCallbackType, params: { any } }?,
+        executes: { func: ExecuteCallbackType, params: { any } }?,
 
 
         PreviousSteps: { [string]: Chronovisor }?
@@ -167,13 +160,13 @@ export type Chronovisor = setmetatable
         __index
         : {
             onError
-            : <U...>(
+            : (
                 self: Chronovisor,
-                input: ErrorCallbackType<U...> | ChronovisorStop,
-                U...
+                input: ErrorCallbackType | ChronovisorStop,
+                ...any
             ) -> (Chronovisor),
 
-            execute: <P...>(self: Chronovisor, func: ExecuteCallbackType<P...>, P...) -> (Chronovisor),
+            execute: (self: Chronovisor, func: ExecuteCallbackType, ...any) -> (Chronovisor),
             afterSeconds: (self: Chronovisor, seconds: number) -> (Chronovisor),
 
             destroy: (self: Chronovisor) -> (Chronovisor),
@@ -188,19 +181,17 @@ export type Chronovisor = setmetatable
 --[[
     @usage Handles errors with an inputted function.
 
-    @generic_pack U... Inputted error function args
-
     @param self Chronovisor
-    @param input ErrorCallbackType<U...> | ChronovisorStop
-    @param ... U...
+    @param input ErrorCallbackType | ChronovisorStop
+    @param ... any
 
     @return Chronovisor
 ]]
 local function onErrorCallback
-<U...>(
+(
     self: Chronovisor,
-    input: ErrorCallbackType<U...> | ChronovisorStop,
-    ...: U...
+    input: ErrorCallbackType | ChronovisorStop,
+    ...: any
 ): Chronovisor
     -- Add the catches errors table to the self steps.
     do
@@ -209,7 +200,7 @@ local function onErrorCallback
 
         FoundChronovisor.catchesErrors
         = {
-            func = input :: ErrorCallbackType<...any>,
+            func = input :: ErrorCallbackType,
             params = { ... }
         }
     end
@@ -263,15 +254,13 @@ end
 --[[
     @usage Creates a new Chronovisor.
 
-    @generic_pack P... Inputted function args
-
     @param self Chronovisor
-    @param func ExecuteCallbackType<P...>
-    @param ... P...
+    @param func ExecuteCallbackType
+    @param ... any
 
     @return Chronovisor?
 ]]
-local function executeCallback<P...>(self: Chronovisor, func: ExecuteCallbackType<P...>, ...: P...): Chronovisor?
+local function executeCallback(self: Chronovisor, func: ExecuteCallbackType, ...: any): Chronovisor?
     local NewChronovisor = constructorCallback(func, ...)
     if not NewChronovisor then return nil end
 
@@ -329,11 +318,11 @@ local function loopCallback(self: Chronovisor, delay: number?): Chronovisor
             local unpackedParams = table.unpack((v.executes :: { [string]: any }).params)
 
             if (v.executes :: { [string]: any }).func then
-                (v.executes.func :: ExecuteCallbackType<...any>)(unpackedParams)
+                (v.executes.func :: ExecuteCallbackType)(unpackedParams)
             end
 
             if (v.catchesErrors :: { [string]: any }).func and not v.success then
-                (v.catchesErrors.func :: ErrorCallbackType<...any>)(unpackedParams)
+                (v.catchesErrors.func :: ErrorCallbackType)(unpackedParams)
             end
 
             if v.waits then task.wait(v.waits) end
@@ -349,14 +338,12 @@ end
 --[[
     @usage Prevent errors with an inputted function.
 
-    @generic_pack P... Inputted function args
-
-    @param func ExecuteCallbackType<P...>
-    @param ... P...
+    @param func ExecuteCallbackType
+    @param ... any
 
     @return Chronovisor
 ]]
-function constructorCallback<P...>(func: ExecuteCallbackType<P...>, ...: P...): Chronovisor
+function constructorCallback(func: ExecuteCallbackType, ...: any): Chronovisor
     local success, err = pcall(func, ...)
 
     local NewChronovisor
