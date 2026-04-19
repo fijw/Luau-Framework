@@ -13,6 +13,9 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 --[[ @end_section Imports ]]
 
 
+type DataClass = Registry.DataClass
+
+
 local SecondsPerUnit
 = {
     seconds = 1,
@@ -110,6 +113,33 @@ local function kickBannedPlayer(player: Player, isPermanent: true?, banDuration:
         player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nReason: "{banReason}".\n\n\n`)
     end
 end
+
+--[[
+    @usage Create a moderation data subscription.
+
+    @param player Player
+    @param PlrDataClass DataClass
+
+    @return void
+]]
+local function createModerationDataSubscription(player: Player, PlrDataClass: DataClass)
+    PlrDataClass()().ModerationData:subscribe(
+        function(self, data, key, ...)
+            if data == nil or key ~= "BanData" then return end
+
+            local TypedData = data :: { [string]: any }
+
+            kickBannedPlayer(
+                player,
+                TypedData.permanent,
+                TypedData.banDuration,
+                TypedData.banReason
+            )
+        end,
+
+        "moderation_data_subscription"
+    )
+end
 --[[ @end_section Utility Functions ]]
 
 
@@ -124,26 +154,8 @@ local function constructorCallback()
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 
-        -- Initialize the player's moderation data if it doesn't exist.
         if (PlrDataClass()().ModerationData :: any) == nil then PlrDataClass()().ModerationData = Reactor({}) :: any end
-
-        -- Subscribe to the player's moderation data.
-        PlrDataClass()().ModerationData:subscribe(
-            function(self, data, key, ...)
-                if data == nil or key ~= "BanData" then return end
-
-                local TypedData = data :: { [string]: any }
-
-                kickBannedPlayer(
-                    player,
-                    TypedData.permanent,
-                    TypedData.banDuration,
-                    TypedData.banReason
-                )
-            end,
-
-            "moderation_data_subscription"
-        )
+        createModerationDataSubscription(player, PlrDataClass)
 
         -- Check the current ban status of the player.
         do
@@ -178,7 +190,7 @@ local function constructorCallback()
                     If the state date remains the same then don't do anything, otherwise recreate the player's moderation data subscriptions.
                     Will not do anything if the key isn't nil or the number of path arguments is greater than 0.
                 ]]
-                if key ~= nil or #{ ... } > 0 then return elseif key == nil and #{ ... } <= 0 then onPlayerAdded(player) end
+                if key ~= nil or #{ ... } > 0 then return elseif key == nil and #{ ... } <= 0 then createModerationDataSubscription(player, PlrDataClass) end
             end,
             
             "player_data_class_subscription"
