@@ -9,7 +9,7 @@
     |        Discord: @vfjx (k4)                                            |
     |    ```                                                                |
     |                                                                       |
-    |    @version 1.0.0                                                     |
+    |    @version 1.0.5                                                     |
     |                                                                       |
     |    @description                                                       |
     |    ```                                                                |
@@ -96,6 +96,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 --[[ @end_section Imports ]]
@@ -104,8 +105,16 @@ local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 --[[ @section Types ]]
 type DataTemplateSchema = DataSettings.DataTemplateSchema
 
---[[ @generic T Source type. ]]
+--[[ @generic T State type. ]]
 type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+
+
+export type StoredDataClassSchema
+= {
+    Data: buffer,
+    inUse: boolean
+}
+
 
 export type DataClass = setmetatable
 <
@@ -126,12 +135,6 @@ export type DataClass = setmetatable
         __call: (self: DataClass) -> (DataTemplateSchema)
     }
 >
-
-export type StoredDataClassSchema
-= {
-    Data: buffer,
-    inUse: boolean
-}
 --[[ @end_section Types ]]
 
 
@@ -171,7 +174,6 @@ do
 end
 
 
---[[ @section Utility Functions ]]
 --[[
     @usage Continuously saves the player data class to the data store.
 
@@ -187,35 +189,6 @@ local function autoSaveDataClass(DataClass: DataClass)
         DataClass:saveClass(true)
     end
 end
-
---[[
-    @usage Compares two tables to see if they match.
-
-    @param tableComparison1 { [any]: any }
-    @param tableComparison2 { [any]: any }
-
-    @return "match" | "mismatch"
-]]
-local function tableMatchComparison
-(
-    tableComparison1: { [any]: any },
-    tableComparison2: { [any]: any }
-): "match" | "mismatch"
-    for i: any, v: any in pairs(tableComparison1) do
-        if typeof(v) == "table" and typeof(tableComparison2[i]) == "table" then
-            if tableMatchComparison(v, tableComparison2[i]) == "mismatch" then
-                return "mismatch"
-            else
-                continue
-            end
-        end
-
-        if tableComparison2[i] ~= v then return "mismatch" end
-    end
-
-    return "match"
-end
---[[ @end_section Utility Functions ]]
 
 
 --[[
@@ -242,7 +215,7 @@ function Registry.forciblyFetchStoredPlayerData(playerId: number): StoredDataCla
 end
 
 --[[
-    @usage Commences an atomic transaction between multiple players.
+    @usage Commences an atomic transaction between multiple players or a single player.
 
     @param Players { Player }
     @param transformFunction (state: DataTemplateSchema) -> (boolean)
@@ -254,8 +227,6 @@ function Registry.atomicTransaction
     Players: { Player },
     transformFunction: (PlayerStates: { [Player]: DataTemplateSchema }) -> (boolean)
 ): boolean
-    if #Players < 2 or not Players[1] or not Players[2] then return false end
-
     local StateClones: { [Player]: DataTemplateSchema } = {}
 
     -- Clone the players' states.
@@ -263,12 +234,7 @@ function Registry.atomicTransaction
         local PlrDataClass = constructorCallback(nil :: any, player)
         if not PlrDataClass then return false end
 
-        local StateClone = {}
-
-        for stateEngineIndex: string, v: StateEngine<any> in pairs(PlrDataClass() :: { [string]: StateEngine<any> }) do
-            StateClone[stateEngineIndex] = Reactor(v())
-        end
-
+        local StateClone = TableUtils.deepClone(PlrDataClass())
         StateClones[player] = StateClone :: DataTemplateSchema
     end
 
@@ -339,7 +305,7 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
             DecompressedSavingData[i] = Compression(v, "decompress")
         end
 
-        if tableMatchComparison(DecompressedStoredData, DecompressedSavingData) == "match" then return end
+        if TableUtils.deepCompare({ DecompressedStoredData, DecompressedSavingData }) == "match" then return end
 
         print(`Data mismatch when saving [{self.classKey}]'s data.`)
 

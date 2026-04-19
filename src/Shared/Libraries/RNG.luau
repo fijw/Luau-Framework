@@ -79,11 +79,13 @@ local RNGLibrary = {}
 --[[
     @usage Returns a random value from a table of chances.
 
-    @param Chances { [any]: number }
+    @param Chances { [any]: number } | any
 
     @return any
 ]]
-function RNGLibrary.randomFromTableOfChances(Chances: { [any]: number }): any
+function RNGLibrary.randomFromTableOfChances(Chances: { [any]: number } | any): any
+    if typeof(Chances) ~= "table" then return nil end
+
     local totalWeight = 0
 
     for i: any, weight: number in pairs(Chances) do

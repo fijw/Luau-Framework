@@ -7,7 +7,7 @@
         Discord: @vfjx (k4)                                            
     ```                                                               
 
-    @version 1.0.0                                                     
+    @version 2.1.3                                                     
 
     @description                                                       
     ```

@@ -21,6 +21,7 @@ local function cmdsNamespace()
             -- Server Received !ONLY!
             ServerHandleCommand = ByteNetMax.definePacket({ value = ByteNetMax.array(ByteNetMax.string) }),
 
+            
             -- Client Received !ONLY!
             ClientFlyCharacter = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
             ClientUnflyCharacter = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),

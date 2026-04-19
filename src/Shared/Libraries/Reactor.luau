@@ -9,7 +9,7 @@
     |        Discord: @vfjx (k4)                                            |
     |    ```                                                                |
     |                                                                       |
-    |    @version 1.0.0                                                     |
+    |    @version 1.0.2                                                     |
     |                                                                       |
     |    @description                                                       |
     |    ```                                                                |
@@ -27,30 +27,48 @@
     ```luau
         local StateEngineTest = Reactor({ bob = 41 });
         
-        -- Test multiple state changes.
-        (
-            StateEngineTest(51, "bob") :: StateEngine<any>
-        )(
-            123,
-            "test name 1",
-            "creature directories",
-            "humans directory"
-        )(
-            456,
-            "test name 2",
-            "creature directories",
-            "humans directory"
-        )(
-            789,
-            "cat",
-            "creature directories",
-            "pets directory"
-        )(
-            1_011,
-            "dog",
-            "creature directories",
-            "pets directory"
-        )
+        -- Test state changes.
+        do
+            (
+                StateEngineTest(51, "bob") :: StateEngine<StateEngine<any>>
+            )(
+                123,
+                "test name 1",
+                "creature directories",
+                "humans directory"
+            )(
+                456,
+                "test name 2",
+                "creature directories",
+                "humans directory"
+            )(
+                789,
+                "cat",
+                "creature directories",
+                "pets directory"
+            )(
+                1_011,
+                "dog",
+                "creature directories",
+                "pets directory"
+            );
+
+            (
+                StateEngineTest("inserted value 1", "insert_to_array", "testing array") :: StateEngine<StateEngine<any>>
+            )(
+                12_345,
+                "insert_to_array",
+                "testing array"
+            )(
+                "inserted value 2",
+                "insert_to_array",
+                "testing array"
+            )(
+                12_345,
+                "remove_from_array",
+                "testing array"
+            )
+        end
 
         -- Test signals.
         do
@@ -65,11 +83,11 @@
                 end
             );
 
-            (StateEngineTest(100_000, "bobs_bank_balance", "bank_state", "bank_balances") :: StateEngine<any>)()
+            (StateEngineTest(100_000, "bobs_bank_balance", "bank_state", "bank_balances") :: StateEngine<StateEngine<any>>)()
 
             StateEngineTest:unsubscribe():unwrapToPeek();
 
-            (StateEngineTest(123_456) :: StateEngine<any>)()
+            (StateEngineTest(123_456) :: StateEngine<StateEngine<any>>)()
 
             StateEngineTest:subscribe(
                 function(self, data, key, ...)
@@ -86,7 +104,7 @@
                 true
             );
 
-            (StateEngineTest(7_891_011) :: StateEngine<any>)()(121_314)()
+            (StateEngineTest(7_891_011) :: StateEngine<StateEngine<any>>)(121_314)()
         end
 
         -- Test locking.
@@ -94,7 +112,7 @@
             StateEngineTest:lock()
             StateEngineTest("should be number type 121_314 still since it's locked, not this")
 
-            StateEngineTest = StateEngineTest:returnUnlocked()
+            StateEngineTest:unlock()
             StateEngineTest("should be this now since it's unlocked")
         end
 
@@ -129,7 +147,7 @@
 --[[ @section Types ]]
 --[[
     @generic A Abstracted type.
-    @generic S Source type.
+    @generic S State type.
 ]]
 type AbstractedType<A> = A
 export type AbstractedStateEngine<S> = AbstractedType<AbstractedType<AbstractedType<StateEngine<S>>>>
@@ -137,13 +155,13 @@ export type AbstractedStateEngine<S> = AbstractedType<AbstractedType<AbstractedT
 
 --[[
     @generic M Self type.
-    @generic S Source type.
+    @generic S State type.
 ]]
 type SubscriptionCallbackType<M, S> = (self: M, data: any | S, key: any?, ...any) -> ()
 
 --[[
     @generic M Self type.
-    @generic S Source type.
+    @generic S State type.
 ]]
 type WrappedPeekCallbackType<M, S> = (self: M, data: S) -> ()
 
@@ -160,7 +178,7 @@ type StateDetailsSchema
 
 --[[
     @generic M Self type.
-    @generic S Source type.
+    @generic S State type.
 ]]
 type StateEngineStartingSchema<M, S>
 = {
@@ -174,31 +192,33 @@ type StateEngineStartingSchema<M, S>
 }
 
 
-type AvailableOperators = "__div" | "__idiv" | "__sub" | "__mul" | "__mod" | "__pow" | "__eq" | "__add"
+type InsertToArrayLiteral = "insert_to_array"
+type RemoveFromArrayLiteral = "remove_from_array"
+type AvailableOperatorLiterals = "__div" | "__idiv" | "__sub" | "__mul" | "__mod" | "__pow" | "__eq" | "__add"
 
 
---[[ @generic S Source type. ]]
+--[[ @generic S State type. ]]
 type StateEngine<S> = setmetatable
 <
     {
-        source: S,
-
         subscriptionCallback: SubscriptionCallbackType<StateEngine<S>, S>?,
         subscriptionOnce: true?,
 
         peekCallback: WrappedPeekCallbackType<StateEngine<S>, S>?,
-        peekObserveOnce: true?
+        peekObserveOnce: true?,
+
+        locked: true?
     },
 
     {
-        __call: (self: StateEngine<S>, freshData: any?, freshKey: any?, ...any) -> (S | StateEngine<S>),
+        __call: (self: StateEngine<S>, freshData: any?, freshKey: (any | InsertToArrayLiteral | RemoveFromArrayLiteral)?, ...any) -> (S),
 
         __index
         : {
             addOperator
             : (
                 self: StateEngine<S>,
-                methodName: AvailableOperators,
+                methodName: AvailableOperatorLiterals,
                 methodCallback: UnmappedMethodCallbackType<StateEngine<S>>
             ) -> (StateEngine<S>),
 
@@ -206,7 +226,7 @@ type StateEngine<S> = setmetatable
             unsubscribe: (self: StateEngine<S>) -> (StateEngine<S>),
 
             lock: (self: StateEngine<S>) -> (StateEngine<S>),
-            returnUnlocked: (self: StateEngine<S>) -> (StateEngine<S>),
+            unlock: (self: StateEngine<S>) -> (StateEngine<S>),
 
             wrapToPeek: (self: StateEngine<S>, callback: WrappedPeekCallbackType<StateEngine<S>, S>, once: true?) -> (StateEngine<S>),
             unwrapToPeek: (self: StateEngine<S>) -> (StateEngine<S>),
@@ -222,7 +242,9 @@ type StateEngine<S> = setmetatable
         __mod: UnmappedMethodCallbackType<StateEngine<S>>,
         __pow: UnmappedMethodCallbackType<StateEngine<S>>,
         __eq: UnmappedMethodCallbackType<StateEngine<S>>,
-        __add: UnmappedMethodCallbackType<StateEngine<S>>
+        __add: UnmappedMethodCallbackType<StateEngine<S>>,
+
+        state: S
     }
 >
 --[[ @end_section Types ]]
@@ -313,40 +335,20 @@ end
     @return AbstractedStateEngine<any>
 ]]
 local function lockCallback(self: AbstractedStateEngine<any>): AbstractedStateEngine<any>
-    local TempMetatable = getmetatable(self) :: { [string]: any }
-    table.freeze(TempMetatable)
-
-    setmetatable(self, TempMetatable)
-    table.freeze(self :: any)
-
+    self.locked = true
     return self
 end
 
 --[[
-    @usage Returns the unlocked class, allowing further modifications.
+    @usage Unlocks the class, allowing further modifications.
 
     @param self AbstractedStateEngine<any>
 
     @return AbstractedStateEngine<any>
 ]]
-local function returnUnlockedCallback(self: AbstractedStateEngine<any>): AbstractedStateEngine<any>
-    local UnlockedSelf = {}
-    local UnlockedSelfMetatable = {}
-
-    -- Deep clone the class and its metatable.
-    do
-        for i: string, v: any in pairs(self :: { [string]: any }) do
-            UnlockedSelf[i] = v
-        end
-
-        for i: string, v: any in pairs(getmetatable(self) :: { [string]: any }) do
-            UnlockedSelfMetatable[i] = v
-        end
-
-        setmetatable(UnlockedSelf, UnlockedSelfMetatable)
-    end
-
-    return UnlockedSelf :: AbstractedStateEngine<any>
+local function unlockCallback(self: AbstractedStateEngine<any>): AbstractedStateEngine<any>
+    self.locked = nil
+    return self
 end
 --[[ @end_section Lock Methods ]]
 
@@ -357,35 +359,78 @@ end
 
     @param self AbstractedStateEngine<any>
     @param freshData any?
-    @param freshKey any?
+    @param freshKey (any | InsertToArrayLiteral | RemoveFromArrayLiteral)?
     @param ... any
 
-    @return any | AbstractedStateEngine<any>
+    @return any
 ]]
 local function stateEngineCallback
 (
     self: AbstractedStateEngine<any>,
     freshData: any?,
-    freshKey: any?,
+    freshKey: (any | InsertToArrayLiteral | RemoveFromArrayLiteral)?,
     ...: any
-): any | AbstractedStateEngine<any>
-    -- Checks for nil or frozen data to just return the source.
-    if freshData == nil or table.isfrozen(self :: any) then
-        if not self.peekCallback or table.isfrozen(self :: any) then return self.source end
-        self:peekCallback(self.source)
+): any
+    local CurrentState = getmetatable(self).state
 
-        if not self.peekObserveOnce then return self.source end
+    -- Checks for nil data or locked state to just return the state.
+    if freshData == nil or self.locked then
+        local StateClone: { [any]: any } = {}
+
+        if typeof(CurrentState) == "table" then
+            for i: any, v: any in pairs(CurrentState) do
+                StateClone[i] = v
+            end
+        else table.insert(StateClone, CurrentState); StateClone = table.unpack(StateClone) end
+
+        if not self.peekCallback then return StateClone end
+        self:peekCallback(CurrentState)
+
+        if not self.peekObserveOnce then return StateClone end
         self.peekCallback = nil; self.peekObserveOnce = nil
+
+        return StateClone
     end
 
     local Args = { ... }
     local numOfArgs = #Args
 
-    -- Data modification handling.
-    if not freshKey then self.source = freshData
-    elseif numOfArgs == 0 and typeof(self.source) == "table" then self.source[freshKey] = freshData
-    elseif numOfArgs >= 0 and typeof(self.source) == "table" then
-        local CurrentPath = self.source
+    --[[
+        Data modification handling. Supports overwriting state, overwriting [key] = data in state,
+        overwriting [key] = data inside of [path] in state, inserting array data inside of [path] in state,
+        inserting array data in state, removing array data inside of [path] in state,
+        and removing array data in state.
+    ]]
+    if not freshKey and numOfArgs == 0 then getmetatable(self).state = freshData
+    elseif freshKey == "remove_from_array" and numOfArgs == 0 and typeof(CurrentState) == "table" then
+        local FoundIndex = table.find(CurrentState, freshData)
+        if FoundIndex then table.remove(CurrentState, FoundIndex) end
+    elseif freshKey == "insert_to_array" and numOfArgs == 0 and typeof(CurrentState) == "table" then
+        table.insert(CurrentState, freshData)
+    elseif numOfArgs == 0 and typeof(CurrentState) == "table" then CurrentState[freshKey] = freshData
+    elseif freshKey == "insert_to_array" and numOfArgs > 0 and typeof(CurrentState) == "table" then
+        local CurrentPath = CurrentState
+
+        for i: number, arg: any in ipairs(Args) do
+            if not CurrentPath[arg] then CurrentPath[arg] = {} end
+            CurrentPath = CurrentPath[arg]
+
+            if i == numOfArgs and typeof(CurrentPath) == "table" then table.insert(CurrentPath, freshData) end
+        end
+    elseif freshKey == "remove_from_array" and numOfArgs > 0 and typeof(CurrentState) == "table" then
+        local CurrentPath = CurrentState
+
+        for i: number, arg: any in ipairs(Args) do
+            if not CurrentPath[arg] then CurrentPath[arg] = {} end
+            CurrentPath = CurrentPath[arg]
+
+            if i == numOfArgs and typeof(CurrentPath) == "table" then
+                local FoundIndex = table.find(CurrentPath, freshData)
+                if FoundIndex then table.remove(CurrentPath, FoundIndex) end
+            end
+        end
+    elseif numOfArgs > 0 and typeof(CurrentState) == "table" and freshKey ~= "insert_to_array" and freshKey ~= "remove_from_array" then
+        local CurrentPath = CurrentState
 
         for i: number, arg: any in ipairs(Args) do
             if not CurrentPath[arg] then CurrentPath[arg] = {} end
@@ -418,7 +463,7 @@ end
 local function addOperatorCallback
 (
     self: AbstractedStateEngine<any>,
-    methodName: AvailableOperators,
+    methodName: AvailableOperatorLiterals,
     methodCallback: UnmappedMethodCallbackType<AbstractedStateEngine<any>>
 ): AbstractedStateEngine<any>
     if table.isfrozen(self :: any)
@@ -456,23 +501,21 @@ end
 --[[
     @usage Creates a new state engine.
 
-    @generic S Source type.
+    @generic S State type.
 
-    @param source S
+    @param state S
     @param StartingSchema StateEngineStartingSchema<AbstractedStateEngine<S>, S>?
 
     @return AbstractedStateEngine<S>
 ]]
 local function stateEngineConstructor
 <S>(
-    source: S,
+    state: S,
     StartingSchema: StateEngineStartingSchema<AbstractedStateEngine<S>, S>?
 ): AbstractedStateEngine<S>
     local NewStateEngine
     = setmetatable(
         {
-            source = source,
-            
             subscribeCallback = if StartingSchema then StartingSchema.subscriptionCallback else nil,
             subscriptionOnce = if StartingSchema then StartingSchema.subscriptionOnce else nil,
 
@@ -489,7 +532,7 @@ local function stateEngineConstructor
                 unsubscribe = unsubscribeCallback,
 
                 lock = lockCallback,
-                returnUnlocked = returnUnlockedCallback,
+                unlock = unlockCallback,
 
                 wrapToPeek = wrapToPeekCallback,
                 unwrapToPeek = unwrapToPeekCallback,
@@ -497,7 +540,9 @@ local function stateEngineConstructor
                 getStateDetails = getStateDetailsCallback
             },
 
-            __call = stateEngineCallback
+            __call = stateEngineCallback,
+
+            state = state
         }
     ) :: AbstractedStateEngine<S>
 

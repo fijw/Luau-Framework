@@ -17,16 +17,10 @@ type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 export type DataTemplateSchema = setmetatable
 <
     {
-        Inventory: StateEngine
-        <
-            {
-                Pets: { [string]: { str: number, spe: number } },
-                Items: { [string]: { dam: number, dur: number } }
-            }
-        >,
-
         coins: StateEngine<number>,
-        level: StateEngine<number>
+        level: StateEngine<number>,
+
+        [string]: StateEngine<any>
     },
 
     {
@@ -42,9 +36,7 @@ export type DataTemplateSchema = setmetatable
                         banReason: string
                     }?
                 }
-            >,
-
-            [string]: StateEngine<any>
+            >
         }
     }
 >
@@ -55,28 +47,11 @@ local DataSettings
 = {
     DataTemplate
     = {
-        Inventory
-        = {
-            Pets
-            = {
-                Cat = { str = 1, spe = 2 },
-                Dog = { str = 1, spe = 2 },
-                Rabbit = { str = 1, spe = 2 }
-            },
-
-            Items
-            = {
-                Sword = { dam = 1, dur = 1 },
-                Shield = { dam = 1, dur = 1 },
-                Bow = { dam = 1, dur = 1 }
-            }
-        } :: any,
-
         coins = 12_000 :: any,
         level = 15 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "ace12345678"
+    PLAYER_DATA_STORAGE_KEY = "aaaa111232"
 }
 
 
