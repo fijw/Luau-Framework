@@ -4,7 +4,6 @@
 --[[ @section Imports ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local ByteNet_Max = require(ReplicatedStorage.Networking["ByteNet-Max"])
 local ByteNetMax = require(ReplicatedStorage.Networking["ByteNet-Max"])
 --[[ @end_section Imports ]]
 
@@ -14,8 +13,8 @@ local ByteNetMax = require(ReplicatedStorage.Networking["ByteNet-Max"])
     @NOTE No type checking here.
     The new Luau Type Solver hates ByteNet-Max.
 ]]
-local function cmdsNamespace()
-    local CmdsNamespace
+local function hatchNamespace()
+    local HatchNamespace
     = {
         packets
         = {
@@ -24,10 +23,10 @@ local function cmdsNamespace()
         }
     }
 
-    return CmdsNamespace
+    return HatchNamespace
 end
 
-local Namespace = ByteNetMax.defineNamespace("cmds", cmdsNamespace)
+local Namespace = ByteNetMax.defineNamespace("hatch", hatchNamespace)
 --[[ @end_section Packets & Namespace Definition ]]
 
 

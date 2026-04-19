@@ -13,6 +13,7 @@ local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
 local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
 
 local RNG = require(ReplicatedStorage.Libraries.RNG)
+local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 
@@ -53,14 +54,20 @@ local function constructorCallback()
 
                     -- Attempt to give the player the hatched pet.
                     do
-                        local itemId = RNG.randomString(16, true)
+                        local Randomized
+                        = {
+                            size = PetsData.PHYSICAL_ATTRIBUTES.SIZES[RNG.randomFromTableOfChances(PetsData.ATTRIBUTE_CHANCES.SIZE)],
+                            color = PetsData.PHYSICAL_ATTRIBUTES.COLORS[RNG.randomFromTableOfChances(PetsData.ATTRIBUTE_CHANCES.COLOR)],
 
-                        local PetSchema = RNG.randomFromTableOfChances(CrateSchema.Chances);
-                        PlayerState.Inventory += { itemData = PetSchema, itemId = itemId }
+                            id = RNG.randomString(16)
+                        }
 
-                        if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(itemId) then
-                            return false
-                        end
+                        local PetSchema: PetSchema = TableUtils.deepClone(RNG.randomFromTableOfChances(CrateSchema.Chances))
+                        PetSchema.color = Randomized.color :: any
+                        PetSchema.size = Randomized.size :: any
+
+                        PlayerState.Inventory += { itemData = PetSchema, itemId = Randomized.id }
+                        if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(Randomized.id) then return false end
                     end
 
                     return true

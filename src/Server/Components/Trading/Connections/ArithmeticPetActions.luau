@@ -20,7 +20,7 @@ local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
     @return void
 ]]
 local function constuctorCallback()
-    TradingNamespace.packets.AddPetToTrade.listen(
+    TradingNamespace.packets.ServerAddPetToTrade.listen(
         function(data: string, player: Player?)
             if not player then return end
 
@@ -32,10 +32,20 @@ local function constuctorCallback()
 
             local isPlayer1 = Trade.player1 == player
             table.insert(if isPlayer1 then Trade.Player1Pets else Trade.Player2Pets, data)
+
+            -- Send the added pet to the other player in the trade.
+            TradingNamespace.packets.ClientAddPetToTrade.send(
+                {
+                    side = "other",
+                    petId = data
+                },
+
+                if isPlayer1 then Trade.player2 else Trade.player1
+            )
         end
     )
 
-    TradingNamespace.packets.RemovePetFromTrade.listen(
+    TradingNamespace.packets.ServerRemovePetFromTrade.listen(
         function(data: string, player: Player?)
             if not player then return end
 
@@ -54,6 +64,16 @@ local function constuctorCallback()
                 
                 table.remove(if isPlayer1 then Trade.Player1Pets else Trade.Player2Pets, FoundPetId)
             end
+
+            -- Send the removed pet to the other player in the trade.
+            TradingNamespace.packets.ClientRemovePetFromTrade.send(
+                {
+                    side = "other",
+                    petId = data
+                },
+
+                if Trade.player1 == player then Trade.player2 else Trade.player1
+            )
         end
     )
 end

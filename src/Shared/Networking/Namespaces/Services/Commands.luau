@@ -26,11 +26,9 @@ local function cmdsNamespace()
             ClientFlyCharacter = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
             ClientUnflyCharacter = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
 
-            ClientDisplayConsoleResponse = ByteNetMax
-            .definePacket(
+            ClientDisplayConsoleResponse = ByteNetMax.definePacket(
                 {
-                    value
-                    = ByteNetMax.struct(
+                    value = ByteNetMax.struct(
                         {
                             response = ByteNetMax.string,
                             color = ByteNetMax.string

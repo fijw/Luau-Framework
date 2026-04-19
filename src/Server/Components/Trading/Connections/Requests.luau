@@ -23,15 +23,15 @@ local TradingNamespace = require(ReplicatedStorage.Networking.Namespaces.Compone
     @return void
 ]]
 local function constuctorCallback()
-    TradingNamespace.packets.TradeRequestAccepted.listen(
+    TradingNamespace.packets.ServerTradeRequestAccepted.listen(
         function(data: string, player: Player?)
             if not player then return end
 
-            local OtherPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
-            if not OtherPlayer then return end
+            local RequestingPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
+            if not RequestingPlayer then return end
 
-            TradingNamespace.packets.TradeRequestAccepted.send(player.DisplayName, OtherPlayer)
-            TradingNamespace.packets.TradeRequestAccepted.send(OtherPlayer.DisplayName, player)
+            TradingNamespace.packets.ClientOpenTrade.send(player.DisplayName, RequestingPlayer)
+            TradingNamespace.packets.ClientOpenTrade.send(RequestingPlayer.DisplayName, player)
 
             -- Create a new trade between the two players.
             do
@@ -40,7 +40,7 @@ local function constuctorCallback()
                 TradesMap.ActiveTrades[TradeId]
                 = {
                     player1 = player,
-                    player2 = OtherPlayer,
+                    player2 = RequestingPlayer,
 
                     Player1Pets = {},
                     Player2Pets = {},
@@ -53,27 +53,20 @@ local function constuctorCallback()
                 }
 
                 TradesMap.MappedTradingPlayers[player] = TradeId
-                TradesMap.MappedTradingPlayers[OtherPlayer] = TradeId
+                TradesMap.MappedTradingPlayers[RequestingPlayer] = TradeId
             end
         end
     )
 
-    TradingNamespace.packets.SendTradeRequest.listen(
+    TradingNamespace.packets.ServerSendTradeRequest.listen(
         function(data: string, player: Player?)
             if not player then return end
 
             local TargetPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
             if not TargetPlayer then return end
 
-            TradingNamespace.packets.ClientReceivedTradeRequest
-            .send(
-                {
-                    senderIdString = `{player.UserId}`,
-                    senderName = player.Name
-                },
-                
-                TargetPlayer
-            )
+            TradingNamespace.packets.ClientReceivedTradeRequest.send(player.DisplayName, TargetPlayer)
+            TradesMap.MappedTradeRequests[TargetPlayer] = player
         end
     )
 end

@@ -7,6 +7,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
+
 
 local GiveFunCmdsModule = require(script.Commands.GiveFunCmds)
 
@@ -54,24 +56,6 @@ type CommandSchema
 
 type PermissionTypes = CmdsSettings.PermissionTypes
 --[[ @end_section Types ]]
-
-
---[[
-    @usage Combines multiple arrays into one.
-
-    @param ... { string }
-
-    @return { string }
-]]
-local function combineMappedCommands(...: { string }): { string }
-    local CombinedMappedCommands = {}
-
-    for i: number, v: { string } in ipairs({ ... }) do
-        for i: number, cmdName: string in ipairs(v) do table.insert(CombinedMappedCommands, cmdName) end
-    end
-
-    return CombinedMappedCommands
-end
 
 
 --[[ @section Variables ]]
@@ -124,7 +108,7 @@ local MappedCommands
 local PermissionsMap: { [PermissionTypes]: { string } }
 = {
     developer
-    = combineMappedCommands(
+    = TableUtils.combineArrays(
         MappedCommands.ModerationCmds,
         MappedCommands.CharacterCmds,
         MappedCommands.JoiningCmds,
@@ -133,7 +117,7 @@ local PermissionsMap: { [PermissionTypes]: { string } }
     ),
 
     moderator
-    = combineMappedCommands(
+    = TableUtils.combineArrays(
         MappedCommands.ModerationCmds,
         MappedCommands.CharacterCmds,
         MappedCommands.JoiningCmds

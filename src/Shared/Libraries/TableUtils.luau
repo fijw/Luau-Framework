@@ -85,5 +85,42 @@ end
 --[[ @end_section Deep Table Functions ]]
 
 
+--[[ @section Combining Functions ]]
+--[[
+    @usage Combines multiple arrays into one.
+
+    @param ... { any }
+
+    @return { any }
+]]
+function TableUtils.combineArrays(...: { any }): { any }
+    local CombinedArray = {}
+
+    for i: number, v: { any } in ipairs({ ... }) do
+        for i: number, arrayValue: any in ipairs(v) do table.insert(CombinedArray, arrayValue) end
+    end
+
+    return CombinedArray
+end
+
+--[[
+    @usage Combines multiple dictionaries into one.
+
+    @param ... { [any]: any }
+
+    @return { [any]: any }
+]]
+function TableUtils.combineDictionaries(...: { [any]: any }): { [any]: any }
+    local CombinedDictionary = {}
+
+    for i: number, v: { [any]: any } in ipairs({ ... }) do
+        for dictionaryIndex: any, dictionaryValue: any in pairs(v) do CombinedDictionary[dictionaryIndex] = dictionaryValue end
+    end
+
+    return CombinedDictionary
+end
+--[[ @end_section Combining Functions ]]
+
+
 table.freeze(TableUtils)
 return TableUtils

@@ -32,21 +32,39 @@ local Data
         [7] = "Secret"
     },
 
-    STAT_CHANCES
+    PHYSICAL_ATTRIBUTES
     = {
         SIZES
         = {
-            Default = 99.99989,
-            Huge = 0.0001,
-            Gigantic = 0.00001
+            [1] = "Default",
+            [2] = "Huge",
+            [3] = "Gigantic"
         },
 
         COLORS
         = {
-            Default = 93,
-            Rainbow = 4,
-            Radioactive = 2,
-            Glitched = 1
+            [1] = "Default",
+            [2] = "Rainbow",
+            [3] = "Radioactive",
+            [4] = "Glitched"
+        }
+    },
+
+    ATTRIBUTE_CHANCES
+    = {
+        SIZE
+        = {
+            [1] = 99.99989,
+            [2] = 0.0001,
+            [3] = 0.00001
+        },
+
+        COLOR
+        = {
+            [1] = 93.95,
+            [2] = 4,
+            [3] = 1.25,
+            [4] = 0.8
         }
     }
 }

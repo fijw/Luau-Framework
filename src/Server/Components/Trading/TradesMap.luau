@@ -33,11 +33,13 @@ local TradesMap
         }
     },
 
-    MappedTradingPlayers: { [Player]: string }
+    MappedTradingPlayers: { [Player]: string },
+    MappedTradeRequests: { [Player]: Player }
 }
 = {
     ActiveTrades = {},
-    MappedTradingPlayers = {}
+    MappedTradingPlayers = {},
+    MappedTradeRequests = {}
 }
 
 

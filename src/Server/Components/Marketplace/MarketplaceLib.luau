@@ -36,18 +36,24 @@ type MarketplaceSchema
 
     PendingPurchases
     : {
-        {
+        [string]
+        : {
             buyerName: string,
             price: number,
             sellerId: number
         }
-    }
+    },
+
+    PlayersWithPetsOnMarketplace: { [string]: number }
 }
 --[[ @end_section Types ]]
 
 
 --[[ @section Variables ]]
-local MarketplaceDataStore = DataStoreService:GetDataStore("MarketplaceDataTest123")
+local MAX_PETS_IN_MARKETPLACE_PER_PLAYER = 10
+local MARKETPLACE_DATA_KEY = "MarketplaceStateTest"
+
+local MarketplaceDataStore = DataStoreService:GetDataStore("MarketplaceDataTest")
 
 local Marketplace = {}
 --[[ @end_section Variables ]]
@@ -63,7 +69,7 @@ function Marketplace.fetchMarketplaceState(): MarketplaceSchema?
 
     Chronovisor(
         function()
-            State = MarketplaceDataStore:GetAsync("MarketplaceState")
+            State = MarketplaceDataStore:GetAsync(MARKETPLACE_DATA_KEY)
             if not State then return end
         end
     )
@@ -84,33 +90,73 @@ end
     @return void
 ]]
 function Marketplace.addPetToMarketplace(player: Player, petId: string, price: number)
+    -- Validate the request before performing any operations.
+    do
+        local MarketplaceState = Marketplace.fetchMarketplaceState()
+
+        if not MarketplaceState
+            or MarketplaceState.Pets[petId]
+            or MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] >= MAX_PETS_IN_MARKETPLACE_PER_PLAYER
+        then return end
+    end
+
     local PlrDataClass = Registry(player)
     if not PlrDataClass then return end
 
     local PetStack = (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(petId)
     if not PetStack then return end
 
-    Chronovisor(
-        function()
-            MarketplaceDataStore:UpdateAsync("MarketplaceState",
-                function(State: MarketplaceSchema)
-                    if not State then State = { Pets = {}, PendingPurchases = {} } end
+    -- Perform the atomic transaction to add the pet to the marketplace and remove it from the player's inventory.
+    Registry.atomicTransaction({ player },
+        function(PlayerStates)
+            PlrDataClass()().Inventory -= petId
+            if (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(petId) then return false end
 
-                    State.Pets[petId]
-                    = {
-                        Data = PetStack("data"),
+            -- Add the pet to the marketplace.
+            Chronovisor(
+                function()
+                    MarketplaceDataStore:UpdateAsync(MARKETPLACE_DATA_KEY,
+                        function(State: MarketplaceSchema)
+                            if not State then
+                                State
+                                = {
+                                    Pets = {},
+                                    PendingPurchases = {},
+                                    PlayersWithPetsOnMarketplace = {}
+                                }
+                            end
 
-                        price = price,
-                        sellerId = player.UserId,
-                        sellerName = player.Name
-                    }
+                            State.Pets[petId]
+                            = {
+                                Data = PetStack("data"),
 
-                    return State
+                                price = price,
+                                sellerId = player.UserId,
+                                sellerName = player.Name
+                            }
+
+                            local newPetCount = (State.PlayersWithPetsOnMarketplace[`{player.UserId}`] or 0) + 1
+                            State.PlayersWithPetsOnMarketplace[`{player.UserId}`] = newPetCount
+
+                            return State
+                        end
+                    )
                 end
             )
+            :onError(function(err: string?) print(`Error adding pet to marketplace. Error: {err}`) end)
+
+            -- Verify the pet was added to the marketplace.
+            do
+                local MarketplaceState = Marketplace.fetchMarketplaceState()
+                if not MarketplaceState then return false end
+
+                local PetMarketplaceData = MarketplaceState.Pets[petId]
+                if not PetMarketplaceData then return false end
+            end
+
+            return true
         end
     )
-    :onError(function(err: string?) print(`Error adding pet to marketplace. Error: {err}`) end)
 end
 
 --[[
@@ -128,17 +174,47 @@ function Marketplace.removePetFromMarketplace(player: Player, petId: string)
     local PetStack = (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(petId)
     if PetStack then return end
 
-    Chronovisor(
-        function()
-            MarketplaceDataStore:UpdateAsync("MarketplaceState",
-                function(State: MarketplaceSchema)
-                    if not State then State = { Pets = {}, PendingPurchases = {} } else State.Pets[petId] = nil end
-                    return State
+    -- Perform the atomic transaction to remove the pet from the marketplace and add it back to the seller's inventory.
+    Registry.atomicTransaction({ player },
+        function(PlayerStates)
+            local MarketplaceState = Marketplace.fetchMarketplaceState()
+            if not MarketplaceState then return false end
+
+            local PetMarketplaceData = MarketplaceState.Pets[petId]
+            if not PetMarketplaceData or PetMarketplaceData.sellerId ~= player.UserId then return false end
+
+            -- Add the pet back to the player's inventory and verify it was added successfully.
+            PlrDataClass()().Inventory += { itemData = PetMarketplaceData, itemId = petId }
+            if not (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(petId) then return false end
+
+            -- Attempt to remove the pet from the marketplace.
+            Chronovisor(
+                function()
+                    MarketplaceDataStore:UpdateAsync(MARKETPLACE_DATA_KEY,
+                        function(State: MarketplaceSchema)
+                            if not State then State = { Pets = {}, PendingPurchases = {}, PlayersWithPetsOnMarketplace = {} } else State.Pets[petId] = nil end
+                            return State
+                        end
+                    )
                 end
             )
+            :onError(function(err: string?) print(`Error removing pet from marketplace. Error: {err}`) end)
+
+            local newPetCount = (MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] or 0) - 1
+            MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] = if newPetCount <= 0 then nil else newPetCount
+
+            -- Verify the pet was removed from the marketplace.
+            do
+                MarketplaceState = Marketplace.fetchMarketplaceState()
+                if not MarketplaceState then return false end
+
+                PetMarketplaceData = MarketplaceState.Pets[petId]
+                if PetMarketplaceData then return false end
+            end
+
+            return true
         end
     )
-    :onError(function(err: string?) print(`Error removing pet from marketplace. Error: {err}`) end)
 end
 --[[ @end_section Seller Functions ]]
 
@@ -152,16 +228,10 @@ end
     @return void
 ]]
 function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
-    local PlrDataClass = Registry(buyer)
-    if not PlrDataClass then return end
+    local MarketplaceState = Marketplace.fetchMarketplaceState()
+    if not MarketplaceState then return end
 
-    local PetStack = (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(petId)
-    if PetStack then return end
-    
-    local FetchedState = Marketplace.fetchMarketplaceState()
-    if not FetchedState then return end
-
-    local PetMarketplaceData = FetchedState.Pets[petId]
+    local PetMarketplaceData = MarketplaceState.Pets[petId]
     if not PetMarketplaceData then return end
 
     -- Attempt to perform the atomic transaction to purchase the pet.
@@ -169,6 +239,9 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
         function(PlayerStates)
             local PlayerState = PlayerStates[buyer]
             if not PlayerState then return false end
+
+            local PetStack = (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(petId)
+            if PetStack then return false end
 
             -- Add the pet to the buyer's inventory and deduct the coins from the buyer. Then verify the transaction succeeded.
             do
@@ -181,22 +254,19 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
                 if PlayerState.coins() ~= PlayerState.coins() - PetMarketplaceData.price then return false end
             end
 
-            local marketplaceStatusSuccess = true
-
             -- Attempt to remove the pet from the marketplace.
             Chronovisor(
                 function()
-                    MarketplaceDataStore:UpdateAsync("MarketplaceState",
+                    MarketplaceDataStore:UpdateAsync(MARKETPLACE_DATA_KEY,
                         function(State: MarketplaceSchema)
-                            if not State then State = { Pets = {}, PendingPurchases = {} } end
+                            if not State then State = { Pets = {}, PendingPurchases = {}, PlayersWithPetsOnMarketplace = {} } end
 
-                            table.insert(State.PendingPurchases,
-                                {
-                                    buyerName = buyer.Name,
-                                    price = PetMarketplaceData.price,
-                                    sellerId = PetMarketplaceData.sellerId
-                                }
-                            )
+                            State.PendingPurchases[PetMarketplaceData.sellerId]
+                            = {
+                                buyerName = buyer.Name,
+                                price = PetMarketplaceData.price,
+                                sellerId = PetMarketplaceData.sellerId
+                            }
 
                             State.Pets[petId] = nil
 
@@ -205,14 +275,23 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
                     )
                 end
             )
-            :onError(
-                function(err: string?)
-                    print(`Error removing pet from marketplace while purchasing. Error: {err}`)
-                    marketplaceStatusSuccess = false
-                end
-            )
+            :onError(function(err: string?) print(`Error removing pet from marketplace while purchasing. Error: {err}`) end)
 
-            return marketplaceStatusSuccess
+            -- Verify the pet was removed from the marketplace and the pending purchase was added.
+            do
+                local sellerId = PetMarketplaceData.sellerId
+
+                MarketplaceState = Marketplace.fetchMarketplaceState()
+                if not MarketplaceState then return false end
+
+                PetMarketplaceData = MarketplaceState.Pets[petId]
+                if PetMarketplaceData then return false end
+
+                local PendingPurchaseData = MarketplaceState.PendingPurchases[`{sellerId}`]
+                if not PendingPurchaseData then return false end
+            end
+
+            return true
         end
     )
 end

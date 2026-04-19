@@ -20,7 +20,7 @@ local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
     @return void
 ]]
 local function constuctorCallback()
-    TradingNamespace.packets.SetCoinsInTrade.listen(
+    TradingNamespace.packets.ServerSetCoinsInTrade.listen(
         function(data: string, player: Player?)
             if not player then return end
 
@@ -32,6 +32,27 @@ local function constuctorCallback()
 
             local isPlayer1 = Trade.player1 == player
             if isPlayer1 then Trade.player1Coins = tonumber(data) :: number else Trade.player2Coins = tonumber(data) :: number end
+
+            -- Send the updated coins to both players.
+            do
+                TradingNamespace.packets.ClientSetCoinsInTrade.send(
+                    {
+                        side = "yourself",
+                        coins = data
+                    },
+                    
+                    if isPlayer1 then Trade.player1 else Trade.player2
+                )
+
+                TradingNamespace.packets.ClientSetCoinsInTrade.send(
+                    {
+                        side = "other",
+                        coins = data
+                    },
+
+                    if isPlayer1 then Trade.player2 else Trade.player1
+                )
+            end
         end
     )
 end

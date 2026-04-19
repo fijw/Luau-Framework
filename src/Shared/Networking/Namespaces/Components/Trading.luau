@@ -13,46 +13,76 @@ local ByteNetMax = require(ReplicatedStorage.Networking["ByteNet-Max"])
     @NOTE No type checking here.
     The new Luau Type Solver hates ByteNet-Max.
 ]]
-local function cmdsNamespace()
-    local CmdsNamespace
+local function tradingNamespace()
+    local TradingNamespace
     = {
         packets
         = {
-            -- Server AND Client Received!
-            SendTradeRequest = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-            TradeRequestAccepted = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+            -- Server Received !ONLY!
+            ServerSendTradeRequest = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+            ServerTradeRequestAccepted = ByteNetMax.definePacket({ value = ByteNetMax.string }),
 
+            ServerAddPetToTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+            ServerRemovePetFromTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+
+            ServerSetCoinsInTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+
+
+            -- Server AND Client Received!
             CancelTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
             ReadyUp = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
 
-            AddPetToTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-            RemovePetFromTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-
-            SetCoinsInTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-
 
             -- Client Received !ONLY!
-            ClientTradeCompleted = ByteNetMax.definePacket({ value = ByteNetMax.string }), 
-            ClientTradeRequestDeclined = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-
-            ClientReceivedTradeRequest
-            = ByteNetMax.definePacket(
+            ClientAddPetToTrade = ByteNetMax.definePacket(
                 {
                     value = ByteNetMax.struct(
                         {
-                            senderIdString = ByteNetMax.string,
-                            senderName = ByteNetMax.string
+                            side = ByteNetMax.string,
+                            petId = ByteNetMax.string,
+                            PetData = ByteNetMax.unknown
                         }
                     )
                 }
-            )
+            ),
+
+            ClientRemovePetFromTrade = ByteNetMax.definePacket(
+                {
+                    value = ByteNetMax.struct(
+                        {
+                            side = ByteNetMax.string,
+                            petId = ByteNetMax.string
+                        }
+                    )
+                }
+            ),
+
+
+            ClientSetCoinsInTrade = ByteNetMax.definePacket(
+                {
+                    value = ByteNetMax.struct(
+                        {
+                            side = ByteNetMax.string,
+                            coins = ByteNetMax.string
+                        }
+                    )
+                }
+            ),
+
+
+            ClientTradeCompleted = ByteNetMax.definePacket({ value = ByteNetMax.string }), 
+            ClientTradeRequestDeclined = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+
+
+            ClientReceivedTradeRequest= ByteNetMax.definePacket({ value = ByteNetMax.string }),
+            ClientOpenTrade = ByteNetMax.definePacket({ value = ByteNetMax.string })
         }
     }
 
-    return CmdsNamespace
+    return TradingNamespace
 end
 
-local Namespace = ByteNetMax.defineNamespace("cmds", cmdsNamespace)
+local Namespace = ByteNetMax.defineNamespace("trading", tradingNamespace)
 --[[ @end_section Packets & Namespace Definition ]]
 
 

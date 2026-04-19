@@ -123,6 +123,10 @@ local function constuctorCallback()
 
             TradesMap.ActiveTrades[TradeId] = nil
             TradesMap.MappedTradingPlayers[Trade.player1] = nil; TradesMap.MappedTradingPlayers[Trade.player2] = nil
+
+            -- Send a packet to both players to close the trade.
+            TradingNamespace.packets.CancelTrade.send(if Trade.player1 == player then "you_cancelled" else "they_cancelled", Trade.player1)
+            TradingNamespace.packets.CancelTrade.send(if Trade.player2 == player then "you_cancelled" else "they_cancelled", Trade.player2)
         end
     )
 
