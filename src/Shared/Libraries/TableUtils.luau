@@ -30,7 +30,9 @@ function TableUtils.deepClone<T>(In: T): T
         if typeof(v) == "table" then Out[i] = TableUtils.deepClone(v) else Out[i] = v end
     end
 
-    return setmetatable(Out, OutMetatable)
+    setmetatable(Out, OutMetatable)
+
+    return Out
 end
 
 --[[
@@ -55,25 +57,27 @@ end
 --[[
     @usage Deeply compares two tables, including all nested tables.
 
-    @param TablesToCompare { { [any]: any } }
+    @param TableComparison1 { [any]: any }
+    @param TableComparison2 { [any]: any }
 
     @return "match" | "mismatch"
 ]]
 
-function TableUtils.deepCompare(TablesToCompare: { { [any]: any } }): "match" | "mismatch"
-    if #TablesToCompare ~= 2 then return "mismatch" end
-    local tableComparison1, tableComparison2 = TablesToCompare[1], TablesToCompare[2]
-    
-    for i: any, v: any in pairs(tableComparison1) do
-        if typeof(v) == "table" and typeof(tableComparison2[i]) == "table" then
-            if TableUtils.deepCompare(v, tableComparison2[i]) == "mismatch" then
+function TableUtils.deepCompare
+(
+    TableComparison1: { [any]: any },
+    TableComparison2: { [any]: any }
+): "match" | "mismatch"
+    for i: any, v: any in pairs(TableComparison1) do
+        if typeof(v) == "table" and typeof(TableComparison2[i]) == "table" then
+            if TableUtils.deepCompare(v, TableComparison2[i]) == "mismatch" then
                 return "mismatch"
             else
                 continue
             end
         end
 
-        if tableComparison2[i] ~= v then return "mismatch" end
+        if TableComparison2[i] ~= v then return "mismatch" end
     end
 
     return "match"

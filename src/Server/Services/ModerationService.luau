@@ -124,9 +124,11 @@ local function constructorCallback()
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 
-        if (PlrDataClass().ModerationData :: any) == nil then PlrDataClass().ModerationData = Reactor({}) :: any end
+        -- Initialize the player's moderation data if it doesn't exist.
+        if (PlrDataClass()().ModerationData :: any) == nil then PlrDataClass()().ModerationData = Reactor({}) :: any end
 
-        PlrDataClass().ModerationData:subscribe(
+        -- Subscribe to the player's moderation data.
+        PlrDataClass()().ModerationData:subscribe(
             function(self, data, key, ...)
                 if data == nil or key ~= "BanData" then return end
 
@@ -138,15 +140,27 @@ local function constructorCallback()
                     TypedData.banDuration,
                     TypedData.banReason
                 )
-            end
+            end,
+
+            "moderation_data_subscription"
         )
 
-        local BanData = (PlrDataClass().ModerationData() :: { [string]: { [string]: any } }).BanData
-        if not BanData then return end
+        -- Check the current ban status of the player.
+        do
+            local BanData = PlrDataClass()().ModerationData().BanData
+            if not BanData then return end
 
-        if BanData.permanent ~= true then
-            if BanData.banDuration <= os.time() then
-                PlrDataClass().ModerationData(nil, "BanData")
+            if BanData.permanent ~= true then
+                if BanData.banDuration <= os.time() then
+                    PlrDataClass()().ModerationData(nil, "BanData")
+                else
+                    kickBannedPlayer(
+                        player,
+                        BanData.permanent,
+                        BanData.banDuration,
+                        BanData.banReason
+                    )
+                end
             else
                 kickBannedPlayer(
                     player,
@@ -155,14 +169,20 @@ local function constructorCallback()
                     BanData.banReason
                 )
             end
-        else
-            kickBannedPlayer(
-                player,
-                BanData.permanent,
-                BanData.banDuration,
-                BanData.banReason
-            )
         end
+
+        -- Subscribe to the player's data class.
+        PlrDataClass():subscribe(
+            function(self, data, key, ...)
+                --[[
+                    If the state date remains the same then don't do anything, otherwise recreate the player's moderation data subscriptions.
+                    Will not do anything if the key isn't nil or the number of path arguments is greater than 0.
+                ]]
+                if key ~= nil or #{ ... } > 0 then return elseif key == nil and #{ ... } <= 0 then onPlayerAdded(player) end
+            end,
+            
+            "player_data_class_subscription"
+        )
     end
 
     for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end

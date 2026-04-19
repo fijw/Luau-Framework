@@ -75,17 +75,21 @@
             StateEngineTest:subscribe(
                 function(self, data, key, ...)
                     print(data, key, ..., "subscription callback")
-                end
+                end,
+
+                "subscription_test_1"
             )
             :wrapToPeek(
                 function(self, data)
                     print(self, data, "peek callback")
-                end
+                end,
+
+                "peek_test_1"
             );
 
             (StateEngineTest(100_000, "bobs_bank_balance", "bank_state", "bank_balances") :: StateEngine<StateEngine<any>>)()
 
-            StateEngineTest:unsubscribe():unwrapToPeek();
+            StateEngineTest:unsubscribe("subscription_test_1"):unwrapToPeek("peek_test_1");
 
             (StateEngineTest(123_456) :: StateEngine<StateEngine<any>>)()
 
@@ -94,12 +98,16 @@
                     print(data, key, ..., "subscription callback (once)")
                 end,
 
+                "subscription_test_2",
+
                 true
             )
             :wrapToPeek(
                 function(self, data)
                     print(self, data, "peek callback (once)")
                 end,
+
+                "peek_test_2",
 
                 true
             );
@@ -132,7 +140,6 @@
 
         -- Printing the state engine.
         do
-            print(StateEngineTest:getStateDetails(), "State Details")
             print(StateEngineTest, "State Engine")
             print(StateEngineTest(), "State Engine Source")
             print(getmetatable(StateEngineTest), "State Engine Metatable")
@@ -145,14 +152,6 @@
 
 
 --[[ @section Types ]]
---[[
-    @generic A Abstracted type.
-    @generic S State type.
-]]
-type AbstractedType<A> = A
-export type AbstractedStateEngine<S> = AbstractedType<AbstractedType<AbstractedType<StateEngine<S>>>>
-
-
 --[[
     @generic M Self type.
     @generic S State type.
@@ -191,6 +190,26 @@ type StateEngineStartingSchema<M, S>
     locked: true?
 }
 
+--[[
+    @generic M Self type.
+    @generic S State type.
+]]
+type SubscriptionSchema<M, S>
+= {
+    callback: SubscriptionCallbackType<M, S>,
+    once: true?
+}
+
+--[[
+    @generic M Self type.
+    @generic S State type.
+]]
+type PeekSchema<M, S>
+= {
+    callback: WrappedPeekCallbackType<M, S>,
+    once: true?
+}
+
 
 type InsertToArrayLiteral = "insert_to_array"
 type RemoveFromArrayLiteral = "remove_from_array"
@@ -198,14 +217,11 @@ type AvailableOperatorLiterals = "__div" | "__idiv" | "__sub" | "__mul" | "__mod
 
 
 --[[ @generic S State type. ]]
-type StateEngine<S> = setmetatable
+export type StateEngine<S> = setmetatable
 <
     {
-        subscriptionCallback: SubscriptionCallbackType<StateEngine<S>, S>?,
-        subscriptionOnce: true?,
-
-        peekCallback: WrappedPeekCallbackType<StateEngine<S>, S>?,
-        peekObserveOnce: true?,
+        subscriptionCallbacks: { [string]: SubscriptionSchema<StateEngine<S>, S> },
+        peekCallbacks: { [string]: PeekSchema<StateEngine<S>, S> },
 
         locked: true?
     },
@@ -222,16 +238,14 @@ type StateEngine<S> = setmetatable
                 methodCallback: UnmappedMethodCallbackType<StateEngine<S>>
             ) -> (StateEngine<S>),
 
-            subscribe: (self: StateEngine<S>, callback: SubscriptionCallbackType<StateEngine<S>, S>, once: true?) -> (StateEngine<S>),
-            unsubscribe: (self: StateEngine<S>) -> (StateEngine<S>),
+            subscribe: (self: StateEngine<S>, callback: SubscriptionCallbackType<StateEngine<S>, S>, subscriptionId: string, once: true?) -> (StateEngine<S>),
+            unsubscribe: (self: StateEngine<S>, subscriptionId: string) -> (StateEngine<S>),
 
             lock: (self: StateEngine<S>) -> (StateEngine<S>),
             unlock: (self: StateEngine<S>) -> (StateEngine<S>),
 
-            wrapToPeek: (self: StateEngine<S>, callback: WrappedPeekCallbackType<StateEngine<S>, S>, once: true?) -> (StateEngine<S>),
-            unwrapToPeek: (self: StateEngine<S>) -> (StateEngine<S>),
-
-            getStateDetails: (self: StateEngine<S>) -> (StateDetailsSchema)
+            wrapToPeek: (self: StateEngine<S>, callback: WrappedPeekCallbackType<StateEngine<S>, S>, peekId: string, once: true?) -> (StateEngine<S>),
+            unwrapToPeek: (self: StateEngine<S>, peekId: string) -> (StateEngine<S>)
         },
 
         -- Available operators to override
@@ -254,35 +268,34 @@ type StateEngine<S> = setmetatable
 --[[
     @usage Subscribes a callback to the class.
 
-    @param self AbstractedStateEngine<any>
-    @param callback SubscriptionCallbackType<AbstractedStateEngine<any>, any>
+    @param self StateEngine<any>
+    @param callback SubscriptionCallbackType<StateEngine<any>, any>
+    @param subscriptionId string
     @param once true?
 
-    @return AbstractedStateEngine<any>
+    @return StateEngine<any>
 ]]
 local function subscribeCallback
 (
-    self: AbstractedStateEngine<any>,
-    callback: SubscriptionCallbackType<AbstractedStateEngine<any>, any>,
+    self: StateEngine<any>,
+    callback: SubscriptionCallbackType<StateEngine<any>, any>,
+    subscriptionId: string,
     once: true?
-): AbstractedStateEngine<any>
-    self.subscriptionCallback = callback
-    self.subscriptionOnce = once
-
+): StateEngine<any>
+    self.subscriptionCallbacks[subscriptionId] = { callback = callback, once = once }
     return self
 end
 
 --[[
     @usage Unsubscribes a callback from the class.
 
-    @param self AbstractedStateEngine<any>
+    @param self StateEngine<any>
+    @param subscriptionId string
 
-    @return AbstractedStateEngine<any>
+    @return StateEngine<any>
 ]]
-local function unsubscribeCallback(self: AbstractedStateEngine<any>): AbstractedStateEngine<any>
-    self.subscriptionCallback = nil
-    self.subscriptionOnce = nil
-
+local function unsubscribeCallback(self: StateEngine<any>, subscriptionId: string): StateEngine<any>
+    self.subscriptionCallbacks[subscriptionId] = nil
     return self
 end
 --[[ @end_section Subscription Methods ]]
@@ -292,35 +305,34 @@ end
 --[[
     @usage Wraps a peek callback to the class.
 
-    @param self AbstractedStateEngine<any>
-    @param callback WrappedPeekCallbackType<AbstractedStateEngine<any>, any>
+    @param self StateEngine<any>
+    @param callback WrappedPeekCallbackType<StateEngine<any>, any>
+    @param peekId string
     @param once true?
 
-    @return AbstractedStateEngine<any>
+    @return StateEngine<any>
 ]]
 local function wrapToPeekCallback
 (
-    self: AbstractedStateEngine<any>,
-    callback: WrappedPeekCallbackType<AbstractedStateEngine<any>, any>,
+    self: StateEngine<any>,
+    callback: WrappedPeekCallbackType<StateEngine<any>, any>,
+    peekId: string,
     once: true?
-): AbstractedStateEngine<any>
-    self.peekCallback = callback
-    self.peekObserveOnce = once
-
+): StateEngine<any>
+    self.peekCallbacks[peekId] = { callback = callback, once = once }
     return self
 end
 
 --[[
     @usage Unwraps a peek callback from the class.
 
-    @param self AbstractedStateEngine<any>
+    @param self StateEngine<any>
+    @param peekId string
 
-    @return AbstractedStateEngine<any>
+    @return StateEngine<any>
 ]]
-local function unwrapToPeekCallback(self: AbstractedStateEngine<any>): AbstractedStateEngine<any>
-    self.peekCallback = nil
-    self.peekObserveOnce = nil
-
+local function unwrapToPeekCallback(self: StateEngine<any>, peekId: string): StateEngine<any>
+    self.peekCallbacks[peekId] = nil
     return self
 end
 --[[ @end_section Peek Methods ]]
@@ -330,11 +342,11 @@ end
 --[[
     @usage Locks the class, preventing further modifications.
 
-    @param self AbstractedStateEngine<any>
+    @param self StateEngine<any>
 
-    @return AbstractedStateEngine<any>
+    @return StateEngine<any>
 ]]
-local function lockCallback(self: AbstractedStateEngine<any>): AbstractedStateEngine<any>
+local function lockCallback(self: StateEngine<any>): StateEngine<any>
     self.locked = true
     return self
 end
@@ -342,11 +354,11 @@ end
 --[[
     @usage Unlocks the class, allowing further modifications.
 
-    @param self AbstractedStateEngine<any>
+    @param self StateEngine<any>
 
-    @return AbstractedStateEngine<any>
+    @return StateEngine<any>
 ]]
-local function unlockCallback(self: AbstractedStateEngine<any>): AbstractedStateEngine<any>
+local function unlockCallback(self: StateEngine<any>): StateEngine<any>
     self.locked = nil
     return self
 end
@@ -357,7 +369,7 @@ end
 --[[
     @usage Returns the current state of the class or edits it.
 
-    @param self AbstractedStateEngine<any>
+    @param self StateEngine<any>
     @param freshData any?
     @param freshKey (any | InsertToArrayLiteral | RemoveFromArrayLiteral)?
     @param ... any
@@ -366,7 +378,7 @@ end
 ]]
 local function stateEngineCallback
 (
-    self: AbstractedStateEngine<any>,
+    self: StateEngine<any>,
     freshData: any?,
     freshKey: (any | InsertToArrayLiteral | RemoveFromArrayLiteral)?,
     ...: any
@@ -383,11 +395,11 @@ local function stateEngineCallback
             end
         else table.insert(StateClone, CurrentState); StateClone = table.unpack(StateClone) end
 
-        if not self.peekCallback then return StateClone end
-        self:peekCallback(CurrentState)
-
-        if not self.peekObserveOnce then return StateClone end
-        self.peekCallback = nil; self.peekObserveOnce = nil
+        -- Call the peek callbacks.
+        for i: string, peekData: PeekSchema<StateEngine<any>, any> in pairs(self.peekCallbacks) do
+            peekData.callback(self, StateClone)
+            if peekData.once then self.peekCallbacks[i] = nil end
+        end
 
         return StateClone
     end
@@ -440,12 +452,10 @@ local function stateEngineCallback
         end
     end
 
-    -- Subscription handling.
-    do
-        if not self.subscriptionCallback then return self end
-
-        if self.subscriptionCallback then self:subscriptionCallback(freshData, freshKey, ...) end
-        if self.subscriptionOnce then self.subscriptionCallback = nil; self.subscriptionOnce = nil end
+    -- Call the subscription callbacks.
+    for i: string, subscriptionData: SubscriptionSchema<StateEngine<any>, any> in pairs(self.subscriptionCallbacks) do
+        subscriptionData.callback(self, freshData, freshKey, ...)
+        if subscriptionData.once then self.subscriptionCallbacks[i] = nil end
     end
 
     return self
@@ -454,18 +464,18 @@ end
 --[[
     @usage Adds a method to the class.
 
-    @param self AbstractedStateEngine<any>
+    @param self StateEngine<any>
     @param methodName string
-    @param methodCallback UnmappedMethodCallbackType<AbstractedStateEngine<any>>
+    @param methodCallback UnmappedMethodCallbackType<StateEngine<any>>
 
-    @return AbstractedStateEngine<any>
+    @return StateEngine<any>
 ]]
 local function addOperatorCallback
 (
-    self: AbstractedStateEngine<any>,
+    self: StateEngine<any>,
     methodName: AvailableOperatorLiterals,
-    methodCallback: UnmappedMethodCallbackType<AbstractedStateEngine<any>>
-): AbstractedStateEngine<any>
+    methodCallback: UnmappedMethodCallbackType<StateEngine<any>>
+): StateEngine<any>
     if table.isfrozen(self :: any)
         or methodName == "__call"
         or methodName == "__index"
@@ -480,23 +490,6 @@ end
 --[[ @end_section Operator Methods ]]
 
 
---[[
-    @usage Returns the state details of the class.
-
-    @param self AbstractedStateEngine<any>
-
-    @return StateDetailsSchema
-]]
-local function getStateDetailsCallback(self: AbstractedStateEngine<any>): StateDetailsSchema
-    return
-    {
-        isLocked = table.isfrozen(self :: any),
-        isSubscribed = self.subscriptionCallback ~= nil,
-        isPeekWrapped = self.peekCallback ~= nil
-    }
-end
-
-
 --[[ @section State Engine Constructor ]]
 --[[
     @usage Creates a new state engine.
@@ -504,15 +497,15 @@ end
     @generic S State type.
 
     @param state S
-    @param StartingSchema StateEngineStartingSchema<AbstractedStateEngine<S>, S>?
+    @param StartingSchema StateEngineStartingSchema<StateEngine<S>, S>?
 
-    @return AbstractedStateEngine<S>
+    @return StateEngine<S>
 ]]
 local function stateEngineConstructor
 <S>(
     state: S,
-    StartingSchema: StateEngineStartingSchema<AbstractedStateEngine<S>, S>?
-): AbstractedStateEngine<S>
+    StartingSchema: StateEngineStartingSchema<StateEngine<S>, S>?
+): StateEngine<S>
     local NewStateEngine
     = setmetatable(
         {
@@ -535,16 +528,14 @@ local function stateEngineConstructor
                 unlock = unlockCallback,
 
                 wrapToPeek = wrapToPeekCallback,
-                unwrapToPeek = unwrapToPeekCallback,
-
-                getStateDetails = getStateDetailsCallback
+                unwrapToPeek = unwrapToPeekCallback
             },
 
             __call = stateEngineCallback,
 
             state = state
         }
-    ) :: AbstractedStateEngine<S>
+    ) :: StateEngine<S>
 
     if not StartingSchema then return NewStateEngine end
     if StartingSchema.locked then NewStateEngine:lock() end

@@ -12,7 +12,7 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 --[[ @section Types ]]
 --[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+type StateEngine<T> = Reactor.StateEngine<T>
 
 export type DataTemplateSchema = setmetatable
 <
@@ -24,7 +24,7 @@ export type DataTemplateSchema = setmetatable
     },
 
     {
-        __index
+        index
         : {
             ModerationData: StateEngine
             <
@@ -51,7 +51,7 @@ local DataSettings
         level = 15 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "aaaa111232"
+    PLAYER_DATA_STORAGE_KEY = "test12312143"
 }
 
 

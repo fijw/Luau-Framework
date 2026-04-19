@@ -87,7 +87,7 @@ function Marketplace.addPetToMarketplace(player: Player, petId: string, price: n
     local PlrDataClass = Registry(player)
     if not PlrDataClass then return end
 
-    local PetStack = (PlrDataClass().Inventory :: InventoryClass):fetchStackFromItemId(petId)
+    local PetStack = (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(petId)
     if not PetStack then return end
 
     Chronovisor(
@@ -125,7 +125,7 @@ function Marketplace.removePetFromMarketplace(player: Player, petId: string)
     local PlrDataClass = Registry(player)
     if not PlrDataClass then return end
 
-    local PetStack = (PlrDataClass().Inventory :: InventoryClass):fetchStackFromItemId(petId)
+    local PetStack = (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(petId)
     if PetStack then return end
 
     Chronovisor(
@@ -155,7 +155,7 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
     local PlrDataClass = Registry(buyer)
     if not PlrDataClass then return end
 
-    local PetStack = (PlrDataClass().Inventory :: InventoryClass):fetchStackFromItemId(petId)
+    local PetStack = (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(petId)
     if PetStack then return end
     
     local FetchedState = Marketplace.fetchMarketplaceState()

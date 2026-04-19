@@ -106,7 +106,7 @@ local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 type DataTemplateSchema = DataSettings.DataTemplateSchema
 
 --[[ @generic T State type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+type StateEngine<T> = Reactor.StateEngine<T>
 
 
 export type StoredDataClassSchema
@@ -122,7 +122,7 @@ export type DataClass = setmetatable
         classKey: string,
         ClassDataStore: DataStore,
 
-        ClassData: DataTemplateSchema
+        ClassData: StateEngine<DataTemplateSchema>
     },
 
     {
@@ -132,7 +132,7 @@ export type DataClass = setmetatable
             deleteClass: (self: DataClass) -> ()
         },
 
-        __call: (self: DataClass) -> (DataTemplateSchema)
+        __call: (self: DataClass) -> (StateEngine<DataTemplateSchema>)
     }
 >
 --[[ @end_section Types ]]
@@ -253,7 +253,7 @@ function Registry.atomicTransaction
         local PlrDataClass = constructorCallback(nil :: any, player)
         if not PlrDataClass then return false end
 
-        PlrDataClass.ClassData = StateClones[player]
+        PlrDataClass.ClassData(StateClones[player])
     end
 
     return true
@@ -305,7 +305,7 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
             DecompressedSavingData[i] = Compression(v, "decompress")
         end
 
-        if TableUtils.deepCompare({ DecompressedStoredData, DecompressedSavingData }) == "match" then return end
+        if TableUtils.deepCompare(DecompressedStoredData, DecompressedSavingData) == "match" then return end
 
         print(`Data mismatch when saving [{self.classKey}]'s data.`)
 
@@ -329,9 +329,9 @@ local function deleteClassCallback(self: DataClass) CachedDataClasses[tonumber(s
 
     @param self DataClass
 
-    @return DataTemplateSchema
+    @return StateEngine<DataTemplateSchema>
 ]]
-local function dataClassCallback(self: DataClass): DataTemplateSchema return self.ClassData end
+local function dataClassCallback(self: DataClass): StateEngine<DataTemplateSchema> return self.ClassData end
 
 
 --[[ @section Constructor ]]

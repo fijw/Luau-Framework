@@ -8,7 +8,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 
@@ -17,124 +16,9 @@ local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 
 
 type SavingInventoryClassSchema = Stackentory.SavingInventoryClassSchema
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
 
 
 local LoggedJoinedPlrs: { Player } = {}
-
-
-        local StateEngineTest = Reactor({ bob = 41 });
-        
-        -- Test state changes.
-        do
-            (
-                StateEngineTest(51, "bob") :: StateEngine<StateEngine<any>>
-            )(
-                123,
-                "test name 1",
-                "creature directories",
-                "humans directory"
-            )(
-                456,
-                "test name 2",
-                "creature directories",
-                "humans directory"
-            )(
-                789,
-                "cat",
-                "creature directories",
-                "pets directory"
-            )(
-                1_011,
-                "dog",
-                "creature directories",
-                "pets directory"
-            );
-
-            (
-                StateEngineTest("inserted value 1", "insert_to_array", "testing array") :: StateEngine<StateEngine<any>>
-            )(
-                12_345,
-                "insert_to_array",
-                "testing array"
-            )(
-                "inserted value 2",
-                "insert_to_array",
-                "testing array"
-            )(
-                12_345,
-                "remove_from_array",
-                "testing array"
-            )
-        end
-
-        -- Test signals.
-        do
-            StateEngineTest:subscribe(
-                function(self, data, key, ...)
-                    print(data, key, ..., "subscription callback")
-                end
-            )
-            :wrapToPeek(
-                function(self, data)
-                    print(self, data, "peek callback")
-                end
-            );
-
-            (StateEngineTest(100_000, "bobs_bank_balance", "bank_state", "bank_balances") :: StateEngine<StateEngine<any>>)()
-
-            StateEngineTest:unsubscribe():unwrapToPeek();
-
-            (StateEngineTest(123_456) :: StateEngine<StateEngine<any>>)()
-
-            StateEngineTest:subscribe(
-                function(self, data, key, ...)
-                    print(data, key, ..., "subscription callback (once)")
-                end,
-
-                true
-            )
-            :wrapToPeek(
-                function(self, data)
-                    print(self, data, "peek callback (once)")
-                end,
-
-                true
-            );
-
-            (StateEngineTest(7_891_011) :: StateEngine<StateEngine<any>>)(121_314)()
-        end
-
-        -- Test locking.
-        do
-            StateEngineTest:lock()
-            StateEngineTest("should be number type 121_314 still since it's locked, not this")
-
-            StateEngineTest:unlock()
-            StateEngineTest("should be this now since it's unlocked")
-        end
-
-        -- Test adding operators.
-        do
-            StateEngineTest:addOperator(
-                "__div",
-                
-                function(self, data)
-                    print(data, "__div callback")
-                    return self
-                end
-            )
-
-            StateEngineTest /= 5
-        end
-
-        -- Printing the state engine.
-        do
-            print(StateEngineTest:getStateDetails(), "State Details")
-            print(StateEngineTest, "State Engine")
-            print(StateEngineTest(), "State Engine Source")
-            print(getmetatable(StateEngineTest), "State Engine Metatable")
-        end
 
 
 --[[ @section Constructor ]]
@@ -151,13 +35,13 @@ local function constructorCallback()
         if not PlrDataClass then return end
 
         -- Initialize the player's inventory.
-        PlrDataClass().Inventory = Stackentory(if PlrDataClass().Inventory then PlrDataClass().Inventory() else nil)
+        PlrDataClass()().Inventory = Stackentory(if PlrDataClass()().Inventory then PlrDataClass()().Inventory() else nil)
 
-        print(PlrDataClass(), `{player.UserId}'s data.`)
+        print(PlrDataClass()(), `{player.UserId}'s data.`)
 
         -- Make the coins divisible using a custom callback.
         do
-            PlrDataClass().coins:addOperator(
+            PlrDataClass()().coins:addOperator(
                 "__div",
                 
                 function(self, data)
@@ -166,7 +50,7 @@ local function constructorCallback()
                 end
             )
 
-            PlrDataClass().coins /= 5
+            PlrDataClass()().coins /= 5
         end
 
         task.spawn(
@@ -174,8 +58,8 @@ local function constructorCallback()
                 while true do
                     if not Players:GetPlayerByUserId(player.UserId) then break end
 
-                    local oldCoins = PlrDataClass().coins()
-                    PlrDataClass().coins(oldCoins + 100_000)
+                    local oldCoins = PlrDataClass()().coins()
+                    PlrDataClass()().coins(oldCoins + 100_000)
 
                     task.wait(5)
                 end
