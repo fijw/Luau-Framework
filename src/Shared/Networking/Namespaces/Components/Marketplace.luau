@@ -14,7 +14,7 @@ local ByteNetMax = require(ReplicatedStorage.Networking["ByteNet-Max"])
     The new Luau Type Solver hates ByteNet-Max.
 ]]
 local function marketplaceNamespace()
-    local CmdsNamespace
+    local MarketplaceNamespace
     = {
         packets
         = {
@@ -56,7 +56,7 @@ local function marketplaceNamespace()
         }
     }
 
-    return CmdsNamespace
+    return MarketplaceNamespace
 end
 
 local Namespace = ByteNetMax.defineNamespace("marketplace", marketplaceNamespace)

@@ -18,7 +18,25 @@ export type DataTemplateSchema = setmetatable
 <
     {
         coins: StateEngine<number>,
-        level: StateEngine<number>,
+        
+        GameplayData: StateEngine
+        <
+            {
+                level: number,
+                xp: number,
+                xpToNextLevel: number,
+                levelsNeededToRebirth: number,
+                rebirths: number
+            }
+        >,
+        
+        DungeonsData: StateEngine
+        <
+            {
+                totalDungeonsLevelsCompleted: number,
+                currentMaxDungeonLevelReached: number
+            }
+        >,
 
         [string]: StateEngine<any>
     },
@@ -51,7 +69,7 @@ local DataSettings
         level = 15 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "test12312143"
+    PLAYER_DATA_STORAGE_KEY = "test123121434"
 }
 
 

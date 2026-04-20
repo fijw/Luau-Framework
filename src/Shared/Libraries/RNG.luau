@@ -134,6 +134,25 @@ function RNGLibrary.randomString(length: number, symbols: true?): string
 
     return result
 end
+
+--[[
+    @usage Returns a random number.
+
+    @param min number
+    @param max number?
+    @param decimals true?
+
+    @return number
+]]
+function RNGLibrary.betterRandomNumber(RandomConfig: { min: number, max: number }, decimals: true?): number
+    local usingMin, usingMax = if RandomConfig then RandomConfig.min else nil, if RandomConfig then RandomConfig.max else nil
+
+    local RandomPicks = {}
+    for i = 1, 3 do table.insert(RandomPicks, math.random(usingMin, usingMax)) end
+
+    local randomReturnPick = RandomPicks[math.random(1, #RandomPicks)]
+    return if decimals then randomReturnPick * math.random() else randomReturnPick
+end
 --[[ @end_section RNG Functions ]]
 
 
