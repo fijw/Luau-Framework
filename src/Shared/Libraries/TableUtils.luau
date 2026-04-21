@@ -47,7 +47,7 @@ end
 function TableUtils.deepFreeze<T>(In: T): T
     if typeof(In) ~= "table" then return In end
 
-    for i: any, v: any in pairs(In) do
+    for i: any, v: any in pairs(In :: { [any]: any }) do
         if typeof(v) == "table" then TableUtils.deepFreeze(v) end
     end
 

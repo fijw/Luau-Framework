@@ -390,7 +390,7 @@ local function stateEngineCallback
         local StateClone: { [any]: any } = {}
 
         if typeof(CurrentState) == "table" then
-            for i: any, v: any in pairs(CurrentState) do
+            for i: any, v: any in pairs(CurrentState :: { [any]: any }) do
                 StateClone[i] = v
             end
         else table.insert(StateClone, CurrentState); StateClone = table.unpack(StateClone) end
