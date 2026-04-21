@@ -13,18 +13,24 @@ local Data = require(ReplicatedStorage.Assets.Pets.Data)
 type PetSchema = Data.PetSchema
 
 
-local PetSchema
+local PetSchema: PetSchema
 = {
-    name = "Justin's Pet",
+    petName = script.Name,
 
-    rarity = Data.RARITIES[7],
-
-    stats
+    GameplayStats
     = {
-        health = 123_456_789,
-        attack = 123_456_789
+        maxHealth = 123_456_789_123_456,
+        attackDamage = 123_456_789_123_456,
+        petHealth = nil :: any
+    },
+
+    PetStats
+    = {
+        rarity = Data.RARITIES[7] :: any,
+        size = nil :: any,
+        color = nil :: any
     }
-} :: PetSchema
+}
 
 
 table.freeze(PetSchema)

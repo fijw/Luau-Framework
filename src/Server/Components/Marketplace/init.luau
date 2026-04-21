@@ -32,17 +32,6 @@ local function constuctorCallback()
 
             MarketplaceLib.addPetToMarketplace(player, data.petId, tonumber(data.price) :: number)
             MarketplaceNamespace.packets.ClientPlacedPetOnMarketplace.send(data.petId, player)
-
-            -- Send the added pet to all players.
-            do
-                local MarketplaceState = MarketplaceLib.fetchMarketplaceState()
-                if not MarketplaceState then return end
-
-                local PetMarketplaceData = MarketplaceState.Pets[data.petId]
-                if not PetMarketplaceData then return end
-
-                MarketplaceNamespace.packets.ClientInsertPetIntoMarketplace.sendToAll({ PetData = PetMarketplaceData.Data, petId = data.petId })
-            end
         end
     )
 
@@ -51,7 +40,7 @@ local function constuctorCallback()
             if not player then return end
 
             MarketplaceLib.removePetFromMarketplace(player, data)
-            MarketplaceNamespace.packets.ClientRemovePetFromMarketplace.sendToAll(data)
+            MarketplaceNamespace.packets.ClientRemovePetsFromMarketplace.sendToAll({ data })
 
             -- Send the removed pet packet to the player.
             do
@@ -71,17 +60,6 @@ local function constuctorCallback()
             if not player then return end
 
             MarketplaceLib.purchasePetFromMarketplace(player, data)
-
-            -- Send the bought pet packet to the player.
-            do
-                local PlrDataClass = Registry(player)
-                if not PlrDataClass then return end
-
-                local PetStack = (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(data)
-                if not PetStack then return end
-
-                MarketplaceNamespace.packets.ClientBoughtPetFromMarketplace.send(PetStack.StackData.name, player)
-            end
         end
     )
 end

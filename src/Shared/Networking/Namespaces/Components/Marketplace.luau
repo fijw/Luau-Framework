@@ -41,18 +41,20 @@ local function marketplaceNamespace()
             ClientRemovedPetFromMarketplace = ByteNetMax.definePacket({ value = ByteNetMax.string }),
 
 
-            ClientInsertPetIntoMarketplace = ByteNetMax.definePacket(
+            ClientInsertPetsIntoMarketplace = ByteNetMax.definePacket(
                 {
-                    value = ByteNetMax.struct(
-                        {
-                            petId = ByteNetMax.string,
-                            PetData = ByteNetMax.unknown
-                        }
+                    value = ByteNetMax.array(
+                        ByteNetMax.struct(
+                            {
+                                petId = ByteNetMax.string,
+                                PetData = ByteNetMax.unknown
+                            }
+                        )
                     )
                 }
             ),
 
-            ClientRemovePetFromMarketplace = ByteNetMax.definePacket({ value = ByteNetMax.string })
+            ClientRemovePetsFromMarketplace = ByteNetMax.definePacket({ value = ByteNetMax.array(ByteNetMax.string) })
         }
     }
 

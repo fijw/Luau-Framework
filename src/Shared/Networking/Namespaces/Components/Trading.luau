@@ -22,8 +22,8 @@ local function tradingNamespace()
             ServerSendTradeRequest = ByteNetMax.definePacket({ value = ByteNetMax.string }),
             ServerTradeRequestAccepted = ByteNetMax.definePacket({ value = ByteNetMax.string }),
 
-            ServerAddPetToTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-            ServerRemovePetFromTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+            ServerAddPetToTradeOffer = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+            ServerRemovePetFromTradeOffer = ByteNetMax.definePacket({ value = ByteNetMax.string }),
 
             ServerSetCoinsInTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
 
@@ -34,25 +34,29 @@ local function tradingNamespace()
 
 
             -- Client Received !ONLY!
-            ClientAddPetToTrade = ByteNetMax.definePacket(
+            ClientAddPetsToTrade = ByteNetMax.definePacket(
                 {
-                    value = ByteNetMax.struct(
-                        {
-                            side = ByteNetMax.string,
-                            petId = ByteNetMax.string,
-                            PetData = ByteNetMax.unknown
-                        }
+                    value = ByteNetMax.array(
+                        ByteNetMax.struct(
+                            {
+                                side = ByteNetMax.string,
+                                petId = ByteNetMax.string,
+                                PetData = ByteNetMax.unknown
+                            }
+                        )
                     )
                 }
             ),
 
-            ClientRemovePetFromTrade = ByteNetMax.definePacket(
+            ClientRemovePetsFromTrade = ByteNetMax.definePacket(
                 {
-                    value = ByteNetMax.struct(
-                        {
-                            side = ByteNetMax.string,
-                            petId = ByteNetMax.string
-                        }
+                    value = ByteNetMax.array(
+                        ByteNetMax.struct(
+                            {
+                                side = ByteNetMax.string,
+                                petId = ByteNetMax.string
+                            }
+                        )    
                     )
                 }
             ),

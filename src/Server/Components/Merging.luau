@@ -84,14 +84,14 @@ local function constructorCallback()
 
                         if doSizeUpgrade then
                             for i: number, size: string in ipairs(PetsData.PHYSICAL_ATTRIBUTES.SIZES) do
-                                if size ~= MergingPetSchema.size then continue end
-                                MergingPetSchema.size = PetsData.PHYSICAL_ATTRIBUTES.SIZES[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.SIZES then i else i + 1] :: any; break
+                                if size ~= MergingPetSchema.PetStats.size then continue end
+                                MergingPetSchema.PetStats.size = PetsData.PHYSICAL_ATTRIBUTES.SIZES[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.SIZES then i else i + 1] :: any; break
                             end
                         end
 
                         for i: number, color: string in ipairs(PetsData.PHYSICAL_ATTRIBUTES.COLORS) do
-                            if color ~= MergingPetSchema.color then continue end
-                            MergingPetSchema.color = PetsData.PHYSICAL_ATTRIBUTES.COLORS[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.COLORS then i else i + 1] :: any; break
+                            if color ~= MergingPetSchema.PetStats.color then continue end
+                            MergingPetSchema.PetStats.color = PetsData.PHYSICAL_ATTRIBUTES.COLORS[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.COLORS then i else i + 1] :: any; break
                         end
                     end
 

@@ -33,7 +33,7 @@ export type DataTemplateSchema = setmetatable
         DungeonsData: StateEngine
         <
             {
-                totalDungeonsLevelsCompleted: number,
+                allTimeMaxDungeonLevelReached: number,
                 currentMaxDungeonLevelReached: number
             }
         >,
@@ -69,7 +69,7 @@ local DataSettings
         level = 15 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "test123121434"
+    PLAYER_DATA_STORAGE_KEY = "testing_key_123"
 }
 
 

@@ -22,11 +22,14 @@ type PetSchema = Data.PetSchema
 
 type MarketplaceSchema
 = {
+    lastRefreshed: number,
+    numberOfPetsInMarketplace: number,
+
     Pets
     : {
         [string]
         : {
-            Data: PetSchema,
+            PetData: PetSchema,
 
             price: number,
             sellerName: string,
@@ -34,26 +37,21 @@ type MarketplaceSchema
         }
     },
 
-    PendingPurchases
-    : {
-        [string]
-        : {
-            buyerName: string,
-            price: number,
-            sellerId: number
-        }
-    },
+    PurchasesToProcess: { [string]: { number } },
+    ReturnsToProcess: { [string]: { [string]: { PetData: PetSchema, petId: string } } },
 
-    PlayersWithPetsOnMarketplace: { [string]: number }
+    PlayersWithPetsOnMarketplace: { [string]: { string } }
 }
 --[[ @end_section Types ]]
 
 
 --[[ @section Variables ]]
 local MAX_PETS_IN_MARKETPLACE_PER_PLAYER = 10
-local MARKETPLACE_DATA_KEY = "MarketplaceStateTest"
+local MARKETPLACE_DATA_KEY = "marketplace_state_test"
+local MARKETPLACE_KEY = "marketplace_key_test"
+local MAX_PETS_IN_MARKETPLACE_AT_ONCE = 500
 
-local MarketplaceDataStore = DataStoreService:GetDataStore("MarketplaceDataTest")
+local MarketplaceDataStore = DataStoreService:GetDataStore(MARKETPLACE_KEY)
 
 local Marketplace = {}
 --[[ @end_section Variables ]]
@@ -69,8 +67,21 @@ function Marketplace.fetchMarketplaceState(): MarketplaceSchema?
 
     Chronovisor(
         function()
-            State = MarketplaceDataStore:GetAsync(MARKETPLACE_DATA_KEY)
-            if not State then return end
+            State = MarketplaceDataStore:GetAsync(MARKETPLACE_DATA_KEY) :: MarketplaceSchema?
+            if not State or State.lastRefreshed + 60 * 60 * 24 > os.time() then return end
+
+            for i: string, PetIdsArray: { string } in pairs(State.PlayersWithPetsOnMarketplace) do
+                if not State.ReturnsToProcess[i] then State.ReturnsToProcess[i] = {} end
+
+                for idsArrayIndex: number, petId: string in pairs(PetIdsArray) do
+                    table.insert(State.ReturnsToProcess[i] :: any, { PetData = State.Pets[petId].PetData, petId = petId })
+                end
+            end
+
+            State.Pets = {}
+            State.PlayersWithPetsOnMarketplace = {}
+            State.numberOfPetsInMarketplace = 0
+            State.lastRefreshed = os.time()
         end
     )
     :onError(function(err: string?) print(`Error fetching marketplace state. Error: {err}`) end)
@@ -96,7 +107,8 @@ function Marketplace.addPetToMarketplace(player: Player, petId: string, price: n
 
         if not MarketplaceState
             or MarketplaceState.Pets[petId]
-            or MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] >= MAX_PETS_IN_MARKETPLACE_PER_PLAYER
+            or #MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] >= MAX_PETS_IN_MARKETPLACE_PER_PLAYER
+            or MarketplaceState.numberOfPetsInMarketplace >= MAX_PETS_IN_MARKETPLACE_AT_ONCE
         then return end
     end
 
@@ -121,8 +133,11 @@ function Marketplace.addPetToMarketplace(player: Player, petId: string, price: n
                                 State
                                 = {
                                     Pets = {},
-                                    PendingPurchases = {},
-                                    PlayersWithPetsOnMarketplace = {}
+                                    PurchasesToProcess = {},
+                                    PlayersWithPetsOnMarketplace = {},
+                                    numberOfPetsInMarketplace = 0,
+                                    lastRefreshed = os.time(),
+                                    ReturnsToProcess = {}
                                 }
                             end
 
@@ -135,8 +150,8 @@ function Marketplace.addPetToMarketplace(player: Player, petId: string, price: n
                                 sellerName = player.Name
                             }
 
-                            local newPetCount = (State.PlayersWithPetsOnMarketplace[`{player.UserId}`] or 0) + 1
-                            State.PlayersWithPetsOnMarketplace[`{player.UserId}`] = newPetCount
+                            State.numberOfPetsInMarketplace += 1
+                            table.insert(State.PlayersWithPetsOnMarketplace[`{player.UserId}`], petId)
 
                             return State
                         end
@@ -192,7 +207,18 @@ function Marketplace.removePetFromMarketplace(player: Player, petId: string)
                 function()
                     MarketplaceDataStore:UpdateAsync(MARKETPLACE_DATA_KEY,
                         function(State: MarketplaceSchema)
-                            if not State then State = { Pets = {}, PendingPurchases = {}, PlayersWithPetsOnMarketplace = {} } else State.Pets[petId] = nil end
+                            if not State then
+                                State
+                                = {
+                                    Pets = {},
+                                    PurchasesToProcess = {},
+                                    PlayersWithPetsOnMarketplace = {},
+                                    numberOfPetsInMarketplace = 0,
+                                    lastRefreshed = os.time(),
+                                    ReturnsToProcess = {}
+                                }
+                            else State.Pets[petId] = nil end
+
                             return State
                         end
                     )
@@ -200,8 +226,20 @@ function Marketplace.removePetFromMarketplace(player: Player, petId: string)
             )
             :onError(function(err: string?) print(`Error removing pet from marketplace. Error: {err}`) end)
 
-            local newPetCount = (MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] or 0) - 1
-            MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] = if newPetCount <= 0 then nil else newPetCount
+            MarketplaceState.numberOfPetsInMarketplace -= 1
+
+            -- Handle the player's marketplace player cache.
+            do
+                local FoundPetInMarketplacePlayerCache = table.find(MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`], petId)
+
+                if FoundPetInMarketplacePlayerCache then
+                    MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`][FoundPetInMarketplacePlayerCache] = nil
+
+                    if #MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] == 0 then
+                        MarketplaceState.PlayersWithPetsOnMarketplace[`{player.UserId}`] = nil
+                    end
+                end
+            end
 
             -- Verify the pet was removed from the marketplace.
             do
@@ -248,7 +286,7 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
                 if PlayerState.coins() < PetMarketplaceData.price then return false end
                 PlayerState.coins(PlayerState.coins() - PetMarketplaceData.price)
 
-                PlayerState.Inventory += { itemData = PetMarketplaceData.Data, itemId = petId }
+                PlayerState.Inventory += { itemData = PetMarketplaceData.PetData, itemId = petId }
 
                 if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(petId) then return false end
                 if PlayerState.coins() ~= PlayerState.coins() - PetMarketplaceData.price then return false end
@@ -259,15 +297,19 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
                 function()
                     MarketplaceDataStore:UpdateAsync(MARKETPLACE_DATA_KEY,
                         function(State: MarketplaceSchema)
-                            if not State then State = { Pets = {}, PendingPurchases = {}, PlayersWithPetsOnMarketplace = {} } end
+                            if not State then
+                                State
+                                = {
+                                    Pets = {},
+                                    PurchasesToProcess = {},
+                                    PlayersWithPetsOnMarketplace = {},
+                                    numberOfPetsInMarketplace = 0,
+                                    lastRefreshed = os.time(),
+                                    ReturnsToProcess = {}
+                                }
+                            end
 
-                            State.PendingPurchases[PetMarketplaceData.sellerId]
-                            = {
-                                buyerName = buyer.Name,
-                                price = PetMarketplaceData.price,
-                                sellerId = PetMarketplaceData.sellerId
-                            }
-
+                            table.insert(State.PurchasesToProcess[PetMarketplaceData.sellerId], PetMarketplaceData.price)
                             State.Pets[petId] = nil
 
                             return State
@@ -287,7 +329,7 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
                 PetMarketplaceData = MarketplaceState.Pets[petId]
                 if PetMarketplaceData then return false end
 
-                local PendingPurchaseData = MarketplaceState.PendingPurchases[`{sellerId}`]
+                local PendingPurchaseData = MarketplaceState.PurchasesToProcess[`{sellerId}`]
                 if not PendingPurchaseData then return false end
             end
 

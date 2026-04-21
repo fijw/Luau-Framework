@@ -7,7 +7,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Data = require(ReplicatedStorage.Assets.Crates.Data)
-
 local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
 --[[ @end_section Imports ]]
 
@@ -17,7 +16,7 @@ type CrateSchema = Data.CrateSchema
 
 local CrateSchema
 = {
-    name = "Test Crate 1",
+    name = script.Name,
 
     Chances
     = {

@@ -63,8 +63,9 @@ local function constructorCallback()
                         }
 
                         local PetSchema: PetSchema = TableUtils.deepClone(RNG.randomFromTableOfChances(CrateSchema.Chances))
-                        PetSchema.color = Randomized.color :: any
-                        PetSchema.size = Randomized.size :: any
+                        PetSchema.PetStats.color = Randomized.color :: any
+                        PetSchema.PetStats.size = Randomized.size :: any
+                        PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
 
                         PlayerState.Inventory += { itemData = PetSchema, itemId = Randomized.id }
                         if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(Randomized.id) then return false end

@@ -5,17 +5,23 @@
 
 export type PetSchema
 = {
-    name: string,
-
-    rarity: "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | "???" | "Secret",
-    size: "Default" | "Huge" | "Gigantic",
-    color: "Default" | "Rainbow" | "Radioactive" | "Glitched",
-
-    stats
+    petName: string,
+    
+    GameplayStats
     : {
-        health: number,
-        attack: number
-    }
+        maxHealth: number,
+        attackDamage: number,
+        petHealth: number
+    },
+
+    PetStats
+    : {
+        rarity: "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | "???" | "Secret",
+        size: "Default" | "Huge" | "Gigantic",
+        color: "Default" | "Rainbow" | "Radioactive" | "Glitched"
+    },
+
+    petOwner: Player?
 }
 
 
