@@ -32,27 +32,6 @@ local function constuctorCallback()
 
             local isPlayer1 = Trade.player1 == player
             if isPlayer1 then Trade.player1Coins = tonumber(data) :: number else Trade.player2Coins = tonumber(data) :: number end
-
-            -- Send the updated coins to both players.
-            do
-                TradingNamespace.packets.ClientSetCoinsInTrade.send(
-                    {
-                        side = "yourself",
-                        coins = data
-                    },
-                    
-                    if isPlayer1 then Trade.player1 else Trade.player2
-                )
-
-                TradingNamespace.packets.ClientSetCoinsInTrade.send(
-                    {
-                        side = "other",
-                        coins = data
-                    },
-
-                    if isPlayer1 then Trade.player2 else Trade.player1
-                )
-            end
         end
     )
 end

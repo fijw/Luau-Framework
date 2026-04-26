@@ -220,8 +220,8 @@ type AvailableOperatorLiterals = "__div" | "__idiv" | "__sub" | "__mul" | "__mod
 export type StateEngine<S> = setmetatable
 <
     {
-        subscriptionCallbacks: { [string]: SubscriptionSchema<StateEngine<S>, S> },
-        peekCallbacks: { [string]: PeekSchema<StateEngine<S>, S> },
+        SubscriptionCallbacks: { [string]: SubscriptionSchema<StateEngine<S>, S> },
+        PeekCallbacks: { [string]: PeekSchema<StateEngine<S>, S> },
 
         locked: true?
     },
@@ -282,7 +282,7 @@ local function subscribeCallback
     subscriptionId: string,
     once: true?
 ): StateEngine<any>
-    self.subscriptionCallbacks[subscriptionId] = { callback = callback, once = once }
+    self.SubscriptionCallbacks[subscriptionId] = { callback = callback, once = once }
     return self
 end
 
@@ -295,7 +295,7 @@ end
     @return StateEngine<any>
 ]]
 local function unsubscribeCallback(self: StateEngine<any>, subscriptionId: string): StateEngine<any>
-    self.subscriptionCallbacks[subscriptionId] = nil
+    self.SubscriptionCallbacks[subscriptionId] = nil
     return self
 end
 --[[ @end_section Subscription Methods ]]
@@ -319,7 +319,7 @@ local function wrapToPeekCallback
     peekId: string,
     once: true?
 ): StateEngine<any>
-    self.peekCallbacks[peekId] = { callback = callback, once = once }
+    self.PeekCallbacks[peekId] = { callback = callback, once = once }
     return self
 end
 
@@ -332,7 +332,7 @@ end
     @return StateEngine<any>
 ]]
 local function unwrapToPeekCallback(self: StateEngine<any>, peekId: string): StateEngine<any>
-    self.peekCallbacks[peekId] = nil
+    self.PeekCallbacks[peekId] = nil
     return self
 end
 --[[ @end_section Peek Methods ]]
@@ -396,9 +396,9 @@ local function stateEngineCallback
         else table.insert(StateClone, CurrentState); StateClone = table.unpack(StateClone) end
 
         -- Call the peek callbacks.
-        for i: string, peekData: PeekSchema<StateEngine<any>, any> in pairs(self.peekCallbacks) do
-            peekData.callback(self, StateClone)
-            if peekData.once then self.peekCallbacks[i] = nil end
+        for i: string, PeekData: PeekSchema<StateEngine<any>, any> in pairs(self.PeekCallbacks) do
+            PeekData.callback(self, StateClone)
+            if PeekData.once then self.PeekCallbacks[i] = nil end
         end
 
         return StateClone
@@ -453,9 +453,9 @@ local function stateEngineCallback
     end
 
     -- Call the subscription callbacks.
-    for i: string, subscriptionData: SubscriptionSchema<StateEngine<any>, any> in pairs(self.subscriptionCallbacks) do
-        subscriptionData.callback(self, freshData, freshKey, ...)
-        if subscriptionData.once then self.subscriptionCallbacks[i] = nil end
+    for i: string, SubscriptionData: SubscriptionSchema<StateEngine<any>, any> in pairs(self.SubscriptionCallbacks) do
+        SubscriptionData.callback(self, freshData, freshKey, ...)
+        if SubscriptionData.once then self.SubscriptionCallbacks[i] = nil end
     end
 
     return self
@@ -509,11 +509,8 @@ local function stateEngineConstructor
     local NewStateEngine
     = setmetatable(
         {
-            subscribeCallback = if StartingSchema then StartingSchema.subscriptionCallback else nil,
-            subscriptionOnce = if StartingSchema then StartingSchema.subscriptionOnce else nil,
-
-            peekCallback = if StartingSchema then StartingSchema.peekCallback else nil,
-            peekObserveOnce = if StartingSchema then StartingSchema.peekObserveOnce else nil
+            PeekCallbacks = {},
+            SubscriptionCallbacks = {}
         },
 
         {

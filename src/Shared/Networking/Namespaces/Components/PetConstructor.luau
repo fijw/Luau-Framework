@@ -13,33 +13,33 @@ local ByteNetMax = require(ReplicatedStorage.Networking["ByteNet-Max"])
     @NOTE No type checking here.
     The new Luau Type Solver hates ByteNet-Max.
 ]]
-local function marketplaceNamespace()
-    local MarketplaceNamespace
+local function hatchPetNamespace()
+    local HatchPetNamespace
     = {
         packets
         = {
             -- Server Received !ONLY!
-            ServerPlacePetOnMarketplace = ByteNetMax.definePacket(
+            ServerHatchPet = ByteNetMax.definePacket({ value = ByteNetMax.string }),
+            
+            ServerDeveloperSpawnPet = ByteNetMax.definePacket(
                 {
                     value = ByteNetMax.struct(
                         {
-                            petId = ByteNetMax.string,
-                            price = ByteNetMax.string
+                            petName = ByteNetMax.string,
+                            petSize = ByteNetMax.string,
+                            petColor = ByteNetMax.string,
+                            receivingId = ByteNetMax.string
                         }
                     )
                 }
             ),
-
-            ServerBuyPetFromMarketplace = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-
-            ServerRemoveOwnedPetFromMarketplace = ByteNetMax.definePacket({ value = ByteNetMax.string })
         }
     }
 
-    return MarketplaceNamespace
+    return HatchPetNamespace
 end
 
-local Namespace = ByteNetMax.defineNamespace("marketplace", marketplaceNamespace)
+local Namespace = ByteNetMax.defineNamespace("hatch", hatchPetNamespace)
 --[[ @end_section Packets & Namespace Definition ]]
 
 

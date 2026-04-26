@@ -19,10 +19,7 @@ local function rebirthNamespace()
         packets
         = {
             -- Server Received !ONLY!
-            ServerRebirthPlayer = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
-
-            -- Client Received !ONLY!
-            ClientRebirthed = ByteNetMax.definePacket({ value = ByteNetMax.nothing })
+            ServerRebirthPlayer = ByteNetMax.definePacket({ value = ByteNetMax.nothing })
         }
     }
 

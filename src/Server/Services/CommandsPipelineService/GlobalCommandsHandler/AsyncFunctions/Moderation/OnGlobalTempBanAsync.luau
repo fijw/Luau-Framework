@@ -34,7 +34,7 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local PlayerDataClass = Registry(FoundPlayer)
     if not PlayerDataClass then return end
 
-    PlayerDataClass().ModerationData(
+    PlayerDataClass()().ModerationData(
         {
             banDuration = duration,
             banReason = reason

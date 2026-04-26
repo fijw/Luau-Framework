@@ -28,58 +28,9 @@ local function tradingNamespace()
             ServerSetCoinsInTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
 
 
-            -- Server AND Client Received!
+            -- Server AND Client Received! (?)
             CancelTrade = ByteNetMax.definePacket({ value = ByteNetMax.string }),
             ReadyUp = ByteNetMax.definePacket({ value = ByteNetMax.nothing }),
-
-
-            -- Client Received !ONLY!
-            ClientAddPetsToTrade = ByteNetMax.definePacket(
-                {
-                    value = ByteNetMax.array(
-                        ByteNetMax.struct(
-                            {
-                                side = ByteNetMax.string,
-                                petId = ByteNetMax.string,
-                                PetData = ByteNetMax.unknown
-                            }
-                        )
-                    )
-                }
-            ),
-
-            ClientRemovePetsFromTrade = ByteNetMax.definePacket(
-                {
-                    value = ByteNetMax.array(
-                        ByteNetMax.struct(
-                            {
-                                side = ByteNetMax.string,
-                                petId = ByteNetMax.string
-                            }
-                        )    
-                    )
-                }
-            ),
-
-
-            ClientSetCoinsInTrade = ByteNetMax.definePacket(
-                {
-                    value = ByteNetMax.struct(
-                        {
-                            side = ByteNetMax.string,
-                            coins = ByteNetMax.string
-                        }
-                    )
-                }
-            ),
-
-
-            ClientTradeCompleted = ByteNetMax.definePacket({ value = ByteNetMax.string }), 
-            ClientTradeRequestDeclined = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-
-
-            ClientReceivedTradeRequest= ByteNetMax.definePacket({ value = ByteNetMax.string }),
-            ClientOpenTrade = ByteNetMax.definePacket({ value = ByteNetMax.string })
         }
     }
 

@@ -19,10 +19,7 @@ local function mergingNamespace()
         packets
         = {
             -- Server Received !ONLY!
-            ServerMergePets = ByteNetMax.definePacket({ value = ByteNetMax.array(ByteNetMax.string) }),
-
-            -- Client Received !ONLY!
-            ClientDisplayReceivedMergedPet = ByteNetMax.definePacket({ value = ByteNetMax.string })
+            ServerMergePets = ByteNetMax.definePacket({ value = ByteNetMax.array(ByteNetMax.string) })
         }
     }
 

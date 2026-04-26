@@ -9,7 +9,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
-local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 local Types = require(script.Parent.Parent.Parent.Types)
 
@@ -17,12 +16,7 @@ local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 --[[ @end_section Imports ]]
 
 
---[[ @section Types ]]
---[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
-
 type DecompressedDataSchema = Types.DecompressedDataSchema
---[[ @end_section Types ]]
 
 
 --[[ @section Constructor ]]
@@ -44,7 +38,7 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     if not PlayerDataClass then return end
 
     for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
-        (PlayerDataClass() :: { [string]: StateEngine<any> })[i](v)
+        PlayerDataClass()()[i](v)
     end
 
     FoundPlayer:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)

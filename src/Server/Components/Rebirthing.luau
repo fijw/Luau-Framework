@@ -18,7 +18,7 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 type StateEngine<T> = Reactor.StateEngine<T>
 
 
-local REBIRTHING_PRICE = 50_000
+local BASE_REBIRTHING_PRICE = 50_000
 local REBIRTH_PRICE_MULTIPLIER_PER_REBIRTH = 1.25
 local MAX_REBIRTHS = 50
 local NEEDED_LEVELS_MULTIPLER_PER_REBIRTH = 2
@@ -45,7 +45,7 @@ local function constructorCallback()
 
                     -- Update the player's coins.
                     do
-                        local rebirthsPrice = REBIRTHING_PRICE * (PlayerState.GameplayData().rebirths * REBIRTH_PRICE_MULTIPLIER_PER_REBIRTH)
+                        local rebirthsPrice = BASE_REBIRTHING_PRICE * (PlayerState.GameplayData().rebirths * REBIRTH_PRICE_MULTIPLIER_PER_REBIRTH)
 
                         local oldPlrCoins = PlayerState.coins()
                         if oldPlrCoins < rebirthsPrice then return false end
@@ -91,8 +91,6 @@ local function constructorCallback()
                             or PlayerState.GameplayData().levelsNeededToRebirth ~= newLevelsNeededToRebirth
                         then return false end
                     end
-
-                    RebirthingNamespace.packets.ClientRebirthed.send(nil, player)
 
                     return true
                 end

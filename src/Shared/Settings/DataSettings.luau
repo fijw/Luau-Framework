@@ -54,6 +54,17 @@ export type DataTemplateSchema = setmetatable
                         banReason: string
                     }?
                 }
+            >,
+
+            DeveloperSpawnedPets: StateEngine
+            <
+                {
+                    {
+                        petName: string,
+                        petSize: string,
+                        petColor: string
+                    }
+                }
             >
         }
     }
@@ -69,7 +80,7 @@ local DataSettings
         level = 15 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "testing_key_123"
+    PLAYER_DATA_STORAGE_KEY = "testing_key_12345"
 }
 
 

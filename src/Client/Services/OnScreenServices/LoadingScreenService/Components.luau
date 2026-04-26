@@ -42,7 +42,7 @@ do
     LogoImg.BorderSizePixel = 0
     LogoImg.Position = UDim2.new(0.5, 0, 0.5, 0)
     LogoImg.Size = UDim2.new(0.260552377, 0, 0.462962955, 0)
-    LogoImg.Image = "rbxassetid://108857469130453"
+    LogoImg.Image = "rbxassetid://88162239678129"
 
     UIAspectRatioConstraint.Parent = LogoImg
 

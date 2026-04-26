@@ -30,9 +30,6 @@ local function constuctorCallback()
             local RequestingPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
             if not RequestingPlayer then return end
 
-            TradingNamespace.packets.ClientOpenTrade.send(player.DisplayName, RequestingPlayer)
-            TradingNamespace.packets.ClientOpenTrade.send(RequestingPlayer.DisplayName, player)
-
             -- Create a new trade between the two players.
             do
                 local TradeId = RNG.randomString(8)
@@ -64,8 +61,7 @@ local function constuctorCallback()
 
             local TargetPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
             if not TargetPlayer then return end
-
-            TradingNamespace.packets.ClientReceivedTradeRequest.send(player.DisplayName, TargetPlayer)
+            
             TradesMap.MappedTradeRequests[TargetPlayer] = player
         end
     )

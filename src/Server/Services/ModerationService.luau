@@ -154,7 +154,7 @@ local function constructorCallback()
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 
-        if (PlrDataClass()().ModerationData :: any) == nil then PlrDataClass()().ModerationData = Reactor({}) :: any end
+        if (PlrDataClass()().ModerationData :: any) == nil then PlrDataClass()(Reactor({}), "ModerationData") end
         createModerationDataSubscription(player, PlrDataClass)
 
         -- Check the current ban status of the player.

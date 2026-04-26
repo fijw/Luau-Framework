@@ -72,7 +72,7 @@ local function constructorCallback(sender: Player, args: { string })
 
         local SavingData = {}
 
-        for i: string, v: any in pairs(ModifyingData) do
+        for i: string, v: any in pairs(ModifyingData :: { [string]: any }) do
             SavingData[i] = Compression(v)
         end
 

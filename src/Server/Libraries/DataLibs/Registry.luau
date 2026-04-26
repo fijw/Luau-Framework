@@ -272,7 +272,7 @@ end
 local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
     local SavingClassData = {}
 
-    for i: string, v: StateEngine<any> in pairs(self.ClassData :: { [string]: StateEngine<any> }) do
+    for i: string, v: StateEngine<any> in pairs(self()() :: { [string]: StateEngine<any> }) do
         SavingClassData[i] = Compression(v())
     end
 
@@ -395,7 +395,7 @@ function constructorCallback(self: typeof(Registry), player: Player, create: tru
     = {
         ClassDataStore = SettingsDataStore,
         classKey = `{player.UserId}`,
-        ClassData = ModifiedClassData
+        ClassData = Reactor(ModifiedClassData)
     }
 
     setmetatable(NewDataClass,
