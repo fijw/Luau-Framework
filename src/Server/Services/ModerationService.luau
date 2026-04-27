@@ -163,7 +163,7 @@ local function constructorCallback()
             if not BanData then return end
 
             if BanData.permanent ~= true then
-                if BanData.banDuration <= os.time() then
+                if (BanData.banDuration or 0) <= os.time() then
                     PlrDataClass()().ModerationData(nil, "BanData")
                 else
                     kickBannedPlayer(

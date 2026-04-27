@@ -35,7 +35,8 @@ local function constructorCallback()
         if not PlrDataClass then return end
 
         -- Initialize the player's inventory.
-        PlrDataClass()().Inventory = Stackentory(if PlrDataClass()().Inventory then PlrDataClass()().Inventory() else nil)
+        local oldInventoryState = if PlrDataClass()().Inventory then PlrDataClass()().Inventory() :: SavingInventoryClassSchema else nil
+        PlrDataClass()().Inventory = Stackentory(oldInventoryState)
 
         print(PlrDataClass()(), `{player.UserId}'s data.`)
 

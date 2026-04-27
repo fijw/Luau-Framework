@@ -36,13 +36,11 @@ export type DataTemplateSchema = setmetatable
                 allTimeMaxDungeonLevelReached: number,
                 currentMaxDungeonLevelReached: number
             }
-        >,
-
-        [string]: StateEngine<any>
+        >
     },
 
     {
-        index
+        __index
         : {
             ModerationData: StateEngine
             <
@@ -65,7 +63,9 @@ export type DataTemplateSchema = setmetatable
                         petColor: string
                     }
                 }
-            >
+            >,
+
+            Inventory: StateEngine<unknown>
         }
     }
 >
