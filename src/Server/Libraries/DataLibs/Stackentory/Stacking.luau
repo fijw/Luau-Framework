@@ -14,7 +14,7 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 type RequestType = "data" | "ids_array"
 
 --[[ @generic T State type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+type StateEngine<T> = Reactor.StateEngine<T>
 
 
 --[[ @generic D Data type. ]]

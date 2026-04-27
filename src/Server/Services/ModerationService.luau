@@ -187,7 +187,7 @@ local function constructorCallback()
         PlrDataClass():subscribe(
             function(self, data, key, ...)
                 --[[
-                    If the state date remains the same then don't do anything, otherwise recreate the player's moderation data subscriptions.
+                    If the state data remains the same then don't do anything, otherwise recreate the player's moderation data subscriptions.
                     Will not do anything if the key isn't nil or the number of path arguments is greater than 0.
                 ]]
                 if key ~= nil or #{ ... } > 0 then return elseif key == nil and #{ ... } <= 0 then createModerationDataSubscription(player, PlrDataClass) end

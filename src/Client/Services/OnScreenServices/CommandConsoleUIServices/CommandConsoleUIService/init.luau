@@ -20,7 +20,7 @@ local InputMapper = require(StarterPlayer.StarterPlayerScripts.Libraries.InputMa
 
 --[[ @section Variables ]]
 local localPlayer = Players.LocalPlayer :: Player
-local PlayerGui = localPlayer:WaitForChild("PlayerGui")
+local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 
 local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
 local rankPermissions = CmdsSettings.RanksWithCommandPermissions[localPlayer:GetRankInGroupAsync(game.CreatorId)]

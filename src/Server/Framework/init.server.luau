@@ -34,12 +34,18 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.LoadClient)
 
-local Initialization = script.Initialization
-local Listener = script.Listener
 
 local CacheService = ServerScriptService.Services.CacheService
 local ModerationService = ServerScriptService.Services.ModerationService
 local CommandsPipelineService = ServerScriptService.Services.CommandsPipelineService
+
+local InventoryComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Inventory
+
+
+local Initialization = script.Initialization
+local Listener = script.Listener
+
+
 --[[ @end_section Imports ]]
 
 
@@ -50,7 +56,9 @@ local ModulesToLoad
 = {
     [CommandsPipelineService.Name] = CommandsPipelineService,
     [CacheService.Name] = CacheService,
-    [ModerationService.Name] = ModerationService
+    [ModerationService.Name] = ModerationService,
+
+    [InventoryComponent.Name] = InventoryComponent
 }
 --[[ @end_section Variables ]]
 
@@ -66,7 +74,7 @@ end
 
 -- Initialize server modules then signal clients to initialize their modules.
 do
-    if not require(script.Pragma) then print("Server initialization cancelled."); return end
+    --if not require(script.Pragma) then print("Server initialization cancelled."); return end
 
     local initResult: "success" | "failure" = Initialization(ModulesToLoad :: { [string]: ModuleScript }) :: any
 

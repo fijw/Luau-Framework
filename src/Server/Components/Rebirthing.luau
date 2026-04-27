@@ -32,8 +32,8 @@ local NEEDED_LEVELS_MULTIPLER_PER_REBIRTH = 2
 ]]
 local function constructorCallback()
     RebirthingNamespace.packets.ServerRebirthPlayer.listen(
-        function(data: nil, player: Player?)
-            if not player then return end
+        function(data: unknown, player: Player?)
+            if not player or data ~= nil then return end
 
             -- Atomic transaction to update the player's rebirths.
             Registry.atomicTransaction({ player },

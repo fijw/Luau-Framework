@@ -24,7 +24,7 @@ type HandledTween = TweensLib.HandledTween
 
 --[[ @section Variables ]]
 local localPlayer = Players.LocalPlayer :: Player
-local PlayerGui = localPlayer:WaitForChild("PlayerGui")
+local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 
 local spinTime = 2.5
 local fadeTime = 0.5
@@ -168,7 +168,7 @@ local function constructorCallback()
                 }
 
                 for i: number, child: Instance in ipairs(HidingObjects) do
-                    if child ~= newLogoImg then hideInst(child, fadeTime) else hideInst(child, fadeTime * 2) end
+                    if child ~= newLogoImg then hideInst(child :: GuiObject, fadeTime) else hideInst(child :: GuiObject, fadeTime * 2) end
                 end
             end
 

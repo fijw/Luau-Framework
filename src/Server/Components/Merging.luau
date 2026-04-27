@@ -39,7 +39,9 @@ local PETS_NEEDED_TO_MERGE = 9
 ]]
 local function constructorCallback()
     MergingNamespace.packets.ServerMergePets.listen(
-        function(data: { string }, player: Player?)
+        function(data: unknown, player: Player?)
+            assert(typeof(data) == "table")
+
             if not player or #data < PETS_NEEDED_TO_MERGE then return end
 
             -- Perform the atomic transaction to merge the pets.
@@ -58,14 +60,14 @@ local function constructorCallback()
                         if PlayerState.coins() ~= coinsState - MERGING_PRICE then return false end
                     end
 
-                    local IdentifyingPet = (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(data[1])
+                    local IdentifyingPet = (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId((data :: { string })[1])
                     if not IdentifyingPet then return false end
 
                     local MergingPetSchema: PetSchema? = IdentifyingPet("data")
                     if not MergingPetSchema then return false end
 
                     -- Verify all the merging pets have the same schema.
-                    for i: number, petId: string in ipairs(data) do
+                    for i: number, petId: string in ipairs(data :: { string }) do
                         local PetStack = (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(petId)
                         if not PetStack then return false end
 
@@ -85,13 +87,21 @@ local function constructorCallback()
                         if doSizeUpgrade then
                             for i: number, size: string in ipairs(PetsData.PHYSICAL_ATTRIBUTES.SIZES) do
                                 if size ~= MergingPetSchema.PetStats.size then continue end
-                                MergingPetSchema.PetStats.size = PetsData.PHYSICAL_ATTRIBUTES.SIZES[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.SIZES then i else i + 1] :: any; break
+
+                                local newSize = PetsData.PHYSICAL_ATTRIBUTES.SIZES[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.SIZES then i else i + 1]
+                                MergingPetSchema.PetStats.size = newSize :: any
+
+                                break
                             end
                         end
 
                         for i: number, color: string in ipairs(PetsData.PHYSICAL_ATTRIBUTES.COLORS) do
                             if color ~= MergingPetSchema.PetStats.color then continue end
-                            MergingPetSchema.PetStats.color = PetsData.PHYSICAL_ATTRIBUTES.COLORS[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.COLORS then i else i + 1] :: any; break
+
+                            local newColor = PetsData.PHYSICAL_ATTRIBUTES.COLORS[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.COLORS then i else i + 1]
+                            MergingPetSchema.PetStats.color = newColor :: any
+                            
+                            break
                         end
                     end
 

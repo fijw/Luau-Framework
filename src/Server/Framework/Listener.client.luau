@@ -13,11 +13,15 @@ local Initialization = ReplicatedStorage:FindFirstChild("Initialization")
 
 local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.LoadClient)
 
+
 local ChatTagsService = StarterPlayer.StarterPlayerScripts.Services.ChatTagsService
 local FlyingService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.FlyingService
 local PermissionsDisplayService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIServices.PermissionsDisplayService
 local CommandConsoleUIService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIServices.CommandConsoleUIService
 local SpectateService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.SpectateService
+
+local InventoryComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Inventory
+
 
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
 --[[ @end_section Imports ]]
@@ -33,7 +37,9 @@ local ModulesToLoad
     [FlyingService.Name] = FlyingService,
     [PermissionsDisplayService.Name] = PermissionsDisplayService,
     [CommandConsoleUIService.Name] = CommandConsoleUIService,
-    [SpectateService.Name] = SpectateService
+    [SpectateService.Name] = SpectateService,
+    
+    [InventoryComponent.Name] = InventoryComponent
 }
 --[[ @end_section Variables ]]
 

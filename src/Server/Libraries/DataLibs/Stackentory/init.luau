@@ -14,6 +14,10 @@ type SavingStackSchema<D> = Stacking.SavingStackSchema<D>
 type StackClass<D> = Stacking.StackClass<D>
 
 
+type ItemAddedSubscriptionType = (itemData: any, itemId: string) -> ()
+type ItemRemovedSubscriptionType = (itemId: string) -> ()
+
+
 export type SavingInventoryClassSchema
 = {
     maxStacks: number,
@@ -27,6 +31,9 @@ export type SavingInventoryClassSchema
 export type InventoryClass = setmetatable
 <
     {
+        onItemAddedSubscription: ItemAddedSubscriptionType?,
+        onItemRemovedSubscription: ItemRemovedSubscriptionType?,
+
         maxStacks: number,
         usedStacks: number,
 
@@ -37,7 +44,10 @@ export type InventoryClass = setmetatable
         __index
         : {
             fetchStackFromItemId: (self: InventoryClass, id: string) -> (StackClass<any>?),
-            fetchStackFromItemData: <D>(self: InventoryClass, data: D) -> (StackClass<D>?)
+            fetchStackFromItemData: <D>(self: InventoryClass, data: D) -> (StackClass<D>?),
+
+            subscribeToItemsAdded: (self: InventoryClass, callback: ItemAddedSubscriptionType) -> (),
+            subscribeToItemsRemoved: (self: InventoryClass, callback: ItemRemovedSubscriptionType) -> (),
         },
 
         __add: (self: InventoryClass, AddingSchema: { itemData: any, itemId: string }) -> (InventoryClass),
@@ -105,6 +115,17 @@ end
 --[[ @end_section Fetching Functions ]]
 
 
+--[[ @section Subscription Callbacks ]]
+local function subscribeToItemsAddedCallback(self: InventoryClass, callback: ItemAddedSubscriptionType)
+    self.onItemAddedSubscription = callback
+end
+
+local function subscribeToItemsRemovedCallback(self: InventoryClass, callback: ItemRemovedSubscriptionType)
+    self.onItemRemovedSubscription = callback
+end
+--[[ @end_section Subscription Callbacks ]]
+
+
 --[[ @section Arithmetic Callbacks ]]
 --[[
     @usage Adds an item to the inventory class.
@@ -122,6 +143,7 @@ local function addCallback(self: InventoryClass, AddingSchema: { itemData: any, 
     if not FetchedStack then return self end
 
     FetchedStack += AddingSchema.itemId
+    if self.onItemAddedSubscription then self.onItemAddedSubscription(AddingSchema.itemData, AddingSchema.itemId) end
 
     return self
 end
@@ -141,6 +163,7 @@ local function removeCallback(self: InventoryClass, itemId: string): InventoryCl
     if not FetchedStack then return self end
 
     FetchedStack -= itemId
+    if self.onItemRemovedSubscription then self.onItemRemovedSubscription(itemId) end
 
     return self
 end
@@ -217,7 +240,10 @@ local function constructorCallback
             __index
             = {
                 fetchStackFromItemId = fetchStackFromItemIdCallback,
-                fetchStackFromItemData = fetchStackFromItemDataCallback
+                fetchStackFromItemData = fetchStackFromItemDataCallback,
+
+                subscribeToItemsAdded = subscribeToItemsAddedCallback,
+                subscribeToItemsRemoved = subscribeToItemsRemovedCallback
             },
 
             __add = addCallback,
