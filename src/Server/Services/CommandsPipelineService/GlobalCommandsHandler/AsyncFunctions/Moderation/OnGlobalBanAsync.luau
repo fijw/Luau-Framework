@@ -42,6 +42,24 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
         
         "BanData"
     )
+
+    -- Update the moderation history.
+    do
+        if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
+        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).Bans then PlayerDataClass()().ModerationData({}, "Bans", "ModerationHistory") end
+
+        PlayerDataClass()().ModerationData(
+            {
+                duration = "Permanent",
+                banReason = reason,
+                banningUserId = FoundPlayer.UserId
+            },
+
+            "insert_to_array",
+            "Bans",
+            "ModerationHistory"
+        )
+    end
 end
 
 return constructorCallback

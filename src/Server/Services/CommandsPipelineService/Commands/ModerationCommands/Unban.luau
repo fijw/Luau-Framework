@@ -14,8 +14,6 @@ local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
-local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
-
 local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]
 
@@ -68,6 +66,16 @@ local function constructorCallback(sender: Player, args: { string })
             end
 
             ModifyingData.ModerationData.BanData = nil
+
+            if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
+            if not ModifyingData.ModerationData.ModerationHistory.Unbans then ModifyingData.ModerationData.ModerationHistory.Unbans = {} end
+
+            table.insert(ModifyingData.ModerationData.ModerationHistory.Unbans,
+                {
+                    unbanningUserId = sender.UserId,
+                    reason = reason
+                }
+            )
         end
 
         local SavingData = {}
@@ -97,8 +105,6 @@ local function constructorCallback(sender: Player, args: { string })
             
             sender
         )
-
-        LogsHandler("Unban", sender.UserId, targetId, reason)
 
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(

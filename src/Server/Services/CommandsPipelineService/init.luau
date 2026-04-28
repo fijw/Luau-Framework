@@ -17,6 +17,7 @@ local BanModule = require(script.Commands.ModerationCommands.Ban)
 local UnbanModule = require(script.Commands.ModerationCommands.Unban)
 local TempBanModule = require(script.Commands.ModerationCommands.TempBan)
 local ResetDataModule = require(script.Commands.ModerationCommands.ResetData)
+local ViewModerationHistory = require(script.Commands.ModerationCommands.ViewModerationHistory)
 
 local FlyModule = require(script.Commands.CharacterCommands.Fly)
 local UnflyModule = require(script.Commands.CharacterCommands.Unfly)
@@ -72,6 +73,7 @@ local CommandDataCallbackMap: { [string]: CommandSchema }
     ban = { func = BanModule, helpTag = idAndReasonTag },
     kick = { func = KickModule, helpTag = idAndReasonTag },
     unban = { func = UnbanModule, helpTag = idAndReasonTag },
+    view_moderation_history = { func = ViewModerationHistory, helpTag = idTag },
 
     fly = { func = FlyModule, helpTag = idTag },
     unfly = { func = UnflyModule, helpTag = idTag },
@@ -98,7 +100,7 @@ local CommandDataCallbackMap: { [string]: CommandSchema }
 
 local MappedCommands
 = {
-    ModerationCmds = { "ban", "kick", "unban", "temp_ban" },
+    ModerationCmds = { "ban", "kick", "unban", "temp_ban", "view_moderation_history" },
     CharacterCmds = { "freeze", "unfreeze", "invisible", "visible", "teleport", "fly", "unfly", "speed", "kill", "fling", "spectate" },
     JoiningCmds = { "bring_player_to_server", "join_player_server", "join_reserved_server" },
     ServerCmds = { "shutdown_server", "lock_server", "unlock_server" },

@@ -52,10 +52,11 @@ export type DataTemplateSchema = setmetatable
                         banReason: string
                     }?,
 
-                    BanHistory
+                    ModerationHistory
                     : {
-                        Bans: { [number]: { duration: number?, reason: string } },
-                        Unbans: { [number]: { reason: string } }?,
+                        Bans: { { banningUserId: number, duration: string?, reason: string } }?,
+                        Unbans: { { unbanningUserId: number, reason: string } }?,
+                        DataResets: { { resettingUserId: number, reason: string } }?
                     }?
                 }
             >,

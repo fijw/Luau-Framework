@@ -16,8 +16,6 @@ local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
-local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
-
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
@@ -75,7 +73,23 @@ local function constructorCallback(sender: Player, args: { string })
                 sender
             )
 
-            LogsHandler("Ban", sender.UserId, targetId, reason)
+            -- Update the moderation history.
+            do
+                if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
+                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).Bans then PlayerDataClass()().ModerationData({}, "Bans", "ModerationHistory") end
+
+                PlayerDataClass()().ModerationData(
+                    {
+                        banningUserId = sender.UserId,
+                        banReason = reason,
+                        banDuration = "Permanent"
+                    },
+                    
+                    "insert_to_array",
+                    "Bans",
+                    "ModerationHistory"
+                )
+            end
 
             CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
@@ -127,18 +141,6 @@ local function constructorCallback(sender: Player, args: { string })
             
             sender
         )
-
-        LogsHandler("Ban", sender.UserId, targetId, reason)
-
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
-            {
-                response = `Your moderation action for {targetId} has been logged.`,
-                color = "blue"
-            },
-            
-            sender
-        )
     else
         local ModifyingData = {}
 
@@ -153,6 +155,17 @@ local function constructorCallback(sender: Player, args: { string })
                 permanent = true,
                 banReason = reason
             }
+
+            if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
+            if not ModifyingData.ModerationData.ModerationHistory.Bans then ModifyingData.ModerationData.ModerationHistory.Bans = {} end
+
+            table.insert(ModifyingData.ModerationData.ModerationHistory.Bans,
+                {
+                    banDuration = "Permanent",
+                    banReason = reason,
+                    banningUserId = sender.UserId
+                }
+            )
         end
 
         local SavingData = {}
@@ -182,8 +195,6 @@ local function constructorCallback(sender: Player, args: { string })
             
             sender
         )
-
-        LogsHandler("Ban", sender.UserId, targetId, reason)
 
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(

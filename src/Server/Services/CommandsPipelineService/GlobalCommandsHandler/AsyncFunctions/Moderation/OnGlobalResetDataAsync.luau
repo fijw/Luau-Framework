@@ -38,7 +38,24 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     if not PlayerDataClass then return end
 
     for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
-        PlayerDataClass()()[i](v)
+        PlayerDataClass()(v, i)
+    end
+
+    -- Update the moderation history.
+    do
+        if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
+        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).DataResets then PlayerDataClass()().ModerationData({}, "DataResets", "ModerationHistory") end
+
+        PlayerDataClass()().ModerationData(
+            {
+                resettingUserId = FoundPlayer.UserId,
+                reason = reason
+            },
+
+            "insert_to_array",
+            "DataResets",
+            "ModerationHistory"
+        )
     end
 
     FoundPlayer:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)

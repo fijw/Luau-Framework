@@ -15,8 +15,6 @@ local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
-
-local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
 --[[ @end_section Imports ]]
 
 
@@ -53,18 +51,6 @@ local function constructorCallback(sender: Player, args: { string })
                 {
                     response = `Kicked [{targetId}]. Reason: "{reason}".`,
                     color = "white"
-                },
-                
-                sender
-            )
-
-            LogsHandler("Kick", sender.UserId, targetId, reason)
-
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
-                {
-                    response = `Your moderation action for {targetId} has been logged.`,
-                    color = "blue"
                 },
                 
                 sender
@@ -107,18 +93,6 @@ local function constructorCallback(sender: Player, args: { string })
             {
                 response = `Sent a request to kick [{targetId}]. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
-        )
-
-        LogsHandler("Kick", sender.UserId, targetId, reason)
-
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
-            {
-                response = `Your moderation action for {targetId} has been logged.`,
-                color = "blue"
             },
             
             sender

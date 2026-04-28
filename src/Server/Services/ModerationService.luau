@@ -10,91 +10,15 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+
+local TimeLib = require(ReplicatedStorage.Libraries.TimeLib)
 --[[ @end_section Imports ]]
 
 
 type DataClass = Registry.DataClass
 
 
-local SecondsPerUnit
-= {
-    seconds = 1,
-    minutes = 60,
-    hours = 60 * 60,
-    days = 60 * 60 * 24,
-    years = 60 * 60 * 24 * 365
-}
-
-
 --[[ @section Utility Functions ]]
---[[
-    @usage Format time to a human readable format.
-
-    @param seconds number
-
-    @return string
-]]
-local function formatTime(seconds: number): string
-    local years = math.floor(seconds / SecondsPerUnit.years)
-    seconds = seconds % SecondsPerUnit.years
-
-    local days = math.floor(seconds / SecondsPerUnit.days)
-    seconds = seconds % SecondsPerUnit.days
-
-    local hours = math.floor(seconds / SecondsPerUnit.hours)
-    seconds = seconds % (SecondsPerUnit.hours)
-
-    local minutes = math.floor(seconds / SecondsPerUnit.minutes)
-    seconds = seconds % SecondsPerUnit.minutes
-
-    local Results: { string } = {}
-
-    -- Get the time results.
-    do
-        local yearsTag = if years == 1 then "year" else "years"
-        local daysTag = if days == 1 then "day" else "days"
-        local hoursTag = if hours == 1 then "hour" else "hours"
-        local minutesTag = if minutes == 1 then "minute" else "minutes"
-        local secondsTag = if seconds == 1 then "second" else "seconds"
-
-        if years > 0 then
-            if days > 0 then
-                table.insert(Results, `{years} {yearsTag},`)
-            else
-                table.insert(Results, `{years} {yearsTag}`)
-            end
-        end
-
-        if days > 0 then
-            if hours > 0 then
-                table.insert(Results, `{days} {daysTag},`)
-            else
-                table.insert(Results, `{days} {daysTag}`)
-            end 
-        end
-
-        if hours > 0 then
-            if minutes > 0 then
-                table.insert(Results, `{hours} {hoursTag},`)
-            else
-                table.insert(Results, `{hours} {hoursTag}`)
-            end
-        end
-
-        if minutes > 0 then
-            if seconds > 0 then
-                table.insert(Results, `{minutes} {minutesTag} and`)
-            else
-                table.insert(Results, `{minutes} {minutesTag}`)
-            end
-        end
-
-        if seconds > 0 then table.insert(Results, `{seconds} {secondsTag}`) end
-    end
-
-    return table.concat(Results, " ")
-end
-
 --[[
     @usage Kick a banned player.
 
@@ -110,7 +34,7 @@ local function kickBannedPlayer(player: Player, isPermanent: true?, banDuration:
         player:Kick(`\n\nYou have been permanently banned.\nReason: "{banReason}".\n\n\n`)
     elseif banDuration ~= nil then
         local timeLeft = banDuration - os.time()
-        player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {formatTime(timeLeft)}.\nReason: "{banReason}".\n\n\n`)
+        player:Kick(`\n\nYou have been temporarily banned.\nDuration Left: {TimeLib.formatTime(timeLeft)}.\nReason: "{banReason}".\n\n\n`)
     end
 end
 

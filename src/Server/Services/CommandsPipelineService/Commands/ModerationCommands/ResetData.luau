@@ -17,8 +17,6 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
-local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
-
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
@@ -27,7 +25,7 @@ local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 
 --[[ @section Types ]]
 --[[ @generic T Source type. ]]
-type StateEngine<T> = Reactor.AbstractedStateEngine<T>
+type StateEngine<T> = Reactor.StateEngine<T>
 
 type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
 --[[ @end_section Types ]]
@@ -63,7 +61,7 @@ local function constructorCallback(sender: Player, args: { string })
             if not PlayerDataClass then return end
 
             for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
-                (PlayerDataClass() :: { [string]: StateEngine<any> })[i](v)
+                (PlayerDataClass() :: StateEngine<{ [string]: StateEngine<any> }>)(Reactor(v), i)
             end
 
             player:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)
@@ -78,7 +76,22 @@ local function constructorCallback(sender: Player, args: { string })
                 sender
             )
 
-            LogsHandler("Reset Data", sender.UserId, targetId, reason)
+            -- Update the player's moderation history
+            do
+                if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
+                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).DataResets then PlayerDataClass()().ModerationData({}, "DataResets", "ModerationHistory") end
+
+                PlayerDataClass()().ModerationData(
+                    {
+                        resettingUserId = sender.UserId,
+                        reason = reason
+                    },
+
+                    "insert_to_array",
+                    "DataResets",
+                    "ModerationHistory"
+                )
+            end
 
             CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
@@ -130,20 +143,8 @@ local function constructorCallback(sender: Player, args: { string })
             
             sender
         )
-
-        LogsHandler("Reset Data", sender.UserId, targetId, reason)
-
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
-            {
-                response = `Your moderation action for {targetId} has been logged.`,
-                color = "blue"
-            },
-            
-            sender
-        )
     else
-        local ModifyingData = {}
+        local ModifyingData = {} :: { [string]: any }
 
         -- Decompressing the data and modifying it.
         do
@@ -152,11 +153,21 @@ local function constructorCallback(sender: Player, args: { string })
             end
 
             for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do ModifyingData[i] = v end
+
+            if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
+            if not ModifyingData.ModerationData.ModerationHistory.DataResets then ModifyingData.ModerationData.ModerationHistory.DataResets = {} end
+
+            table.insert(ModifyingData.ModerationData.ModerationHistory.DataResets,
+                {
+                    resettingUserId = sender.UserId,
+                    reason = reason
+                }
+            )
         end
 
         local SavingData = {}
     
-        for i: string, v: any in pairs(ModifyingData) do
+        for i: string, v: any in pairs(ModifyingData :: { [string]: any }) do
             SavingData[i] = Compression(v)
         end
 
@@ -181,8 +192,6 @@ local function constructorCallback(sender: Player, args: { string })
             
             sender
         )
-
-        LogsHandler("Reset Data", sender.UserId, targetId, reason)
 
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(

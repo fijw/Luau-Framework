@@ -15,8 +15,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
-
-local LogsHandler = require(ServerScriptService.Services.CommandsPipelineService.LogsHandler)
+local TimeLib = require(ReplicatedStorage.Libraries.TimeLib)
 
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
 
@@ -25,38 +24,10 @@ local Settings = require(ReplicatedStorage.Settings)
 
 
 type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
-type TimeFrameTypes = "minutes" | "hours" | "days" | "years" | "minute" | "hour" | "day" | "year"
+type TimeFrameTypes = TimeLib.TimeFrameTypes
 
 
 local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
-
-
---[[
-    @usage Add time to the current time.
-
-    @param timeInteger number
-    @param timeFrame TimeFrameTypes
-
-    @return number
-]]
-local function addTimeUp(timeInteger: number, timeFrame: TimeFrameTypes): number
-    local SecondsPerUnit
-    = {
-        minutes = 60,
-        hours = 60 * 60,
-        days = 60 * 60 * 24,
-        years = 60 * 60 * 24 * 365,
-
-        minute = 60,
-        hour = 60 * 60,
-        day = 60 * 60 * 24,
-        year = 60 * 60 * 24 * 365
-    }
-
-    local multiplier = SecondsPerUnit[timeFrame] :: number
-
-    return os.time() + (timeInteger * multiplier)
-end
 
 
 --[[ @section Constructor ]]
@@ -97,7 +68,7 @@ local function constructorCallback(sender: Player, args: { string })
 
             PlayerDataClass()().ModerationData(
                 {
-                    banDuration = addTimeUp(timeInteger, timeFrame),
+                    banDuration = TimeLib.addTimeUp(timeInteger, timeFrame),
                     banReason = reason
                 },
 
@@ -114,7 +85,23 @@ local function constructorCallback(sender: Player, args: { string })
                 sender
             )
 
-            LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
+            -- Update the moderation history.
+            do
+                if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
+                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).Bans then PlayerDataClass()().ModerationData({}, "Bans", "ModerationHistory") end
+
+                PlayerDataClass()().ModerationData(
+                    {
+                        banningUserId = sender.UserId,
+                        banReason = reason,
+                        banDuration = TimeLib.formatTime(TimeLib.addTimeUp(timeInteger, timeFrame))
+                    },
+                    
+                    "insert_to_array",
+                    "Bans",
+                    "ModerationHistory"
+                )
+            end
 
             CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
@@ -153,7 +140,7 @@ local function constructorCallback(sender: Player, args: { string })
                     targetId = targetId,
                     commandType = "temp_ban",
                     reason = reason,
-                    duration = addTimeUp(timeInteger, timeFrame)
+                    duration = TimeLib.addTimeUp(timeInteger, timeFrame)
                 } :: DecompressedDataSchema
             )
         )
@@ -163,18 +150,6 @@ local function constructorCallback(sender: Player, args: { string })
             {
                 response = `Sent a request to temp-ban [{targetId}]. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
-        )
-
-        LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
-
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
-            {
-                response = `Your moderation action for {targetId} has been logged.`,
-                color = "blue"
             },
             
             sender
@@ -190,9 +165,20 @@ local function constructorCallback(sender: Player, args: { string })
 
             ModifyingData.ModerationData.BanData
             = {
-                banDuration = addTimeUp(timeInteger, timeFrame),
+                banDuration = TimeLib.addTimeUp(timeInteger, timeFrame),
                 banReason = reason
             }
+
+            if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
+            if not ModifyingData.ModerationData.ModerationHistory.Bans then ModifyingData.ModerationData.ModerationHistory.Bans = {} end
+
+            table.insert(ModifyingData.ModerationData.ModerationHistory.Bans,
+                {
+                    banDuration = TimeLib.formatTime(TimeLib.addTimeUp(timeInteger, timeFrame)),
+                    banReason = reason,
+                    banningUserId = sender.UserId
+                }
+            )
         end
 
         local SavingData = {}
@@ -222,8 +208,6 @@ local function constructorCallback(sender: Player, args: { string })
             
             sender
         )
-
-        LogsHandler("Temp-ban", sender.UserId, targetId, reason, `{timeInteger} {timeFrame}`)
 
         CommandsNamespace.packets.ClientDisplayConsoleResponse
         .sendTo(

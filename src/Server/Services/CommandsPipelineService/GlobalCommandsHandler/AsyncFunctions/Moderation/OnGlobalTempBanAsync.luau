@@ -5,11 +5,14 @@
 
 --[[ @section Imports ]]
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local Types = require(script.Parent.Parent.Parent.Types)
+
+local TimeLib = require(ReplicatedStorage.Libraries.TimeLib)
 --[[ @end_section Imports ]]
 
 
@@ -42,6 +45,24 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
 
         "BanData"
     )
+
+    -- Update the moderation history.
+    do
+        if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
+        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).Bans then PlayerDataClass()().ModerationData({}, "Bans", "ModerationHistory") end
+
+        PlayerDataClass()().ModerationData(
+            {
+                banningUserId = FoundPlayer.UserId,
+                banDuration = TimeLib.formatTime(duration),
+                banReason = reason
+            },
+
+            "insert_to_array",
+            "Bans",
+            "ModerationHistory"
+        )
+    end
 end
 
 return constructorCallback
