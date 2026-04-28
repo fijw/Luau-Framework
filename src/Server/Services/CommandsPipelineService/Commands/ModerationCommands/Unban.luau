@@ -11,6 +11,7 @@ local DataStoreService = game:GetService("DataStoreService")
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
+local RNG = require(ReplicatedStorage.Libraries.RNG)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
@@ -55,6 +56,20 @@ local function constructorCallback(sender: Player, args: { string })
         return
     end
 
+    if AsyncData.inUse == true then
+        CommandsNamespace.packets.ClientDisplayConsoleResponse
+        .sendTo(
+            {
+                response = `Failed to unban [{targetId}]. The player is currently in a server.`,
+                color = "red"
+            },
+            
+            sender
+        )
+        
+        return
+    end
+
     -- Change the player's stored data to be unbanned.
     do
         local ModifyingData = {}
@@ -70,12 +85,11 @@ local function constructorCallback(sender: Player, args: { string })
             if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
             if not ModifyingData.ModerationData.ModerationHistory.Unbans then ModifyingData.ModerationData.ModerationHistory.Unbans = {} end
 
-            table.insert(ModifyingData.ModerationData.ModerationHistory.Unbans,
-                {
-                    unbanningUserId = sender.UserId,
-                    reason = reason
-                }
-            )
+            ModifyingData.ModerationData.ModerationHistory.Unbans[RNG.randomString(8)]
+            = {
+                unbanningUserId = sender.UserId,
+                reason = reason
+            }
         end
 
         local SavingData = {}
@@ -101,16 +115,6 @@ local function constructorCallback(sender: Player, args: { string })
             {
                 response = `Set [{targetId}] as unbanned. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
-        )
-
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
-            {
-                response = `Your moderation action for {targetId} has been logged.`,
-                color = "blue"
             },
             
             sender

@@ -55,8 +55,8 @@ local function constructorCallback(sender: Player, args: { string })
     CommandsNamespace.packets.ClientDisplayConsoleResponse
     .sendTo(
         {
-            response = `Ban Logs for [{targetId}]:`,
-            color = "blue"
+            response = ``,
+            color = "white"
         },
         
         sender
@@ -65,11 +65,21 @@ local function constructorCallback(sender: Player, args: { string })
     -- Display the moderation history.
     do
         if DecompressedData.ModerationData.ModerationHistory.Bans then
-            for i: number, v: any in ipairs(DecompressedData.ModerationData.ModerationHistory.Bans) do
+            CommandsNamespace.packets.ClientDisplayConsoleResponse
+            .sendTo(
+                {
+                    response = `Ban Logs for [{targetId}]:`,
+                    color = "blue"
+                },
+                
+                sender
+            )
+
+            for i: string, v: any in pairs(DecompressedData.ModerationData.ModerationHistory.Bans :: { [string]: any }) do
                 CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .sendTo(
                     {
-                        response = `Ban Reason: {v.banReason} | Ban Duration: {v.banDuration} | Banned By: {v.banningUserId}`,
+                        response = `Reason: "{v.banReason}" Duration: [{v.banDuration}] By: [{v.banningUserId}]`,
                         color = "yellow"
                     },
                     
@@ -79,11 +89,21 @@ local function constructorCallback(sender: Player, args: { string })
         end
 
         if DecompressedData.ModerationData.ModerationHistory.DataResets then
-            for i: number, v: any in ipairs(DecompressedData.ModerationData.ModerationHistory.DataResets) do
+            CommandsNamespace.packets.ClientDisplayConsoleResponse
+            .sendTo(
+                {
+                    response = `Data Reset Logs for [{targetId}]:`,
+                    color = "blue"
+                },
+                
+                sender
+            )
+
+            for i: string, v: any in pairs(DecompressedData.ModerationData.ModerationHistory.DataResets :: { [string]: any }) do
                 CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .sendTo(
                     {
-                        response = `Data Reset Reason: {v.reason} | Reset By: {v.resettingUserId}`,
+                        response = `Reason: "{v.reason}" By: [{v.resettingUserId}]`,
                         color = "yellow"
                     },
                     
@@ -93,11 +113,21 @@ local function constructorCallback(sender: Player, args: { string })
         end
 
         if DecompressedData.ModerationData.ModerationHistory.Unbans then
-            for i: number, v: any in ipairs(DecompressedData.ModerationData.ModerationHistory.Unbans) do
+            CommandsNamespace.packets.ClientDisplayConsoleResponse
+            .sendTo(
+                {
+                    response = `Unban Logs for [{targetId}]:`,
+                    color = "blue"
+                },
+                
+                sender
+            )
+
+            for i: string, v: any in pairs(DecompressedData.ModerationData.ModerationHistory.Unbans :: { [string]: any }) do
                 CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .sendTo(
                     {
-                        response = `Unban Reason: {v.reason} | Unbanned By: {v.unbanningUserId}`,
+                        response = `Reason: "{v.reason}" By: [{v.unbanningUserId}]`,
                         color = "yellow"
                     },
                     
@@ -106,6 +136,16 @@ local function constructorCallback(sender: Player, args: { string })
             end
         end
     end
+
+    CommandsNamespace.packets.ClientDisplayConsoleResponse
+    .sendTo(
+        {
+            response = ``,
+            color = "white"
+        },
+        
+        sender
+    )
 end
 
 return constructorCallback

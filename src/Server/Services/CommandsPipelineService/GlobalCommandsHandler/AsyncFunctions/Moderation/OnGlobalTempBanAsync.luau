@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
+local RNG = require(ReplicatedStorage.Libraries.RNG)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local Types = require(script.Parent.Parent.Parent.Types)
@@ -58,9 +59,10 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
                 banReason = reason
             },
 
-            "insert_to_array",
-            "Bans",
-            "ModerationHistory"
+            RNG.randomString(8),
+
+            "ModerationHistory",
+            "Bans"
         )
     end
 end

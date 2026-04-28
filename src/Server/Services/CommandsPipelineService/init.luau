@@ -69,7 +69,7 @@ local reasonTag = "[Reason]"
 local CommandDataCallbackMap: { [string]: CommandSchema }
 = {
     reset_data = { func = ResetDataModule, helpTag = idAndReasonTag },
-    temp_ban = { func = TempBanModule, helpTag = "[User Id] [Time Amount] [Time Frame (minutes, hours, days, years)] [Reason]" },
+    temp_ban = { func = TempBanModule, helpTag = "[User Id] <[Time Amount]> [Time Frame (minute(s), hour(s), day(s), year(s))] [Reason]" },
     ban = { func = BanModule, helpTag = idAndReasonTag },
     kick = { func = KickModule, helpTag = idAndReasonTag },
     unban = { func = UnbanModule, helpTag = idAndReasonTag },
@@ -168,6 +168,16 @@ local function constructorCallback()
                     return
                 end
 
+                CommandsNamespace.packets.ClientDisplayConsoleResponse
+                .sendTo(
+                    {
+                        response = ``,
+                        color = "white"
+                    },
+                    
+                    player
+                )
+
                 for i: string, CommandData: CommandSchema in pairs(CommandDataCallbackMap) do
                     if MappedPermissions then if not table.find(MappedPermissions, i) and not debugging then continue end end
 
@@ -181,6 +191,16 @@ local function constructorCallback()
                         player
                     )
                 end
+
+                CommandsNamespace.packets.ClientDisplayConsoleResponse
+                .sendTo(
+                    {
+                        response = ``,
+                        color = "white"
+                    },
+                    
+                    player
+                )
 
                 return
             end

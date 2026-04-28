@@ -13,6 +13,7 @@ local Players = game:GetService("Players")
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
+local RNG = require(ReplicatedStorage.Libraries.RNG)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
@@ -54,30 +55,8 @@ local function constructorCallback(sender: Player, args: { string })
             local PlayerDataClass = Registry(player)
             if not PlayerDataClass then return end
 
-            PlayerDataClass()().ModerationData(
-                {
-                    permanent = true,
-                    banReason = reason
-                },
-                
-                "BanData"
-            )
-
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
-                {
-                    response = `Perm-banned [{targetId}]. Reason: "{reason}".`,
-                    color = "white"
-                },
-                
-                sender
-            )
-
-            -- Update the moderation history.
+            -- Update the player's moderation data.
             do
-                if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
-                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).Bans then PlayerDataClass()().ModerationData({}, "Bans", "ModerationHistory") end
-
                 PlayerDataClass()().ModerationData(
                     {
                         banningUserId = sender.UserId,
@@ -85,17 +64,27 @@ local function constructorCallback(sender: Player, args: { string })
                         banDuration = "Permanent"
                     },
                     
-                    "insert_to_array",
-                    "Bans",
-                    "ModerationHistory"
+                    RNG.randomString(8),
+
+                    "ModerationHistory",
+                    "Bans"
+                )
+
+                PlayerDataClass()().ModerationData(
+                    {
+                        permanent = true,
+                        banReason = reason
+                    },
+                    
+                    "BanData"
                 )
             end
 
             CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
                 {
-                    response = `Your moderation action for {targetId} has been logged.`,
-                    color = "blue"
+                    response = `Perm-banned [{targetId}]. Reason: "{reason}".`,
+                    color = "white"
                 },
                 
                 sender
@@ -159,13 +148,12 @@ local function constructorCallback(sender: Player, args: { string })
             if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
             if not ModifyingData.ModerationData.ModerationHistory.Bans then ModifyingData.ModerationData.ModerationHistory.Bans = {} end
 
-            table.insert(ModifyingData.ModerationData.ModerationHistory.Bans,
-                {
-                    banDuration = "Permanent",
-                    banReason = reason,
-                    banningUserId = sender.UserId
-                }
-            )
+            ModifyingData.ModerationData.ModerationHistory.Bans[RNG.randomString(8)]
+            = {
+                banDuration = "Permanent",
+                banReason = reason,
+                banningUserId = sender.UserId
+            }
         end
 
         local SavingData = {}
@@ -191,16 +179,6 @@ local function constructorCallback(sender: Player, args: { string })
             {
                 response = `Set [{targetId}] as perm-banned. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
-        )
-
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
-            {
-                response = `Your moderation action for {targetId} has been logged.`,
-                color = "blue"
             },
             
             sender

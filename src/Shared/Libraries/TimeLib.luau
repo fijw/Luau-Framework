@@ -6,6 +6,7 @@
 export type TimeFrameTypes = "minutes" | "hours" | "days" | "years" | "minute" | "hour" | "day" | "year"
 
 
+--[[ @section Variables ]]
 local SECONDS_PER_UNIT
 = {
     minutes = 60,
@@ -20,6 +21,7 @@ local SECONDS_PER_UNIT
 }
 
 local TimeLib = {}
+--[[ @end_section Variables ]]
 
 
 --[[ @section Time Functions ]]

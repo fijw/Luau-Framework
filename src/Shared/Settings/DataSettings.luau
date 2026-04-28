@@ -54,9 +54,9 @@ export type DataTemplateSchema = setmetatable
 
                     ModerationHistory
                     : {
-                        Bans: { { banningUserId: number, duration: string?, reason: string } }?,
-                        Unbans: { { unbanningUserId: number, reason: string } }?,
-                        DataResets: { { resettingUserId: number, reason: string } }?
+                        Bans: { [string]: { banningUserId: number, duration: string?, reason: string } }?,
+                        Unbans: { [string]: { unbanningUserId: number, reason: string } }?,
+                        DataResets: { [string]: { resettingUserId: number, reason: string } }?
                     }?
                 }
             >,
@@ -87,7 +87,7 @@ local DataSettings
         level = 15 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "testing_key_12345"
+    PLAYER_DATA_STORAGE_KEY = "t12k4567"
 }
 
 

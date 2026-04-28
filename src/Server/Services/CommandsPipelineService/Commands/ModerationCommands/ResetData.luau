@@ -13,6 +13,7 @@ local Players = game:GetService("Players")
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
+local RNG = require(ReplicatedStorage.Libraries.RNG)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
@@ -60,8 +61,23 @@ local function constructorCallback(sender: Player, args: { string })
             local PlayerDataClass = Registry(player)
             if not PlayerDataClass then return end
 
-            for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
-                (PlayerDataClass() :: StateEngine<{ [string]: StateEngine<any> }>)(Reactor(v), i)
+            -- Update the player's moderation data.
+            do
+                for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
+                    (PlayerDataClass() :: StateEngine<{ [string]: StateEngine<any> }>)(Reactor(v), i)
+                end
+
+                PlayerDataClass()().ModerationData(
+                    {
+                        resettingUserId = sender.UserId,
+                        reason = reason
+                    },
+
+                    RNG.randomString(8),
+
+                    "ModerationHistory",
+                    "DataResets"
+                )
             end
 
             player:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)
@@ -71,33 +87,6 @@ local function constructorCallback(sender: Player, args: { string })
                 {
                     response = `Reset [{targetId}]'s player data. Reason: "{reason}".`,
                     color = "white"
-                },
-                
-                sender
-            )
-
-            -- Update the player's moderation history
-            do
-                if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
-                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).DataResets then PlayerDataClass()().ModerationData({}, "DataResets", "ModerationHistory") end
-
-                PlayerDataClass()().ModerationData(
-                    {
-                        resettingUserId = sender.UserId,
-                        reason = reason
-                    },
-
-                    "insert_to_array",
-                    "DataResets",
-                    "ModerationHistory"
-                )
-            end
-
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
-                {
-                    response = `Your moderation action for {targetId} has been logged.`,
-                    color = "blue"
                 },
                 
                 sender
@@ -157,12 +146,12 @@ local function constructorCallback(sender: Player, args: { string })
             if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
             if not ModifyingData.ModerationData.ModerationHistory.DataResets then ModifyingData.ModerationData.ModerationHistory.DataResets = {} end
 
-            table.insert(ModifyingData.ModerationData.ModerationHistory.DataResets,
-                {
-                    resettingUserId = sender.UserId,
-                    reason = reason
-                }
-            )
+            ModifyingData.ModerationData.ModerationHistory.DataResets[RNG.randomString(8)]
+            = {
+                resettingUserId = sender.UserId,
+                reason = reason
+            }
+            
         end
 
         local SavingData = {}
@@ -188,16 +177,6 @@ local function constructorCallback(sender: Player, args: { string })
             {
                 response = `Reset [{targetId}]'s stored player data. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
-        )
-
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
-            {
-                response = `Your moderation action for {targetId} has been logged.`,
-                color = "blue"
             },
             
             sender

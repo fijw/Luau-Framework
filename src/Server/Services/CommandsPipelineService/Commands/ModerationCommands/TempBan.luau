@@ -13,6 +13,7 @@ local Players = game:GetService("Players")
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
+local RNG = require(ReplicatedStorage.Libraries.RNG)
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local TimeLib = require(ReplicatedStorage.Libraries.TimeLib)
@@ -45,7 +46,7 @@ local function constructorCallback(sender: Player, args: { string })
 
     table.remove(args, 1)
 
-    local timeInteger = tonumber(args[1]) :: number
+    local timeInteger = tonumber(args[1]:gsub("[<>]", "")) :: number
     if not timeInteger then return end
 
     table.remove(args, 1)
@@ -58,6 +59,9 @@ local function constructorCallback(sender: Player, args: { string })
     local reason = table.concat(args, " ")
     if #reason < 1 then reason = "No reason provided" end
 
+    local banDuration = TimeLib.addTimeUp(timeInteger, timeFrame)
+    local formattedBanDuration = TimeLib.formatTime(banDuration)
+
     -- If the player is in this server, update their player data class here.
     do
         local player = Players:GetPlayerByUserId(targetId)
@@ -66,48 +70,36 @@ local function constructorCallback(sender: Player, args: { string })
             local PlayerDataClass = Registry(player)
             if not PlayerDataClass then return end
 
-            PlayerDataClass()().ModerationData(
-                {
-                    banDuration = TimeLib.addTimeUp(timeInteger, timeFrame),
-                    banReason = reason
-                },
-
-                "BanData"
-            )
-
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
-                {
-                    response = `Temp-banned [{targetId}]. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
-                    color = "white"
-                },
-                
-                sender
-            )
-
-            -- Update the moderation history.
+            -- Update the moderation data.
             do
-                if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
-                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).Bans then PlayerDataClass()().ModerationData({}, "Bans", "ModerationHistory") end
-
                 PlayerDataClass()().ModerationData(
                     {
                         banningUserId = sender.UserId,
                         banReason = reason,
-                        banDuration = TimeLib.formatTime(TimeLib.addTimeUp(timeInteger, timeFrame))
+                        banDuration = formattedBanDuration
                     },
                     
-                    "insert_to_array",
-                    "Bans",
-                    "ModerationHistory"
+                    RNG.randomString(8),
+
+                    "ModerationHistory",
+                    "Bans"
+                )
+
+                PlayerDataClass()().ModerationData(
+                    {
+                        banDuration = banDuration,
+                        banReason = reason
+                    },
+
+                    "BanData"
                 )
             end
 
             CommandsNamespace.packets.ClientDisplayConsoleResponse
             .sendTo(
                 {
-                    response = `Your moderation action for {targetId} has been logged.`,
-                    color = "blue"
+                    response = `Temp-banned [{targetId}]. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
+                    color = "white"
                 },
                 
                 sender
@@ -140,7 +132,7 @@ local function constructorCallback(sender: Player, args: { string })
                     targetId = targetId,
                     commandType = "temp_ban",
                     reason = reason,
-                    duration = TimeLib.addTimeUp(timeInteger, timeFrame)
+                    duration = banDuration
                 } :: DecompressedDataSchema
             )
         )
@@ -165,20 +157,20 @@ local function constructorCallback(sender: Player, args: { string })
 
             ModifyingData.ModerationData.BanData
             = {
-                banDuration = TimeLib.addTimeUp(timeInteger, timeFrame),
+                banDuration = banDuration,
                 banReason = reason
             }
 
             if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
             if not ModifyingData.ModerationData.ModerationHistory.Bans then ModifyingData.ModerationData.ModerationHistory.Bans = {} end
 
-            table.insert(ModifyingData.ModerationData.ModerationHistory.Bans,
-                {
-                    banDuration = TimeLib.formatTime(TimeLib.addTimeUp(timeInteger, timeFrame)),
-                    banReason = reason,
-                    banningUserId = sender.UserId
-                }
-            )
+            ModifyingData.ModerationData.ModerationHistory.Bans[RNG.randomString(8)]
+            = {
+                banDuration = formattedBanDuration,
+                banReason = reason,
+                banningUserId = sender.UserId
+            }
+            
         end
 
         local SavingData = {}
@@ -204,16 +196,6 @@ local function constructorCallback(sender: Player, args: { string })
             {
                 response = `Set [{targetId}] as temp-banned. Duration: [{timeInteger} {timeFrame}]. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
-        )
-
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
-            {
-                response = `Your moderation action for {targetId} has been logged.`,
-                color = "blue"
             },
             
             sender
