@@ -177,7 +177,7 @@ local function constructorCallback()
             -- Destroy the loading screen.
             do
                 newScreenClone:Destroy()
-                newUILib:wipeConnections()
+                newUILib:destroy()
 
                 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
             end

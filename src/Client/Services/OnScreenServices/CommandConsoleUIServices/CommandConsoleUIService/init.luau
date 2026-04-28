@@ -19,6 +19,8 @@ local InputMapper = require(StarterPlayer.StarterPlayerScripts.Libraries.InputMa
 
 
 --[[ @section Variables ]]
+local MAX_DISPLAY_MESSAGES = 200
+
 local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 
@@ -114,6 +116,9 @@ local function constructorCallback()
                             color: string
                         }
                     )
+                        local ScrollerChildrenArray = clonedScrollingFrame:GetChildren()
+                        if #ScrollerChildrenArray >= MAX_DISPLAY_MESSAGES then ScrollerChildrenArray[MAX_DISPLAY_MESSAGES]:Destroy() end
+
                         local newResponse = clonedResponseTemplate:Clone()
                         newResponse.Visible = true
                         newResponse.Parent = clonedScrollingFrame
@@ -146,7 +151,7 @@ local function constructorCallback()
                     function(data: string)
                         if rankPermissions or idPermissions then return end
                         
-                        clonedPermissionsTitle.Text = `{data}@cmcs`
+                        clonedPermissionsTitle.Text = `{data}@k4_fw_cmcs`
                     end
                 )
             end

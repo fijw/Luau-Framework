@@ -4,12 +4,10 @@
 
 
 --[[ @section Imports ]]
-local HttpService = game:GetService("HttpService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local ServerScriptService = game:GetService("ServerScriptService")
 
-local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
-
-local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 --[[ @end_section Imports ]]
 
 
@@ -26,105 +24,25 @@ local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
     @return void
 ]]
 local function constructorCallback(actionType: string, senderId: number, targetId: number, reason: string, duration: string?)
-    local currentTime = DateTime.now():ToIsoDate()
+    local foundPlayer = Players:GetPlayerByUserId(targetId)
+    
+    if not foundPlayer then
+        local AsyncData = Registry.forciblyFetchStoredPlayerData(targetId)
+        if not AsyncData then return end
 
-    local senderHeadshotUrl: string
-    local targetHeadshotUrl: string
+        if AsyncData.inUse then
+            
+        else
 
-    -- Try to get the sender and target headshot images.
-    Chronovisor(
-        function()
-            local targetHeadshotResponse
-            = HttpService:GetAsync(
-                "https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds="
-                ..targetId
-                .."&size=180x180&format=Png"
-            )
-
-            local senderHeadshotResponse
-            = HttpService:GetAsync(
-                "https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds="
-                ..senderId
-                .."&size=180x180&format=Png"
-            )
-
-            local decodedSenderResponse = HttpService:JSONDecode(senderHeadshotResponse)
-            senderHeadshotUrl = decodedSenderResponse.data[1].imageUrl
-
-            local decodedTargetResponse = HttpService:JSONDecode(targetHeadshotResponse)
-            targetHeadshotUrl = decodedTargetResponse.data[1].imageUrl
         end
-    )
-    :onError(function(err: string?) print(`Failed to get headshot for webhook logging. Error: {err}`) end)
 
-    local EmbeddedData
-    = {
-        content = "",
+    else
+        local PlrDataClass = Registry(foundPlayer)
+        if not PlrDataClass then return end
 
-        --username = "Command Logging",
+        PlrDataClass()().ModerationData()
+    end
 
-        embeds
-        = {
-            {
-                title = "Command Log",
-                description = "A command has been executed.",
-
-                --color = DISCORD_BLURPLE_COLOR,
-                type = "rich",
-
-                fields
-                = {
-                    {
-                        name = "Action Type",
-                        value = actionType,
-                        inline = true
-                    },
-
-                    {
-                        name = "Sender UserId",
-                        value = senderId,
-                        inline = true
-                    },
-                    
-                    {
-                        name = "Target UserId",
-                        value = targetId,
-                        inline = true
-                    },
-
-                    if duration then
-                        {
-                            name = "Duration",
-                            value = duration,
-                            inline = true
-                        }
-                    else nil,
-
-                    {
-                        name = "Reason",
-                        value = reason,
-                        inline = true
-                    }
-                },
-
-                thumbnail = if senderHeadshotUrl then { url = senderHeadshotUrl } else nil,
-                image = if targetHeadshotUrl then { url = targetHeadshotUrl } else nil,
-
-                footer = { text = "Automated command logging." },
-
-                timestamp = currentTime,
-            }
-        }
-    }
-
-    -- Send the data to the webhook using Chronovisor for error handling.
-    Chronovisor(
-        function()
-            local encodedData = HttpService:JSONEncode(EmbeddedData)
-            HttpService:PostAsync(CmdsSettings.loggingDiscordWebhookUrl, encodedData)
-        end
-    )
-    :onError(function(err: string?) print(`Failed to log command of type: {actionType}. Error: {err}`) end)
 end
 
 return constructorCallback

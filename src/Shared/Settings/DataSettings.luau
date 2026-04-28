@@ -50,6 +50,12 @@ export type DataTemplateSchema = setmetatable
                         permanent: true?,
                         banDuration: number?,
                         banReason: string
+                    }?,
+
+                    BanHistory
+                    : {
+                        Bans: { [number]: { duration: number?, reason: string } },
+                        Unbans: { [number]: { reason: string } }?,
                     }?
                 }
             >,

@@ -50,6 +50,8 @@
             HandledUi:makeGuiObjectDraggable(testFrame, "top")
 
             print(HandledUi)
+
+            HandledUi:destroy()
         end
     ```
 ]]
@@ -60,6 +62,7 @@
 
 --[[ @section Imports ]]
 local GuiService = game:GetService("GuiService")
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
@@ -70,7 +73,6 @@ local TweensLibrary = require(ReplicatedStorage.Libraries.TweensLib)
 --[[ @section Types ]]
 type SideType = "center" | "top" | "bottom" | "left" | "right"
 
---[[ @generic_pack A... Callback argument types. ]]
 export type HandledUI = setmetatable
 <
     {
@@ -89,7 +91,9 @@ export type HandledUI = setmetatable
                 isHovering: boolean,
                 isHolding: boolean
             }
-        }
+        },
+
+        id: string
     },
 
     {
@@ -111,20 +115,27 @@ export type HandledUI = setmetatable
                 self: HandledUI,
                 
                 action: RBXScriptSignal,
-                callback: <A...>(A...) -> ()
+                callback: (...any) -> ()
             ) -> (),
 
             makeGuiObjectDraggable: (self: HandledUI, guiObjectToDrag: GuiObject, side: SideType) -> (),
+            
+            setFocus: (self: HandledUI, NamesKeepingFocus: { string }) -> (),
+            removeFocus: (self: HandledUI, NamesToBringBackToFocus: { string }) -> (),
 
-            wipeConnections: (self: HandledUI) -> ()
+            destroy: (self: HandledUI) -> ()
         }
     }
 >
 --[[ @end_section Types ]]
 
 
+--[[ @section Variables ]]
 local scaleTweenTime = 0.1
 local offsetPositionDivision = 16
+
+local CachedUIClasses: { [string]: HandledUI } = {}
+--[[ @end_section Variables ]]
 
 
 --[[
@@ -256,6 +267,43 @@ end
 --[[ @end_section UserInputService Functions ]]
 
 
+--[[ @section Focus Functions ]]
+--[[
+    @usage Sets the focus of a HandledUI.
+
+    @param self HandledUI
+    @param NamesKeepingFocus { string }
+
+    @return void
+]]
+local function setFocusCallback(self: HandledUI, NamesKeepingFocus: { string })
+    self.ScreenGui.Enabled = true
+
+    for i: string, HandledUI: HandledUI in pairs(CachedUIClasses :: any) do
+        if table.find(NamesKeepingFocus, HandledUI.ScreenGui.Name) then continue end
+        HandledUI.ScreenGui.Enabled = false
+    end
+end
+
+--[[
+    @usage Removes the focus of a HandledUI.
+
+    @param self HandledUI
+    @param NamesToBringBackToFocus { string }
+
+    @return void
+]]
+local function removeFocusCallback(self: HandledUI, NamesToBringBackToFocus: { string })
+    self.ScreenGui.Enabled = false
+
+    for i: string, HandledUI: HandledUI in pairs(CachedUIClasses :: any) do
+        if table.find(NamesToBringBackToFocus, HandledUI.ScreenGui.Name) then continue end
+        HandledUI.ScreenGui.Enabled = true
+    end
+end
+--[[ @end_section Focus Functions ]]
+
+
 --[[ @section Connection Inheritance ]]
 --[[
     @usage Sizes buttons on hovers and clicks.
@@ -296,11 +344,9 @@ end
 --[[
     @usage Handles GuiObject inputs.
 
-    @generic_pack A... Callback argument types.
-
     @param self HandledUI
     @param action RBXScriptConnection
-    @param callback <A...>(A...) -> ()
+    @param callback (...any) -> ()
 
     @return void
 ]]
@@ -308,7 +354,7 @@ local function handleGuiObjectInputCallback
 (
     self: HandledUI,
     action: RBXScriptSignal,
-    callback: <A...>(A...) -> ()
+    callback: (...any) -> ()
 )
     local InputConnection = action:Connect(callback)
     table.insert(self.OtherConnections, InputConnection)
@@ -403,7 +449,9 @@ end
 
     @return void
 ]]
-local function wipeConnectionsCallback(self: HandledUI)
+local function destroyCallback(self: HandledUI)
+    CachedUIClasses[self.id] = nil
+
     for i: number, Connection: RBXScriptConnection in ipairs(self.SizingConnections) do
         Connection:Disconnect()
     end
@@ -427,6 +475,8 @@ end
     @return HandledUI
 ]]
 local function constructorCallback(ui: ScreenGui): HandledUI
+    local newId = HttpService:GenerateGUID(false)
+
     local NewHandledUI
     = {
         ScreenGui = ui,
@@ -435,7 +485,9 @@ local function constructorCallback(ui: ScreenGui): HandledUI
         PressConnections = {},
         OtherConnections = {},
 
-        DraggableObjects = {}
+        DraggableObjects = {},
+
+        id = newId
     } :: HandledUI
 
     setmetatable(NewHandledUI,
@@ -444,12 +496,20 @@ local function constructorCallback(ui: ScreenGui): HandledUI
             = {
                 handleGuiObjectInput = handleGuiObjectInputCallback,
                 handleButtonPress = handleButtonPressCallback,
+
                 makeGuiObjectDraggable = makeGuiObjectDraggableCallback,
-                wipeConnections = wipeConnectionsCallback,
+
+                destroy = destroyCallback,
+
+                setFocus = setFocusCallback,
+                removeFocus = removeFocusCallback,
+
                 hoverAndToggleSizing = hoverAndToggleSizingCallback
             }
         }
     )
+
+    CachedUIClasses[newId] = (NewHandledUI :: any) :: HandledUI
 
     return (NewHandledUI :: any) :: HandledUI
 end
