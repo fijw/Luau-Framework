@@ -26,6 +26,8 @@ local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") els
 
 local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
 local rankPermissions = CmdsSettings.RanksWithCommandPermissions[localPlayer:GetRankInGroupAsync(game.CreatorId)]
+
+local CachedResponses = {}
 --[[ @end_section Variables ]]
 
 
@@ -116,16 +118,9 @@ local function constructorCallback()
                             color: string
                         }
                     )
-                        -- If the scrolling frame has too many responses, remove the oldest one.
-                        do
-                            local ScrollerChildrenArray = clonedScrollingFrame:GetChildren()
-
-                            if #ScrollerChildrenArray >= (MAX_DISPLAY_MESSAGES + 2) then
-                                for i: number, child: Instance in ipairs(ScrollerChildrenArray) do
-                                    if child.Name ~= "ResponseTemplate" then continue end
-                                    child:Destroy(); child.Parent = nil; break
-                                end
-                            end
+                        if #CachedResponses >= MAX_DISPLAY_MESSAGES then
+                            CachedResponses[1]:Destroy()
+                            table.remove(CachedResponses, 1)
                         end
 
                         local newResponse = clonedResponseTemplate:Clone()
@@ -149,6 +144,8 @@ local function constructorCallback()
                         elseif data.color == "white" then
                             newResponseText.TextColor3 = Color3.fromRGB(255, 255, 255)
                         end
+
+                        table.insert(CachedResponses, newResponse)
 
                         clonedScrollingFrame.CanvasSize = UDim2.fromOffset(0, clonedUIListLayout.AbsoluteContentSize.Y)
                         clonedScrollingFrame.CanvasPosition = Vector2.new(0, 999999)
