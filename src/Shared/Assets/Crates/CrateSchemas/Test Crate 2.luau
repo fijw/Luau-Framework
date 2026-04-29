@@ -14,7 +14,7 @@ local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
 type CrateSchema = Data.CrateSchema
 
 
-local CrateSchema
+local CrateSchema: CrateSchema
 = {
     name = script.Name,
 
@@ -26,9 +26,10 @@ local CrateSchema
         [PetSchemas["Dog"]] = 20,
         [PetSchemas["Rabbit"]] = 20,
         [PetSchemas["Sad Cat"]] = 10
-    }
-} :: CrateSchema
+    },
 
+    price = 100
+}
 
 table.freeze(CrateSchema)
 return CrateSchema
