@@ -79,7 +79,7 @@ local function constructorCallback(sender: Player, args: { string })
                 CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .sendTo(
                     {
-                        response = `Reason: "{v.banReason}" Duration: [{v.banDuration}] By: [{v.banningUserId}]`,
+                        response = `[{v.index}] Reason: "{v.banReason}" Duration: [{v.banDuration}] By: [{v.banningUserId}]`,
                         color = "yellow"
                     },
                     
@@ -103,7 +103,7 @@ local function constructorCallback(sender: Player, args: { string })
                 CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .sendTo(
                     {
-                        response = `Reason: "{v.reason}" By: [{v.resettingUserId}]`,
+                        response = `[{v.index}] Reason: "{v.resetReason}" By: [{v.resettingUserId}]`,
                         color = "yellow"
                     },
                     
@@ -127,7 +127,7 @@ local function constructorCallback(sender: Player, args: { string })
                 CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .sendTo(
                     {
-                        response = `Reason: "{v.reason}" By: [{v.unbanningUserId}]`,
+                        response = `[{v.index}] Reason: "{v.unbanReason}" By: [{v.unbanningUserId}]`,
                         color = "yellow"
                     },
                     

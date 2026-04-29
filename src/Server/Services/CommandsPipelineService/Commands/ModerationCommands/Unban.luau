@@ -91,7 +91,8 @@ local function constructorCallback(sender: Player, args: { string })
             ModifyingData.ModerationData.ModerationHistory.Unbans[RNG.randomString(8)]
             = {
                 unbanningUserId = sender.UserId,
-                unbanReason = reason
+                unbanReason = reason,
+                index = ModifyingData.ModerationData.ModerationHistory.numOfUnbans
             }
         end
 

@@ -46,7 +46,7 @@ local function constructorCallback(sender: Player, args: { string })
 
     table.remove(args, 1)
 
-    local timeInteger = tonumber(args[1]:gsub("[<>]", "")) :: number
+    local timeInteger = tonumber(args[1]) :: number
     if not timeInteger then return end
 
     table.remove(args, 1)
@@ -71,11 +71,24 @@ local function constructorCallback(sender: Player, args: { string })
 
             -- Update the moderation data.
             do
+                local numOfBans = (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans
+
+                if not numOfBans then
+                    PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
+                else
+                    PlayerDataClass()().ModerationData(
+                        numOfBans + 1,
+                        "numOfBans",
+                        "ModerationHistory"
+                    )
+                end
+
                 PlayerDataClass()().ModerationData(
                     {
                         banningUserId = sender.UserId,
                         banReason = reason,
-                        banDuration = `{timeInteger} {timeFrame}`
+                        banDuration = `{timeInteger} {timeFrame}`,
+                        index = numOfBans + 1
                     },
                     
                     RNG.randomString(8),
@@ -83,16 +96,6 @@ local function constructorCallback(sender: Player, args: { string })
                     "ModerationHistory",
                     "Bans"
                 )
-
-                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans then
-                    PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
-                else
-                    PlayerDataClass()().ModerationData(
-                        (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans + 1,
-                        "numOfBans",
-                        "ModerationHistory"
-                    )
-                end
 
                 PlayerDataClass()().ModerationData(
                     {
@@ -139,6 +142,7 @@ local function constructorCallback(sender: Player, args: { string })
             Compression(
                 {
                     targetId = targetId,
+                    senderId = sender.UserId,
                     commandType = "temp_ban",
                     reason = reason,
                     duration = banDuration,
@@ -183,7 +187,8 @@ local function constructorCallback(sender: Player, args: { string })
             = {
                 banDuration = `{timeInteger} {timeFrame}`,
                 banReason = reason,
-                banningUserId = sender.UserId
+                banningUserId = sender.UserId,
+                index = ModifyingData.ModerationData.ModerationHistory.numOfBans
             }
             
         end

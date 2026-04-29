@@ -67,10 +67,23 @@ local function constructorCallback(sender: Player, args: { string })
                     (PlayerDataClass() :: StateEngine<{ [string]: StateEngine<any> }>)(Reactor(v), i)
                 end
 
+                local numOfDataResets = (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets
+
+                if not numOfDataResets then
+                    PlayerDataClass()().ModerationData(0, "numOfDataResets", "ModerationHistory")
+                else
+                    PlayerDataClass()().ModerationData(
+                        numOfDataResets + 1,
+                        "numOfDataResets",
+                        "ModerationHistory"
+                    )
+                end
+
                 PlayerDataClass()().ModerationData(
                     {
                         resettingUserId = sender.UserId,
-                        resetReason = reason
+                        resetReason = reason,
+                        index = numOfDataResets + 1
                     },
 
                     RNG.randomString(8),
@@ -78,16 +91,6 @@ local function constructorCallback(sender: Player, args: { string })
                     "ModerationHistory",
                     "DataResets"
                 )
-
-                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets then
-                    PlayerDataClass()().ModerationData(0, "numOfDataResets", "ModerationHistory")
-                else
-                    PlayerDataClass()().ModerationData(
-                        (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets + 1,
-                        "numOfDataResets",
-                        "ModerationHistory"
-                    )
-                end
             end
 
             player:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)
@@ -127,6 +130,7 @@ local function constructorCallback(sender: Player, args: { string })
             Compression(
                 {
                     targetId = targetId,
+                    senderId = sender.UserId,
                     commandType = "reset_data",
                     reason = reason
                 } :: DecompressedDataSchema
@@ -159,7 +163,8 @@ local function constructorCallback(sender: Player, args: { string })
             ModifyingData.ModerationData.ModerationHistory.DataResets[RNG.randomString(8)]
             = {
                 resettingUserId = sender.UserId,
-                resetReason = reason
+                resetReason = reason,
+                index = ModifyingData.ModerationData.ModerationHistory.numOfDataResets
             }
             
             if not ModifyingData.ModerationData.ModerationHistory.numOfDataResets then ModifyingData.ModerationData.ModerationHistory.numOfDataResets = 0 end

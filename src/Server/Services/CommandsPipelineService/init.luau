@@ -69,7 +69,7 @@ local reasonTag = "[Reason]"
 local CommandDataCallbackMap: { [string]: CommandSchema }
 = {
     reset_data = { func = ResetDataModule, helpTag = idAndReasonTag },
-    temp_ban = { func = TempBanModule, helpTag = "[User Id] <[Time Amount]> [Time Frame (minute(s), hour(s), day(s), year(s))] [Reason]" },
+    temp_ban = { func = TempBanModule, helpTag = "[User Id] [Time Amount] [Time Frame (minute(s), hour(s), day(s), year(s))] [Reason]" },
     ban = { func = BanModule, helpTag = idAndReasonTag },
     kick = { func = KickModule, helpTag = idAndReasonTag },
     unban = { func = UnbanModule, helpTag = idAndReasonTag },
@@ -178,6 +178,26 @@ local function constructorCallback()
                     player
                 )
 
+                CommandsNamespace.packets.ClientDisplayConsoleResponse
+                .sendTo(
+                    {
+                        response = `Wrap 1 character long integer arguments in angle brackets. Example: "<1>".`,
+                        color = "blue"
+                    },
+                    
+                    player
+                )
+
+                CommandsNamespace.packets.ClientDisplayConsoleResponse
+                .sendTo(
+                    {
+                        response = ``,
+                        color = "white"
+                    },
+                    
+                    player
+                )
+
                 for i: string, CommandData: CommandSchema in pairs(CommandDataCallbackMap) do
                     if MappedPermissions then if not table.find(MappedPermissions, i) and not debugging then continue end end
 
@@ -254,8 +274,12 @@ local function constructorCallback()
                 end
             end
 
-            -- Replace all "me" arguments with the sender's id.
+            --[[
+                Replace all "me" arguments with the sender's id and remove angle brackets from arguments to help
+                input 1 character arguments, eg. "<1>".
+            ]]
             for i: number, arg: string in ipairs(data) do if arg:lower() == "me" then data[i] = `{player.UserId}` end end
+            for i: number, arg: string in ipairs(data) do arg:gsub("[<>]", "") end
 
             -- Replace all player username arguments with their corresponding user ids.
             do

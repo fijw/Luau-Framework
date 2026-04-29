@@ -40,12 +40,22 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     do
         if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
         if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).Bans then PlayerDataClass()().ModerationData({}, "Bans", "ModerationHistory") end
+        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans then PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory") end
+
+        local numOfBans = (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans + 1
+
+        PlayerDataClass()().ModerationData(
+            numOfBans,
+            "numOfBans",
+            "ModerationHistory"
+        )
 
         PlayerDataClass()().ModerationData(
             {
-                banningUserId = FoundPlayer.UserId,
+                banningUserId = DecompressedData.senderId,
                 banDuration = `{DecompressedData.timeInteger} {DecompressedData.timeFrame}`,
-                banReason = reason
+                banReason = reason,
+                index = numOfBans
             },
 
             RNG.randomString(8),
@@ -53,16 +63,6 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
             "ModerationHistory",
             "Bans"
         )
-
-        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans then
-            PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
-        else
-            PlayerDataClass()().ModerationData(
-                (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans + 1,
-                "numOfBans",
-                "ModerationHistory"
-            )
-        end
     end
 
     PlayerDataClass()().ModerationData(

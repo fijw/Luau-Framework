@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local RNG = require(ReplicatedStorage.Libraries.RNG)
+local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local Types = require(script.Parent.Parent.Parent.Types)
@@ -39,18 +40,28 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     if not PlayerDataClass then return end
 
     for i: string, v: any in pairs(DataSettings.DataTemplate :: { [string]: any }) do
-        PlayerDataClass()(v, i)
+        PlayerDataClass()(Reactor(v), i)
     end
 
     -- Update the moderation history.
     do
         if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
         if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).DataResets then PlayerDataClass()().ModerationData({}, "DataResets", "ModerationHistory") end
+        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets then PlayerDataClass()().ModerationData(0, "numOfDataResets", "ModerationHistory") end
+
+        local numOfDataResets = (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets + 1
+
+        PlayerDataClass()().ModerationData(
+            numOfDataResets,
+            "numOfDataResets",
+            "ModerationHistory"
+        )
 
         PlayerDataClass()().ModerationData(
             {
-                resettingUserId = FoundPlayer.UserId,
-                resetReason = reason
+                resettingUserId = DecompressedData.senderId,
+                resetReason = reason,
+                index = numOfDataResets
             },
 
             RNG.randomString(8),
@@ -58,16 +69,6 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
             "ModerationHistory",
             "DataResets"
         )
-
-        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets then
-            PlayerDataClass()().ModerationData(0, "numOfDataResets", "ModerationHistory")
-        else
-            PlayerDataClass()().ModerationData(
-                (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets + 1,
-                "numOfDataResets",
-                "ModerationHistory"
-            )
-        end
     end
 
     FoundPlayer:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)

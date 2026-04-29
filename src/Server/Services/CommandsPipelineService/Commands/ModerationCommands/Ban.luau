@@ -57,11 +57,24 @@ local function constructorCallback(sender: Player, args: { string })
 
             -- Update the player's moderation data.
             do
+                local numOfBans = (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans
+
+                if not numOfBans then
+                    PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
+                else
+                    PlayerDataClass()().ModerationData(
+                        numOfBans + 1,
+                        "numOfBans",
+                        "ModerationHistory"
+                    )
+                end
+
                 PlayerDataClass()().ModerationData(
                     {
                         banningUserId = sender.UserId,
                         banReason = reason,
-                        banDuration = "Permanent"
+                        banDuration = `Permanent`,
+                        index = numOfBans + 1
                     },
                     
                     RNG.randomString(8),
@@ -69,16 +82,6 @@ local function constructorCallback(sender: Player, args: { string })
                     "ModerationHistory",
                     "Bans"
                 )
-
-                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans then
-                    PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
-                else
-                    PlayerDataClass()().ModerationData(
-                        (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans + 1,
-                        "numOfBans",
-                        "ModerationHistory"
-                    )
-                end
 
                 PlayerDataClass()().ModerationData(
                     {
@@ -125,6 +128,7 @@ local function constructorCallback(sender: Player, args: { string })
             Compression(
                 {
                     targetId = targetId,
+                    senderId = sender.UserId,
                     commandType = "ban",
                     reason = reason
                 } :: DecompressedDataSchema
@@ -157,15 +161,16 @@ local function constructorCallback(sender: Player, args: { string })
 
             if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
             if not ModifyingData.ModerationData.ModerationHistory.Bans then ModifyingData.ModerationData.ModerationHistory.Bans = {} end
-            
+
             if not ModifyingData.ModerationData.ModerationHistory.numOfBans then ModifyingData.ModerationData.ModerationHistory.numOfBans = 0 end
             ModifyingData.ModerationData.ModerationHistory.numOfBans += 1
 
             ModifyingData.ModerationData.ModerationHistory.Bans[RNG.randomString(8)]
             = {
-                banDuration = "Permanent",
+                banDuration = `Permanent`,
                 banReason = reason,
-                banningUserId = sender.UserId
+                banningUserId = sender.UserId,
+                index = ModifyingData.ModerationData.ModerationHistory.numOfBans
             }
         end
 

@@ -58,9 +58,9 @@ export type DataTemplateSchema = setmetatable
                         nunOfUnbans: number?,
                         numOfDataResets: number?,
 
-                        Bans: { [string]: { banningUserId: number, banDuration: string?, banReason: string } }?,
-                        Unbans: { [string]: { unbanningUserId: number, unbanReason: string } }?,
-                        DataResets: { [string]: { resettingUserId: number, resetReason: string } }?
+                        Bans: { [string]: { banningUserId: number, banDuration: string?, banReason: string, index: number } }?,
+                        Unbans: { [string]: { unbanningUserId: number, unbanReason: string, index: number } }?,
+                        DataResets: { [string]: { resettingUserId: number, resetReason: string, index: number } }?
                     }?
                 }
             >,
@@ -105,7 +105,7 @@ local DataSettings
         } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "1234data1234test1234"
+    PLAYER_DATA_STORAGE_KEY = "wggwge"
 }
 
 
