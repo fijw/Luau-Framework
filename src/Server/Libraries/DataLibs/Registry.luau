@@ -90,8 +90,6 @@
 
 --[[ @section Imports ]]
 local DataStoreService = game:GetService("DataStoreService")
-local MessagingService = game:GetService("MessagingService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -236,7 +234,7 @@ function Registry.atomicTransaction
         local PlrDataClass = constructorCallback(nil :: any, player)
         if not PlrDataClass then return false end
 
-        local StateClone = TableUtils.deepClone(PlrDataClass())
+        local StateClone = TableUtils.deepClone(PlrDataClass()())
         StateClones[player] = StateClone :: DataTemplateSchema
     end
 

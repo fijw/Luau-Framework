@@ -9,7 +9,10 @@ export type DecompressedDataSchema
     commandType: "ban" | "kick" | "bring_player_to_server" | "temp_ban",
     reason: string?,
     duration: number?,
-    senderId: number?
+    senderId: number?,
+
+    timeFrame: string?,
+    timeInteger: number?
 }
 
 

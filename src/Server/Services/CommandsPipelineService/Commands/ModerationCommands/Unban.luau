@@ -85,10 +85,13 @@ local function constructorCallback(sender: Player, args: { string })
             if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
             if not ModifyingData.ModerationData.ModerationHistory.Unbans then ModifyingData.ModerationData.ModerationHistory.Unbans = {} end
 
+            if not ModifyingData.ModerationData.ModerationHistory.numOfUnbans then ModifyingData.ModerationData.ModerationHistory.numOfUnbans = 0 end
+            ModifyingData.ModerationData.ModerationHistory.numOfUnbans += 1
+
             ModifyingData.ModerationData.ModerationHistory.Unbans[RNG.randomString(8)]
             = {
                 unbanningUserId = sender.UserId,
-                reason = reason
+                unbanReason = reason
             }
         end
 

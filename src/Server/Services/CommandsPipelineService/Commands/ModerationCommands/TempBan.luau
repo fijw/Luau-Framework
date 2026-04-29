@@ -60,7 +60,6 @@ local function constructorCallback(sender: Player, args: { string })
     if #reason < 1 then reason = "No reason provided" end
 
     local banDuration = TimeLib.addTimeUp(timeInteger, timeFrame)
-    local formattedBanDuration = TimeLib.formatTime(banDuration)
 
     -- If the player is in this server, update their player data class here.
     do
@@ -76,7 +75,7 @@ local function constructorCallback(sender: Player, args: { string })
                     {
                         banningUserId = sender.UserId,
                         banReason = reason,
-                        banDuration = formattedBanDuration
+                        banDuration = `{timeInteger} {timeFrame}`
                     },
                     
                     RNG.randomString(8),
@@ -84,6 +83,16 @@ local function constructorCallback(sender: Player, args: { string })
                     "ModerationHistory",
                     "Bans"
                 )
+
+                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans then
+                    PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
+                else
+                    PlayerDataClass()().ModerationData(
+                        (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans + 1,
+                        "numOfBans",
+                        "ModerationHistory"
+                    )
+                end
 
                 PlayerDataClass()().ModerationData(
                     {
@@ -132,7 +141,10 @@ local function constructorCallback(sender: Player, args: { string })
                     targetId = targetId,
                     commandType = "temp_ban",
                     reason = reason,
-                    duration = banDuration
+                    duration = banDuration,
+
+                    timeFrame = timeFrame,
+                    timeInteger = timeInteger
                 } :: DecompressedDataSchema
             )
         )
@@ -164,9 +176,12 @@ local function constructorCallback(sender: Player, args: { string })
             if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
             if not ModifyingData.ModerationData.ModerationHistory.Bans then ModifyingData.ModerationData.ModerationHistory.Bans = {} end
 
+            if not ModifyingData.ModerationData.ModerationHistory.numOfBans then ModifyingData.ModerationData.ModerationHistory.numOfBans = 0 end
+            ModifyingData.ModerationData.ModerationHistory.numOfBans += 1
+
             ModifyingData.ModerationData.ModerationHistory.Bans[RNG.randomString(8)]
             = {
-                banDuration = formattedBanDuration,
+                banDuration = `{timeInteger} {timeFrame}`,
                 banReason = reason,
                 banningUserId = sender.UserId
             }

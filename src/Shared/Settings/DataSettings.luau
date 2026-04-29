@@ -54,9 +54,13 @@ export type DataTemplateSchema = setmetatable
 
                     ModerationHistory
                     : {
-                        Bans: { [string]: { banningUserId: number, duration: string?, reason: string } }?,
-                        Unbans: { [string]: { unbanningUserId: number, reason: string } }?,
-                        DataResets: { [string]: { resettingUserId: number, reason: string } }?
+                        numOfBans: number?,
+                        nunOfUnbans: number?,
+                        numOfDataResets: number?,
+
+                        Bans: { [string]: { banningUserId: number, banDuration: string?, banReason: string } }?,
+                        Unbans: { [string]: { unbanningUserId: number, unbanReason: string } }?,
+                        DataResets: { [string]: { resettingUserId: number, resetReason: string } }?
                     }?
                 }
             >,
@@ -83,11 +87,25 @@ local DataSettings
 = {
     DataTemplate
     = {
-        coins = 12_000 :: any,
-        level = 15 :: any
+        coins = 2_500 :: any,
+        
+        GameplayData
+        = {
+            level = 1,
+            xp = 0,
+            xpToNextLevel = 1_000,
+            levelsNeededToRebirth = 10,
+            rebirths = 0
+        } :: any,
+
+        DungeonsData
+        = {
+            allTimeMaxDungeonLevelReached = 1,
+            currentMaxDungeonLevelReached = 1
+        } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "t12k4567"
+    PLAYER_DATA_STORAGE_KEY = "1234data1234test1234"
 }
 
 

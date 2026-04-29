@@ -70,6 +70,16 @@ local function constructorCallback(sender: Player, args: { string })
                     "Bans"
                 )
 
+                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans then
+                    PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
+                else
+                    PlayerDataClass()().ModerationData(
+                        (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans + 1,
+                        "numOfBans",
+                        "ModerationHistory"
+                    )
+                end
+
                 PlayerDataClass()().ModerationData(
                     {
                         permanent = true,
@@ -147,6 +157,9 @@ local function constructorCallback(sender: Player, args: { string })
 
             if not ModifyingData.ModerationData.ModerationHistory then ModifyingData.ModerationData.ModerationHistory = {} end
             if not ModifyingData.ModerationData.ModerationHistory.Bans then ModifyingData.ModerationData.ModerationHistory.Bans = {} end
+            
+            if not ModifyingData.ModerationData.ModerationHistory.numOfBans then ModifyingData.ModerationData.ModerationHistory.numOfBans = 0 end
+            ModifyingData.ModerationData.ModerationHistory.numOfBans += 1
 
             ModifyingData.ModerationData.ModerationHistory.Bans[RNG.randomString(8)]
             = {

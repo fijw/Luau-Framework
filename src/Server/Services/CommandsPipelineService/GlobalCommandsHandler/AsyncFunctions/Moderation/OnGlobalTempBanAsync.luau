@@ -12,8 +12,6 @@ local RNG = require(ReplicatedStorage.Libraries.RNG)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local Types = require(script.Parent.Parent.Parent.Types)
-
-local TimeLib = require(ReplicatedStorage.Libraries.TimeLib)
 --[[ @end_section Imports ]]
 
 
@@ -38,15 +36,6 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local PlayerDataClass = Registry(FoundPlayer)
     if not PlayerDataClass then return end
 
-    PlayerDataClass()().ModerationData(
-        {
-            banDuration = duration,
-            banReason = reason
-        },
-
-        "BanData"
-    )
-
     -- Update the moderation history.
     do
         if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
@@ -55,7 +44,7 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
         PlayerDataClass()().ModerationData(
             {
                 banningUserId = FoundPlayer.UserId,
-                banDuration = TimeLib.formatTime(duration),
+                banDuration = `{DecompressedData.timeInteger} {DecompressedData.timeFrame}`,
                 banReason = reason
             },
 
@@ -64,7 +53,26 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
             "ModerationHistory",
             "Bans"
         )
+
+        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans then
+            PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
+        else
+            PlayerDataClass()().ModerationData(
+                (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans + 1,
+                "numOfBans",
+                "ModerationHistory"
+            )
+        end
     end
+
+    PlayerDataClass()().ModerationData(
+        {
+            banDuration = duration,
+            banReason = reason
+        },
+
+        "BanData"
+    )
 end
 
 return constructorCallback

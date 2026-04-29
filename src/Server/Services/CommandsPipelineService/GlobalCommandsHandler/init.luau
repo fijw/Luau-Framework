@@ -11,6 +11,7 @@ local OnGlobalBanAsync = require(script.AsyncFunctions.Moderation.OnGlobalBanAsy
 local OnGlobalKickAsync = require(script.AsyncFunctions.Moderation.OnGlobalKickAsync)
 local OnGlobalTempBanAsync = require(script.AsyncFunctions.Moderation.OnGlobalTempBanAsync)
 local OnGlobalBringPlayerToServerAsync = require(script.AsyncFunctions.Joining.OnGlobalBringPlayerToServerAsync)
+local OnGlobalResetDataAsync = require(script.AsyncFunctions.Moderation.OnGlobalResetDataAsync)
 
 local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
 --[[ @end_section Imports ]]
@@ -21,7 +22,8 @@ local AsyncFunctionsMap
     ban = OnGlobalBanAsync,
     kick = OnGlobalKickAsync,
     bring_player_to_server = OnGlobalBringPlayerToServerAsync,
-    temp_ban = OnGlobalTempBanAsync
+    temp_ban = OnGlobalTempBanAsync,
+    reset_data = OnGlobalResetDataAsync
 }
 
 

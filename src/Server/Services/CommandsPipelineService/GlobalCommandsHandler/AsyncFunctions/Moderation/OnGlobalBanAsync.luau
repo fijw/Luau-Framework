@@ -36,15 +36,6 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local PlayerDataClass = Registry(FoundPlayer)
     if not PlayerDataClass then return end
 
-    PlayerDataClass()().ModerationData(
-        {
-            permanent = true,
-            banReason = reason
-        },
-        
-        "BanData"
-    )
-
     -- Update the moderation history.
     do
         if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
@@ -52,7 +43,7 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
 
         PlayerDataClass()().ModerationData(
             {
-                duration = "Permanent",
+                banDuratiom = "Permanent",
                 banReason = reason,
                 banningUserId = FoundPlayer.UserId
             },
@@ -62,7 +53,26 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
             "ModerationHistory",
             "Bans"
         )
+
+        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans then
+            PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
+        else
+            PlayerDataClass()().ModerationData(
+                (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans + 1,
+                "numOfBans",
+                "ModerationHistory"
+            )
+        end
     end
+
+    PlayerDataClass()().ModerationData(
+        {
+            permanent = true,
+            banReason = reason
+        },
+        
+        "BanData"
+    )
 end
 
 return constructorCallback

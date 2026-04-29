@@ -70,7 +70,7 @@ local function constructorCallback(sender: Player, args: { string })
                 PlayerDataClass()().ModerationData(
                     {
                         resettingUserId = sender.UserId,
-                        reason = reason
+                        resetReason = reason
                     },
 
                     RNG.randomString(8),
@@ -78,6 +78,16 @@ local function constructorCallback(sender: Player, args: { string })
                     "ModerationHistory",
                     "DataResets"
                 )
+
+                if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets then
+                    PlayerDataClass()().ModerationData(0, "numOfDataResets", "ModerationHistory")
+                else
+                    PlayerDataClass()().ModerationData(
+                        (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets + 1,
+                        "numOfDataResets",
+                        "ModerationHistory"
+                    )
+                end
             end
 
             player:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)
@@ -149,9 +159,11 @@ local function constructorCallback(sender: Player, args: { string })
             ModifyingData.ModerationData.ModerationHistory.DataResets[RNG.randomString(8)]
             = {
                 resettingUserId = sender.UserId,
-                reason = reason
+                resetReason = reason
             }
             
+            if not ModifyingData.ModerationData.ModerationHistory.numOfDataResets then ModifyingData.ModerationData.ModerationHistory.numOfDataResets = 0 end
+            ModifyingData.ModerationData.ModerationHistory.numOfDataResets += 1
         end
 
         local SavingData = {}

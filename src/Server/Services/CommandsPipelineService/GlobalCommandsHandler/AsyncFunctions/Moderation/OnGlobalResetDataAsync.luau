@@ -50,7 +50,7 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
         PlayerDataClass()().ModerationData(
             {
                 resettingUserId = FoundPlayer.UserId,
-                reason = reason
+                resetReason = reason
             },
 
             RNG.randomString(8),
@@ -58,6 +58,16 @@ local function constructorCallback(DecompressedData: DecompressedDataSchema)
             "ModerationHistory",
             "DataResets"
         )
+
+        if not (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets then
+            PlayerDataClass()().ModerationData(0, "numOfDataResets", "ModerationHistory")
+        else
+            PlayerDataClass()().ModerationData(
+                (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets + 1,
+                "numOfDataResets",
+                "ModerationHistory"
+            )
+        end
     end
 
     FoundPlayer:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)
