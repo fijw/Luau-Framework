@@ -116,8 +116,17 @@ local function constructorCallback()
                             color: string
                         }
                     )
-                        local ScrollerChildrenArray = clonedScrollingFrame:GetChildren()
-                        if #ScrollerChildrenArray >= MAX_DISPLAY_MESSAGES then ScrollerChildrenArray[MAX_DISPLAY_MESSAGES]:Destroy() end
+                        -- If the scrolling frame has too many responses, remove the oldest one.
+                        do
+                            local ScrollerChildrenArray = clonedScrollingFrame:GetChildren()
+
+                            if #ScrollerChildrenArray >= (MAX_DISPLAY_MESSAGES + 2) then
+                                for i: number, child: Instance in ipairs(ScrollerChildrenArray) do
+                                    if child.Name ~= "ResponseTemplate" then continue end
+                                    child:Destroy(); child.Parent = nil; break
+                                end
+                            end
+                        end
 
                         local newResponse = clonedResponseTemplate:Clone()
                         newResponse.Visible = true
