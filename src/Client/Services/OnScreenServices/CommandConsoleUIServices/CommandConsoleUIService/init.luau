@@ -19,6 +19,7 @@ local InputMapper = require(StarterPlayer.StarterPlayerScripts.Libraries.InputMa
 
 
 --[[ @section Variables ]]
+local CONSOLE_TAG = "k4_fw_cmcs"
 local MAX_DISPLAY_MESSAGES = 200
 
 local localPlayer = Players.LocalPlayer :: Player
@@ -69,9 +70,9 @@ local function constructorCallback()
             local clonedUIListLayout = clonedScrollingFrame:WaitForChild("UIListLayout") :: UIListLayout
 
             if idPermissions or rankPermissions then
-                clonedPermissionsTitle.Text = `{rankPermissions or idPermissions}@cmcs`
+                clonedPermissionsTitle.Text = `{rankPermissions or idPermissions}@{CONSOLE_TAG}`
             else
-                clonedPermissionsTitle.Text = "player@cmcs"
+                clonedPermissionsTitle.Text = `player@{CONSOLE_TAG}`
             end
 
             currentInputBox = clonedInputFrame:WaitForChild("InputBox") :: TextBox
@@ -156,8 +157,7 @@ local function constructorCallback()
                 .listen(
                     function(data: string)
                         if rankPermissions or idPermissions then return end
-                        
-                        clonedPermissionsTitle.Text = `{data}@k4_fw_cmcs`
+                        clonedPermissionsTitle.Text = `{data}@{CONSOLE_TAG}`
                     end
                 )
             end

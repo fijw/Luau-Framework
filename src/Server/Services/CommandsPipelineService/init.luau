@@ -181,7 +181,7 @@ local function constructorCallback()
                 CommandsNamespace.packets.ClientDisplayConsoleResponse
                 .sendTo(
                     {
-                        response = `Wrap 1 character long integer arguments in angle brackets. Example: "<1>".`,
+                        response = `Wrap 1 character long arguments in angle brackets. Example: "<1>" or "<u>".`,
                         color = "blue"
                     },
                     
