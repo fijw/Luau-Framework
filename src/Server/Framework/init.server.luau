@@ -39,7 +39,8 @@ local CacheService = ServerScriptService.Services.CacheService
 local ModerationService = ServerScriptService.Services.ModerationService
 local CommandsPipelineService = ServerScriptService.Services.CommandsPipelineService
 
-local InventoryComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Inventory
+local InventoryComponent = ServerScriptService.Components.Inventory
+local CrateMachineComponent = ServerScriptService.Components.CrateMachine
 
 
 local Initialization = script.Initialization
@@ -54,11 +55,12 @@ local serverKickMessage = `\n\n\nServer failed to initialize.\nPlease rejoin.\n\
 
 local ModulesToLoad
 = {
-    [CommandsPipelineService.Name] = CommandsPipelineService,
     [CacheService.Name] = CacheService,
     [ModerationService.Name] = ModerationService,
+    [CommandsPipelineService.Name] = CommandsPipelineService,
 
-    [InventoryComponent.Name] = InventoryComponent
+    [InventoryComponent.Name] = InventoryComponent,
+    --[CrateMachineComponent.Name] = CrateMachineComponent
 }
 --[[ @end_section Variables ]]
 

@@ -19,21 +19,27 @@ local function hatchPetNamespace()
         packets
         = {
             -- Server Received !ONLY!
-            ServerHatchPet = ByteNetMax.definePacket({ value = ByteNetMax.string }),
-            
-            ServerDeveloperSpawnPet = ByteNetMax.definePacket(
+            ServerOpenCrate = ByteNetMax.definePacket({ value = ByteNetMax.string })
+        },
+
+        queries
+        = {
+			GetCrates = ByteNetMax.defineQuery(
                 {
-                    value = ByteNetMax.struct(
+                    request = ByteNetMax.struct(
                         {
-                            petName = ByteNetMax.string,
-                            petSize = ByteNetMax.string,
-                            petColor = ByteNetMax.string,
-                            receivingId = ByteNetMax.string
+                            message = ByteNetMax.unknown
+                        }
+                    ),
+
+                    response = ByteNetMax.struct(
+                        {
+                            Crates = ByteNetMax.array(ByteNetMax.unknown)
                         }
                     )
                 }
-            ),
-        }
+            )
+		}
     }
 
     return HatchPetNamespace

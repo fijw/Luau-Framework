@@ -14,7 +14,7 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local RNG = require(ReplicatedStorage.Libraries.RNG)
-local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local Compression = require(ReplicatedStorage.Libraries.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)

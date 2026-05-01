@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -18,9 +18,8 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function constructorCallback()
-    CommandsNamespace.packets.ClientSpectateTarget
-    .listen(
-        function(data: string)
+    CommandsGroup.SpectateTarget:onClientEvent(
+        function(data: number)
             local targetPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
             if not targetPlayer then return end
 

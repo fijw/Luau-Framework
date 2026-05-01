@@ -7,7 +7,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local Compression = require(ReplicatedStorage.Libraries.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)

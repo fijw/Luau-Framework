@@ -141,7 +141,7 @@ local function constructorCallback(data: any | buffer, compressionMode: "decompr
             local UnwrappedTable = {}
 
             for i: unknown, v: unknown in pairs(DecodedData :: { any }) do
-                local key, value = v[1], v[2]
+                local key, value = (v :: { any })[1], (v :: { any })[2]
                 UnwrappedTable[key] = value
             end
 

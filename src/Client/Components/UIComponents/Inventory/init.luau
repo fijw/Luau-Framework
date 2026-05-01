@@ -8,25 +8,20 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
-local InventoryNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Inventory)
+local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
 
 local UIComponents = require(script.Components)
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
+
+local Data = require(ReplicatedStorage.Assets.Pets.Data)
 --[[ @end_section Imports ]]
 
 
 --[[ @section Types ]]
 type PetSizeTypes = "Default" | "Huge" | "Gigantic"
 
-type ClientInventoryPetSchema
-= {
-    petName: string,
-    petSize: PetSizeTypes,
-    petColor: string,
-    petImageId: string,
-    petId: string
-}
+type PetSchema = Data.PetSchema
 --[[ @end_section Types ]]
 
 
@@ -50,19 +45,18 @@ local function constructorCallback()
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(CloseBtn, function(pos1: number, pos2: number) end, true)
 
-    InventoryNamespace.packets.ClientAddPetsToInventory
-    .listen(
-        function(data: { any })
-            for i: number, PetSchema: ClientInventoryPetSchema in ipairs(data :: { ClientInventoryPetSchema }) do
+    InventoryGroup.AddPetsToInventory:onClientEvent(
+        function(data: { [string]: PetSchema })
+            for i: string, PetSchema: PetSchema in pairs(data) do
                 local newPetButton = Instance.new("ImageButton")
-                newPetButton.Name = PetSchema.petId
+                newPetButton.Name = i
                 newPetButton.BackgroundTransparency = 1
                 newPetButton.Image = PetSchema.petImageId
 
-                if PetSchema.petSize == "Gigantic" then
+                if PetSchema.PetStats.size == "Gigantic" then
                     newPetButton.LayoutOrder = 1
                     newPetButton.Size = UDim2.new(0.490943968, 0, 0.743377984, 0)
-                elseif PetSchema.petSize == "Huge" then
+                elseif PetSchema.PetStats.size == "Huge" then
                     newPetButton.LayoutOrder = 2
                     newPetButton.Size = UDim2.new(0.242385134, 0, 0.501016557, 0)
                 else
@@ -75,8 +69,7 @@ local function constructorCallback()
         end
     )
 
-    InventoryNamespace.packets.ClientRemovePetsFromInventory
-    .listen(
+    InventoryGroup.RemovePetsFromInventory:onClientEvent(
         function(data: { string })
             for i: number, petId: string in ipairs(data :: { string }) do
                 local PetButton = ScrollingFrame:FindFirstChild(petId)

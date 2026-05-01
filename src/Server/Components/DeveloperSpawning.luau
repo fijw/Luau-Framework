@@ -1,8 +1,3 @@
---[[
-    @TODO: Add a way for players with stored pets to be added to actually have those pets get added
-    once they join the game. Currently players in the game will get their spawned pets, but players
-    that aren't in the game will just have the spawn data stored.
-]]
 --!strict
 --!native
 --!optimize 2
@@ -10,35 +5,30 @@
 
 --[[ @section Imports ]]
 local DataStoreService = game:GetService("DataStoreService")
+local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
-local MessagingService = game:GetService("MessagingService")
+
+local Compression = require(ReplicatedStorage.Libraries.Compression)
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
+local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
+local RNG = require(ReplicatedStorage.Libraries.RNG)
+local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
+local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
+
+local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
+local Data = require(ReplicatedStorage.Assets.Pets.Data)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 
-local CrateSchemas = require(ReplicatedStorage.Assets.Crates.CrateSchemas)
-local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
-
-local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
-local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
-
-local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
-local RNG = require(ReplicatedStorage.Libraries.RNG)
-local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
-local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
-local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
-local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
-
-local PetConstructorNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.PetConstructor)
+local DeveloperSpawningNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.DeveloperSpawning)
 --[[ @end_section Imports ]]
 
 
 --[[ @section Types ]]
 type InventoryClass = Stackentory.InventoryClass
-
-type CrateSchema = CratesData.CrateSchema
-type PetSchema = PetsData.PetSchema
+type PetSchema = Data.PetSchema
 
 type DeveloperSpawningSchema
 = {
@@ -54,12 +44,7 @@ local DataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE
 
 
 --[[ @section Constructor ]]
---[[
-    @usage Handles the hatch pet packet.
-
-    @return void
-]]
-local function constructorCallback()
+local function constuctorCallback()
     MessagingService:SubscribeAsync("developer_spawning",
         function(MessageData: { Data: buffer, Sent: number})
             local DecompressedData: DeveloperSpawningSchema = Compression(MessageData.Data, "decompress")
@@ -94,48 +79,7 @@ local function constructorCallback()
         end
     )
 
-    PetConstructorNamespace.packets.ServerHatchPet.listen(
-        function(data: string, player: Player?)
-            if not player then return end
-
-            local CrateSchema = CrateSchemas[data]
-            if not CrateSchema then return end
-
-            -- Attempt to perform the atomic transaction to hatch the pet and deduct the player's coins.
-            Registry.atomicTransaction({ player },
-                function(PlayerStates)
-                    local PlayerState = PlayerStates[player]
-                    if not PlayerState then return false end
-
-                    if PlayerState.coins() < CrateSchema.price then return false end
-                    PlayerState.coins(PlayerState.coins() - CrateSchema.price)
-
-                    -- Attempt to give the player the hatched pet.
-                    do
-                        local Randomized
-                        = {
-                            size = PetsData.PHYSICAL_ATTRIBUTES.SIZES[RNG.randomFromTableOfChances(PetsData.ATTRIBUTE_CHANCES.SIZE)],
-                            color = PetsData.PHYSICAL_ATTRIBUTES.COLORS[RNG.randomFromTableOfChances(PetsData.ATTRIBUTE_CHANCES.COLOR)],
-
-                            id = RNG.randomString(16)
-                        }
-
-                        local PetSchema: PetSchema = TableUtils.deepClone(RNG.randomFromTableOfChances(CrateSchema.Chances))
-                        PetSchema.PetStats.color = Randomized.color :: any
-                        PetSchema.PetStats.size = Randomized.size :: any
-                        PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
-
-                        PlayerState.Inventory += { itemData = PetSchema, itemId = Randomized.id }
-                        if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(Randomized.id) then return false end
-                    end
-
-                    return true
-                end
-            )
-        end
-    )
-
-    PetConstructorNamespace.packets.ServerDeveloperSpawnPet.listen(
+    DeveloperSpawningNamespace.packets.ServerDeveloperSpawnPet.listen(
         function(data: any, player: Player?)
             if not player then return end
 
@@ -236,5 +180,5 @@ local function constructorCallback()
     )
 end
 
-return constructorCallback
+return constuctorCallback
 --[[ @end_section Constructor ]]

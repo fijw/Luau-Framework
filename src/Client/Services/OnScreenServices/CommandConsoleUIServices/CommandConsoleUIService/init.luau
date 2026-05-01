@@ -10,7 +10,7 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local Components = require(script.Components)
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 
@@ -93,15 +93,15 @@ local function constructorCallback()
 
                         local lowerText = if currentInputBox then currentInputBox.Text:lower() else nil
 
-                        if lowerText == "close" then
+                        --[[if lowerText == "close" then
                             if currentInputBoxConnection then currentInputBoxConnection:Disconnect() end
                             if currentCommandsBar then currentCommandsBar:Destroy() end
 
-                            CommandsNamespace.packets.ClientDisplayConsoleResponse.disconnectAll()
-                        end
+                            --CommandsNamespace.packets.ClientDisplayConsoleResponse.disconnectAll()
+                        end]]
 
                         local splitText = string.split(if lowerText then lowerText else "", " ")
-                        CommandsNamespace.packets.ServerHandleCommand.send(splitText)
+                        CommandsGroup.HandleCommand:fireServer(splitText)
 
                         if currentInputBox then currentInputBox:CaptureFocus() end
 
@@ -110,12 +110,11 @@ local function constructorCallback()
                     end
                 )
 
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .listen(
+                CommandsGroup.DisplayConsoleMessage:onClientEvent(
                     function(
                         data
                         : {
-                            response: string,
+                            message: string,
                             color: string
                         }
                     )
@@ -129,7 +128,7 @@ local function constructorCallback()
                         newResponse.Parent = clonedScrollingFrame
 
                         local newResponseText = newResponse:WaitForChild("TextLabel") :: TextLabel
-                        newResponseText.Text = data.response
+                        newResponseText.Text = data.message
 
                         --[[
                             Red for errors (e.g. invalid commands or insufficient permissions),
@@ -153,8 +152,7 @@ local function constructorCallback()
                     end
                 )
 
-                CommandsNamespace.packets.ClientChangeCmdPermissionsTxt
-                .listen(
+                CommandsGroup.ChangeConsolePermissionsText:onClientEvent(
                     function(data: string)
                         if rankPermissions or idPermissions then return end
                         clonedPermissionsTitle.Text = `{data}@{CONSOLE_TAG}`

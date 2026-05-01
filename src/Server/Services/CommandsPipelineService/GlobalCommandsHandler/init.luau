@@ -5,7 +5,7 @@
 
 --[[ @section Imports ]]
 local MessagingService = game:GetService("MessagingService")
-local ServerScriptService = game:GetService("ServerScriptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local OnGlobalBanAsync = require(script.AsyncFunctions.Moderation.OnGlobalBanAsync)
 local OnGlobalKickAsync = require(script.AsyncFunctions.Moderation.OnGlobalKickAsync)
@@ -13,7 +13,7 @@ local OnGlobalTempBanAsync = require(script.AsyncFunctions.Moderation.OnGlobalTe
 local OnGlobalBringPlayerToServerAsync = require(script.AsyncFunctions.Joining.OnGlobalBringPlayerToServerAsync)
 local OnGlobalResetDataAsync = require(script.AsyncFunctions.Moderation.OnGlobalResetDataAsync)
 
-local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local Compression = require(ReplicatedStorage.Libraries.Compression)
 --[[ @end_section Imports ]]
 
 

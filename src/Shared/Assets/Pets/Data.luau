@@ -6,6 +6,7 @@
 export type PetSchema
 = {
     petName: string,
+    petImageId: string,
     
     GameplayStats
     : {

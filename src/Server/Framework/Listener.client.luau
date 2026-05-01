@@ -21,6 +21,7 @@ local CommandConsoleUIService = StarterPlayer.StarterPlayerScripts.Services.OnSc
 local SpectateService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.SpectateService
 
 local InventoryComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Inventory
+local CrateMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.CrateMachine
 
 
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
@@ -34,12 +35,13 @@ local isServer = RunService:IsServer()
 local ModulesToLoad
 = {
     [ChatTagsService.Name] = ChatTagsService,
-    [FlyingService.Name] = FlyingService,
+    --[FlyingService.Name] = FlyingService,
     [PermissionsDisplayService.Name] = PermissionsDisplayService,
     [CommandConsoleUIService.Name] = CommandConsoleUIService,
-    [SpectateService.Name] = SpectateService,
+    --[SpectateService.Name] = SpectateService,
     
-    [InventoryComponent.Name] = InventoryComponent
+    [InventoryComponent.Name] = InventoryComponent,
+    --[CrateMachineComponent.Name] = CrateMachineComponent
 }
 --[[ @end_section Variables ]]
 

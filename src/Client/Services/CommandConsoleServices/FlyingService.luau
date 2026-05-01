@@ -10,7 +10,7 @@ local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local TweensLibrary = require(ReplicatedStorage.Libraries.TweensLib)
 --[[ @end_section Imports ]]
@@ -196,9 +196,8 @@ end
     @return void
 ]]
 local function constructorCallback()
-    CommandsNamespace.packets.ClientFlyCharacter
-    .listen(
-        function(data: nil, player: Player?)
+    CommandsGroup.FlyCharacter:onClientEvent(
+        function(data: nil)
             isAllowedToFly = true
 
             local CharacterStuff = getCharacterSchema()
@@ -215,9 +214,8 @@ local function constructorCallback()
         end
     )
 
-    CommandsNamespace.packets.ClientUnflyCharacter
-    .listen(
-        function(data: nil, player: Player?)
+    CommandsGroup.UnflyCharacter:onClientEvent(
+        function(data: nil)
             isAllowedToFly = false
 
             local CharacterStuff = getCharacterSchema()

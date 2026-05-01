@@ -91,11 +91,10 @@
 --[[ @section Imports ]]
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
-local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local Compression = require(ReplicatedStorage.Libraries.Compression)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
