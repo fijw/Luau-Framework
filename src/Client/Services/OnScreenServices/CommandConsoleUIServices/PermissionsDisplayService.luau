@@ -10,7 +10,7 @@ local StarterGui = game:GetService("StarterGui")
 
 local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -34,8 +34,7 @@ local function constructorCallback()
     local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[localPlayer.UserId]
 
     if not rankPermissions and not idPermissions then
-        CommandsNamespace.packets.ClientDisplayNewPermissions
-        .listenOnce(
+        CommandsGroup.DisplayNewPermissions:onClientEvent(
             function(data: nil)
                 StarterGui:SetCore("SendNotification",
                     {

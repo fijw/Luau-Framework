@@ -7,7 +7,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local MarketplaceNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Marketplace)
+local MarketplaceGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Marketplace)
 
 local MarketplaceLib = require(ServerScriptService.Components.Marketplace.MarketplaceLib)
 
@@ -26,23 +26,21 @@ type InventoryClass = Stackentory.InventoryClass
     @return void
 ]]
 local function constuctorCallback()
-    MarketplaceNamespace.packets.ServerPlacePetOnMarketplace.listen(
-        function(data: { petId: string, price: string }, player: Player?)
-            if not player then return end
-
-            MarketplaceLib.addPetToMarketplace(player, data.petId, tonumber(data.price) :: number)
+    MarketplaceGroup.PlacePetOnMarketplace:onServerEvent(
+        function(sender: Player, data: { petId: string, price: number })
+            if not sender then return end
+            MarketplaceLib.addPetToMarketplace(sender, data.petId, tonumber(data.price) :: number)
         end
     )
 
-    MarketplaceNamespace.packets.ServerRemoveOwnedPetFromMarketplace.listen(
-        function(data: string, player: Player?)
-            if not player then return end
-
-            MarketplaceLib.removePetFromMarketplace(player, data)
+    MarketplaceGroup.RemovePetFromMarketplace:onServerEvent(
+        function(sender: Player, data: string)
+            if not sender then return end
+            MarketplaceLib.removePetFromMarketplace(sender, data)
 
             -- Send the removed pet packet to the player.
             do
-                local PlrDataClass = Registry(player)
+                local PlrDataClass = Registry(sender)
                 if not PlrDataClass then return end
 
                 local PetStack = (PlrDataClass()().Inventory :: InventoryClass):fetchStackFromItemId(data)
@@ -51,11 +49,10 @@ local function constuctorCallback()
         end
     )
 
-    MarketplaceNamespace.packets.ServerBuyPetFromMarketplace.listen(
-        function(data: string, player: Player?)
-            if not player then return end
-
-            MarketplaceLib.purchasePetFromMarketplace(player, data)
+    MarketplaceGroup.BuyPetFromMarketplace:onServerEvent(
+        function(sender: Player, data: string)
+            if not sender then return end
+            MarketplaceLib.purchasePetFromMarketplace(sender, data)
         end
     )
 end

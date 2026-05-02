@@ -11,7 +11,7 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local Initialization = ReplicatedStorage:FindFirstChild("Initialization")
 
-local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.LoadClient)
+local FrameworkGroup = require(ReplicatedStorage.Networking.PacketGroups.Framework)
 
 
 local ChatTagsService = StarterPlayer.StarterPlayerScripts.Services.ChatTagsService
@@ -35,13 +35,13 @@ local isServer = RunService:IsServer()
 local ModulesToLoad
 = {
     [ChatTagsService.Name] = ChatTagsService,
-    --[FlyingService.Name] = FlyingService,
+    [FlyingService.Name] = FlyingService,
     [PermissionsDisplayService.Name] = PermissionsDisplayService,
     [CommandConsoleUIService.Name] = CommandConsoleUIService,
-    --[SpectateService.Name] = SpectateService,
+    [SpectateService.Name] = SpectateService,
     
     [InventoryComponent.Name] = InventoryComponent,
-    --[CrateMachineComponent.Name] = CrateMachineComponent
+    [CrateMachineComponent.Name] = CrateMachineComponent
 }
 --[[ @end_section Variables ]]
 
@@ -62,8 +62,7 @@ end
 do
     task.spawn(function() LoadingScreenService() end)
 
-    LoadClientNamespace.packets.LoadClientModules
-    .listenOnce(
+    FrameworkGroup.LoadClientModules:onClientEvent(
         function(data: nil)
             if Initialization(ModulesToLoad :: { [string]: ModuleScript }) == "success" or not localPlayer then return end
             (localPlayer :: Player):Kick(`\n\n\nYour client scripts could not be initialized.\nPlease try rejoining.\n\n`)

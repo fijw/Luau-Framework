@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -21,14 +21,11 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Failed to take away [{targetId}]'s flying abilities. {inputText}.`,
+            message = `Failed to take away [{targetId}]'s flying abilities. {inputText}.`,
             color = "red"
-        },
-        
-        sender
+        }
     )
 end
 
@@ -53,17 +50,14 @@ local function constructorCallback(sender: Player, args: { string })
         local targetPlayer = Players:GetPlayerByUserId(targetId)
         if not targetPlayer then failedToExecute(targetId, sender, "Target player not found"); return end
 
-        CommandsNamespace.packets.ClientUnflyCharacter.sendTo(nil, targetPlayer)
+        CommandsGroup.UnflyCharacter:fireClient(targetPlayer)
     end
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Stopped [{targetId}]'s flying abilities.`,
+            message = `Stopped [{targetId}]'s flying abilities.`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

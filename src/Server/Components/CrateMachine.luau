@@ -22,7 +22,7 @@ local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 
-local CrateMachineNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.CrateMachine)
+local CrateMachineGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.CrateMachine)
 --[[ @end_section Imports ]]
 
 
@@ -41,17 +41,17 @@ type PetSchema = PetsData.PetSchema
     @return void
 ]]
 local function constructorCallback()
-    CrateMachineNamespace.packets.ServerOpenCrate.listen(
-        function(data: string, player: Player?)
-            if not player then return end
+    CrateMachineGroup.OpenCrate:onServerEvent(
+        function(sender: Player, data: string)
+            if not sender then return end
 
             local CrateSchema = CrateSchemas[data]
             if not CrateSchema then return end
 
             -- Attempt to perform the atomic transaction to hatch the pet and deduct the player's coins.
-            Registry.atomicTransaction({ player },
+            Registry.atomicTransaction({ sender },
                 function(PlayerStates)
-                    local PlayerState = PlayerStates[player]
+                    local PlayerState = PlayerStates[sender]
                     if not PlayerState then return false end
 
                     if PlayerState.coins() < CrateSchema.price then return false end
@@ -82,17 +82,15 @@ local function constructorCallback()
         end
     )
 
-    CrateMachineNamespace.queries.GetCrates.listen(
-        function(request: { message: unknown }, player: Player?)
+    CrateMachineGroup.GetCrates:onServerInvoke(
+        function(sender: Player, data: string?)
             local ReturningCrates = {}
 
-            if request.message ~= nil then
+            if data ~= nil then
                 for i: string, Crate: CrateSchema in pairs(CrateSchemas) do
-                    if not string.find(Crate.name:lower(), (request.message :: string):lower()) then continue end
+                    if not string.find(Crate.name:lower(), data:lower()) then continue end
                     table.insert(ReturningCrates, Crate)
                 end
-
-                 print(ReturningCrates, "ret 1")
 
                 return ReturningCrates :: any
             end
@@ -100,8 +98,6 @@ local function constructorCallback()
             for i: string, Crate: CrateSchema in pairs(CrateSchemas) do
                 table.insert(ReturningCrates, Crate)
             end
-
-            print(ReturningCrates, "ret 2")
 
             return ReturningCrates :: any
         end

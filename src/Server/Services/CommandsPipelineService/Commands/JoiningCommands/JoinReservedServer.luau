@@ -7,7 +7,7 @@
 local TeleportService = game:GetService("TeleportService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -24,14 +24,11 @@ local function constructorCallback(sender: Player, args: { string })
     local code = TeleportService:ReserveServerAsync(game.PlaceId)
     TeleportService:TeleportToPrivateServer(game.PlaceId, code, { sender })
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Attempting to join reserved server [{code}].`,
+            message = `Attempting to join reserved server [{code}].`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

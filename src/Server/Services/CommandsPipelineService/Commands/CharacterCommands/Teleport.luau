@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -21,14 +21,11 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Failed to teleport [{targetId}]. {inputText}.`,
+            message = `Failed to teleport [{targetId}]. {inputText}.`,
             color = "red"
-        },
-        
-        sender
+        }
     )
 end
 
@@ -86,14 +83,11 @@ local function constructorCallback(sender: Player, args: { string })
 
     teleportingPlayerRootPart.CFrame = rootPlayerRootPart.CFrame
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Teleported [{targetId1}] to [{targetId2}].`,
+            message = `Teleported [{targetId1}] to [{targetId2}].`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

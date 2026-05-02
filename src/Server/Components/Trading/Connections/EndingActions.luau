@@ -7,7 +7,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local TradingNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Trading)
+local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Trading)
 
 local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 
@@ -103,11 +103,11 @@ end
     @return void
 ]]
 local function constuctorCallback()
-    TradingNamespace.packets.CancelTrade.listen(
-        function(data: string, player: Player?)
-            if not player then return end
+    TradingGroup.CancelTrade:onServerEvent(
+        function(sender: Player, data: nil)
+            if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[player]
+            local TradeId = TradesMap.MappedTradingPlayers[sender]
             if not TradeId then return end
 
             local Trade = TradesMap.ActiveTrades[TradeId]
@@ -115,35 +115,31 @@ local function constuctorCallback()
 
             -- Send a packet to both players to close the trade UI.
             do
-                local OtherPlayer = if Trade.player1 == player then Trade.player2 else Trade.player1
+                local OtherPlayer = if Trade.player1 == sender then Trade.player2 else Trade.player1
 
-                TradingNamespace.packets.CancelTrade.send(player.DisplayName, OtherPlayer)
-                TradingNamespace.packets.CancelTrade.send("you_cancelled", player)
+                TradingGroup.CancelTrade:fireClient(OtherPlayer, "they_cancelled")
+                TradingGroup.CancelTrade:fireClient(sender, "you_cancelled")
             end
 
             TradesMap.ActiveTrades[TradeId] = nil
             TradesMap.MappedTradingPlayers[Trade.player1] = nil; TradesMap.MappedTradingPlayers[Trade.player2] = nil
-
-            -- Send a packet to both players to close the trade.
-            TradingNamespace.packets.CancelTrade.send(if Trade.player1 == player then "you_cancelled" else "they_cancelled", Trade.player1)
-            TradingNamespace.packets.CancelTrade.send(if Trade.player2 == player then "you_cancelled" else "they_cancelled", Trade.player2)
         end
     )
 
-    TradingNamespace.packets.ReadyUp.listen(
-        function(data: nil, player: Player?)
-            if not player then return end
+    TradingGroup.AcceptTrade:onServerEvent(
+        function(sender: Player, data: nil)
+            if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[player]
+            local TradeId = TradesMap.MappedTradingPlayers[sender]
             if not TradeId then return end
 
             local Trade = TradesMap.ActiveTrades[TradeId]
             if not Trade then return end
 
-            local isPlayer1 = Trade.player1 == player
+            local isPlayer1 = Trade.player1 == sender
             if isPlayer1 then Trade.player1Ready = not Trade.player1Ready else Trade.player2Ready = not Trade.player2Ready end
 
-            TradingNamespace.packets.ReadyUp.send(nil, if isPlayer1 then Trade.player2 else Trade.player1)
+            TradingGroup.AcceptTrade:fireClient(if isPlayer1 then Trade.player2 else Trade.player1)
 
             if not Trade.player1Ready and Trade.player2Ready then return end
             commenceTrade(Trade.player1)

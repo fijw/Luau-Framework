@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -21,14 +21,11 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Failed to unfreeze [{targetId}]. {inputText}.`,
+            message = `Failed to unfreeze [{targetId}]. {inputText}.`,
             color = "red"
-        },
-        
-        sender
+        }
     )
 end
 
@@ -64,14 +61,11 @@ local function constructorCallback(sender: Player, args: { string })
         end
     end
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Unfroze [{targetId}].`,
+            message = `Unfroze [{targetId}].`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

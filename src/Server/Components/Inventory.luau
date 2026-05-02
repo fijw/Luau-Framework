@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local InventoryNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Inventory)
+local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
@@ -20,6 +20,7 @@ local Data = require(ReplicatedStorage.Assets.Pets.Data)
 
 --[[ @section Types ]]
 type InventoryClass = Stackentory.InventoryClass
+type SavingInventoryClassSchema = Stackentory.SavingInventoryClassSchema
 type PetSchema = Data.PetSchema
 
 --[[ @generic D Data type. ]]
@@ -29,25 +30,14 @@ type SavingStackSchema<D> = StackingLib.SavingStackSchema<D>
 
 local function subscribeToInventory(player: Player, Inventory: InventoryClass)
     Inventory:subscribeToItemsAdded(
-        function(itemData: PetSchema, itemId: string)
-            local SendingData
-            = {
-                {
-                    petId = itemId,
-                    petName = itemData.petName,
-                    petSize = itemData.PetStats.size,
-                    petColor = itemData.PetStats.color,
-                    petImageId = "rbxassetid://13424524253"
-                }
-            }
-
-            InventoryNamespace.packets.ClientAddPetsToInventory.sendTo(SendingData :: any, player)
+        function(ItemData: PetSchema, itemId: string)
+            InventoryGroup.AddPetsToInventory:fireClient(player, { [itemId] = ItemData })
         end
     )
 
     Inventory:subscribeToItemsRemoved(
         function(itemId: string)
-            InventoryNamespace.packets.ClientRemovePetsFromInventory.sendTo({ itemId }, player)
+            InventoryGroup.RemovePetsFromInventory:fireClient(player, { itemId })
         end
     )
 end
@@ -59,6 +49,10 @@ local function constuctorCallback()
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 
+        -- Initialize the player's inventory.
+        local oldInventoryState = if PlrDataClass()().Inventory then PlrDataClass()().Inventory() :: SavingInventoryClassSchema else nil
+        PlrDataClass()(Stackentory(oldInventoryState), "Inventory")
+
         local Inventory = PlrDataClass()().Inventory :: InventoryClass
 
         -- Add existing pets to the player's client inventory.
@@ -67,19 +61,11 @@ local function constuctorCallback()
             
             for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
                 for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
-                    table.insert(PetsAddingToInventory,
-                        {
-                            petId = id,
-                            petName = SavingStackSchema.StackData.petName,
-                            petSize = SavingStackSchema.StackData.PetStats.size,
-                            petColor = SavingStackSchema.StackData.PetStats.color,
-                            petImageId = "rbxassetid://13424524253"
-                        }
-                    )
+                    PetsAddingToInventory[id] = SavingStackSchema.StackData
                 end
             end
 
-            InventoryNamespace.packets.ClientAddPetsToInventory.sendTo(PetsAddingToInventory, player)
+            InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
         end
 
         subscribeToInventory(player, Inventory)
@@ -98,8 +84,9 @@ local function constuctorCallback()
         )
     end
 
+    for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end
     Players.PlayerAdded:Connect(onPlayerAdded)
 end
 
-return constuctorCallback()
+return constuctorCallback
 --[[ @end_section Constructor ]]

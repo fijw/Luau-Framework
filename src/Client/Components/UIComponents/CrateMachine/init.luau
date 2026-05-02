@@ -56,8 +56,6 @@ local function constructorCallback()
     do
         local Crates: { CrateSchema } = CrateMachineGroup.GetCrates:invokeServer()
 
-        print(Crates, "inv")
-
         for i: number, Crate: CrateSchema in ipairs(Crates) do
             local clonedCrateContainer = crateContainer:Clone()
             clonedCrateContainer.Parent = crateFrame

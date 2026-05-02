@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -21,14 +21,11 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Failed to change [{targetId}]'s speed. {inputText}.`,
+            message = `Failed to change [{targetId}]'s speed. {inputText}.`,
             color = "red"
-        },
-        
-        sender
+        }
     )
 end
 
@@ -62,14 +59,11 @@ local function constructorCallback(sender: Player, args: { string })
         humanoid.WalkSpeed = tonumber(args[1]) :: number
     end
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Changed [{targetId}]'s speed to {args[1]}.`,
+            message = `Changed [{targetId}]'s speed to {args[1]}.`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

@@ -7,7 +7,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local MergingNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Merging)
+local MergingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Merging)
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
@@ -38,16 +38,14 @@ local PETS_NEEDED_TO_MERGE = 9
     @return void
 ]]
 local function constructorCallback()
-    MergingNamespace.packets.ServerMergePets.listen(
-        function(data: unknown, player: Player?)
-            assert(typeof(data) == "table")
-
-            if not player or #data < PETS_NEEDED_TO_MERGE then return end
+    MergingGroup.MergePets:onServerEvent(
+        function(sender: Player, data: { string })
+            if not sender or #data < PETS_NEEDED_TO_MERGE then return end
 
             -- Perform the atomic transaction to merge the pets.
-            Registry.atomicTransaction({ player },
+            Registry.atomicTransaction({ sender },
                 function(PlayerStates)
-                    local PlayerState = PlayerStates[player]
+                    local PlayerState = PlayerStates[sender]
                     if not PlayerState then return false end
 
                     -- Deduct the player's coins.

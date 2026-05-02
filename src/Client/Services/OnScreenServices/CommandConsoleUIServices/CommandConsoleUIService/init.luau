@@ -93,12 +93,12 @@ local function constructorCallback()
 
                         local lowerText = if currentInputBox then currentInputBox.Text:lower() else nil
 
-                        --[[if lowerText == "close" then
+                        if lowerText == "close" then
                             if currentInputBoxConnection then currentInputBoxConnection:Disconnect() end
                             if currentCommandsBar then currentCommandsBar:Destroy() end
 
-                            --CommandsNamespace.packets.ClientDisplayConsoleResponse.disconnectAll()
-                        end]]
+                            CommandsGroup.DisplayConsoleMessage:disconnectAll()
+                        end
 
                         local splitText = string.split(if lowerText then lowerText else "", " ")
                         CommandsGroup.HandleCommand:fireServer(splitText)

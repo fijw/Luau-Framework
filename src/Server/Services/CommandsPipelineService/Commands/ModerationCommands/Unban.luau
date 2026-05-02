@@ -8,7 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreService = game:GetService("DataStoreService")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local RNG = require(ReplicatedStorage.Libraries.RNG)
@@ -43,28 +43,22 @@ local function constructorCallback(sender: Player, args: { string })
     local AsyncData = Registry.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData then
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Failed to unban [{targetId}]. Could not fetch stored player data.`,
+                message = `Failed to unban [{targetId}]. Could not fetch stored player data.`,
                 color = "red"
-            },
-            
-            sender
+            }
         )
         
         return
     end
 
     if AsyncData.inUse == true then
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Failed to unban [{targetId}]. The player is currently in a server.`,
+                message = `Failed to unban [{targetId}]. The player is currently in a server.`,
                 color = "red"
-            },
-            
-            sender
+            }
         )
         
         return
@@ -114,14 +108,11 @@ local function constructorCallback(sender: Player, args: { string })
         )
         :onError(function(err: string?) print(`Failed to save moderation data changes. Error: {err}`) end)
 
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Set [{targetId}] as unbanned. Reason: "{reason}".`,
+                message = `Set [{targetId}] as unbanned. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
+            }
         )
     end
 end

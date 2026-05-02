@@ -7,7 +7,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local TradingNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Trading)
+local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Trading)
 
 local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 --[[ @end_section Imports ]]
@@ -20,26 +20,26 @@ local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
     @return void
 ]]
 local function constuctorCallback()
-    TradingNamespace.packets.ServerAddPetToTradeOffer.listen(
-        function(data: string, player: Player?)
-            if not player then return end
+    TradingGroup.AddPetToTradeOffer:onServerEvent(
+        function(sender: Player, data: string)
+            if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[player]
+            local TradeId = TradesMap.MappedTradingPlayers[sender]
             if not TradeId then return end
 
             local Trade = TradesMap.ActiveTrades[TradeId]
             if not Trade then return end
 
-            local isPlayer1 = Trade.player1 == player
+            local isPlayer1 = Trade.player1 == sender
             table.insert(if isPlayer1 then Trade.Player1Pets else Trade.Player2Pets, data)
         end
     )
 
-    TradingNamespace.packets.ServerRemovePetFromTradeOffer.listen(
-        function(data: string, player: Player?)
-            if not player then return end
+    TradingGroup.RemovePetFromTradeOffer:onServerEvent(
+        function(sender: Player, data: string)
+            if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[player]
+            local TradeId = TradesMap.MappedTradingPlayers[sender]
             if not TradeId then return end
 
             local Trade = TradesMap.ActiveTrades[TradeId]
@@ -47,7 +47,7 @@ local function constuctorCallback()
 
             -- Remove the pet from the trade.
             do
-                local isPlayer1 = Trade.player1 == player
+                local isPlayer1 = Trade.player1 == sender
 
                 local FoundPetId = table.find(if isPlayer1 then Trade.Player1Pets else Trade.Player2Pets, data)
                 if not FoundPetId then return end

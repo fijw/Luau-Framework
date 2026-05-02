@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
@@ -39,14 +39,11 @@ local function constructorCallback(sender: Player, args: { string })
         connection = Players.PlayerAdded:Connect(onPlayerAdded)
     end
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Locked the server, stopping it from receiving new players.`,
+            message = `Locked the server, stopping it from receiving new players.`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -21,14 +21,11 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
     @return void
 ]]
 local function failedToExecute(targetId: number, sender: Player, inputText: string)
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Failed to make [{targetId}] fly. {inputText}.`,
+            message = `Failed to make [{targetId}] fly. {inputText}.`,
             color = "red"
-        },
-        
-        sender
+        }
     )
 end
 
@@ -54,16 +51,13 @@ local function constructorCallback(sender: Player, args: { string })
         return
     end
 
-    CommandsNamespace.packets.ClientSpectateTarget.sendTo(`{targetId}`, sender)
+    CommandsGroup.SpectateTarget:fireClient(sender, targetId)
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Spectating [{targetId}].`,
+            message = `Spectating [{targetId}].`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

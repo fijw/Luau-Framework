@@ -19,7 +19,7 @@ local Packets
 = {
     AddPetsToInventory = NetworkLib("add_pets_to_inventory", "Event",
         {
-            clientType = { [(nil :: any) :: string] = {} :: PetSchema },
+            clientType = { ["" :: string] = {} :: PetSchema },
             serverType = nil
         }
     ),

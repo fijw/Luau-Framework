@@ -7,7 +7,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
+
 local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
 --[[ @end_section Imports ]]
 
@@ -30,14 +31,11 @@ local function constructorCallback(sender: Player, args: { string })
     -- Add the user to the server users with fun commands table.
     CmdsSettings.ServerUsersGivenFunCommands[targetId] = "fun_perms"
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Gave [{targetId}] access to fun commands.`,
+            message = `Gave [{targetId}] access to fun commands.`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 
     -- Send a notification to the target player.
@@ -45,8 +43,8 @@ local function constructorCallback(sender: Player, args: { string })
         local targetPlayer = Players:GetPlayerByUserId(targetId)
         if not targetPlayer then return end
 
-        CommandsNamespace.packets.ClientDisplayNewPermissions.sendTo(nil, targetPlayer)
-        CommandsNamespace.packets.ClientChangeCmdPermissionsTxt.sendTo(CmdsSettings.ServerUsersGivenFunCommands[targetId], targetPlayer)
+        CommandsGroup.DisplayNewPermissions:fireClient(targetPlayer)
+        CommandsGroup.ChangeConsolePermissionsText:fireClient(targetPlayer, CmdsSettings.ServerUsersGivenFunCommands[targetId])
     end
 end
 

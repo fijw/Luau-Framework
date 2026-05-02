@@ -7,7 +7,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local RebirthingNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Rebirthing)
+local RebirthingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Rebirthing)
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
@@ -31,14 +31,14 @@ local NEEDED_LEVELS_MULTIPLER_PER_REBIRTH = 2
     @return void
 ]]
 local function constructorCallback()
-    RebirthingNamespace.packets.ServerRebirthPlayer.listen(
-        function(data: unknown, player: Player?)
-            if not player or data ~= nil then return end
+    RebirthingGroup.Rebirth:onServerEvent(
+        function(sender: Player, data: nil)
+            if not sender or data ~= nil then return end
 
             -- Atomic transaction to update the player's rebirths.
-            Registry.atomicTransaction({ player },
+            Registry.atomicTransaction({ sender },
                 function(PlayerStates)
-                    local PlayerState = PlayerStates[player]
+                    local PlayerState = PlayerStates[sender]
                     if not PlayerState then return false end
 
                     if PlayerState.GameplayData().rebirths >= MAX_REBIRTHS then return false end

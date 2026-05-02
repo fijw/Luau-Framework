@@ -21,7 +21,7 @@ local Packets
                 petName = "",
                 petSize = "",
                 petColor = "",
-                receiverId = ""
+                receiverId = 0
             }
         }
     )

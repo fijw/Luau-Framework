@@ -10,7 +10,7 @@ local DataStoreService = game:GetService("DataStoreService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local RNG = require(ReplicatedStorage.Libraries.RNG)
@@ -95,14 +95,11 @@ local function constructorCallback(sender: Player, args: { string })
 
             player:Kick(`\n\nYour data has been reset.\nReason: "{reason}".\n\n\n`)
 
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
+            CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                 {
-                    response = `Reset [{targetId}]'s player data. Reason: "{reason}".`,
+                    message = `Reset [{targetId}]'s player data. Reason: "{reason}".`,
                     color = "white"
-                },
-                
-                sender
+                }
             )
 
             return
@@ -112,14 +109,11 @@ local function constructorCallback(sender: Player, args: { string })
     local AsyncData = Registry.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData then
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Failed to reset [{targetId}]'s player data. Could not fetch stored player data.`,
+                message = `Failed to reset [{targetId}]'s player data. Could not fetch stored player data.`,
                 color = "red"
-            },
-            
-            sender
+            }
         )
 
         return
@@ -137,14 +131,11 @@ local function constructorCallback(sender: Player, args: { string })
             )
         )
 
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Sent a request to reset [{targetId}]'s player data. Reason: "{reason}".`,
+                message = `Sent a request to reset [{targetId}]'s player data. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
+            }
         )
     else
         local ModifyingData = {} :: { [string]: any }
@@ -189,14 +180,11 @@ local function constructorCallback(sender: Player, args: { string })
         )
         :onError(function(err: string?) print(`Failed to save moderation data changes. Error: {err}`) end)
 
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Reset [{targetId}]'s stored player data. Reason: "{reason}".`,
+                message = `Reset [{targetId}]'s stored player data. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
+            }
         )
     end
 end

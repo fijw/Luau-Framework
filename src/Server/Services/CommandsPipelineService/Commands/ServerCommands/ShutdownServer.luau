@@ -7,7 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -23,14 +23,11 @@ local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Servic
 local function constructorCallback(sender: Player, args: { string })
     local reason = table.concat(args, " ")
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Shutting down the server.`,
+            message = `Shutting down the server.`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 
     for i: number, player: Player in ipairs(Players:GetPlayers()) do

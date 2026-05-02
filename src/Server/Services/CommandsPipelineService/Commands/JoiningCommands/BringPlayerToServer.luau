@@ -4,13 +4,12 @@
 
 
 --[[ @section Imports ]]
-local ServerScriptService = game:GetService("ServerScriptService")
 local MessagingService = game:GetService("MessagingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Compression = require(ServerScriptService.Libraries.DataLibs.Compression)
+local Compression = require(ReplicatedStorage.Libraries.Compression)
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -39,14 +38,11 @@ local function constructorCallback(sender: Player, args: { string })
         )
     )
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = `Sent a request to bring [{targetId}] to this server.`,
+            message = `Sent a request to bring [{targetId}] to this server.`,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

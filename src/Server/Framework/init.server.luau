@@ -32,7 +32,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local StarterPlayer = game:GetService("StarterPlayer")
 
-local LoadClientNamespace = require(ReplicatedStorage.Networking.Namespaces.LoadClient)
+local FrameworkGroup = require(ReplicatedStorage.Networking.PacketGroups.Framework)
 
 
 local CacheService = ServerScriptService.Services.CacheService
@@ -60,7 +60,7 @@ local ModulesToLoad
     [CommandsPipelineService.Name] = CommandsPipelineService,
 
     [InventoryComponent.Name] = InventoryComponent,
-    --[CrateMachineComponent.Name] = CrateMachineComponent
+    [CrateMachineComponent.Name] = CrateMachineComponent
 }
 --[[ @end_section Variables ]]
 
@@ -88,12 +88,12 @@ do
         return
     end
 
-    LoadClientNamespace.packets.LoadClientModules.sendToAll(nil)
+    FrameworkGroup.LoadClientModules:fireAllClients()
 
     -- Handle new players.
     do
         local function onPlayerAdded(player: Player)
-            if initResult == "success" then LoadClientNamespace.packets.LoadClientModules.sendTo(nil, player); return end
+            if initResult == "success" then FrameworkGroup.LoadClientModules:fireClient(player); return end
             player:Kick(serverKickMessage)
         end
 

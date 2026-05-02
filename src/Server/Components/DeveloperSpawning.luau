@@ -22,7 +22,7 @@ local Data = require(ReplicatedStorage.Assets.Pets.Data)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
 
-local DeveloperSpawningNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.DeveloperSpawning)
+local DeveloperSpawningGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.DeveloperSpawning)
 --[[ @end_section Imports ]]
 
 
@@ -35,7 +35,7 @@ type DeveloperSpawningSchema
     petName: string,
     petSize: string,
     petColor: string,
-    receivingId: string?
+    receiverId: number
 }
 --[[ @end_section Types ]]
 
@@ -49,7 +49,7 @@ local function constuctorCallback()
         function(MessageData: { Data: buffer, Sent: number})
             local DecompressedData: DeveloperSpawningSchema = Compression(MessageData.Data, "decompress")
             
-            local foundPlayer = Players:GetPlayerByUserId(tonumber(DecompressedData.receivingId) :: number)
+            local foundPlayer = Players:GetPlayerByUserId(DecompressedData.receiverId)
             if not foundPlayer then return end
 
             local PetSchema: PetSchema? = PetSchemas[DecompressedData.petName]
@@ -79,22 +79,24 @@ local function constuctorCallback()
         end
     )
 
-    DeveloperSpawningNamespace.packets.ServerDeveloperSpawnPet.listen(
-        function(data: any, player: Player?)
-            if not player then return end
+    DeveloperSpawningGroup.SpawnPet:onServerEvent(
+        function
+        (
+            sender: Player,
+            data: DeveloperSpawningSchema
+        )
+            if not sender then return end
 
-            local TypedData: DeveloperSpawningSchema = data
-
-            local PetSchema = PetSchemas[TypedData.petName]
+            local PetSchema = PetSchemas[data.petName]
             if not PetSchema then return else PetSchema = TableUtils.deepClone(PetSchema) end
 
-            PetSchema.PetStats.color = TypedData.petColor :: any
-            PetSchema.PetStats.size = TypedData.petSize :: any
+            PetSchema.PetStats.color = data.petColor :: any
+            PetSchema.PetStats.size = data.petSize :: any
             PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
 
             -- Locally attempt to give the player the pet.
             do
-                local foundPlayer = Players:GetPlayerByUserId(tonumber(TypedData.receivingId) :: number)
+                local foundPlayer = Players:GetPlayerByUserId(data.receiverId)
 
                 if foundPlayer then
                     Registry.atomicTransaction({ foundPlayer },
@@ -118,18 +120,18 @@ local function constuctorCallback()
                 end
             end
 
-            local AsyncData = Registry.forciblyFetchStoredPlayerData(tonumber(TypedData.receivingId) :: number)
+            local AsyncData = Registry.forciblyFetchStoredPlayerData(data.receiverId)
             if not AsyncData then return end
 
             if AsyncData.inUse == true then
                 MessagingService:PublishAsync("developer_spawning",
                     Compression(
                         {
-                            petName = TypedData.petName,
-                            petSize = TypedData.petSize,
-                            petColor = TypedData.petColor,
-                            receivingId = TypedData.receivingId
-                        }
+                            petName = data.petName,
+                            petSize = data.petSize,
+                            petColor = data.petColor,
+                            receiverId = data.receiverId
+                        } :: DeveloperSpawningSchema
                     )
                 )
             else
@@ -143,9 +145,9 @@ local function constuctorCallback()
 
                     local InsertingData
                     = {
-                        petName = TypedData.petName,
-                        petSize = TypedData.petSize,
-                        petColor = TypedData.petColor
+                        petName = data.petName,
+                        petSize = data.petSize,
+                        petColor = data.petColor
                     }
                     
                     if DecompressedData.DeveloperSpawnedPets == nil then
@@ -165,7 +167,7 @@ local function constuctorCallback()
 
                     Chronovisor(
                         function()
-                            DataStore:SetAsync(`{TypedData.receivingId}`,
+                            DataStore:SetAsync(`{data.receiverId}`,
                                 {
                                     Data = Compression(SavingData),
                                     inUse = AsyncData.inUse

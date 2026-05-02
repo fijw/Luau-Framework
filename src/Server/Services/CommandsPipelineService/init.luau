@@ -40,7 +40,7 @@ local LockServerModule = require(script.Commands.ServerCommands.LockServer)
 local UnlockServerModule = require(script.Commands.ServerCommands.UnlockServer)
 
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local GlobalCommandsHandler = require(script.GlobalCommandsHandler)
 
@@ -139,87 +139,68 @@ local PermissionsMap: { [PermissionTypes]: { string } }
 local function constructorCallback()
     GlobalCommandsHandler()
 
-    CommandsNamespace.packets.ServerHandleCommand
-    .listen(
-        function(data: { string }, player: Player?)
-            if not player then return end
+    CommandsGroup.HandleCommand:onServerEvent(
+        function(sender: Player, data: { string })
+            if not sender then return end
 
-            local playerRank = player:GetRankInGroupAsync(game.CreatorId)
+            local playerRank = sender:GetRankInGroupAsync(game.CreatorId)
 
             local rankPermissions = CmdsSettings.RanksWithCommandPermissions[playerRank]
-            local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[player.UserId]
-            local funPermissions = CmdsSettings.ServerUsersGivenFunCommands[player.UserId]
+            local idPermissions = CmdsSettings.UserIdsWithCommandPermissions[sender.UserId]
+            local funPermissions = CmdsSettings.ServerUsersGivenFunCommands[sender.UserId]
 
             local MappedPermissions = if rankPermissions or idPermissions or funPermissions then PermissionsMap[rankPermissions or idPermissions or funPermissions] else nil
 
             -- If the player sends "help" and they have permission to use commands then send them a list of all available commands.
             if data[1] == "help" then
                 if not MappedPermissions and not debugging then
-                    CommandsNamespace.packets.ClientDisplayConsoleResponse
-                    .sendTo(
+                    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                         {
-                            response = `You do not have permission to view the list of commands.`,
+                            message = `You do not have permission to view the list of commands.`,
                             color = "red"
-                        },
-                        
-                        player
+                        }
                     )
 
                     return
                 end
 
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .sendTo(
+                CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                     {
-                        response = ``,
+                        message = ``,
                         color = "white"
-                    },
-                    
-                    player
+                    }
                 )
 
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .sendTo(
+                CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                     {
-                        response = `Wrap 1 character long arguments in angle brackets. Example: "<1>" or "<u>".`,
+                        message = `Wrap 1 character long arguments in angle brackets. Example: "<1>" or "<u>".`,
                         color = "blue"
-                    },
-                    
-                    player
+                    }
                 )
 
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .sendTo(
+                CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                     {
-                        response = ``,
+                        message = ``,
                         color = "white"
-                    },
-                    
-                    player
+                    }
                 )
 
                 for i: string, CommandData: CommandSchema in pairs(CommandDataCallbackMap) do
                     if MappedPermissions then if not table.find(MappedPermissions, i) and not debugging then continue end end
 
-                    CommandsNamespace.packets.ClientDisplayConsoleResponse
-                    .sendTo(
+                    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                         {
-                            response = if CommandData.helpTag then `{i} {CommandData.helpTag}` else i,
+                            message = if CommandData.helpTag then `{i} {CommandData.helpTag}` else i,
                             color = "yellow"
-                        },
-                        
-                        player
+                        }
                     )
                 end
 
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .sendTo(
+                CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                     {
-                        response = ``,
+                        message = ``,
                         color = "white"
-                    },
-                    
-                    player
+                    }
                 )
 
                 return
@@ -228,14 +209,11 @@ local function constructorCallback()
             local MappedCommand = CommandDataCallbackMap[data[1]]
 
             if not MappedCommand then
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .sendTo(
+                CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                     {
-                        response = `Send "help" to see a list of all available commands.`,
+                        message = `Send "help" to see a list of all available commands.`,
                         color = "red"
-                    },
-                    
-                    player
+                    }
                 )
 
                 return
@@ -244,14 +222,11 @@ local function constructorCallback()
             -- Check if the player has the required permissions.
             do
                 if not MappedPermissions and not debugging then
-                    CommandsNamespace.packets.ClientDisplayConsoleResponse
-                    .sendTo(
+                    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                         {
-                            response = `You do not have permission to use commands.`,
+                            message = `You do not have permission to use commands.`,
                             color = "red"
-                        },
-                        
-                        player
+                        }
                     )
                     
                     return
@@ -259,14 +234,11 @@ local function constructorCallback()
 
                 if MappedPermissions and not debugging then
                     if not table.find(MappedPermissions, data[1]) then
-                        CommandsNamespace.packets.ClientDisplayConsoleResponse
-                        .sendTo(
+                        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                             {
-                                response = `You do not have permission to use "{data[1]}".`,
+                                message = `You do not have permission to use "{data[1]}".`,
                                 color = "red"
-                            },
-                            
-                            player
+                            }
                         )
                         
                         return
@@ -278,7 +250,7 @@ local function constructorCallback()
                 Replace all "me" arguments with the sender's id and remove angle brackets from arguments to help
                 input 1 character arguments, eg. "<1>".
             ]]
-            for i: number, arg: string in ipairs(data) do if arg:lower() == "me" then data[i] = `{player.UserId}` end end
+            for i: number, arg: string in ipairs(data) do if arg:lower() == "me" then data[i] = `{sender.UserId}` end end
             for i: number, arg: string in ipairs(data) do arg:gsub("[<>]", "") end
 
             -- Replace all player username arguments with their corresponding user ids.
@@ -297,7 +269,7 @@ local function constructorCallback()
 
             table.remove(data, 1)
 
-            MappedCommand.func(player, data)
+            MappedCommand.func(sender, data)
         end
     )
 end

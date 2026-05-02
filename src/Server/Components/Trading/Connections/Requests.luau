@@ -12,7 +12,7 @@ local RNG = require(ReplicatedStorage.Libraries.RNG)
 
 local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 
-local TradingNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Trading)
+local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Trading)
 --[[ @end_section Imports ]]
 
 
@@ -23,9 +23,9 @@ local TradingNamespace = require(ReplicatedStorage.Networking.Namespaces.Compone
     @return void
 ]]
 local function constuctorCallback()
-    TradingNamespace.packets.ServerTradeRequestAccepted.listen(
-        function(data: string, player: Player?)
-            if not player then return end
+    TradingGroup.AcceptTradeRequest:onServerEvent(
+        function(sender: Player, data: nil)
+            if not sender then return end
 
             local RequestingPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
             if not RequestingPlayer then return end
@@ -36,7 +36,7 @@ local function constuctorCallback()
 
                 TradesMap.ActiveTrades[TradeId]
                 = {
-                    player1 = player,
+                    player1 = sender,
                     player2 = RequestingPlayer,
 
                     Player1Pets = {},
@@ -49,20 +49,20 @@ local function constuctorCallback()
                     player2Ready = false
                 }
 
-                TradesMap.MappedTradingPlayers[player] = TradeId
+                TradesMap.MappedTradingPlayers[sender] = TradeId
                 TradesMap.MappedTradingPlayers[RequestingPlayer] = TradeId
             end
         end
     )
 
-    TradingNamespace.packets.ServerSendTradeRequest.listen(
-        function(data: string, player: Player?)
-            if not player then return end
+    TradingGroup.SendTradeRequest:onServerEvent(
+        function(sender: Player, data: number)
+            if not sender then return end
 
-            local TargetPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
+            local TargetPlayer = Players:GetPlayerByUserId(data)
             if not TargetPlayer then return end
             
-            TradesMap.MappedTradeRequests[TargetPlayer] = player
+            TradesMap.MappedTradeRequests[TargetPlayer] = sender
         end
     )
 end

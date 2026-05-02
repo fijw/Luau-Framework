@@ -10,7 +10,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Compression = require(ReplicatedStorage.Libraries.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -39,112 +39,85 @@ local function constructorCallback(sender: Player, args: { string })
     end
 
     if not DecompressedData.ModerationData.ModerationHistory then
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `No moderation history found for [{targetId}].`,
+                message = `No moderation history found for [{targetId}].`,
                 color = "yellow"
-            },
-            
-            sender
+            }
         )
         
         return
     end
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = ``,
+            message = ``,
             color = "white"
-        },
-        
-        sender
+        }
     )
 
     -- Display the moderation history.
     do
         if DecompressedData.ModerationData.ModerationHistory.Bans then
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
+            CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                 {
-                    response = `Ban Logs for [{targetId}]:`,
+                    message = `Ban Logs for [{targetId}]:`,
                     color = "blue"
-                },
-                
-                sender
+                }
             )
 
             for i: string, v: any in pairs(DecompressedData.ModerationData.ModerationHistory.Bans :: { [string]: any }) do
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .sendTo(
+                CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                     {
-                        response = `[{v.index}] Reason: "{v.banReason}" Duration: [{v.banDuration}] By: [{v.banningUserId}]`,
+                        message = `[{v.index}] Reason: "{v.banReason}" Duration: [{v.banDuration}] By: [{v.banningUserId}]`,
                         color = "yellow"
-                    },
-                    
-                    sender
+                    }
                 )
             end
         end
 
         if DecompressedData.ModerationData.ModerationHistory.DataResets then
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
+            CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                 {
-                    response = `Data Reset Logs for [{targetId}]:`,
+                    message = `Data Reset Logs for [{targetId}]:`,
                     color = "blue"
-                },
-                
-                sender
+                }
             )
 
             for i: string, v: any in pairs(DecompressedData.ModerationData.ModerationHistory.DataResets :: { [string]: any }) do
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .sendTo(
+                CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                     {
-                        response = `[{v.index}] Reason: "{v.resetReason}" By: [{v.resettingUserId}]`,
+                        message = `[{v.index}] Reason: "{v.resetReason}" By: [{v.resettingUserId}]`,
                         color = "yellow"
-                    },
-                    
-                    sender
+                    }
                 )
             end
         end
 
         if DecompressedData.ModerationData.ModerationHistory.Unbans then
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
+            CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                 {
-                    response = `Unban Logs for [{targetId}]:`,
+                    message = `Unban Logs for [{targetId}]:`,
                     color = "blue"
-                },
-                
-                sender
+                }
             )
 
             for i: string, v: any in pairs(DecompressedData.ModerationData.ModerationHistory.Unbans :: { [string]: any }) do
-                CommandsNamespace.packets.ClientDisplayConsoleResponse
-                .sendTo(
+                CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                     {
-                        response = `[{v.index}] Reason: "{v.unbanReason}" By: [{v.unbanningUserId}]`,
+                        message = `[{v.index}] Reason: "{v.unbanReason}" By: [{v.unbanningUserId}]`,
                         color = "yellow"
-                    },
-                    
-                    sender
+                    }
                 )
             end
         end
     end
 
-    CommandsNamespace.packets.ClientDisplayConsoleResponse
-    .sendTo(
+    CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
-            response = ``,
+            message = ``,
             color = "white"
-        },
-        
-        sender
+        }
     )
 end
 

@@ -9,7 +9,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local Compression = require(ReplicatedStorage.Libraries.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
@@ -46,14 +46,11 @@ local function constructorCallback(sender: Player, args: { string })
         if player then
             player:Kick(`\n\nYou have been kicked.\nReason: "{reason}".\n\n\n`)
 
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
+            CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                 {
-                    response = `Kicked [{targetId}]. Reason: "{reason}".`,
+                    message = `Kicked [{targetId}]. Reason: "{reason}".`,
                     color = "white"
-                },
-                
-                sender
+                }
             )
 
             return
@@ -63,14 +60,11 @@ local function constructorCallback(sender: Player, args: { string })
     local AsyncData = Registry.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData or AsyncData.inUse == false then
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Failed to kick [{targetId}]. Could not fetch stored player data.`,
+                message = `Failed to kick [{targetId}]. Could not fetch stored player data.`,
                 color = "red"
-            },
-            
-            sender
+            }
         )
 
         return
@@ -88,14 +82,11 @@ local function constructorCallback(sender: Player, args: { string })
             )
         )
 
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Sent a request to kick [{targetId}]. Reason: "{reason}".`,
+                message = `Sent a request to kick [{targetId}]. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
+            }
         )
     end
 end

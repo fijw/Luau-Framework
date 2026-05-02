@@ -7,7 +7,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local TradingNamespace = require(ReplicatedStorage.Networking.Namespaces.Components.Trading)
+local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Trading)
 
 local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 --[[ @end_section Imports ]]
@@ -20,18 +20,18 @@ local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
     @return void
 ]]
 local function constuctorCallback()
-    TradingNamespace.packets.ServerSetCoinsInTrade.listen(
-        function(data: string, player: Player?)
-            if not player then return end
+    TradingGroup.SetGemsInTradeOffer:onServerEvent(
+        function(sender: Player, data: number)
+            if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[player]
+            local TradeId = TradesMap.MappedTradingPlayers[sender]
             if not TradeId then return end
 
             local Trade = TradesMap.ActiveTrades[TradeId]
             if not Trade then return end
 
-            local isPlayer1 = Trade.player1 == player
-            if isPlayer1 then Trade.player1Coins = tonumber(data) :: number else Trade.player2Coins = tonumber(data) :: number end
+            local isPlayer1 = Trade.player1 == sender
+            if isPlayer1 then Trade.player1Coins = data else Trade.player2Coins = data end
         end
     )
 end

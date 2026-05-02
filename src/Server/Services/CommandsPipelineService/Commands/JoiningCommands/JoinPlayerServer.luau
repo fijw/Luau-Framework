@@ -7,7 +7,7 @@
 local TeleportService = game:GetService("TeleportService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]
 
 
@@ -28,27 +28,21 @@ local function constructorCallback(sender: Player, args: { string })
 
     -- If the player the sender's trying to join is joinable, teleport the sender.
     do
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Attempting to join [{targetId}]'s server.`,
+                message = `Attempting to join [{targetId}]'s server.`,
                 color = "white"
-            },
-            
-            sender
+            }
         )
 
         local isHere, _currentInstance, placeId, jobId = TeleportService:GetPlayerPlaceInstanceAsync(targetId)
 
         if isHere then
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
+            CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                 {
-                    response = `[{targetId}] is already here.`,
+                    message = `[{targetId}] is already here.`,
                     color = "yellow"
-                },
-                
-                sender
+                }
             )
             
             return

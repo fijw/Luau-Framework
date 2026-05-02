@@ -10,7 +10,7 @@ local DataStoreService = game:GetService("DataStoreService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 
-local CommandsNamespace = require(ReplicatedStorage.Networking.Namespaces.Services.Commands)
+local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local RNG = require(ReplicatedStorage.Libraries.RNG)
@@ -93,14 +93,11 @@ local function constructorCallback(sender: Player, args: { string })
                 )
             end
 
-            CommandsNamespace.packets.ClientDisplayConsoleResponse
-            .sendTo(
+            CommandsGroup.DisplayConsoleMessage:fireClient(sender,
                 {
-                    response = `Perm-banned [{targetId}]. Reason: "{reason}".`,
+                    message = `Perm-banned [{targetId}]. Reason: "{reason}".`,
                     color = "white"
-                },
-                
-                sender
+                }
             )
 
             return
@@ -110,14 +107,11 @@ local function constructorCallback(sender: Player, args: { string })
     local AsyncData = Registry.forciblyFetchStoredPlayerData(targetId)
 
     if not AsyncData then
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Failed to perm-ban [{targetId}]. Could not fetch stored player data.`,
+                message = `Failed to perm-ban [{targetId}]. Could not fetch stored player data.`,
                 color = "red"
-            },
-            
-            sender
+            }
         )
 
         return
@@ -135,14 +129,11 @@ local function constructorCallback(sender: Player, args: { string })
             )
         )
 
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Sent a request to perm-ban [{targetId}]. Reason: "{reason}".`,
+                message = `Sent a request to perm-ban [{targetId}]. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
+            }
         )
     else
         local ModifyingData = {}
@@ -192,14 +183,11 @@ local function constructorCallback(sender: Player, args: { string })
         )
         :onError(function(err: string?) print(`Failed to save moderation data changes. Error: {err}`) end)
 
-        CommandsNamespace.packets.ClientDisplayConsoleResponse
-        .sendTo(
+        CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {
-                response = `Set [{targetId}] as perm-banned. Reason: "{reason}".`,
+                message = `Set [{targetId}] as perm-banned. Reason: "{reason}".`,
                 color = "white"
-            },
-            
-            sender
+            }
         )
     end
 end
