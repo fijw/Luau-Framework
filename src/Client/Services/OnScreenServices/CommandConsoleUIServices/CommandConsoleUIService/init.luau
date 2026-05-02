@@ -87,7 +87,6 @@ local function constructorCallback()
                     function(enterPressed: boolean, Input: InputObject)
                         if not enterPressed then
                             if currentCommandsBar then currentCommandsBar.Enabled = false end
-
                             return
                         end
 
@@ -100,8 +99,8 @@ local function constructorCallback()
                             CommandsGroup.DisplayConsoleMessage:disconnectAll()
                         end
 
-                        local splitText = string.split(if lowerText then lowerText else "", " ")
-                        CommandsGroup.HandleCommand:fireServer(splitText)
+                        local SplitText = string.split(if lowerText then lowerText else "", " ")
+                        CommandsGroup.HandleCommand:fireServer(SplitText)
 
                         if currentInputBox then currentInputBox:CaptureFocus() end
 

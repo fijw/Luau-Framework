@@ -94,7 +94,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
-local Compression = require(ReplicatedStorage.Libraries.Compression)
+local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)

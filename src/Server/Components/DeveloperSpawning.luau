@@ -10,7 +10,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Compression = require(ReplicatedStorage.Libraries.Compression)
+local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 local RNG = require(ReplicatedStorage.Libraries.RNG)

@@ -12,7 +12,7 @@ local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local RNG = require(ReplicatedStorage.Libraries.RNG)
-local Compression = require(ReplicatedStorage.Libraries.Compression)
+local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local Settings = require(ReplicatedStorage.Settings)

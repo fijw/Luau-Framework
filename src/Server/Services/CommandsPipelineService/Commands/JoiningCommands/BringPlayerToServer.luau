@@ -7,7 +7,7 @@
 local MessagingService = game:GetService("MessagingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Compression = require(ReplicatedStorage.Libraries.Compression)
+local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 
 local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]

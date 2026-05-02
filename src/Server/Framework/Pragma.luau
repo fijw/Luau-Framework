@@ -7,10 +7,9 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
-local StringToHex = require(ServerScriptService.Libraries.DataLibs.StringToHex)
+local StringToHex = require(ReplicatedStorage.Libraries.DataLibs.StringToHex)
 
 local Settings = require(ReplicatedStorage.Settings)
 --[[ @end_section Imports ]]

@@ -15,7 +15,7 @@ local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
 local RNG = require(ReplicatedStorage.Libraries.RNG)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
-local Compression = require(ReplicatedStorage.Libraries.Compression)
+local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)

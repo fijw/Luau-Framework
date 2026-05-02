@@ -13,7 +13,7 @@ local OnGlobalTempBanAsync = require(script.AsyncFunctions.Moderation.OnGlobalTe
 local OnGlobalBringPlayerToServerAsync = require(script.AsyncFunctions.Joining.OnGlobalBringPlayerToServerAsync)
 local OnGlobalResetDataAsync = require(script.AsyncFunctions.Moderation.OnGlobalResetDataAsync)
 
-local Compression = require(ReplicatedStorage.Libraries.Compression)
+local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 --[[ @end_section Imports ]]
 
 

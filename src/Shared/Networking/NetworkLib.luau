@@ -9,7 +9,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local Compression = require(ReplicatedStorage.Libraries.Compression)
+local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
+local StringToHex = require(ReplicatedStorage.Libraries.DataLibs.StringToHex)
 --[[ @end_section Imports ]]
 
 
@@ -40,8 +41,10 @@ type ClientRemoteFunctionCallbackType<C, S> = (data: C) -> (S)
 export type Packet<C, S> = setmetatable
 <
     {
+        clientRemote: RemoteEvent | RemoteFunction,
+
         packetId: string,
-        remote: RemoteEvent | RemoteFunction,
+        securityTag: string,
 
         serverConnection: RBXScriptConnection?,
         clientConnection: RBXScriptConnection?
@@ -71,8 +74,6 @@ export type Packet<C, S> = setmetatable
 
 
 --[[ @section Variables ]]
-local PACKET_SECURITY_TAG = "packet_security_tag"
-
 local isClient = RunService:IsClient()
 
 local CachedPackets = {}
@@ -100,11 +101,19 @@ local function fireClientCallback<C>(self: Packet<any, any>, player: Player, dat
         for i: any, v: any in pairs(data :: any) do
             CompressedData[i] = Compression(v)
         end
+
+        CompressedData = Compression(CompressedData)
     else
         CompressedData = Compression(data)
     end
 
-    (self.remote :: RemoteEvent):FireClient(player, CompressedData, PACKET_SECURITY_TAG)
+    -- Send the event.
+    do
+        local remoteEvent = script:FindFirstChild(self.packetId) :: RemoteEvent
+        if not remoteEvent then return end
+
+        remoteEvent:FireClient(player, CompressedData, Compression(self.securityTag))
+    end
 end
 
 --[[
@@ -126,11 +135,19 @@ local function fireAllClientsCallback<C>(self: Packet<any, any>, data: C)
         for i: any, v: any in pairs(data :: any) do
             CompressedData[i] = Compression(v)
         end
+
+        CompressedData = Compression(CompressedData)
     else
         CompressedData = Compression(data)
     end
 
-    (self.remote :: RemoteEvent):FireAllClients(CompressedData, PACKET_SECURITY_TAG)
+        -- Send the event.
+    do
+        local remoteEvent = script:FindFirstChild(self.packetId) :: RemoteEvent
+        if not remoteEvent then return end
+
+        remoteEvent:FireAllClients(CompressedData, Compression(self.securityTag))
+    end
 end
 
 --[[
@@ -155,11 +172,13 @@ local function fireServerCallback<S>(self: Packet<any, any>, data: S)
         for i: any, v: any in pairs(data :: any) do
             CompressedData[i] = Compression(v)
         end
+
+        CompressedData = Compression(CompressedData)
     else
         CompressedData = Compression(data)
     end
 
-    (self.remote :: RemoteEvent):FireServer(CompressedData, PACKET_SECURITY_TAG)
+    (self.clientRemote :: RemoteEvent):FireServer(CompressedData, Compression(self.securityTag))
 end
 --[[ @end_section Firing Functions ]]
 
@@ -185,11 +204,19 @@ local function invokeClientCallback<C>(self: Packet<any, any>, player: Player, d
         for i: any, v: any in pairs(data :: any) do
             CompressedData[i] = Compression(v)
         end
+
+        CompressedData = Compression(CompressedData)
     else
         CompressedData = Compression(data)
     end
 
-    return (self.remote :: RemoteFunction):InvokeClient(player, CompressedData, PACKET_SECURITY_TAG)
+    -- Send the function.
+    do
+        local remoteFunction = script:FindFirstChild(self.packetId) :: RemoteFunction
+        if not remoteFunction then return end
+
+        return remoteFunction:InvokeClient(player, CompressedData, Compression(self.securityTag))
+    end
 end
 
 --[[
@@ -211,11 +238,13 @@ local function invokeServerCallback<S>(self: Packet<any, any>, data: S): any
         for i: any, v: any in pairs(data :: any) do
             CompressedData[i] = Compression(v)
         end
+
+        CompressedData = Compression(CompressedData)
     else
         CompressedData = Compression(data)
     end
 
-    return (self.remote :: RemoteFunction):InvokeServer(CompressedData, PACKET_SECURITY_TAG)
+    return (self.clientRemote :: RemoteFunction):InvokeServer(CompressedData, Compression(self.securityTag))
 end
 --[[ @end_section Invoking Functions ]]
 
@@ -230,12 +259,13 @@ end
     @return void
 ]]
 local function onClientEventCallback<C>(self: Packet<any, any>, callback: ClientRemoteEventCallbackType<C>)
-    if not self.remote or not isClient then return end
+    if not isClient then return end
 
-    (self.remote :: RemoteEvent).OnClientEvent:Connect(
-        function(data: buffer, securityTag: string)
+    self.clientConnection
+    = (self.clientRemote :: RemoteEvent).OnClientEvent:Connect(
+        function(data: buffer, securityTag: buffer)
             if typeof(data) ~= "buffer" then return end
-            if not securityTag or typeof(securityTag) ~= "string" or securityTag ~= PACKET_SECURITY_TAG then return end
+            if not securityTag or typeof(securityTag) ~= "buffer" or Compression(securityTag, "decompress") ~= self.securityTag then return end
 
             local DecompressedData = Compression(data, "decompress")
             
@@ -259,12 +289,16 @@ end
     @return void
 ]]
 local function onServerEventCallback<S>(self: Packet<any, any>, callback: ServerRemoteEventCallbackType<S>)
-    if not self.remote or isClient then return end
+    if isClient then return end
 
-    (self.remote :: RemoteEvent).OnServerEvent:Connect(
-        function(player: Player, data: buffer, securityTag: string)
+    local remoteEvent = script:FindFirstChild(self.packetId) :: RemoteEvent
+    if not remoteEvent then return end
+
+    self.serverConnection
+    = remoteEvent.OnServerEvent:Connect(
+        function(player: Player, data: buffer, securityTag: buffer)
             if typeof(data) ~= "buffer" then return end
-            if not securityTag or typeof(securityTag) ~= "string" or securityTag ~= PACKET_SECURITY_TAG then return end
+            if not securityTag or typeof(securityTag) ~= "buffer" or Compression(securityTag, "decompress") ~= self.securityTag then return end
 
             local DecompressedData = Compression(data, "decompress")
             
@@ -288,12 +322,15 @@ end
     @return void
 ]]
 local function onClientInvokeCallback<C, S>(self: Packet<any, any>, callback: ClientRemoteFunctionCallbackType<C, S>)
-    if not self.remote or not isClient then return end
+    if not isClient then return end
 
-    (self.remote :: RemoteFunction).OnClientInvoke
-    = function(data: buffer, securityTag: string): S
+    (self.clientRemote :: RemoteFunction).OnClientInvoke
+    = function(data: buffer, securityTag: buffer): S
         if typeof(data) ~= "buffer" then return nil end
-        if not securityTag or typeof(securityTag) ~= "string" or securityTag ~= PACKET_SECURITY_TAG then return nil end
+
+        if not securityTag or typeof(securityTag) ~= "buffer" or Compression(securityTag, "decompress") ~= self.securityTag then
+            return nil
+        end
 
         local DecompressedData = Compression(data, "decompress")
 
@@ -316,12 +353,18 @@ end
     @return void
 ]]
 local function onServerInvokeCallback<C, S>(self: Packet<any, any>, callback: ServerRemoteFunctionCallbackType<C, S>)
-    if not self.remote or isClient then return end
+    if isClient then return end
 
-    (self.remote :: RemoteFunction).OnServerInvoke
-    = function(player: Player, data: buffer, securityTag: string): C
+    local remoteFunction = script:FindFirstChild(self.packetId) :: RemoteFunction
+    if not remoteFunction then return end
+
+    remoteFunction.OnServerInvoke
+    = function(player: Player, data: buffer, securityTag: buffer): C
         if typeof(data) ~= "buffer" then return nil end
-        if not securityTag or typeof(securityTag) ~= "string" or securityTag ~= PACKET_SECURITY_TAG then return nil end
+        
+        if not securityTag or typeof(securityTag) ~= "buffer" or Compression(securityTag, "decompress") ~= self.securityTag then
+            return nil
+        end
 
         local DecompressedData = Compression(data, "decompress")
 
@@ -347,6 +390,15 @@ end
 local function disconnectAllCallback(self: Packet<any, any>)
     if self.serverConnection then self.serverConnection:Disconnect(); self.serverConnection = nil end
     if self.clientConnection then self.clientConnection:Disconnect(); self.clientConnection = nil end
+
+    -- Disconnect the remote functions.
+    do
+        local clientRemoteFunction = script:FindFirstChild(self.packetId) :: RemoteFunction
+        local serverRemoteFunction = script:FindFirstChild(self.packetId) :: RemoteFunction
+
+        if clientRemoteFunction then clientRemoteFunction.OnClientInvoke = nil :: any end
+        if serverRemoteFunction then serverRemoteFunction.OnServerInvoke = nil :: any end
+    end
 end
 
 
@@ -371,9 +423,8 @@ local function constructorCallback<C, S>
 ): Packet<C, S>
     if CachedPackets[packetId] then return CachedPackets[packetId] end
 
-    local NewPacket = { packetId = packetId }
-
-    setmetatable(NewPacket, 
+    local NewPacket
+    = setmetatable({ packetId = packetId, securityTag = StringToHex.convert(packetId) }, 
         {
             __index
             = {
@@ -393,19 +444,23 @@ local function constructorCallback<C, S>
                 disconnectAll = disconnectAllCallback
             }
         }
-    );
+    ) :: Packet<C, S>;
 
-    (CachedPackets :: { [string]: Packet<C, S> })[packetId] = NewPacket :: Packet<C, S>
+    (CachedPackets :: { [string]: Packet<C, S> })[packetId] = NewPacket
 
     local typeRemote = if type == "Event" then Instance.new("RemoteEvent") else Instance.new("RemoteFunction")
     local foundRemote = script:FindFirstChild(packetId)
     
-    if not foundRemote then
-        typeRemote.Parent = script
+    if not foundRemote and not isClient then
         typeRemote.Name = packetId
+        typeRemote.Parent = script
+    elseif not foundRemote and isClient then
+        repeat task.wait() until script:FindFirstChild(packetId)
+        foundRemote = script:FindFirstChild(packetId) :: Instance
     end
     
-    NewPacket.remote = if foundRemote then foundRemote else typeRemote
+    if isClient and foundRemote then NewPacket.clientRemote = foundRemote :: any end
+    local remote: RemoteEvent | RemoteFunction = if isClient then foundRemote :: any else if foundRemote then foundRemote :: any else typeRemote
 
     task.spawn(
         function()
@@ -415,12 +470,12 @@ local function constructorCallback<C, S>
                 if not CachedPackets[packetId] then break end; task.wait()
 
                 local newId = HttpService:GenerateGUID(false)
-                NewPacket.remote.Name = `{newId}`
+                if remote then (remote :: Instance).Name = newId end
             end
         end
     )
 
-    return NewPacket :: Packet<C, S>
+    return NewPacket
 end
 
 return constructorCallback

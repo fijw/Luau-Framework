@@ -40,8 +40,9 @@ local ModulesToLoad
     [CommandConsoleUIService.Name] = CommandConsoleUIService,
     [SpectateService.Name] = SpectateService,
     
-    [InventoryComponent.Name] = InventoryComponent,
+    --[InventoryComponent.Name] = InventoryComponent,
     [CrateMachineComponent.Name] = CrateMachineComponent
+    
 }
 --[[ @end_section Variables ]]
 

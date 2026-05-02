@@ -34,7 +34,7 @@ local function constructorCallback()
     local Inventory = UIComponents.Inventory:Clone()
     Inventory.Parent = PlayerGui
 
-    local ContainerFrame = Inventory:WaitForChild("ContainerFrame") :: Frame
+    --[[local ContainerFrame = Inventory:WaitForChild("ContainerFrame") :: Frame
     local SearchBox = ContainerFrame:WaitForChild("SearchBox") :: Frame
     local CloseBtn = ContainerFrame:WaitForChild("CloseBtn") :: ImageButton
     local ButtonsFrame = ContainerFrame:WaitForChild("ButtonsFrame") :: ImageLabel
@@ -79,7 +79,7 @@ local function constructorCallback()
                 PetButton.Parent = nil
             end
         end
-    )
+    )]]
 end
 
 return constructorCallback
