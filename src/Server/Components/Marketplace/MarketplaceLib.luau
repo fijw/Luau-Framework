@@ -143,7 +143,7 @@ function Marketplace.addPetToMarketplace(player: Player, petId: string, price: n
 
                             State.Pets[petId]
                             = {
-                                Data = PetStack("data"),
+                                Data = PetStack.StackData,
 
                                 price = price,
                                 sellerId = player.UserId,
@@ -283,13 +283,15 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
 
             -- Add the pet to the buyer's inventory and deduct the coins from the buyer. Then verify the transaction succeeded.
             do
-                if PlayerState.coins() < PetMarketplaceData.price then return false end
-                PlayerState.coins(PlayerState.coins() - PetMarketplaceData.price)
+                local oldGems = PlayerState.gems()
+
+                if oldGems < PetMarketplaceData.price then return false end
+                PlayerState.gems(oldGems - PetMarketplaceData.price, "value")
 
                 PlayerState.Inventory += { itemData = PetMarketplaceData.PetData, itemId = petId }
 
                 if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(petId) then return false end
-                if PlayerState.coins() ~= PlayerState.coins() - PetMarketplaceData.price then return false end
+                if PlayerState.gems() ~= oldGems - PetMarketplaceData.price then return false end
             end
 
             -- Attempt to remove the pet from the marketplace.

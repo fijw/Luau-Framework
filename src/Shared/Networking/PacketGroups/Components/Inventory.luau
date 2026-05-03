@@ -29,6 +29,13 @@ local Packets
             clientType = { "pet_id" },
             serverType = nil
         }
+    ),
+
+    RequestInventorySlots = NetworkLib("request_inventory_slots", "Function",
+        {
+            clientType = 0,
+            serverType = nil
+        }
     )
 }
 

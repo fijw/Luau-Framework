@@ -17,7 +17,7 @@ type StateEngine<T> = Reactor.StateEngine<T>
 export type DataTemplateSchema = setmetatable
 <
     {
-        coins: StateEngine<number>,
+        gems: StateEngine<number>,
         
         GameplayData: StateEngine
         <
@@ -87,7 +87,7 @@ local DataSettings
 = {
     DataTemplate
     = {
-        coins = 2_500 :: any,
+        gems = 2_500 :: any,
         
         GameplayData
         = {
@@ -105,7 +105,7 @@ local DataSettings
         } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "wggwge"
+    PLAYER_DATA_STORAGE_KEY = "wggwged2334445"
 }
 
 

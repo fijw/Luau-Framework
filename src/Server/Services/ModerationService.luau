@@ -106,19 +106,6 @@ local function constructorCallback()
                 )
             end
         end
-
-        -- Subscribe to the player's data class.
-        PlrDataClass():subscribe(
-            function(self, data, key, ...)
-                --[[
-                    If the state data remains the same then don't do anything, otherwise recreate the player's moderation data subscriptions.
-                    Will not do anything if the key isn't nil or the number of path arguments is greater than 0.
-                ]]
-                if key ~= nil or #{ ... } > 0 then return elseif key == nil and #{ ... } <= 0 then createModerationDataSubscription(player, PlrDataClass) end
-            end,
-            
-            "player_data_class_subscription"
-        )
     end
 
     for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end

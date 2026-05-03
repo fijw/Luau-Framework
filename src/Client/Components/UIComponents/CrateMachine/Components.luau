@@ -10,17 +10,19 @@ local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 local BackgroundImg = Instance.new("ImageLabel")
 local MainFrame = Instance.new("ImageLabel")
 local InnerContainer = Instance.new("Frame")
+local ScrollingFrame = Instance.new("ScrollingFrame")
+local UIListLayout = Instance.new("UIListLayout")
 local CrateFrame = Instance.new("ImageLabel")
 local CrateContainer = Instance.new("Frame")
+local CrateName = Instance.new("TextLabel")
 local ChancesContainer = Instance.new("Frame")
 local UIGridLayout = Instance.new("UIGridLayout")
 local DetailsContainer = Instance.new("Frame")
-local UIListLayout = Instance.new("UIListLayout")
+local UIListLayout_2 = Instance.new("UIListLayout")
 local ImageLabel = Instance.new("ImageLabel")
 local TextLabel = Instance.new("TextLabel")
 local PriceText = Instance.new("TextLabel")
 local PurchaseButton = Instance.new("ImageButton")
-local CrateName = Instance.new("TextLabel")
 local TitleImg = Instance.new("ImageLabel")
 local UIAspectRatioConstraint_2 = Instance.new("UIAspectRatioConstraint")
 local SearchBox = Instance.new("Frame")
@@ -36,6 +38,7 @@ local Components = { CrateMachine = CrateMachine }
 -- Set all component properties.
 do
     CrateMachine.Name = "CrateMachine"
+    CrateMachine.Enabled = false
 
     Container.Name = "Container"
     Container.Parent = CrateMachine
@@ -83,14 +86,33 @@ do
     InnerContainer.BorderSizePixel = 0
     InnerContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
     InnerContainer.Size = UDim2.new(0.885714293, 0, 0.841521382, 0)
+    InnerContainer.ZIndex = 2
+
+    ScrollingFrame.Parent = InnerContainer
+    ScrollingFrame.Active = true
+    ScrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 0, 4)
+    ScrollingFrame.BackgroundTransparency = 1.000
+    ScrollingFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ScrollingFrame.BorderSizePixel = 0
+    ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+    ScrollingFrame.ZIndex = 2
+    ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.X
+    ScrollingFrame.ScrollBarThickness = 0
+
+    UIListLayout.Parent = ScrollingFrame
+    UIListLayout.FillDirection = Enum.FillDirection.Horizontal
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Padding = UDim.new(0.0189999994, 0)
 
     CrateFrame.Name = "CrateFrame"
-    CrateFrame.Parent = InnerContainer
+    CrateFrame.Parent = ScrollingFrame
     CrateFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     CrateFrame.BackgroundTransparency = 1.000
     CrateFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     CrateFrame.BorderSizePixel = 0
     CrateFrame.Size = UDim2.new(0.49032259, 0, 1, 0)
+    CrateFrame.ZIndex = 2
     CrateFrame.Image = "rbxassetid://135166300698782"
     CrateFrame.Visible = false
 
@@ -103,6 +125,24 @@ do
     CrateContainer.BorderSizePixel = 0
     CrateContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
     CrateContainer.Size = UDim2.new(0.868421078, 0, 0.905838013, 0)
+    CrateContainer.ZIndex = 2
+
+    CrateName.Name = "CrateName"
+    CrateName.Parent = CrateContainer
+    CrateName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    CrateName.BackgroundTransparency = 1.000
+    CrateName.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    CrateName.BorderSizePixel = 0
+    CrateName.LayoutOrder = 1
+    CrateName.Position = UDim2.new(-0.00255182432, 0, -0.000465948222, 0)
+    CrateName.Size = UDim2.new(1, 0, 0.0810810775, 0)
+    CrateName.ZIndex = 2
+    CrateName.Font = Enum.Font.FredokaOne
+    CrateName.Text = "Testing Crate"
+    CrateName.TextColor3 = Color3.fromRGB(0, 0, 0)
+    CrateName.TextScaled = true
+    CrateName.TextSize = 14.000
+    CrateName.TextWrapped = true
 
     ChancesContainer.Name = "ChancesContainer"
     ChancesContainer.Parent = CrateContainer
@@ -113,6 +153,7 @@ do
     ChancesContainer.LayoutOrder = 2
     ChancesContainer.Position = UDim2.new(0, 0, 0.110187113, 0)
     ChancesContainer.Size = UDim2.new(1, 0, 0.567567587, 0)
+    ChancesContainer.ZIndex = 2
 
     UIGridLayout.Parent = ChancesContainer
     UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -126,17 +167,19 @@ do
     DetailsContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
     DetailsContainer.BorderSizePixel = 0
     DetailsContainer.Size = UDim2.new(0, 100, 0, 100)
+    DetailsContainer.ZIndex = 2
 
-    UIListLayout.Parent = DetailsContainer
-    UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout_2.Parent = DetailsContainer
+    UIListLayout_2.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
 
     ImageLabel.Parent = DetailsContainer
     ImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     ImageLabel.BackgroundTransparency = 1.000
     ImageLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ImageLabel.BorderSizePixel = 0
-    ImageLabel.Size = UDim2.new(0, 100, 0, 100)
+    ImageLabel.Size = UDim2.new(1, 0, 0.774, 0)
+    ImageLabel.ZIndex = 2
     ImageLabel.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 
     TextLabel.Parent = DetailsContainer
@@ -145,6 +188,7 @@ do
     TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextLabel.BorderSizePixel = 0
     TextLabel.Size = UDim2.new(1, 0, 0.224581629, 0)
+    TextLabel.ZIndex = 2
     TextLabel.Font = Enum.Font.FredokaOne
     TextLabel.Text = "0.01%"
     TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -161,6 +205,7 @@ do
     PriceText.LayoutOrder = 3
     PriceText.Position = UDim2.new(0, 0, 0.708939731, 0)
     PriceText.Size = UDim2.new(1, 0, 0.0602910593, 0)
+    PriceText.ZIndex = 2
     PriceText.Font = Enum.Font.FredokaOne
     PriceText.Text = "Price: 1,000 Gems"
     PriceText.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -175,25 +220,11 @@ do
     PurchaseButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
     PurchaseButton.BorderSizePixel = 0
     PurchaseButton.LayoutOrder = 4
-    PurchaseButton.Position = UDim2.new(0.0969696939, 0, 0.802494824, 0)
+    PurchaseButton.Position = UDim2.new(0.494, 0, 0.897, 0)
     PurchaseButton.Size = UDim2.new(0.803030312, 0, 0.197505191, 0)
+    PurchaseButton.ZIndex = 2
+    PurchaseButton.AnchorPoint = Vector2.new(0.5, 0.5)
     PurchaseButton.Image = "rbxassetid://71671826570659"
-
-    CrateName.Name = "CrateName"
-    CrateName.Parent = CrateContainer
-    CrateName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    CrateName.BackgroundTransparency = 1.000
-    CrateName.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    CrateName.BorderSizePixel = 0
-    CrateName.LayoutOrder = 1
-    CrateName.Position = UDim2.new(-0.00255182432, 0, -0.000465948222, 0)
-    CrateName.Size = UDim2.new(1, 0, 0.0810810775, 0)
-    CrateName.Font = Enum.Font.FredokaOne
-    CrateName.Text = "Testing Crate"
-    CrateName.TextColor3 = Color3.fromRGB(0, 0, 0)
-    CrateName.TextScaled = true
-    CrateName.TextSize = 14.000
-    CrateName.TextWrapped = true
 
     TitleImg.Name = "TitleImg"
     TitleImg.Parent = Container
@@ -254,7 +285,7 @@ do
     TextBox.Size = UDim2.new(0.916666687, 0, 0.576271176, 0)
     TextBox.Font = Enum.Font.FredokaOne
     TextBox.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
-    TextBox.PlaceholderText = "Search for pets here..."
+    TextBox.PlaceholderText = "Search for crates here..."
     TextBox.Text = ""
     TextBox.TextColor3 = Color3.fromRGB(0, 0, 0)
     TextBox.TextScaled = true

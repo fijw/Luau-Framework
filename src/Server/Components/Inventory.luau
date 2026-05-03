@@ -28,6 +28,14 @@ type SavingStackSchema<D> = StackingLib.SavingStackSchema<D>
 --[[ @end_section Types ]]
 
 
+--[[
+    @usage Subscribe to the player's inventory.
+
+    @param player Player
+    @param Inventory InventoryClass
+
+    @return void
+]]
 local function subscribeToInventory(player: Player, Inventory: InventoryClass)
     Inventory:subscribeToItemsAdded(
         function(ItemData: PetSchema, itemId: string)
@@ -44,7 +52,23 @@ end
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the service.
+
+    @return void
+]]
 local function constuctorCallback()
+    InventoryGroup.RequestInventorySlots:onServerInvoke(
+        function(sender, data)
+            if not sender then return nil :: any end
+            
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return nil :: any end
+
+            return (PlrDataClass()().Inventory :: InventoryClass).maxStacks
+        end
+    )
+
     local function onPlayerAdded(player: Player)
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
@@ -64,24 +88,11 @@ local function constuctorCallback()
                     PetsAddingToInventory[id] = SavingStackSchema.StackData
                 end
             end
-
+            
             InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
         end
 
         subscribeToInventory(player, Inventory)
-
-        -- Subscribe to the player's data state.
-        PlrDataClass():subscribe(
-            function(self, data, key, ...)
-                --[[
-                    If the state data remains the same then don't do anything, otherwise recreate the player's inventory subscriptions.
-                    Will not do anything if the key isn't nil or the number of path arguments is greater than 0.
-                ]]
-                if key ~= nil or #{ ... } > 0 then return elseif key == nil and #{ ... } <= 0 then subscribeToInventory(player, Inventory) end
-            end,
-        
-            "inventory_subscription"
-        )
     end
 
     for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end

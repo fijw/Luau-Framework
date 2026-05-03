@@ -9,25 +9,70 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
+local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
+
 local Components = require(script.Components)
 
 local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
 local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
 
+local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
+
 local CrateMachineGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.CrateMachine)
 --[[ @end_section Imports ]]
 
 
+--[[ @section Types ]]
 type CrateSchema = CratesData.CrateSchema
 type PetSchema = PetsData.PetSchema
+
+type HandledTween = TweensLib.HandledTween
+--[[ @end_section Types ]]
 
 
 --[[ @section Variables ]]
 local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 
-local CachedCrateContainers = {}
+local CachedCrateFrames = {}
 --[[ @end_section Variables ]]
+
+
+--[[
+    @usage Tweens an instance.
+
+    @param inst GuiObject
+    @param timeInput number
+    @param type "pos" | "trans"
+    @param input number | UDim2
+
+    @return HandledTween
+]]
+local function tweenInst(inst: GuiObject, timeInput: number, type: "pos" | "trans" | "size", input: number | UDim2): HandledTween
+    local HandledTween
+    = TweensLib(
+        inst,
+
+
+        timeInput,
+
+        Enum.EasingStyle.Sine,
+        Enum.EasingDirection.Out,
+
+        0,
+        false,
+        0,
+
+
+        {
+            Position = if type == "pos" then input else nil,
+            ImageTransparency = if type == "trans" then input else nil,
+            Size = if type == "size" then input else nil
+        }
+    )
+
+    return HandledTween
+end
 
 
 --[[ @section Constructor ]]
@@ -45,44 +90,50 @@ local function constructorCallback()
     local closeBtn = machineContainer:WaitForChild("CloseBtn") :: ImageButton
     local mainFrame = machineContainer:WaitForChild("MainFrame") :: Frame
     local innerContainer = mainFrame:WaitForChild("InnerContainer") :: Frame
-    local crateFrame = innerContainer:WaitForChild("CrateFrame") :: Frame
-    local crateContainer = crateFrame:WaitForChild("CrateContainer") :: Frame
+    local scrollingFrame = innerContainer:WaitForChild("ScrollingFrame") :: ScrollingFrame
+    local crateFrame = scrollingFrame:WaitForChild("CrateFrame") :: Frame
 
-    local HandledUI = UIUtilitiesLibrary(clonedCrateMachine)
+    local HandledUI = UIUtilitiesLibrary("crate_machine", clonedCrateMachine)
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
     -- Add existing crates to the crate machine.
     do
-        local Crates: { CrateSchema } = CrateMachineGroup.GetCrates:invokeServer()
+        local Crates = CrateMachineGroup.GetCrates:invokeServer()
 
-        for i: number, Crate: CrateSchema in ipairs(Crates) do
-            local clonedCrateContainer = crateContainer:Clone()
-            clonedCrateContainer.Parent = crateFrame
-            clonedCrateContainer.Name = Crate.name
+        for i: number, Crate: { name: string, Chances: { [string]: number }, price: number } in ipairs(Crates) do
+            local clonedCrateFrame = crateFrame:Clone()
+            clonedCrateFrame.Parent = crateFrame.Parent
+            clonedCrateFrame.Name = Crate.name
+            clonedCrateFrame.Visible = true
 
-            local chancesContainer = clonedCrateContainer:WaitForChild("ChancesContainer") :: Frame
-            local purchaseBtn = clonedCrateContainer:WaitForChild("PurchaseButton") :: ImageButton
+            local crateContainer = clonedCrateFrame:WaitForChild("CrateContainer") :: Frame
 
-            local crateName = clonedCrateContainer:WaitForChild("CrateName") :: TextLabel
+            local chancesContainer = crateContainer:WaitForChild("ChancesContainer") :: Frame
+            local purchaseBtn = crateContainer:WaitForChild("PurchaseButton") :: ImageButton
+
+            local crateName = crateContainer:WaitForChild("CrateName") :: TextLabel
             crateName.Text = Crate.name
 
-            local priceText = clonedCrateContainer:WaitForChild("PriceText") :: TextLabel
+            local priceText = crateContainer:WaitForChild("PriceText") :: TextLabel
             priceText.Text = `{Crate.price} Gems`
 
             local detailsContainer = chancesContainer:WaitForChild("DetailsContainer") :: Frame
             detailsContainer.Visible = false
 
-            for Pet: PetSchema, chance: number in pairs(Crate.Chances) do
+            for petName: string, chance: number in pairs(Crate.Chances) do
+                local PetData = PetSchemas[petName]
+                if not PetData then continue end
+
                 local clonedDetailsContainer = detailsContainer:Clone()
                 clonedDetailsContainer.Parent = chancesContainer
-                clonedDetailsContainer.Name = Pet.petName
+                clonedDetailsContainer.Name = petName
                 clonedDetailsContainer.Visible = true
                 
                 local ImageLabel = clonedDetailsContainer:WaitForChild("ImageLabel") :: ImageLabel
                 local TextLabel = clonedDetailsContainer:WaitForChild("TextLabel") :: TextLabel
 
-                ImageLabel.Image = Pet.petImageId
+                ImageLabel.Image = PetData.petImageId
                 TextLabel.Text = `{chance}%`
             end
 
@@ -90,8 +141,41 @@ local function constructorCallback()
                 function(pos1: number, pos2: number) CrateMachineGroup.OpenCrate:fireServer(Crate.name) end
             )
 
-            table.insert(CachedCrateContainers, clonedCrateContainer)
+            table.insert(CachedCrateFrames, clonedCrateFrame)
         end
+    end
+
+    -- Animations for closing and opening.
+    do
+        local originalContainerSize = machineContainer.Size
+
+        HandledUI:subscribeToSetFocus("opening_subscription",
+            function(self, NamesKeepingFocus)
+                machineContainer.Size = UDim2.new(0, 0, 0, 0)
+
+                tweenInst(
+                    machineContainer,
+                    
+                    0.25,
+                    "size",
+
+                    originalContainerSize
+                )
+            end
+        )
+
+        HandledUI:subscribeToRemoveFocus("closing_subscription",
+            function(self, NamesToBringBackToFocus)
+                tweenInst(
+                    machineContainer,
+                    
+                    0.25,
+                    "size",
+
+                    UDim2.new(0, 0, 0, 0)
+                ):waitForCompletion()
+            end
+        )
     end
 end
 

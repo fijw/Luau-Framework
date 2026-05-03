@@ -39,7 +39,7 @@ local PETS_NEEDED_TO_MERGE = 9
 ]]
 local function constructorCallback()
     MergingGroup.MergePets:onServerEvent(
-        function(sender: Player, data: { string })
+        function(sender, data)
             if not sender or #data < PETS_NEEDED_TO_MERGE then return end
 
             -- Perform the atomic transaction to merge the pets.
@@ -50,18 +50,18 @@ local function constructorCallback()
 
                     -- Deduct the player's coins.
                     do
-                        local coinsState = PlayerState.coins()
+                        local coinsState = PlayerState.gems()
 
                         if coinsState < MERGING_PRICE then return false end
-                        PlayerState.coins(coinsState - MERGING_PRICE)
+                        PlayerState.gems(coinsState - MERGING_PRICE)
 
-                        if PlayerState.coins() ~= coinsState - MERGING_PRICE then return false end
+                        if PlayerState.gems() ~= coinsState - MERGING_PRICE then return false end
                     end
 
                     local IdentifyingPet = (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId((data :: { string })[1])
                     if not IdentifyingPet then return false end
 
-                    local MergingPetSchema: PetSchema? = IdentifyingPet("data")
+                    local MergingPetSchema: PetSchema? = IdentifyingPet.StackData
                     if not MergingPetSchema then return false end
 
                     -- Verify all the merging pets have the same schema.
@@ -69,7 +69,7 @@ local function constructorCallback()
                         local PetStack = (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(petId)
                         if not PetStack then return false end
 
-                        local PetSchema: PetSchema? = PetStack("data")
+                        local PetSchema: PetSchema? = PetStack.StackData
                         if not PetSchema then return false end
 
                         if TableUtils.deepCompare(PetSchema :: any, MergingPetSchema :: any) ~= "match" then return false end

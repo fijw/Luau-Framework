@@ -62,7 +62,6 @@
 
 --[[ @section Imports ]]
 local GuiService = game:GetService("GuiService")
-local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
@@ -73,10 +72,16 @@ local TweensLibrary = require(ReplicatedStorage.Libraries.TweensLib)
 --[[ @section Types ]]
 type SideType = "center" | "top" | "bottom" | "left" | "right"
 
+type SetFocusCallbackType = (self: HandledUI, NamesKeepingFocus: { string }?) -> ()
+type RemoveFocusCallbackType = (self: HandledUI, NamesToBringBackToFocus: { string }?) -> ()
+
 export type HandledUI = setmetatable
 <
     {
         ScreenGui: ScreenGui,
+
+        SetFocusSubscriptionCallbacks: { [string]: SetFocusCallbackType },
+        RemoveFocusSubscriptionCallbacks: { [string]: RemoveFocusCallbackType },
 
         SizingConnections: { [any]: RBXScriptConnection },
         PressConnections: { RBXScriptConnection },
@@ -101,13 +106,15 @@ export type HandledUI = setmetatable
         : {
             hoverAndToggleSizing: (self: HandledUI, sizeIncrease: number) -> (),
 
+
             handleButtonPress
             : (
                 self: HandledUI,
 
                 button: GuiButton,
                 callback: (pos1: number, pos2: number) -> (),
-                isClosingButton: true?
+                isClosingButton: true?,
+                keepingFocusNames: { string }?
             ) -> (),
 
             handleGuiObjectInput
@@ -118,10 +125,20 @@ export type HandledUI = setmetatable
                 callback: (...any) -> ()
             ) -> (),
 
+
             makeGuiObjectDraggable: (self: HandledUI, guiObjectToDrag: GuiObject, side: SideType) -> (),
+
             
-            setFocus: (self: HandledUI, NamesKeepingFocus: { string }) -> (),
-            removeFocus: (self: HandledUI, NamesToBringBackToFocus: { string }) -> (),
+            setFocus: SetFocusCallbackType,
+            removeFocus: RemoveFocusCallbackType,
+
+
+            subscribeToSetFocus: (self: HandledUI, id: string, callback: SetFocusCallbackType) -> (),
+            subscribeToRemoveFocus: (self: HandledUI, id: string, callback: RemoveFocusCallbackType) -> (),
+
+            unsubscribeFromSetFocus: (self: HandledUI, id: string) -> (),
+            unsubscribeFromRemoveFocus: (self: HandledUI, id: string) -> (),
+
 
             destroy: (self: HandledUI) -> ()
         }
@@ -134,7 +151,7 @@ export type HandledUI = setmetatable
 local scaleTweenTime = 0.1
 local offsetPositionDivision = 16
 
-local CachedUIClasses: { [string]: HandledUI } = {}
+local UILibrary = { CachedUIClasses = {} :: { [string]: HandledUI } }
 --[[ @end_section Variables ]]
 
 
@@ -276,13 +293,19 @@ end
 
     @return void
 ]]
-local function setFocusCallback(self: HandledUI, NamesKeepingFocus: { string })
-    self.ScreenGui.Enabled = true
-
-    for i: string, HandledUI: HandledUI in pairs(CachedUIClasses :: any) do
-        if table.find(NamesKeepingFocus, HandledUI.ScreenGui.Name) then continue end
-        HandledUI.ScreenGui.Enabled = false
+local function setFocusCallback(self: HandledUI, NamesKeepingFocus: { string }?)
+    for i: string, callback: SetFocusCallbackType in pairs(self.SetFocusSubscriptionCallbacks) do
+        callback(self, NamesKeepingFocus)
     end
+
+    if NamesKeepingFocus then
+        for i: string, HandledUI: HandledUI in pairs(UILibrary.CachedUIClasses :: any) do
+            if table.find(NamesKeepingFocus, HandledUI.ScreenGui.Name) then continue end
+            HandledUI.ScreenGui.Enabled = false
+        end
+    end
+
+    self.ScreenGui.Enabled = true
 end
 
 --[[
@@ -293,15 +316,75 @@ end
 
     @return void
 ]]
-local function removeFocusCallback(self: HandledUI, NamesToBringBackToFocus: { string })
-    self.ScreenGui.Enabled = false
-
-    for i: string, HandledUI: HandledUI in pairs(CachedUIClasses :: any) do
-        if table.find(NamesToBringBackToFocus, HandledUI.ScreenGui.Name) then continue end
-        HandledUI.ScreenGui.Enabled = true
+local function removeFocusCallback(self: HandledUI, NamesToBringBackToFocus: { string }?)
+    for i: string, callback: RemoveFocusCallbackType in pairs(self.RemoveFocusSubscriptionCallbacks) do
+        callback(self, NamesToBringBackToFocus)
     end
+
+    if NamesToBringBackToFocus then
+        for i: string, HandledUI: HandledUI in pairs(UILibrary.CachedUIClasses :: any) do
+            if not table.find(NamesToBringBackToFocus, HandledUI.ScreenGui.Name) then continue end
+            HandledUI.ScreenGui.Enabled = true
+        end
+    end
+
+    self.ScreenGui.Enabled = false
 end
 --[[ @end_section Focus Functions ]]
+
+
+--[[ @section Subscribing Functions ]]
+--[[
+    @usage Subscribes a callback to the set focus callback.
+
+    @param self HandledUI
+    @param callback SetFocusCallbackType
+
+    @return void
+]]
+local function subscribeToSetFocusCallback(self: HandledUI, id: string, callback: SetFocusCallbackType)
+    self.SetFocusSubscriptionCallbacks[id] = callback
+end
+
+--[[
+    @usage Subscribes a callback to the remove focus callback.
+
+    @param self HandledUI
+    @param callback RemoveFocusCallbackType
+
+    @return void
+]]
+local function subscribeToRemoveFocusCallback(self: HandledUI, id: string, callback: RemoveFocusCallbackType)
+    self.RemoveFocusSubscriptionCallbacks[id] = callback
+end
+--[[ @end_section Subscribing Functions ]]
+
+
+--[[ @section Unsubscribing Functions ]]
+--[[
+    @usage Unsubscribes a callback from the set focus subscription callbacks dictionary.
+
+    @param self HandledUI
+    @param id string
+
+    @return void
+]]
+local function unsubscribeFromSetFocusCallback(self: HandledUI, id: string)
+    self.SetFocusSubscriptionCallbacks[id] = nil
+end
+
+--[[
+    @usage Unsubscribes a callback from the remove focus subscription callbacks dictionary.
+
+    @param self HandledUI
+    @param id string
+
+    @return void
+]]
+local function unsubscribeFromRemoveFocusCallback(self: HandledUI, id: string)
+    self.RemoveFocusSubscriptionCallbacks[id] = nil
+end
+--[[ @end_section Unsubscribing Functions ]]
 
 
 --[[ @section Connection Inheritance ]]
@@ -316,9 +399,7 @@ end
 local function hoverAndToggleSizingCallback(self: HandledUI, sizeIncrease: number)
     local Descendants = self.ScreenGui:GetDescendants()
 
-    for i: number, inst: Instance in ipairs(Descendants) do
-        if not inst:IsA("GuiButton") then continue end
-
+    local function setUpConnections(inst: GuiButton)
         local defaultInstanceSize = inst.Size
 
         local newX, newY = defaultInstanceSize.X.Scale * sizeIncrease, defaultInstanceSize.Y.Scale * sizeIncrease
@@ -339,6 +420,18 @@ local function hoverAndToggleSizingCallback(self: HandledUI, sizeIncrease: numbe
             table.insert(self.SizingConnections, DownsizeClickConnection)
         end
     end
+
+    for i: number, inst: Instance in ipairs(Descendants) do
+        if not inst:IsA("GuiButton") then continue end
+        setUpConnections(inst)
+    end
+
+    self.ScreenGui.DescendantAdded:Connect(
+        function(child: Instance)
+            if not child:IsA("GuiButton") then return end
+            setUpConnections(child)
+        end
+    )
 end
 
 --[[
@@ -375,7 +468,8 @@ local function handleButtonPressCallback
     self: HandledUI,
     button: GuiButton,
     callback: (pos1: number, pos2: number) -> (),
-    isClosingButton: true?
+    isClosingButton: true?,
+    keepingFocusNames: { string }?
 )
     local originalSize = button.Size
 
@@ -385,10 +479,9 @@ local function handleButtonPressCallback
             callback(pos1, pos2)
 
             if not isClosingButton then return end
-            self.ScreenGui.Enabled = false
+            self:removeFocus()
 
             task.wait(scaleTweenTime)
-
             scaleInstance(button, originalSize)
         end
     )
@@ -450,7 +543,7 @@ end
     @return void
 ]]
 local function destroyCallback(self: HandledUI)
-    CachedUIClasses[self.id] = nil
+    UILibrary.CachedUIClasses[self.id] = nil
 
     for i: number, Connection: RBXScriptConnection in ipairs(self.SizingConnections) do
         Connection:Disconnect()
@@ -474,12 +567,13 @@ end
 
     @return HandledUI
 ]]
-local function constructorCallback(ui: ScreenGui): HandledUI
-    local newId = HttpService:GenerateGUID(false)
-
+local function constructorCallback(self: unknown, id: string, ui: ScreenGui): HandledUI
     local NewHandledUI
     = {
         ScreenGui = ui,
+
+        SetFocusSubscriptionCallbacks = {},
+        RemoveFocusSubscriptionCallbacks = {},
 
         SizingConnections = {},
         PressConnections = {},
@@ -487,7 +581,7 @@ local function constructorCallback(ui: ScreenGui): HandledUI
 
         DraggableObjects = {},
 
-        id = newId
+        id = id
     } :: HandledUI
 
     setmetatable(NewHandledUI,
@@ -497,22 +591,37 @@ local function constructorCallback(ui: ScreenGui): HandledUI
                 handleGuiObjectInput = handleGuiObjectInputCallback,
                 handleButtonPress = handleButtonPressCallback,
 
+
                 makeGuiObjectDraggable = makeGuiObjectDraggableCallback,
+
 
                 destroy = destroyCallback,
 
+
                 setFocus = setFocusCallback,
                 removeFocus = removeFocusCallback,
+
+
+                subscribeToSetFocus = subscribeToSetFocusCallback,
+                subscribeToRemoveFocus = subscribeToRemoveFocusCallback,
+
+                unsubscribeFromSetFocus = unsubscribeFromSetFocusCallback,
+                unsubscribeFromRemoveFocus = unsubscribeFromRemoveFocusCallback,
+
 
                 hoverAndToggleSizing = hoverAndToggleSizingCallback
             }
         }
     )
 
-    CachedUIClasses[newId] = (NewHandledUI :: any) :: HandledUI
+    UILibrary.CachedUIClasses[id] = (NewHandledUI :: any) :: HandledUI
 
     return (NewHandledUI :: any) :: HandledUI
 end
 
-return constructorCallback
+setmetatable(UILibrary, { __call = constructorCallback })
 --[[ @end_section Constructor ]]
+
+
+table.freeze(UILibrary)
+return UILibrary

@@ -42,7 +42,7 @@ type PetSchema = PetsData.PetSchema
 ]]
 local function constructorCallback()
     CrateMachineGroup.OpenCrate:onServerEvent(
-        function(sender: Player, data: string)
+        function(sender, data)
             if not sender then return end
 
             local CrateSchema = CrateSchemas[data]
@@ -54,26 +54,26 @@ local function constructorCallback()
                     local PlayerState = PlayerStates[sender]
                     if not PlayerState then return false end
 
-                    if PlayerState.coins() < CrateSchema.price then return false end
-                    PlayerState.coins(PlayerState.coins() - CrateSchema.price)
+                    if CrateSchema.price > PlayerState.gems() then return false end
+                    PlayerState.gems(PlayerState.gems() - CrateSchema.price, "value")
 
                     -- Attempt to give the player the hatched pet.
                     do
-                        local Randomized
+                        local RandomizedStats
                         = {
                             size = PetsData.PHYSICAL_ATTRIBUTES.SIZES[RNG.randomFromTableOfChances(PetsData.ATTRIBUTE_CHANCES.SIZE)],
-                            color = PetsData.PHYSICAL_ATTRIBUTES.COLORS[RNG.randomFromTableOfChances(PetsData.ATTRIBUTE_CHANCES.COLOR)],
-
-                            id = RNG.randomString(16)
+                            color = PetsData.PHYSICAL_ATTRIBUTES.COLORS[RNG.randomFromTableOfChances(PetsData.ATTRIBUTE_CHANCES.COLOR)]
                         }
 
+                        local randomId = RNG.randomString(16)
+
                         local PetSchema: PetSchema = TableUtils.deepClone(RNG.randomFromTableOfChances(CrateSchema.Chances))
-                        PetSchema.PetStats.color = Randomized.color :: any
-                        PetSchema.PetStats.size = Randomized.size :: any
+                        PetSchema.PetStats.color = RandomizedStats.color :: any
+                        PetSchema.PetStats.size = RandomizedStats.size :: any
                         PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
 
-                        PlayerState.Inventory += { itemData = PetSchema, itemId = Randomized.id }
-                        if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(Randomized.id) then return false end
+                        PlayerState.Inventory += { itemData = PetSchema, itemId = randomId }
+                        if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(randomId) then return false end
                     end
 
                     return true
@@ -83,20 +83,22 @@ local function constructorCallback()
     )
 
     CrateMachineGroup.GetCrates:onServerInvoke(
-        function(sender: Player, data: string?)
+        function(sender, data)
             local ReturningCrates = {}
 
-            if data ~= nil then
-                for i: string, Crate: CrateSchema in pairs(CrateSchemas) do
-                    if not string.find(Crate.name:lower(), data:lower()) then continue end
-                    table.insert(ReturningCrates, Crate)
+            for i: string, Crate: CrateSchema in pairs(CrateSchemas) do
+                if data then if not string.find(Crate.name:lower(), data:lower()) then continue end end
+
+                local CopiedChances = {}
+
+                for Pet: PetSchema, chance: number in pairs(Crate.Chances) do
+                    CopiedChances[Pet.petName] = chance
                 end
 
-                return ReturningCrates :: any
-            end
+                local CopiedCrate = TableUtils.deepClone(Crate)
+                CopiedCrate.Chances = CopiedChances :: any
 
-            for i: string, Crate: CrateSchema in pairs(CrateSchemas) do
-                table.insert(ReturningCrates, Crate)
+                table.insert(ReturningCrates, CopiedCrate)
             end
 
             return ReturningCrates :: any

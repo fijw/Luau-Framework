@@ -6,13 +6,8 @@
 --[[ @section Imports ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Data = require(ReplicatedStorage.Assets.Crates.Data)
-
 local NetworkLib = require(ReplicatedStorage.Networking.NetworkLib)
 --[[ @end_section Imports ]]
-
-
-type CrateSchema = Data.CrateSchema
 
 
 local Packets
@@ -26,7 +21,7 @@ local Packets
 
     GetCrates = NetworkLib("get_crates", "Function",
         {
-            clientType = { {} :: CrateSchema },
+            clientType = { {} :: { name: string, price: number, Chances: { [string]: number } } },
             serverType = "searching_string" :: string?
         }
     )

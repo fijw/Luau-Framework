@@ -1,0 +1,275 @@
+--!strict
+--!native
+--!optimize 2
+
+
+--[[ @section Variables ]]
+local HUD = Instance.new("ScreenGui")
+local MenuContainer = Instance.new("Frame")
+local InventoryBtn = Instance.new("ImageButton")
+local TradingBtn = Instance.new("ImageButton")
+local RebirthBtn = Instance.new("ImageButton")
+local ShopBtn = Instance.new("ImageButton")
+local MarketplaceBtn = Instance.new("ImageButton")
+local SettingsBtn = Instance.new("ImageButton")
+local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+local StatsContainer = Instance.new("Frame")
+local UIAspectRatioConstraint_2 = Instance.new("UIAspectRatioConstraint")
+local GemsDisplay = Instance.new("ImageLabel")
+local ImageLabel = Instance.new("ImageLabel")
+local GemsText = Instance.new("TextLabel")
+local RebirthsDisplay = Instance.new("ImageLabel")
+local LevelsToRebirthText = Instance.new("TextLabel")
+local ImageLabel_2 = Instance.new("ImageLabel")
+local RebirthsText = Instance.new("TextLabel")
+local LevelsDisplay = Instance.new("ImageLabel")
+local XPToNextLevelText = Instance.new("TextLabel")
+local ImageLabel_3 = Instance.new("ImageLabel")
+local LevelText = Instance.new("TextLabel")
+local TeleportBtn = Instance.new("ImageButton")
+local UIAspectRatioConstraint_3 = Instance.new("UIAspectRatioConstraint")
+
+local Components = { HUD = HUD }
+--[[ @end_section Variables ]]
+
+
+-- Set all component properties.
+do
+    HUD.Name = "HUD"
+    HUD.Enabled = false
+
+    MenuContainer.Name = "MenuContainer"
+    MenuContainer.Parent = HUD
+    MenuContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+    MenuContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    MenuContainer.BackgroundTransparency = 1.000
+    MenuContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    MenuContainer.BorderSizePixel = 0
+    MenuContainer.Position = UDim2.new(0.499739438, 0, 0.907407403, 0)
+    MenuContainer.Size = UDim2.new(0.416883796, 0, 0.138888896, 0)
+
+    InventoryBtn.Name = "InventoryBtn"
+    InventoryBtn.Parent = MenuContainer
+    InventoryBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    InventoryBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    InventoryBtn.BackgroundTransparency = 1.000
+    InventoryBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    InventoryBtn.BorderSizePixel = 0
+    InventoryBtn.Position = UDim2.new(0.096, 0, 0.5, 0)
+    InventoryBtn.Size = UDim2.new(0.1875, 0, 1, 0)
+    InventoryBtn.Image = "rbxassetid://119870862470846"
+
+    TradingBtn.Name = "TradingBtn"
+    TradingBtn.Parent = MenuContainer
+    TradingBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    TradingBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TradingBtn.BackgroundTransparency = 1.000
+    TradingBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TradingBtn.BorderSizePixel = 0
+    TradingBtn.Position = UDim2.new(0.279, 0, 0.487, 0)
+    TradingBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
+    TradingBtn.Image = "rbxassetid://96262129570992"
+
+    RebirthBtn.Name = "RebirthBtn"
+    RebirthBtn.Parent = MenuContainer
+    RebirthBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    RebirthBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    RebirthBtn.BackgroundTransparency = 1.000
+    RebirthBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    RebirthBtn.BorderSizePixel = 0
+    RebirthBtn.Position = UDim2.new(0.763, 0, 0.487, 0)
+    RebirthBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
+    RebirthBtn.Image = "rbxassetid://133561204302109"
+
+    ShopBtn.Name = "ShopBtn"
+    ShopBtn.Parent = MenuContainer
+    ShopBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    ShopBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ShopBtn.BackgroundTransparency = 1.000
+    ShopBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ShopBtn.BorderSizePixel = 0
+    ShopBtn.Position = UDim2.new(0.602, 0, 0.487, 0)
+    ShopBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
+    ShopBtn.Image = "rbxassetid://138187189416512"
+
+    MarketplaceBtn.Name = "MarketplaceBtn"
+    MarketplaceBtn.Parent = MenuContainer
+    MarketplaceBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    MarketplaceBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    MarketplaceBtn.BackgroundTransparency = 1.000
+    MarketplaceBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    MarketplaceBtn.BorderSizePixel = 0
+    MarketplaceBtn.Position = UDim2.new(0.44, 0, 0.487, 0)
+    MarketplaceBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
+    MarketplaceBtn.Image = "rbxassetid://92171331943586"
+
+    SettingsBtn.Name = "SettingsBtn"
+    SettingsBtn.Parent = MenuContainer
+    SettingsBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    SettingsBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    SettingsBtn.BackgroundTransparency = 1.000
+    SettingsBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    SettingsBtn.BorderSizePixel = 0
+    SettingsBtn.Position = UDim2.new(0.925, 0, 0.487, 0)
+    SettingsBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
+    SettingsBtn.Image = "rbxassetid://94060889590777"
+
+    UIAspectRatioConstraint.Parent = MenuContainer
+    UIAspectRatioConstraint.AspectRatio = 5.333
+
+    StatsContainer.Name = "StatsContainer"
+    StatsContainer.Parent = HUD
+    StatsContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    StatsContainer.BackgroundTransparency = 1.000
+    StatsContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    StatsContainer.BorderSizePixel = 0
+    StatsContainer.Position = UDim2.new(0.786347032, 0, 0.378703713, 0)
+    StatsContainer.Size = UDim2.new(0.20062533, 0, 0.24166666, 0)
+
+    UIAspectRatioConstraint_2.Parent = StatsContainer
+    UIAspectRatioConstraint_2.AspectRatio = 1.475
+
+    GemsDisplay.Name = "GemsDisplay"
+    GemsDisplay.Parent = StatsContainer
+    GemsDisplay.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    GemsDisplay.BackgroundTransparency = 1.000
+    GemsDisplay.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    GemsDisplay.BorderSizePixel = 0
+    GemsDisplay.Size = UDim2.new(1, 0, 0.287356317, 0)
+    GemsDisplay.Image = "rbxassetid://130074708860511"
+
+    ImageLabel.Parent = GemsDisplay
+    ImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ImageLabel.BackgroundTransparency = 1.000
+    ImageLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ImageLabel.BorderSizePixel = 0
+    ImageLabel.Position = UDim2.new(0.038961038, 0, 0.200000003, 0)
+    ImageLabel.Size = UDim2.new(0.116883114, 0, 0.600000024, 0)
+    ImageLabel.Image = "rbxassetid://74859616905155"
+
+    GemsText.Name = "GemsText"
+    GemsText.Parent = GemsDisplay
+    GemsText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    GemsText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    GemsText.BorderSizePixel = 0
+    GemsText.Position = UDim2.new(0.171428576, 0, 0.306666672, 0)
+    GemsText.Size = UDim2.new(0.77922076, 0, 0.386666656, 0)
+    GemsText.Font = Enum.Font.FredokaOne
+    GemsText.Text = "123,456,789,101,112"
+    GemsText.TextColor3 = Color3.fromRGB(0, 0, 0)
+    GemsText.TextScaled = true
+    GemsText.TextSize = 14.000
+    GemsText.TextWrapped = true
+
+    RebirthsDisplay.Name = "RebirthsDisplay"
+    RebirthsDisplay.Parent = StatsContainer
+    RebirthsDisplay.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    RebirthsDisplay.BackgroundTransparency = 1.000
+    RebirthsDisplay.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    RebirthsDisplay.BorderSizePixel = 0
+    RebirthsDisplay.Position = UDim2.new(0, 0, 0.356321841, 0)
+    RebirthsDisplay.Size = UDim2.new(1, 0, 0.287356317, 0)
+    RebirthsDisplay.Image = "rbxassetid://130074708860511"
+
+    LevelsToRebirthText.Name = "LevelsToRebirthText"
+    LevelsToRebirthText.Parent = RebirthsDisplay
+    LevelsToRebirthText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    LevelsToRebirthText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    LevelsToRebirthText.BorderSizePixel = 0
+    LevelsToRebirthText.Position = UDim2.new(0.171428576, 0, 0.586666644, 0)
+    LevelsToRebirthText.Size = UDim2.new(0.77922076, 0, 0.213333338, 0)
+    LevelsToRebirthText.Font = Enum.Font.FredokaOne
+    LevelsToRebirthText.Text = "13 / 100 Levels"
+    LevelsToRebirthText.TextColor3 = Color3.fromRGB(0, 0, 0)
+    LevelsToRebirthText.TextScaled = true
+    LevelsToRebirthText.TextSize = 14.000
+    LevelsToRebirthText.TextWrapped = true
+
+    ImageLabel_2.Parent = RebirthsDisplay
+    ImageLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ImageLabel_2.BackgroundTransparency = 1.000
+    ImageLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ImageLabel_2.BorderSizePixel = 0
+    ImageLabel_2.Position = UDim2.new(0.038961038, 0, 0.200000003, 0)
+    ImageLabel_2.Size = UDim2.new(0.116883114, 0, 0.600000024, 0)
+    ImageLabel_2.Image = "rbxassetid://112344372507508"
+
+    RebirthsText.Name = "RebirthsText"
+    RebirthsText.Parent = RebirthsDisplay
+    RebirthsText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    RebirthsText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    RebirthsText.BorderSizePixel = 0
+    RebirthsText.Position = UDim2.new(0.171428576, 0, 0.200000003, 0)
+    RebirthsText.Size = UDim2.new(0.77922076, 0, 0.386666656, 0)
+    RebirthsText.Font = Enum.Font.FredokaOne
+    RebirthsText.Text = "123"
+    RebirthsText.TextColor3 = Color3.fromRGB(0, 0, 0)
+    RebirthsText.TextScaled = true
+    RebirthsText.TextSize = 14.000
+    RebirthsText.TextWrapped = true
+
+    LevelsDisplay.Name = "LevelsDisplay"
+    LevelsDisplay.Parent = StatsContainer
+    LevelsDisplay.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    LevelsDisplay.BackgroundTransparency = 1.000
+    LevelsDisplay.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    LevelsDisplay.BorderSizePixel = 0
+    LevelsDisplay.Position = UDim2.new(0, 0, 0.712643683, 0)
+    LevelsDisplay.Size = UDim2.new(1, 0, 0.287356317, 0)
+    LevelsDisplay.Image = "rbxassetid://130074708860511"
+
+    XPToNextLevelText.Name = "XPToNextLevelText"
+    XPToNextLevelText.Parent = LevelsDisplay
+    XPToNextLevelText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    XPToNextLevelText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    XPToNextLevelText.BorderSizePixel = 0
+    XPToNextLevelText.Position = UDim2.new(0.171428576, 0, 0.586666644, 0)
+    XPToNextLevelText.Size = UDim2.new(0.77922076, 0, 0.213333338, 0)
+    XPToNextLevelText.Font = Enum.Font.FredokaOne
+    XPToNextLevelText.Text = "10,000 / 100,000 XP"
+    XPToNextLevelText.TextColor3 = Color3.fromRGB(0, 0, 0)
+    XPToNextLevelText.TextScaled = true
+    XPToNextLevelText.TextSize = 14.000
+    XPToNextLevelText.TextWrapped = true
+
+    ImageLabel_3.Parent = LevelsDisplay
+    ImageLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ImageLabel_3.BackgroundTransparency = 1.000
+    ImageLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ImageLabel_3.BorderSizePixel = 0
+    ImageLabel_3.Position = UDim2.new(0.038961038, 0, 0.200000003, 0)
+    ImageLabel_3.Size = UDim2.new(0.116883114, 0, 0.600000024, 0)
+    ImageLabel_3.Image = "rbxassetid://107963009773893"
+
+    LevelText.Name = "LevelText"
+    LevelText.Parent = LevelsDisplay
+    LevelText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    LevelText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    LevelText.BorderSizePixel = 0
+    LevelText.Position = UDim2.new(0.171428576, 0, 0.200000003, 0)
+    LevelText.Size = UDim2.new(0.77922076, 0, 0.386666656, 0)
+    LevelText.Font = Enum.Font.FredokaOne
+    LevelText.Text = "123"
+    LevelText.TextColor3 = Color3.fromRGB(0, 0, 0)
+    LevelText.TextScaled = true
+    LevelText.TextSize = 14.000
+    LevelText.TextWrapped = true
+
+    TeleportBtn.Name = "TeleportBtn"
+    TeleportBtn.Parent = HUD
+    TeleportBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    TeleportBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TeleportBtn.BackgroundTransparency = 1.000
+    TeleportBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TeleportBtn.BorderSizePixel = 0
+    TeleportBtn.Position = UDim2.new(0.0729546621, 0, 0.922222197, 0)
+    TeleportBtn.Size = UDim2.new(0.119854093, 0, 0.106481485, 0)
+    TeleportBtn.Image = "rbxassetid://91603925446953"
+
+    UIAspectRatioConstraint_3.Parent = TeleportBtn
+    UIAspectRatioConstraint_3.AspectRatio = 2.000
+end
+
+
+table.freeze(Components)
+return Components

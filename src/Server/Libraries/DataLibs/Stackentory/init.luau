@@ -1,6 +1,7 @@
 --!strict
 --!native
 --!optimize 2
+local HttpService = game:GetService("HttpService")
 
 
 local Stacking = require(script.Stacking)
@@ -72,7 +73,7 @@ local function fetchStackFromItemIdCallback(self: InventoryClass, id: string): S
     local FoundStack: StackClass<any>?
 
     for i: string, Stack: StackClass<any> in pairs(self.StacksArray) do
-        for idIndex: number, loopedStackId: string in ipairs(Stack("ids_array") :: { string }) do
+        for idIndex: number, loopedStackId: string in ipairs(Stack.StackArray()) do
             if loopedStackId == id then FoundStack = Stack; break end
         end
 
@@ -96,14 +97,14 @@ local function fetchStackFromItemDataCallback<D>(self: InventoryClass, data: D):
     local FoundStack: StackClass<D>?
 
     for stackIndex: string, Stack: StackClass<D> in pairs(self.StacksArray) do
-        if typeof(Stack("data")) ~= "table" and typeof(data) ~= "table" then
-            if Stack("data") == data then FoundStack = Stack; break end
-        elseif typeof(data) ~= "table" and typeof(Stack("data")) == "table" then continue
-        elseif typeof(Stack("data")) ~= "table" and typeof(data) == "table" then continue end
+        if typeof(Stack.StackData) ~= "table" and typeof(data) ~= "table" then
+            if Stack.StackData == data then FoundStack = Stack; break end
+        elseif typeof(data) ~= "table" and typeof(Stack.StackData) == "table" then continue
+        elseif typeof(Stack.StackData) ~= "table" and typeof(data) == "table" then continue end
 
         local success: false?
 
-        for stackDataIndex: any, v: any in pairs(Stack("data") :: { [any]: any }) do
+        for stackDataIndex: any, v: any in pairs(Stack.StackData :: { [any]: any }) do
             if not (data :: { [any]: any })[stackDataIndex] or (data :: { [any]: any })[stackDataIndex] ~= v then success = false end
         end
 
@@ -140,7 +141,15 @@ local function addCallback(self: InventoryClass, AddingSchema: { itemData: any, 
     self.usedStacks += 1
 
     local FetchedStack = self:fetchStackFromItemData(AddingSchema.itemData)
-    if not FetchedStack then return self end
+
+    if not FetchedStack then
+        FetchedStack = Stacking(AddingSchema.itemData, { AddingSchema.itemId })
+
+        self.StacksArray[HttpService:GenerateGUID(false)] = FetchedStack
+        if self.onItemAddedSubscription then self.onItemAddedSubscription(AddingSchema.itemData, AddingSchema.itemId) end
+
+        return self
+    end
 
     FetchedStack += AddingSchema.itemId
     if self.onItemAddedSubscription then self.onItemAddedSubscription(AddingSchema.itemData, AddingSchema.itemId) end

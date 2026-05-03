@@ -48,20 +48,20 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                     if not (Player2State.Inventory :: InventoryClass):fetchStackFromItemId(id) then return false end
                 end
 
-                if Player1State.coins() < Trade.player1Coins then return false end
-                if Player2State.coins() < Trade.player2Coins then return false end
+                if Player1State.gems() < Trade.player1Coins then return false end
+                if Player2State.gems() < Trade.player2Coins then return false end
             end
 
-            local oldPlr1Coins = Player1State.coins()
-            local oldPlr2Coins = Player2State.coins()
+            local oldPlr1Coins = Player1State.gems()
+            local oldPlr2Coins = Player2State.gems()
 
             -- Remove the pets and coins from both players.
             do
                 for i: number, id: string in ipairs(Trade.Player1Pets) do Player1State.Inventory -= id end
                 for i: number, id: string in ipairs(Trade.Player2Pets) do Player2State.Inventory -= id end
 
-                Player1State.coins(Player1State.coins() - Trade.player1Coins)
-                Player2State.coins(Player2State.coins() - Trade.player2Coins)
+                Player1State.gems(Player1State.gems() - Trade.player1Coins, "value")
+                Player2State.gems(Player2State.gems() - Trade.player2Coins, "value")
             end
 
             -- Add the pets and coins to both players.
@@ -69,8 +69,8 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                 for i: number, id: string in ipairs(Trade.Player2Pets) do Player1State.Inventory += id end
                 for i: number, id: string in ipairs(Trade.Player1Pets) do Player2State.Inventory += id end
 
-                Player1State.coins(Player1State.coins() + Trade.player2Coins)
-                Player2State.coins(Player2State.coins() + Trade.player1Coins)
+                Player1State.gems(Player1State.gems() + Trade.player2Coins, "value")
+                Player2State.gems(Player2State.gems() + Trade.player1Coins, "value")
             end
 
             -- Verify that the pets and coins transferred correctly.
@@ -83,8 +83,8 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                     if not (Player1State.Inventory :: InventoryClass):fetchStackFromItemId(id) then return false end
                 end
 
-                if Player1State.coins() ~= oldPlr1Coins + Trade.player2Coins - Trade.player1Coins then return false end
-                if Player2State.coins() ~= oldPlr2Coins + Trade.player1Coins - Trade.player2Coins then return false end
+                if Player1State.gems() ~= oldPlr1Coins + Trade.player2Coins - Trade.player1Coins then return false end
+                if Player2State.gems() ~= oldPlr2Coins + Trade.player1Coins - Trade.player2Coins then return false end
             end
 
             return true

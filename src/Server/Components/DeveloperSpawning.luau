@@ -44,6 +44,11 @@ local DataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the service.
+
+    @return void
+]]
 local function constuctorCallback()
     MessagingService:SubscribeAsync("developer_spawning",
         function(MessageData: { Data: buffer, Sent: number})

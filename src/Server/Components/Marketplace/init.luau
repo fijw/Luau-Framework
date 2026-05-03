@@ -27,14 +27,14 @@ type InventoryClass = Stackentory.InventoryClass
 ]]
 local function constuctorCallback()
     MarketplaceGroup.PlacePetOnMarketplace:onServerEvent(
-        function(sender: Player, data: { petId: string, price: number })
+        function(sender, data)
             if not sender then return end
             MarketplaceLib.addPetToMarketplace(sender, data.petId, tonumber(data.price) :: number)
         end
     )
 
     MarketplaceGroup.RemovePetFromMarketplace:onServerEvent(
-        function(sender: Player, data: string)
+        function(sender, data)
             if not sender then return end
             MarketplaceLib.removePetFromMarketplace(sender, data)
 
@@ -50,7 +50,7 @@ local function constuctorCallback()
     )
 
     MarketplaceGroup.BuyPetFromMarketplace:onServerEvent(
-        function(sender: Player, data: string)
+        function(sender, data)
             if not sender then return end
             MarketplaceLib.purchasePetFromMarketplace(sender, data)
         end

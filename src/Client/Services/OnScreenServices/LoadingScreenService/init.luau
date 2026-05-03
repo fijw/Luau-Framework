@@ -139,7 +139,7 @@ local function constructorCallback()
     local newStatusTxt = newMainFrame:WaitForChild("StatusTxt") :: TextLabel
     local newSkipBtn = newMainFrame:WaitForChild("SkipBtn") :: TextButton
 
-    local newUILib = UILib(newScreenClone)
+    local newUILib = UILib("loading_screen", newScreenClone)
 
     newUILib:hoverAndToggleSizing(1.15)
     newUILib:handleButtonPress(newSkipBtn, function(pos1: number, pos2: number) isActive = false end)

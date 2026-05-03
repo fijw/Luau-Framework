@@ -41,6 +41,7 @@ local CommandsPipelineService = ServerScriptService.Services.CommandsPipelineSer
 
 local InventoryComponent = ServerScriptService.Components.Inventory
 local CrateMachineComponent = ServerScriptService.Components.CrateMachine
+local StatsUpdatingComponent = ServerScriptService.Components.StatsUpdating
 
 
 local Initialization = script.Initialization
@@ -60,7 +61,8 @@ local ModulesToLoad
     [CommandsPipelineService.Name] = CommandsPipelineService,
 
     [InventoryComponent.Name] = InventoryComponent,
-    [CrateMachineComponent.Name] = CrateMachineComponent
+    [CrateMachineComponent.Name] = CrateMachineComponent,
+    [StatsUpdatingComponent.Name] = StatsUpdatingComponent
 }
 --[[ @end_section Variables ]]
 

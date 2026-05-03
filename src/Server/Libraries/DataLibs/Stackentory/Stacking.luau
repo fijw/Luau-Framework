@@ -11,8 +11,6 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
 
 --[[ @section Types ]]
-type RequestType = "data" | "ids_array"
-
 --[[ @generic T State type. ]]
 type StateEngine<T> = Reactor.StateEngine<T>
 
@@ -34,7 +32,7 @@ export type StackClass<D> = setmetatable
     },
 
     {
-        __call: (self: StackClass<D>, request: RequestType?) -> (({ string } | D) | SavingStackSchema<D>),
+        __call: (self: StackClass<D>) -> (SavingStackSchema<D>),
 
         __add: (self: StackClass<D>, id: string) -> (StackClass<D>),
         __sub: (self: StackClass<D>, id: string) -> (StackClass<D>)
@@ -51,13 +49,7 @@ export type StackClass<D> = setmetatable
 
     @return ({ string } | any) | SavingStackSchema<any>
 ]]
-local function stackCallback(self: StackClass<any>, request: RequestType?): ({ string } | any) | SavingStackSchema<any>
-    if request == "data" then
-        return self.StackData
-    elseif request == "ids_array" then
-        return self.StackArray
-    end
-
+local function stackCallback(self: StackClass<any>): SavingStackSchema<any>
     local SavingStack: SavingStackSchema<any>
     = {
         StackData = self.StackData,

@@ -252,7 +252,9 @@ function Registry.atomicTransaction
         local PlrDataClass = constructorCallback(nil :: any, player)
         if not PlrDataClass then return false end
 
-        PlrDataClass.ClassData(StateClones[player])
+        for stateCloneIndex: string, v: StateEngine<any> in pairs(StateClones[player] :: { [string]: StateEngine<any> }) do
+            PlrDataClass()(v, stateCloneIndex)
+        end
     end
 
     return true

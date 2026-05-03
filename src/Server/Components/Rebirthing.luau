@@ -32,7 +32,7 @@ local NEEDED_LEVELS_MULTIPLER_PER_REBIRTH = 2
 ]]
 local function constructorCallback()
     RebirthingGroup.Rebirth:onServerEvent(
-        function(sender: Player, data: nil)
+        function(sender, data)
             if not sender or data ~= nil then return end
 
             -- Atomic transaction to update the player's rebirths.
@@ -47,11 +47,11 @@ local function constructorCallback()
                     do
                         local rebirthsPrice = BASE_REBIRTHING_PRICE * (PlayerState.GameplayData().rebirths * REBIRTH_PRICE_MULTIPLIER_PER_REBIRTH)
 
-                        local oldPlrCoins = PlayerState.coins()
+                        local oldPlrCoins = PlayerState.gems()
                         if oldPlrCoins < rebirthsPrice then return false end
 
-                        PlayerState.coins(PlayerState.coins() - rebirthsPrice)
-                        if PlayerState.coins() ~= oldPlrCoins - rebirthsPrice then return false end
+                        PlayerState.gems(PlayerState.gems() - rebirthsPrice)
+                        if PlayerState.gems() ~= oldPlrCoins - rebirthsPrice then return false end
                     end
 
                     -- Update the player's rebirths.

@@ -22,6 +22,7 @@ local SpectateService = StarterPlayer.StarterPlayerScripts.Services.CommandConso
 
 local InventoryComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Inventory
 local CrateMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.CrateMachine
+local HUDComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.HUD
 
 
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
@@ -40,9 +41,9 @@ local ModulesToLoad
     [CommandConsoleUIService.Name] = CommandConsoleUIService,
     [SpectateService.Name] = SpectateService,
     
-    --[InventoryComponent.Name] = InventoryComponent,
-    [CrateMachineComponent.Name] = CrateMachineComponent
-    
+    [InventoryComponent.Name] = InventoryComponent,
+    [CrateMachineComponent.Name] = CrateMachineComponent,
+    [HUDComponent.Name] = HUDComponent
 }
 --[[ @end_section Variables ]]
 
