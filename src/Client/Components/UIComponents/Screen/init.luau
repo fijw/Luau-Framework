@@ -28,17 +28,17 @@ local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") els
 --[[
     @usage Sets the focus of a HandledUI.
 
-    @param HUD ScreenGui
+    @param screen ScreenGui
     @param name string
 
     @return void
 ]]
-local function setFocus(HUD: ScreenGui, name: string, keepHudFocus: boolean)
+local function setFocus(screen: ScreenGui, name: string, keepHudFocus: boolean)
     local CachedClass = UIUtilitiesLibrary.CachedUIClasses[name]
     if not CachedClass then return end
 
     if CachedClass.ScreenGui.Enabled then CachedClass:removeFocus(); return end
-    CachedClass:setFocus(if keepHudFocus then { HUD.Name } else nil)
+    CachedClass:setFocus(if keepHudFocus then { screen.Name } else nil)
 end
 
 --[[
@@ -80,18 +80,18 @@ end
 
 --[[ @section Constructor ]]
 local function constructorCallback()
-    local clonedHUD = UIComponents.HUD:Clone()
-    clonedHUD.Enabled = true
-    clonedHUD.Parent = PlayerGui
+    local clonedScreen = UIComponents.Screen:Clone()
+    clonedScreen.Enabled = true
+    clonedScreen.Parent = PlayerGui
 
-    local menuContainer = clonedHUD:WaitForChild("MenuContainer") :: Frame
+    local menuContainer = clonedScreen:WaitForChild("MenuContainer") :: Frame
     local inventoryBtn = menuContainer:WaitForChild("InventoryBtn") :: ImageButton
     local tradingBtn = menuContainer:WaitForChild("TradingBtn") :: ImageButton
     local rebirthBtn = menuContainer:WaitForChild("RebirthBtn") :: ImageButton
     local shopBtn = menuContainer:WaitForChild("ShopBtn") :: ImageButton
     local marketplaceBtn = menuContainer:WaitForChild("MarketplaceBtn") :: ImageButton
     local settingsBtn = menuContainer:WaitForChild("SettingsBtn") :: ImageButton
-    local statsContainer = clonedHUD:WaitForChild("StatsContainer") :: Frame
+    local statsContainer = clonedScreen:WaitForChild("StatsContainer") :: Frame
     local gemsDisplay = statsContainer:WaitForChild("GemsDisplay") :: ImageLabel
     local gemsText = gemsDisplay:WaitForChild("GemsText") :: TextLabel
     local rebirthsDisplay = statsContainer:WaitForChild("RebirthsDisplay") :: ImageLabel
@@ -123,7 +123,7 @@ local function constructorCallback()
         end
     )
 
-    local HandledUi = UIUtilitiesLibrary("hud", clonedHUD)
+    local HandledUi = UIUtilitiesLibrary("hud", clonedScreen)
     HandledUi:hoverAndToggleSizing(1.15)
 
     local oldInvBtnPos = inventoryBtn.Position
@@ -132,27 +132,27 @@ local function constructorCallback()
     -- HUD button presses.
     do
         HandledUi:handleButtonPress(inventoryBtn,
-            function(pos1: number, pos2: number) setFocus(clonedHUD, "inventory", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "inventory", true) end
         )
 
         HandledUi:handleButtonPress(tradingBtn,
-            function(pos1: number, pos2: number) setFocus(clonedHUD, "send_trade", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "send_trade", true) end
         )
 
         HandledUi:handleButtonPress(rebirthBtn,
-            function(pos1: number, pos2: number) setFocus(clonedHUD, "rebirth", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "rebirth", true) end
         )
 
         HandledUi:handleButtonPress(shopBtn,
-            function(pos1: number, pos2: number) setFocus(clonedHUD, "shop", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "shop", true) end
         )
 
         HandledUi:handleButtonPress(marketplaceBtn,
-            function(pos1: number, pos2: number) setFocus(clonedHUD, "marketplace", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "marketplace", true) end
         )
 
         HandledUi:handleButtonPress(settingsBtn,
-            function(pos1: number, pos2: number) setFocus(clonedHUD, "crate_machine", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "crate_machine", true) end
         )
     end
 
@@ -160,7 +160,7 @@ local function constructorCallback()
         local CachedClass = UIUtilitiesLibrary.CachedUIClasses[str]
         if not CachedClass then continue end
 
-        CachedClass:subscribeToRemoveFocus("hud_subscription",
+        CachedClass:subscribeToRemoveFocus("screen_subscription",
             function(self, NamesToBringBackToFocus)
                 if NamesToBringBackToFocus then return end
                 tweenInst(inventoryBtn, 0.25, "pos", UDim2.new(0.5, 0, 0.5, 0))
@@ -178,7 +178,7 @@ local function constructorCallback()
             end
         )
 
-        CachedClass:subscribeToSetFocus("hud_subscription",
+        CachedClass:subscribeToSetFocus("screen_subscription",
             function(self, NamesKeepingFocus)
                 tweenInst(inventoryBtn, 0.25, "pos", oldInvBtnPos)
                 

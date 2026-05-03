@@ -306,7 +306,9 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
             DecompressedSavingData[i] = Compression(v, "decompress")
         end
 
-        if TableUtils.deepCompare(DecompressedStoredData, DecompressedSavingData) == "match" then return end
+        if TableUtils.deepCompare(DecompressedStoredData, DecompressedSavingData) == "match" then
+            if FetchedStoredData.inUse == if keepInUseStatus == true then true else false then return end
+        end
 
         print(`Data mismatch when saving [{self.classKey}]'s data.`)
 

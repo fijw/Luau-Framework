@@ -4,7 +4,7 @@
 
 
 --[[ @section Variables ]]
-local HUD = Instance.new("ScreenGui")
+local Screen = Instance.new("ScreenGui")
 local MenuContainer = Instance.new("Frame")
 local InventoryBtn = Instance.new("ImageButton")
 local TradingBtn = Instance.new("ImageButton")
@@ -29,17 +29,17 @@ local LevelText = Instance.new("TextLabel")
 local TeleportBtn = Instance.new("ImageButton")
 local UIAspectRatioConstraint_3 = Instance.new("UIAspectRatioConstraint")
 
-local Components = { HUD = HUD }
+local Components = { Screen = Screen }
 --[[ @end_section Variables ]]
 
 
 -- Set all component properties.
 do
-    HUD.Name = "HUD"
-    HUD.Enabled = false
+    Screen.Name = "Screen"
+    Screen.Enabled = false
 
     MenuContainer.Name = "MenuContainer"
-    MenuContainer.Parent = HUD
+    MenuContainer.Parent = Screen
     MenuContainer.AnchorPoint = Vector2.new(0.5, 0.5)
     MenuContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     MenuContainer.BackgroundTransparency = 1.000
@@ -69,6 +69,7 @@ do
     TradingBtn.Position = UDim2.new(0.279, 0, 0.487, 0)
     TradingBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
     TradingBtn.Image = "rbxassetid://96262129570992"
+    TradingBtn.ImageTransparency = 1
 
     RebirthBtn.Name = "RebirthBtn"
     RebirthBtn.Parent = MenuContainer
@@ -80,6 +81,7 @@ do
     RebirthBtn.Position = UDim2.new(0.763, 0, 0.487, 0)
     RebirthBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
     RebirthBtn.Image = "rbxassetid://133561204302109"
+    RebirthBtn.ImageTransparency = 1
 
     ShopBtn.Name = "ShopBtn"
     ShopBtn.Parent = MenuContainer
@@ -91,6 +93,7 @@ do
     ShopBtn.Position = UDim2.new(0.602, 0, 0.487, 0)
     ShopBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
     ShopBtn.Image = "rbxassetid://138187189416512"
+    ShopBtn.ImageTransparency = 1
 
     MarketplaceBtn.Name = "MarketplaceBtn"
     MarketplaceBtn.Parent = MenuContainer
@@ -102,6 +105,7 @@ do
     MarketplaceBtn.Position = UDim2.new(0.44, 0, 0.487, 0)
     MarketplaceBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
     MarketplaceBtn.Image = "rbxassetid://92171331943586"
+    MarketplaceBtn.ImageTransparency = 1
 
     SettingsBtn.Name = "SettingsBtn"
     SettingsBtn.Parent = MenuContainer
@@ -113,12 +117,13 @@ do
     SettingsBtn.Position = UDim2.new(0.925, 0, 0.487, 0)
     SettingsBtn.Size = UDim2.new(0.143749997, 0, 0.766666651, 0)
     SettingsBtn.Image = "rbxassetid://94060889590777"
+    SettingsBtn.ImageTransparency = 1
 
     UIAspectRatioConstraint.Parent = MenuContainer
     UIAspectRatioConstraint.AspectRatio = 5.333
 
     StatsContainer.Name = "StatsContainer"
-    StatsContainer.Parent = HUD
+    StatsContainer.Parent = Screen
     StatsContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     StatsContainer.BackgroundTransparency = 1.000
     StatsContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -256,7 +261,7 @@ do
     LevelText.TextWrapped = true
 
     TeleportBtn.Name = "TeleportBtn"
-    TeleportBtn.Parent = HUD
+    TeleportBtn.Parent = Screen
     TeleportBtn.AnchorPoint = Vector2.new(0.5, 0.5)
     TeleportBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     TeleportBtn.BackgroundTransparency = 1.000

@@ -42,6 +42,8 @@ local CommandsPipelineService = ServerScriptService.Services.CommandsPipelineSer
 local InventoryComponent = ServerScriptService.Components.Inventory
 local CrateMachineComponent = ServerScriptService.Components.CrateMachine
 local StatsUpdatingComponent = ServerScriptService.Components.StatsUpdating
+local DeveloperSpawningComponent = ServerScriptService.Components.DeveloperSpawning
+local RebirthingComponent = ServerScriptService.Components.Rebirthing
 
 
 local Initialization = script.Initialization
@@ -62,8 +64,12 @@ local ModulesToLoad
 
     [InventoryComponent.Name] = InventoryComponent,
     [CrateMachineComponent.Name] = CrateMachineComponent,
-    [StatsUpdatingComponent.Name] = StatsUpdatingComponent
+    [StatsUpdatingComponent.Name] = StatsUpdatingComponent,
+    [DeveloperSpawningComponent.Name] = DeveloperSpawningComponent,
+    [RebirthingComponent.Name] = RebirthingComponent
 }
+
+local NUM_OF_RETRIES = 10
 --[[ @end_section Variables ]]
 
 
@@ -78,11 +84,13 @@ end
 
 -- Initialize server modules then signal clients to initialize their modules.
 do
-    --if not require(script.Pragma) then print("Server initialization cancelled."); return end
+    local initResult: "success" | "failure"
+    task.spawn(function() initResult = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
 
-    local initResult: "success" | "failure" = Initialization(ModulesToLoad :: { [string]: ModuleScript }) :: any
+    local retries = 0
+    while true do if initResult or retries >= NUM_OF_RETRIES then break else retries += 1; task.wait() end end
 
-    if initResult == "failure" then
+    if initResult == "failure" or not initResult then
         for i: number, player: Player in Players:GetPlayers() do
             player:Kick(serverKickMessage)
         end

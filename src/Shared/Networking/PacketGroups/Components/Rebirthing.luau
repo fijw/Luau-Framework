@@ -17,6 +17,19 @@ local Packets
             clientType = true,
             serverType = nil
         }
+    ),
+
+    GetRebirthStats = NetworkLib("get_rebirth_stats", "Function",
+        {
+            clientType
+            = {
+                price = 0,
+                neededLevels = 0,
+                coinsMultiplier = 0   
+            },
+
+            serverType = nil
+        }
     )
 }
 

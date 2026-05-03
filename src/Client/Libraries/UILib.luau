@@ -298,11 +298,9 @@ local function setFocusCallback(self: HandledUI, NamesKeepingFocus: { string }?)
         callback(self, NamesKeepingFocus)
     end
 
-    if NamesKeepingFocus then
-        for i: string, HandledUI: HandledUI in pairs(UILibrary.CachedUIClasses :: any) do
-            if table.find(NamesKeepingFocus, HandledUI.ScreenGui.Name) then continue end
-            HandledUI.ScreenGui.Enabled = false
-        end
+    for i: string, HandledUI: HandledUI in pairs(UILibrary.CachedUIClasses :: any) do
+        if NamesKeepingFocus then if table.find(NamesKeepingFocus, HandledUI.ScreenGui.Name) then continue end end
+        HandledUI.ScreenGui.Enabled = false
     end
 
     self.ScreenGui.Enabled = true

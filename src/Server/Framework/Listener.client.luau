@@ -22,7 +22,9 @@ local SpectateService = StarterPlayer.StarterPlayerScripts.Services.CommandConso
 
 local InventoryComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Inventory
 local CrateMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.CrateMachine
-local HUDComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.HUD
+local ScreenComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Screen
+local DevPetSpawningComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.DPS
+local RebirthComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Rebirth
 
 
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
@@ -41,10 +43,14 @@ local ModulesToLoad
     [CommandConsoleUIService.Name] = CommandConsoleUIService,
     [SpectateService.Name] = SpectateService,
     
+    [DevPetSpawningComponent.Name] = DevPetSpawningComponent,
     [InventoryComponent.Name] = InventoryComponent,
     [CrateMachineComponent.Name] = CrateMachineComponent,
-    [HUDComponent.Name] = HUDComponent
+    [ScreenComponent.Name] = ScreenComponent,
+    [RebirthComponent.Name] = RebirthComponent
 }
+
+local NUM_OF_RETRIES = 10
 --[[ @end_section Variables ]]
 
 
@@ -66,7 +72,13 @@ do
 
     FrameworkGroup.LoadClientModules:onClientEvent(
         function(data: nil)
-            if Initialization(ModulesToLoad :: { [string]: ModuleScript }) == "success" or not localPlayer then return end
+            local result: "success" | "failure"
+            task.spawn(function() result = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
+
+            local retries = 0
+            while true do if result or retries >= NUM_OF_RETRIES then break else retries += 1; task.wait() end end
+
+            if result == "success" or not localPlayer then return end
             (localPlayer :: Player):Kick(`\n\n\nYour client scripts could not be initialized.\nPlease try rejoining.\n\n`)
         end
     )

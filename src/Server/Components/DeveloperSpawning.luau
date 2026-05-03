@@ -21,6 +21,7 @@ local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
 local Data = require(ReplicatedStorage.Assets.Pets.Data)
 
 local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
+local SpawningSettings = require(ReplicatedStorage.SpawningSettings)
 
 local DeveloperSpawningGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.DeveloperSpawning)
 --[[ @end_section Imports ]]
@@ -85,12 +86,9 @@ local function constuctorCallback()
     )
 
     DeveloperSpawningGroup.SpawnPet:onServerEvent(
-        function
-        (
-            sender: Player,
-            data: DeveloperSpawningSchema
-        )
+        function(sender: Player, data: DeveloperSpawningSchema)
             if not sender then return end
+            if not table.find(SpawningSettings, sender:GetRankInGroupAsync(game.CreatorId)) then return end
 
             local PetSchema = PetSchemas[data.petName]
             if not PetSchema then return else PetSchema = TableUtils.deepClone(PetSchema) end

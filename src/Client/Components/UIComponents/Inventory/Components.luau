@@ -47,7 +47,7 @@ do
     ContainerFrame.BackgroundTransparency = 1.000
     ContainerFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ContainerFrame.BorderSizePixel = 0
-    ContainerFrame.Position = UDim2.new(0.5, 0, 0.45, 0)
+    ContainerFrame.Position = UDim2.new(0.45, 0, 0.45, 0)
     ContainerFrame.Size = UDim2.new(0.596664906, 0, 0.589814842, 0)
 
     SearchBox.Name = "SearchBox"

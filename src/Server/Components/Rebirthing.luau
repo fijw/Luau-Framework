@@ -31,6 +31,24 @@ local NEEDED_LEVELS_MULTIPLER_PER_REBIRTH = 2
     @return void
 ]]
 local function constructorCallback()
+    RebirthingGroup.GetRebirthStats:onServerInvoke(
+        function(sender, data)
+            if not sender then return nil :: any end
+
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return nil :: any end
+
+            local ReturningStats
+            = {
+                coinsMultiplier = 1.25 * PlrDataClass()().GameplayData().rebirths,
+                price = BASE_REBIRTHING_PRICE * (PlrDataClass()().GameplayData().rebirths * REBIRTH_PRICE_MULTIPLIER_PER_REBIRTH),
+                neededLevels = PlrDataClass()().GameplayData().levelsNeededToRebirth * NEEDED_LEVELS_MULTIPLER_PER_REBIRTH
+            }
+
+            return ReturningStats
+        end
+    )
+
     RebirthingGroup.Rebirth:onServerEvent(
         function(sender, data)
             if not sender or data ~= nil then return end
@@ -67,10 +85,7 @@ local function constructorCallback()
                         local newLevelsNeededToRebirth = PlayerState.GameplayData().levelsNeededToRebirth * NEEDED_LEVELS_MULTIPLER_PER_REBIRTH;
 
                         (
-                            PlayerState.GameplayData() :: StateEngine<StateEngine<any>>
-                        )(
-                            1,
-                            "level"
+                            PlayerState.GameplayData(1, "level") :: StateEngine<StateEngine<any>>
                         )(
                             0,
                             "xp"

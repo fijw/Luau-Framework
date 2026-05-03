@@ -49,12 +49,9 @@ local function initializeModule(module: any, i: string, LoadedModules: { [string
     )
     :onError(
         function(err: string?)
-            if attempts > maxRetryAttempts then returningStatus = "failure"; return else attempts += 1 end
+            if attempts > maxRetryAttempts then returningStatus = "failure"; return else attempts += 1; task.wait(1) end
 
             print(`Failed to initialize module {i}, attempt {attempts} out of {maxRetryAttempts}, error: {err}, side: {runningFrom}`)
-
-            task.wait(1)
-
             initializeModule(module, i, LoadedModules)
         end
     )
@@ -111,11 +108,9 @@ local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): "
 
     if loadedCount >= requiredCount then
         print(`Successfully initialized all {loadedCount} modules, side: {runningFrom}`)
-        
         return "success"
     else
         print(`Failed to initialize all modules, only initialized {loadedCount} out of {requiredCount}, side: {runningFrom}`)
-
         return "failure"
     end
 end
