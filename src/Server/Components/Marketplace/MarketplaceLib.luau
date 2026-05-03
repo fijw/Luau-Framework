@@ -286,7 +286,7 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
                 local oldGems = PlayerState.gems()
 
                 if oldGems < PetMarketplaceData.price then return false end
-                PlayerState.gems(oldGems - PetMarketplaceData.price, "value")
+                PlayerState.gems(oldGems - PetMarketplaceData.price)
 
                 PlayerState.Inventory += { itemData = PetMarketplaceData.PetData, itemId = petId }
 

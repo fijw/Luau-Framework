@@ -24,8 +24,14 @@ type SavingInventoryClassSchema = Stackentory.SavingInventoryClassSchema
 type PetSchema = Data.PetSchema
 
 --[[ @generic D Data type. ]]
+type Stack<D> = StackingLib.StackClass<D>
+
+--[[ @generic D Data type. ]]
 type SavingStackSchema<D> = StackingLib.SavingStackSchema<D>
 --[[ @end_section Types ]]
+
+
+local Debounce: { Player } = {}
 
 
 --[[
@@ -66,6 +72,43 @@ local function constuctorCallback()
             if not PlrDataClass then return nil :: any end
 
             return (PlrDataClass()().Inventory :: InventoryClass).maxStacks
+        end
+    )
+
+    InventoryGroup.SearchForPets:onServerEvent(
+        function(sender, data)
+            if not sender or table.find(Debounce, sender) then return end
+            
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return end
+
+            table.insert(Debounce, sender)
+
+            InventoryGroup.RemoveAllPetsFromInventory:fireClient(sender)
+
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
+
+            -- Send valid search results to the player.
+            do
+                local PetsAddingToInventory: { [string]: PetSchema } = {}
+                
+                for i: string, Stack: Stack<PetSchema> in pairs(Inventory.StacksArray) do
+                    if not string.find(Stack.StackData.petName:lower(), data:lower()) then continue end
+                    for i: number, id: string in ipairs(Stack.StackArray()) do PetsAddingToInventory[id] = Stack.StackData end
+                end
+
+                InventoryGroup.AddPetsToInventory:fireClient(sender, PetsAddingToInventory)
+            end
+
+            -- Handle debounce logic.
+            do
+                task.wait()
+
+                local foundSender = table.find(Debounce, sender)
+                if not foundSender then return end
+
+                table.remove(Debounce, foundSender)
+            end
         end
     )
 

@@ -54,8 +54,15 @@ local function constructorCallback()
                     local PlayerState = PlayerStates[sender]
                     if not PlayerState then return false end
 
-                    if CrateSchema.price > PlayerState.gems() then return false end
-                    PlayerState.gems(PlayerState.gems() - CrateSchema.price, "value")
+                    local oldGems = PlayerState.gems()
+
+                    -- Deduct the player's coins.
+                    do
+                        if CrateSchema.price > oldGems then return false end
+                        PlayerState.gems(oldGems - CrateSchema.price)
+
+                        if PlayerState.gems() ~= oldGems - CrateSchema.price then return false end
+                    end
 
                     -- Attempt to give the player the hatched pet.
                     do

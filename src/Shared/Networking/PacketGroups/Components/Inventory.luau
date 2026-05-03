@@ -31,10 +31,25 @@ local Packets
         }
     ),
 
+    RemoveAllPetsFromInventory = NetworkLib("remove_all_pets_from_inventory", "Event",
+        {
+            clientType = nil,
+            serverType = nil
+        }
+    ),
+    
+
     RequestInventorySlots = NetworkLib("request_inventory_slots", "Function",
         {
             clientType = 0,
             serverType = nil
+        }
+    ),
+
+    SearchForPets = NetworkLib("search_for_pets", "Event",
+        {
+            clientType = nil,
+            serverType = "searching_string"
         }
     )
 }

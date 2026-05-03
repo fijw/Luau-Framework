@@ -28,9 +28,13 @@ type HandledTween = TweensLib.HandledTween
 --[[ @end_section Types ]]
 
 
+--[[ @section Variables ]]
 local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
+
+local CachedPetButtons: { [string]: ImageLabel } = {}
+--[[ @end_section Variables ]]
 
 
 --[[
@@ -77,6 +81,8 @@ local function constructorCallback()
 
     local containerFrame = clonedInventory:WaitForChild("ContainerFrame") :: Frame
     local searchBox = containerFrame:WaitForChild("SearchBox") :: Frame
+    local frameBox = searchBox:WaitForChild("FrameBox") :: ImageLabel
+    local textBox = frameBox:WaitForChild("TextBox") :: TextBox
     local closeBtn = containerFrame:WaitForChild("CloseBtn") :: ImageButton
     local buttonsFrame = containerFrame:WaitForChild("ButtonsFrame") :: ImageLabel
     local mainFrame = containerFrame:WaitForChild("MainFrame") :: ImageLabel
@@ -88,6 +94,8 @@ local function constructorCallback()
     local defaultPetButton = scrollingFrame:WaitForChild("Default") :: ImageLabel
     local hugePetButton = scrollingFrame:WaitForChild("Huge") :: ImageLabel
     local giganticPetButton = scrollingFrame:WaitForChild("Gigantic") :: ImageLabel
+
+    textBox:GetPropertyChangedSignal("Text"):Connect(function() InventoryGroup.SearchForPets:fireServer(textBox.Text) end)
 
     local HandledUI = UIUtilitiesLibrary("inventory", clonedInventory)
     HandledUI:hoverAndToggleSizing(1.15)
@@ -125,6 +133,8 @@ local function constructorCallback()
                 innerImgButton.Size = UDim2.fromScale(0.85, 0.85)
                 innerImgButton.Image = PetSchema.petImageId
 
+                CachedPetButtons[i] = newPetLabel
+
                 local isHovering = false
 
                 HandledUI:handleGuiObjectInput(innerImgButton.MouseEnter,
@@ -141,7 +151,7 @@ local function constructorCallback()
 
                         while true do
                             if not isHovering then break else task.wait() end
-                            PetDetailsComponents().mainFrame.Position = UDim2.fromOffset(PlrMouse.X, PlrMouse.Y)
+                            PetDetailsComponents().mainFrame.Position = UDim2.new(0, PlrMouse.X - PetDetailsComponents().mainFrame.AbsoluteSize.X, 0, PlrMouse.Y)
                         end
                     end
                 )
@@ -162,9 +172,18 @@ local function constructorCallback()
     InventoryGroup.RemovePetsFromInventory:onClientEvent(
         function(data: { string })
             for i: number, petId: string in ipairs(data :: { string }) do
-                local PetButton = scrollingFrame:FindFirstChild(petId)
+                local PetButton = CachedPetButtons[petId]
                 if not PetButton then continue end
 
+                PetButton:Destroy()
+                PetButton.Parent = nil
+            end
+        end
+    )
+
+    InventoryGroup.RemoveAllPetsFromInventory:onClientEvent(
+        function(data)
+            for i: string, PetButton: ImageLabel in pairs(CachedPetButtons) do
                 PetButton:Destroy()
                 PetButton.Parent = nil
             end

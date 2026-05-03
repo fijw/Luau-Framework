@@ -60,8 +60,8 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                 for i: number, id: string in ipairs(Trade.Player1Pets) do Player1State.Inventory -= id end
                 for i: number, id: string in ipairs(Trade.Player2Pets) do Player2State.Inventory -= id end
 
-                Player1State.gems(Player1State.gems() - Trade.player1Coins, "value")
-                Player2State.gems(Player2State.gems() - Trade.player2Coins, "value")
+                Player1State.gems(Player1State.gems() - Trade.player1Coins)
+                Player2State.gems(Player2State.gems() - Trade.player2Coins)
             end
 
             -- Add the pets and coins to both players.
@@ -69,8 +69,8 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                 for i: number, id: string in ipairs(Trade.Player2Pets) do Player1State.Inventory += id end
                 for i: number, id: string in ipairs(Trade.Player1Pets) do Player2State.Inventory += id end
 
-                Player1State.gems(Player1State.gems() + Trade.player2Coins, "value")
-                Player2State.gems(Player2State.gems() + Trade.player1Coins, "value")
+                Player1State.gems(Player1State.gems() + Trade.player2Coins)
+                Player2State.gems(Player2State.gems() + Trade.player1Coins)
             end
 
             -- Verify that the pets and coins transferred correctly.

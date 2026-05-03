@@ -105,7 +105,7 @@ local DataSettings
         } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "wggwged2334445"
+    PLAYER_DATA_STORAGE_KEY = "wggwged23344457e"
 }
 
 
