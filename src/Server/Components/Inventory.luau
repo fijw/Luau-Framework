@@ -64,6 +64,44 @@ end
     @return void
 ]]
 local function constuctorCallback()
+    InventoryGroup.DeletePets:onServerEvent(
+        function(sender, data)
+            if not sender then return end
+
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return end
+
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
+            if not Inventory then return end
+
+            for i: number, petId: string in ipairs(data) do Inventory -= petId end
+            InventoryGroup.RemovePetsFromInventory:fireClient(sender, data)
+        end
+    )
+
+    InventoryGroup.LockPet:onServerEvent(
+        function(sender, data)
+            if not sender then return end
+
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return end
+
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
+            if not Inventory then return end
+
+            local FoundStack: Stack<PetSchema>? = Inventory:fetchStackFromItemId(data)
+            if not FoundStack then return end
+
+            local foundIdIndex = table.find(FoundStack.StackData.locked, data)
+
+            if foundIdIndex then
+                table.remove(FoundStack.StackData.locked, foundIdIndex)
+            else
+                table.insert(FoundStack.StackData.locked, data)
+            end
+        end
+    )
+
     InventoryGroup.RequestInventorySlots:onServerInvoke(
         function(sender, data)
             if not sender then return nil :: any end
@@ -71,7 +109,7 @@ local function constuctorCallback()
             local PlrDataClass = Registry(sender)
             if not PlrDataClass then return nil :: any end
 
-            return (PlrDataClass()().Inventory :: InventoryClass).maxStacks
+            return (PlrDataClass()().Inventory :: InventoryClass).maxItems
         end
     )
 

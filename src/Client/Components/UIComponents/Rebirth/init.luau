@@ -9,6 +9,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local Components = require(script.Components)
+local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
+
 local RebirthingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Rebirthing)
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
@@ -30,6 +32,7 @@ local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 
 
+--[[ @section Utility Functions ]]
 --[[
     @usage Tweens an instance.
 
@@ -66,6 +69,25 @@ local function tweenInst(inst: GuiObject, timeInput: number, type: "pos" | "tran
     return HandledTween
 end
 
+--[[
+    @usage Updates the rebirth stats texts.
+
+    @param priceText TextLabel
+    @param levelsTxt TextLabel
+    @param multiplierText TextLabel
+
+    @return void
+]]
+local function updateRebirthStats(priceText: TextLabel, levelsTxt: TextLabel, multiplierText: TextLabel)
+    local RebirthStats = RebirthingGroup.GetRebirthStats:invokeServer()
+    if not RebirthStats then return end
+
+    priceText.Text = `Rebirth Price: {RebirthStats.price} Gems`
+    levelsTxt.Text = `Levels Needed: {RebirthStats.neededLevels}`
+    multiplierText.Text = `Current Gems Multiplier: {if RebirthStats.coinsMultiplier == 0 then 1 else RebirthStats.coinsMultiplier}x`
+end
+--[[ @end_section Utility Functions ]]
+
 
 --[[ @section Constructor ]]
 local function constructorCallback()
@@ -86,6 +108,79 @@ local function constructorCallback()
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
     HandledUI:handleButtonPress(rebirthBtn, function(pos1: number, pos2: number) RebirthingGroup.Rebirth:fireServer() end)
 
+    -- Networking connections.
+    do
+        RebirthingGroup.NotEnoughGemsToRebirth:onClientEvent(
+            function(data)
+                local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+                HandledNotificationUI:hoverAndToggleSizing(1.15)
+
+                NotificationComponents().container.Visible = true
+                NotificationComponents().notificationText.Text = `Not enough gems to rebirth.<br /><br />You need {data} more gems to  be able to rebirth.`
+                
+                HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                    function(pos1: number, pos2: number)
+                        NotificationComponents().container.Visible = false
+                        HandledNotificationUI:destroy()
+                    end
+                )
+            end
+        )
+
+        RebirthingGroup.NotEnoughLevelsToRebirth:onClientEvent(
+            function(data)
+                local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+                HandledNotificationUI:hoverAndToggleSizing(1.15)
+
+                NotificationComponents().container.Visible = true
+                NotificationComponents().notificationText.Text = `Not enough levels to rebirth.<br /><br />You need {data} more levels to be able to rebirth.`
+                
+                HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                    function(pos1: number, pos2: number)
+                        NotificationComponents().container.Visible = false
+                        HandledNotificationUI:destroy()
+                    end
+                )
+            end
+        )
+
+        RebirthingGroup.MaxRebirthsReached:onClientEvent(
+            function(data)
+                local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+                HandledNotificationUI:hoverAndToggleSizing(1.15)
+
+                NotificationComponents().container.Visible = true
+                NotificationComponents().notificationText.Text = `You have reached the maximum amount of rebirths.`
+                
+                HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                    function(pos1: number, pos2: number)
+                        NotificationComponents().container.Visible = false
+                        HandledNotificationUI:destroy()
+                    end
+                )
+            end
+        )
+
+        RebirthingGroup.SuccessfullyRebirthed:onClientEvent(
+            function(data)
+                local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+                HandledNotificationUI:hoverAndToggleSizing(1.15)
+
+                NotificationComponents().container.Visible = true
+                NotificationComponents().notificationText.Text = `You have successfully rebirthed.<br /><br />You now have {data} rebirths.`
+                
+                HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                    function(pos1: number, pos2: number)
+                        NotificationComponents().container.Visible = false
+                        HandledNotificationUI:destroy()
+                    end
+                )
+
+                updateRebirthStats(priceText, levelsTxt, multiplierText)
+            end
+        )
+    end
+
     -- Animations for closing and opening.
     do
         local originalContainerSize = containerFrame.Size
@@ -103,12 +198,7 @@ local function constructorCallback()
                     originalContainerSize
                 )
 
-                local RebirthStats = RebirthingGroup.GetRebirthStats:invokeServer()
-                if not RebirthStats then return end
-
-                priceText.Text = `Rebirth Price: {RebirthStats.price} Gems`
-                levelsTxt.Text = `Levels Needed: {RebirthStats.neededLevels}`
-                multiplierText.Text = `Current Gems Multiplier: {if RebirthStats.coinsMultiplier == 0 then 1 else RebirthStats.coinsMultiplier}x`
+                updateRebirthStats(priceText, levelsTxt, multiplierText)
             end
         )
 

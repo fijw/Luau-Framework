@@ -21,8 +21,8 @@ export type PetSchema
         size: "Default" | "Huge" | "Gigantic",
         color: "Default" | "Rainbow" | "Radioactive" | "Glitched"
     },
-
-    petOwner: Player?
+    
+    locked: { string }
 }
 
 

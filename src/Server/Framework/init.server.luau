@@ -44,6 +44,7 @@ local CrateMachineComponent = ServerScriptService.Components.CrateMachine
 local StatsUpdatingComponent = ServerScriptService.Components.StatsUpdating
 local DeveloperSpawningComponent = ServerScriptService.Components.DeveloperSpawning
 local RebirthingComponent = ServerScriptService.Components.Rebirthing
+local MergingComponent = ServerScriptService.Components.Merging
 
 
 local Initialization = script.Initialization
@@ -66,7 +67,8 @@ local ModulesToLoad
     [CrateMachineComponent.Name] = CrateMachineComponent,
     [StatsUpdatingComponent.Name] = StatsUpdatingComponent,
     [DeveloperSpawningComponent.Name] = DeveloperSpawningComponent,
-    [RebirthingComponent.Name] = RebirthingComponent
+    [RebirthingComponent.Name] = RebirthingComponent,
+    [MergingComponent.Name] = MergingComponent
 }
 
 local NUM_OF_RETRIES = 10

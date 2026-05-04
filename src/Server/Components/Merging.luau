@@ -11,6 +11,7 @@ local MergingGroup = require(ReplicatedStorage.Networking.PacketGroups.Component
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
+local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.Stacking)
 local RNG = require(ReplicatedStorage.Libraries.RNG)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 
@@ -21,6 +22,9 @@ local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
 
 --[[ @section Types ]]
 type InventoryClass = Stackentory.InventoryClass
+
+--[[ @generic D Data type. ]]
+type SavingStackSchema<D> = StackingLib.SavingStackSchema<D>
 
 type PetSchema = PetsData.PetSchema
 type CrateSchema = CratesData.CrateSchema
@@ -38,9 +42,97 @@ local PETS_NEEDED_TO_MERGE = 9
     @return void
 ]]
 local function constructorCallback()
+    MergingGroup.SearchForPetsByData:onServerEvent(
+        function(sender, data)
+            if not sender then return end
+
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return end
+
+            MergingGroup.RemoveAllPetsFromMergingSlots:fireClient(sender)
+
+            local Inventory = (PlrDataClass()() :: any).Inventory :: InventoryClass
+            if not Inventory then return end
+
+            -- Send valid search results to the player.
+            do
+                local PetsAddingToMergingSlots: { [string]: PetSchema } = {}
+                
+                local FoundStack = Inventory:fetchStackFromItemData(data)
+                if not FoundStack then return end
+
+                for i: number, id: string in ipairs(FoundStack.StackArray()) do
+                    if table.find(FoundStack.StackData.locked, id) then continue end
+                    PetsAddingToMergingSlots[id] = FoundStack.StackData
+                end
+
+                MergingGroup.AddPetsToMergingSlots:fireClient(sender, PetsAddingToMergingSlots)
+            end
+        end
+    )
+
+    MergingGroup.SearchForPetsByString:onServerEvent(
+        function(sender, data)
+            if not sender then return end
+
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return end
+
+            MergingGroup.RemoveAllPetsFromMergingSlots:fireClient(sender)
+
+            local Inventory = (PlrDataClass()() :: any).Inventory :: InventoryClass
+            if not Inventory then return end
+
+            -- Send valid search results to the player.
+            do
+                local PetsAddingToMergingSlots: { [string]: PetSchema } = {}
+                
+                for i: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
+                    if not string.find(SavingStackSchema.StackData.petName:lower(), data:lower()) then continue end
+
+                    for i: number, id: string in ipairs(SavingStackSchema.StackArray) do
+                        if table.find(SavingStackSchema.StackData.locked, id) then continue end
+                        PetsAddingToMergingSlots[id] = SavingStackSchema.StackData
+                    end
+                end
+
+                MergingGroup.AddPetsToMergingSlots:fireClient(sender, PetsAddingToMergingSlots)
+            end
+        end
+    )
+
+    MergingGroup.RequestMergingData:onServerEvent(
+        function(sender)
+            if not sender then return end
+
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return end
+
+            local Inventory = (PlrDataClass()() :: any).Inventory :: InventoryClass
+            if not Inventory then return end
+
+            MergingGroup.RemoveAllPetsFromMergingSlots:fireClient(sender)
+
+            -- Add existing pets to the player's client inventory.
+            do
+                local PetsAddingToMergingSlots = {}
+                
+                for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
+                    for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
+                        if table.find(SavingStackSchema.StackData.locked, id) then continue end
+                        PetsAddingToMergingSlots[id] = SavingStackSchema.StackData
+                    end
+                end
+                
+                MergingGroup.AddPetsToMergingSlots:fireClient(sender, PetsAddingToMergingSlots)
+            end
+        end
+    )
+
     MergingGroup.MergePets:onServerEvent(
         function(sender, data)
-            if not sender or #data < PETS_NEEDED_TO_MERGE then return end
+            if not sender then return end
+            if #data < PETS_NEEDED_TO_MERGE then MergingGroup.NotEnoughPetsToMerge:fireClient(sender, #data); return end
 
             -- Perform the atomic transaction to merge the pets.
             Registry.atomicTransaction({ sender },
@@ -52,7 +144,7 @@ local function constructorCallback()
                     do
                         local coinsState = PlayerState.gems()
 
-                        if coinsState < MERGING_PRICE then return false end
+                        if coinsState < MERGING_PRICE then MergingGroup.NotEnoughGemsToMerge:fireClient(sender, coinsState); return false end
                         PlayerState.gems(coinsState - MERGING_PRICE)
 
                         if PlayerState.gems() ~= coinsState - MERGING_PRICE then return false end

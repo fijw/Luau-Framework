@@ -42,7 +42,7 @@ local function initializeModule(module: any, i: string, LoadedModules: { [string
 
             task.defer(
                 function()
-                    if not finishedLoading then print(`Module {i} yielded when initializing, side: {runningFrom}`) end
+                    if not finishedLoading then print(`[-] [Framework] Module {i} yielded when initializing, side: {runningFrom}`) end
                 end
             )
         end
@@ -51,7 +51,7 @@ local function initializeModule(module: any, i: string, LoadedModules: { [string
         function(err: string?)
             if attempts > maxRetryAttempts then returningStatus = "failure"; return else attempts += 1; task.wait(1) end
 
-            print(`Failed to initialize module {i}, attempt {attempts} out of {maxRetryAttempts}, error: {err}, side: {runningFrom}`)
+            print(`[!] [Framework] Failed to initialize module {i}, attempt {attempts} out of {maxRetryAttempts}, error: {err}, side: {runningFrom}`)
             initializeModule(module, i, LoadedModules)
         end
     )
@@ -95,7 +95,7 @@ local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): "
             end
         end
     )
-    :onError(function(err: string?) print(`Failed to require module {lastRequiredModuleIndex}, error: {err}, side: {runningFrom}`) end)
+    :onError(function(err: string?) print(`[!] [Framework] Failed to require module {lastRequiredModuleIndex}, error: {err}, side: {runningFrom}`) end)
 
     local requiredCount = 0
     local loadedCount = 0
@@ -107,10 +107,10 @@ local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): "
     end
 
     if loadedCount >= requiredCount then
-        print(`Successfully initialized all {loadedCount} modules, side: {runningFrom}`)
+        print(`[*] [Framework] Successfully initialized all {loadedCount} modules, side: {runningFrom}`)
         return "success"
     else
-        print(`Failed to initialize all modules, only initialized {loadedCount} out of {requiredCount}, side: {runningFrom}`)
+        print(`[!] [Framework] Failed to initialize all modules, only initialized {loadedCount} out of {requiredCount}, side: {runningFrom}`)
         return "failure"
     end
 end

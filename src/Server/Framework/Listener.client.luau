@@ -25,6 +25,7 @@ local CrateMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UICo
 local ScreenComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Screen
 local DevPetSpawningComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.DPS
 local RebirthComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Rebirth
+local MergePetsMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.MergePetsMachine
 
 
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
@@ -47,7 +48,8 @@ local ModulesToLoad
     [InventoryComponent.Name] = InventoryComponent,
     [CrateMachineComponent.Name] = CrateMachineComponent,
     [ScreenComponent.Name] = ScreenComponent,
-    [RebirthComponent.Name] = RebirthComponent
+    [RebirthComponent.Name] = RebirthComponent,
+    [MergePetsMachineComponent.Name] = MergePetsMachineComponent
 }
 
 local NUM_OF_RETRIES = 10

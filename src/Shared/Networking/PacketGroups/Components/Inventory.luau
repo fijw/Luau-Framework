@@ -46,10 +46,25 @@ local Packets
         }
     ),
 
-    SearchForPets = NetworkLib("search_for_pets", "Event",
+    SearchForPets = NetworkLib("inventory_search_for_pets", "Event",
         {
             clientType = nil,
             serverType = "searching_string"
+        }
+    ),
+
+
+    LockPet = NetworkLib("lock_pet", "Event",
+        {
+            clientType = nil,
+            serverType = "pet_id"
+        }
+    ),
+
+    DeletePets = NetworkLib("delete_pets", "Event",
+        {
+            clientType = nil,
+            serverType = { "pet_id" }
         }
     )
 }

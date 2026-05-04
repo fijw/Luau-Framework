@@ -12,6 +12,7 @@ local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 
 local Components = require(script.Components)
+local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 
 local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
 local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
@@ -144,6 +145,23 @@ local function constructorCallback()
             table.insert(CachedCrateFrames, clonedCrateFrame)
         end
     end
+
+    CrateMachineGroup.SendMaxPetsNotification:onClientEvent(
+        function(data)
+            local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+            HandledNotificationUI:hoverAndToggleSizing(1.15)
+
+            NotificationComponents().container.Visible = true
+            NotificationComponents().notificationText.Text = `You have used up all of your available pet slots.<br /><br />Please delete or trade pets to obtain more pet slots.`
+            
+            HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                function(pos1: number, pos2: number)
+                    NotificationComponents().container.Visible = false
+                    HandledNotificationUI:destroy()
+                end
+            )
+        end
+    )
 
     -- Animations for closing and opening.
     do

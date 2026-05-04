@@ -30,6 +30,36 @@ local Packets
 
             serverType = nil
         }
+    ),
+
+
+    NotEnoughGemsToRebirth = NetworkLib("not_enough_gems_to_rebirth", "Event",
+        {
+            clientType = 0,
+            serverType = nil
+        }
+    ),
+
+    NotEnoughLevelsToRebirth = NetworkLib("not_enough_levels_to_rebirth", "Event",
+        {
+            clientType = 0,
+            serverType = nil
+        }
+    ),
+
+    MaxRebirthsReached = NetworkLib("max_rebirths_reached", "Event",
+        {
+            clientType = nil,
+            serverType = nil
+        }
+    ),
+
+
+    SuccessfullyRebirthed = NetworkLib("successfully_rebirthed", "Event",
+        {
+            clientType = 0,
+            serverType = nil
+        }
     )
 }
 

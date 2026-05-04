@@ -8,11 +8,11 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
-local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
+local MergingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Merging)
 
 local UIComponents = require(script.Components)
 local PetDetailsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.PetDetails)
-local AreYouSureComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.AreYouSure)
+local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
@@ -35,7 +35,9 @@ local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") els
 local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
 
 local CachedPetButtons: { [string]: ImageLabel } = {}
-local SelectedDeletingPets: { string } = {}
+local SelectedMergingPets: { string } = {}
+
+local NEEDED_PETS_TO_MERGE = 9
 --[[ @end_section Variables ]]
 
 
@@ -77,66 +79,84 @@ local function tweenInst(inst: GuiObject, timeInput: number, type: "pos" | "tran
 end
 
 --[[
-    @usage Creates a tick for a pet.
+    @usage Creates the selected tick for a pet.
 
     @param petLabel ImageLabel
 
     @return void
 ]]
-local function createTick(petLabel: ImageLabel, type: "lock" | "delete")
+local function createSelectedTick(petLabel: ImageLabel)
     local newTick = Instance.new("ImageLabel")
-    newTick.Image = if type == "lock" then "rbxassetid://138368172974659" else "rbxassetid://138335893507994"
+    newTick.Image = "rbxassetid://120401071933338"
     newTick.BackgroundTransparency = 1
     newTick.BorderSizePixel = 0
-    newTick.Position = UDim2.new(0, 0, 0, 0)
+    newTick.Position = UDim2.new(0.65, 0, 0, 0)
     newTick.Size = UDim2.new(0.35, 0, 0.35, 0)
-    newTick.Name = if type == "lock" then "LockTick" else "DeleteTick"
+    newTick.Name = "SelectedTick"
     newTick.ZIndex = 3
     newTick.Parent = petLabel
+end
+
+--[[
+    @usage Creates a notification.
+
+    @param data number
+    @param type "not_enough_pets" | "not_enough_gems"
+
+    @return void
+]]
+local function createNotification(data: number, type: "not_enough_pets" | "not_enough_gems")
+    local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+    HandledNotificationUI:hoverAndToggleSizing(1.15)
+
+    NotificationComponents().container.Visible = true
+
+    if type == "not_enough_pets" then
+        NotificationComponents().notificationText.Text = `Not enough pets to merge. <br /><br />You need to select {NEEDED_PETS_TO_MERGE - data} more pets.`
+    elseif type == "not_enough_gems" then
+        NotificationComponents().notificationText.Text = `Not enough gems to merge. You need {5_000 - data} more gems.`
+    end
+
+    HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+        function(pos1: number, pos2: number)
+            NotificationComponents().container.Visible = false
+            HandledNotificationUI:destroy()
+        end
+    )
 end
 --[[ @end_section Utility Functions ]]
 
 
 --[[ @section Constructor ]]
 local function constructorCallback()
-    local clonedInventory = UIComponents.Inventory:Clone()
-    clonedInventory.Parent = PlayerGui
+    local clonedMachine = UIComponents.MergePetsMachine:Clone()
+    clonedMachine.Parent = PlayerGui
 
-    local containerFrame = clonedInventory:WaitForChild("ContainerFrame") :: Frame
+    local containerFrame = clonedMachine:WaitForChild("Container") :: Frame
     local searchBox = containerFrame:WaitForChild("SearchBox") :: Frame
     local frameBox = searchBox:WaitForChild("FrameBox") :: ImageLabel
     local textBox = frameBox:WaitForChild("TextBox") :: TextBox
     local closeBtn = containerFrame:WaitForChild("CloseBtn") :: ImageButton
-    local buttonsFrame = containerFrame:WaitForChild("ButtonsFrame") :: ImageLabel
-    local lockBtn = buttonsFrame:WaitForChild("LockBtn") :: ImageButton
-    local deleteBtn = buttonsFrame:WaitForChild("DeleteBtn") :: ImageButton
-    local expandBtn = buttonsFrame:WaitForChild("ExpandBtn") :: ImageButton
+    local mergeBtn = containerFrame:WaitForChild("MergeBtn") :: ImageButton
     local mainFrame = containerFrame:WaitForChild("MainFrame") :: ImageLabel
-    local inventoryStatusContainer = mainFrame:WaitForChild("InventoryStatusContainer") :: Frame
-    local equippedText = inventoryStatusContainer:WaitForChild("EquippedText") :: TextLabel
-    local slotsText = inventoryStatusContainer:WaitForChild("SlotsText") :: TextLabel
     local scrollingFrame = mainFrame:WaitForChild("ScrollingFrame") :: ScrollingFrame
-    local uiListLayout = scrollingFrame:WaitForChild("UIListLayout") :: UIListLayout
     local defaultPetButton = scrollingFrame:WaitForChild("Default") :: ImageLabel
     local hugePetButton = scrollingFrame:WaitForChild("Huge") :: ImageLabel
     local giganticPetButton = scrollingFrame:WaitForChild("Gigantic") :: ImageLabel
+    local uiListLayout = scrollingFrame:WaitForChild("UIListLayout") :: UIListLayout
 
-    textBox:GetPropertyChangedSignal("Text"):Connect(function() InventoryGroup.SearchForPets:fireServer(textBox.Text) end)
+    textBox:GetPropertyChangedSignal("Text"):Connect(function() MergingGroup.SearchForPetsByString:fireServer(textBox.Text) end)
 
-    local HandledUI = UIUtilitiesLibrary("inventory", clonedInventory)
+    local HandledUI = UIUtilitiesLibrary("merging_machine", clonedMachine)
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
-
-    local isLocking = false
-    local isDeleting = false
-    local isExpanded = false
 
     -- Networking connections.
     do
         local petsCount = 0
 
-        InventoryGroup.AddPetsToInventory:onClientEvent(
-            function(data: { [string]: PetSchema })
+        MergingGroup.AddPetsToMergingSlots:onClientEvent(
+            function(data)
                 for i: string, PetSchema: PetSchema in pairs(data) do
                     petsCount += 1
 
@@ -153,8 +173,8 @@ local function constructorCallback()
                     newPetLabel.Name = i
                     newPetLabel.Visible = true
                     newPetLabel.Parent = scrollingFrame
-
-                    if table.find(PetSchema.locked, i) then createTick(newPetLabel, "lock") end
+                    
+                    if table.find(SelectedMergingPets, i) then createSelectedTick(newPetLabel) end
 
                     local innerImgButton = Instance.new("ImageButton")
                     innerImgButton.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -199,52 +219,28 @@ local function constructorCallback()
 
                     HandledUI:handleButtonPress(innerImgButton,
                         function(pos1: number, pos2: number)
-                            if isLocking then
-                                local foundIdIndex = table.find(PetSchema.locked, i)
+                            local foundPetIndex = table.find(SelectedMergingPets, i)
 
-                                if not foundIdIndex then
-                                    table.insert(PetSchema.locked, i)
+                            if foundPetIndex then
+                                local foundTick = newPetLabel:FindFirstChild("SelectedTick")
+                                if foundTick then foundTick:Destroy() end
 
-                                    InventoryGroup.LockPet:fireServer(i)
-                                    createTick(newPetLabel, "lock")
-                                else
-                                    table.remove(PetSchema.locked, foundIdIndex)
-                                    InventoryGroup.LockPet:fireServer(i)
-                                    
-                                    local foundTick = newPetLabel:FindFirstChild("LockTick")
-                                    if foundTick then foundTick:Destroy() end
-                                end
+                                table.remove(SelectedMergingPets, foundPetIndex)
+                            else
+                                createSelectedTick(newPetLabel)
+                                if #SelectedMergingPets < NEEDED_PETS_TO_MERGE then table.insert(SelectedMergingPets, i) end
                             end
 
-                            if isDeleting then
-                                if table.find(PetSchema.locked, i) then return end
-
-                                -- Add or remove the pet from the deletion list.
-                                do
-                                    local foundIdIndex = table.find(SelectedDeletingPets, i)
-
-                                    if foundIdIndex then
-                                        table.remove(SelectedDeletingPets, foundIdIndex)
-
-                                        local foundTick = newPetLabel:FindFirstChild("DeleteTick")
-                                        if foundTick then foundTick:Destroy() end
-                                    else
-                                        createTick(newPetLabel, "delete")
-                                        table.insert(SelectedDeletingPets, i)
-                                    end
-                                end
-                            end
+                            if #SelectedMergingPets > 0 then MergingGroup.SearchForPetsByData:fireServer(PetSchema) else MergingGroup.RequestMergingData:fireServer() end
                         end
                     )
                 end
-
-                slotsText.Text = `{petsCount}/{InventoryGroup.RequestInventorySlots:invokeServer()} Pets`
             end
         )
 
-        InventoryGroup.RemovePetsFromInventory:onClientEvent(
-            function(data: { string })
-                for i: number, petId: string in ipairs(data :: { string }) do
+        MergingGroup.RemovePetsFromMergingSlots:onClientEvent(
+            function(data)
+                for i: number, petId: string in ipairs(data) do
                     local PetButton = CachedPetButtons[petId]
                     if not PetButton then continue end
 
@@ -254,7 +250,7 @@ local function constructorCallback()
             end
         )
 
-        InventoryGroup.RemoveAllPetsFromInventory:onClientEvent(
+        MergingGroup.RemoveAllPetsFromMergingSlots:onClientEvent(
             function(data)
                 for i: string, PetButton: ImageLabel in pairs(CachedPetButtons) do
                     PetButton:Destroy()
@@ -262,73 +258,12 @@ local function constructorCallback()
                 end
             end
         )
+
+        MergingGroup.NotEnoughPetsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_pets") end)
+        MergingGroup.NotEnoughGemsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_gems") end)
     end
 
-    -- Toggle buttons.
-    do
-        HandledUI:handleButtonPress(lockBtn,
-            function(pos1: number, pos2: number) isLocking = not isLocking end
-        )
-
-        HandledUI:handleButtonPress(deleteBtn,
-            function(pos1: number, pos2: number)
-                isDeleting = not isDeleting
-                if isDeleting or #SelectedDeletingPets <= 0 then return end
-
-                local AreYouSureHandledUI = UIUtilitiesLibrary("are_you_sure", AreYouSureComponents().areYouSure)
-                AreYouSureHandledUI:hoverAndToggleSizing(1.05)
-
-                AreYouSureComponents().container.Visible = true
-                AreYouSureComponents().notificationText.Text = "Are you sure you want to delete the selected pets?<br /><br />This action cannot be undone."
-
-                AreYouSureHandledUI:handleButtonPress(AreYouSureComponents().continueBtn,
-                    function(pos1: number, pos2: number)
-                        InventoryGroup.DeletePets:fireServer(SelectedDeletingPets)
-
-                        AreYouSureComponents().container.Visible = false
-                        AreYouSureHandledUI:destroy()
-
-                        SelectedDeletingPets = {}
-                    end
-                )
-
-                AreYouSureHandledUI:handleButtonPress(AreYouSureComponents().cancelBtn,
-                    function(pos1: number, pos2: number)
-                        for i: number, petId: string in ipairs(SelectedDeletingPets) do
-                            local PetButton = CachedPetButtons[petId]
-                            if not PetButton then continue end
-
-                            local foundTick = PetButton:FindFirstChild("DeleteTick")
-                            if foundTick then foundTick:Destroy() end
-                        end
-
-                        AreYouSureComponents().container.Visible = false
-                        AreYouSureHandledUI:destroy()
-
-                        SelectedDeletingPets = {}
-                    end
-                )
-            end
-        )
-
-        HandledUI:handleButtonPress(expandBtn,
-            function(pos1: number, pos2: number)
-                isExpanded = not isExpanded
-
-                if isExpanded then
-                    for i: number, inst: Instance in ipairs(scrollingFrame:GetChildren()) do
-                        if not inst:IsA("ImageLabel") then continue end
-                        inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2, inst.Size.Y.Scale / 2)
-                    end
-                else
-                    for i: number, inst: Instance in ipairs(scrollingFrame:GetChildren()) do
-                        if not inst:IsA("ImageLabel") then continue end
-                        inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2, inst.Size.Y.Scale * 2)
-                    end
-                end
-            end
-        )
-    end
+    HandledUI:handleButtonPress(mergeBtn, function(pos1: number, pos2: number) MergingGroup.MergePets:fireServer(SelectedMergingPets) end)
 
     -- Animations for closing and opening.
     do
@@ -346,6 +281,8 @@ local function constructorCallback()
 
                     originalContainerSize
                 )
+
+                MergingGroup.RequestMergingData:fireServer()
             end
         )
 
@@ -366,7 +303,7 @@ local function constructorCallback()
     task.spawn(
         function()
             while true do
-                repeat task.wait() until clonedInventory.Enabled; task.wait()
+                repeat task.wait() until clonedMachine.Enabled; task.wait()
                 scrollingFrame.CanvasSize = UDim2.fromOffset(0, uiListLayout.AbsoluteContentSize.Y)
             end
         end

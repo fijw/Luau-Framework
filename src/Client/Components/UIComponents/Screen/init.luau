@@ -18,6 +18,7 @@ local StatsUpdatingGroup = require(ReplicatedStorage.Networking.PacketGroups.Com
 
 
 type HandledTween = TweensLib.HandledTween
+type HandledUI = UIUtilitiesLibrary.HandledUI
 
 
 local localPlayer = Players.LocalPlayer :: Player
@@ -101,8 +102,8 @@ local function constructorCallback()
     local xpToNextLevelText = levelsDisplay:WaitForChild("XPToNextLevelText") :: TextLabel
     local levelsToRebirthText = rebirthsDisplay:WaitForChild("LevelsToRebirthText") :: TextLabel
 
-    local HideAndShowButtons = { tradingBtn, rebirthBtn, shopBtn, marketplaceBtn, settingsBtn }
-    for i: number, button: ImageButton in ipairs(HideAndShowButtons) do button.Visible = false end
+    local HideAndShowBarButtons = { tradingBtn, rebirthBtn, shopBtn, marketplaceBtn, settingsBtn }
+    for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do button.Visible = false end
 
     local HideAndShowButtonPositions
     = {
@@ -148,7 +149,7 @@ local function constructorCallback()
         )
 
         HandledUi:handleButtonPress(marketplaceBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "marketplace", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "merging_machine", true) end
         )
 
         HandledUi:handleButtonPress(settingsBtn,
@@ -156,7 +157,9 @@ local function constructorCallback()
         )
     end
 
-    for i: number, str: string in ipairs({ "inventory", "send_trade", "rebirth", "shop", "marketplace", "settings" }) do
+    local SubscribingUINames = { "inventory", "send_trade", "rebirth", "shop", "marketplace", "settings" }
+
+    for i: number, str: string in ipairs(SubscribingUINames) do
         local CachedClass = UIUtilitiesLibrary.CachedUIClasses[str]
         if not CachedClass then continue end
 
@@ -165,7 +168,7 @@ local function constructorCallback()
                 if NamesToBringBackToFocus then return end
                 tweenInst(inventoryBtn, 0.25, "pos", UDim2.new(0.5, 0, 0.5, 0))
 
-                for i: number, button: ImageButton in ipairs(HideAndShowButtons) do
+                for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do
                     task.spawn(
                         function()
                             tweenInst(button, 0.25, "trans", 1)
@@ -182,11 +185,32 @@ local function constructorCallback()
             function(self, NamesKeepingFocus)
                 tweenInst(inventoryBtn, 0.25, "pos", oldInvBtnPos)
                 
-                for i: number, button: ImageButton in ipairs(HideAndShowButtons) do
+                for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do
                     button.Visible = true
 
                     tweenInst(button, 0.25, "pos", HideAndShowButtonPositions[button])
                     tweenInst(button, 0.25, "trans", 0)
+                end
+            end
+        )
+    end
+
+    for i: string, CachedClass: HandledUI in pairs(UIUtilitiesLibrary.CachedUIClasses) do
+        if table.find(SubscribingUINames, i) then continue end
+
+        CachedClass:subscribeToSetFocus("screen_subscription",
+            function(self, NamesKeepingFocus)
+                tweenInst(inventoryBtn, 0.25, "pos", UDim2.new(0.5, 0, 0.5, 0))
+
+                for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do
+                    task.spawn(
+                        function()
+                            tweenInst(button, 0.25, "trans", 1)
+                            tweenInst(button, 0.25, "pos", UDim2.new(0.5, 0, 0.5, 0)):waitForCompletion()
+
+                            button.Visible = false
+                        end
+                    )
                 end
             end
         )

@@ -24,6 +24,13 @@ local Packets
             clientType = { {} :: { name: string, price: number, Chances: { [string]: number } } },
             serverType = "searching_string" :: string?
         }
+    ),
+
+    SendMaxPetsNotification = NetworkLib("crate_machine_send_max_pets_notification", "Event",
+        {
+            clientType = 0,
+            serverType = nil
+        }
     )
 }
 

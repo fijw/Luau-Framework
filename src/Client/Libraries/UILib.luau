@@ -566,6 +566,8 @@ end
     @return HandledUI
 ]]
 local function constructorCallback(self: unknown, id: string, ui: ScreenGui): HandledUI
+    if UILibrary.CachedUIClasses[id] then return UILibrary.CachedUIClasses[id] end
+
     local NewHandledUI
     = {
         ScreenGui = ui,

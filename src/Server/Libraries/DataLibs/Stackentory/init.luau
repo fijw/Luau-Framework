@@ -1,10 +1,15 @@
 --!strict
 --!native
 --!optimize 2
+
+
+--[[ @section Imports ]]
 local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-
+local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 local Stacking = require(script.Stacking)
+--[[ @end_section Imports ]]
 
 
 --[[ @section Types ]]
@@ -21,8 +26,8 @@ type ItemRemovedSubscriptionType = (itemId: string) -> ()
 
 export type SavingInventoryClassSchema
 = {
-    maxStacks: number,
-    usedStacks: number,
+    maxItems: number,
+    usedItemSlots: number,
 
     StacksArray: { [string]: SavingStackSchema<any> }
 }
@@ -35,8 +40,8 @@ export type InventoryClass = setmetatable
         onItemAddedSubscription: ItemAddedSubscriptionType?,
         onItemRemovedSubscription: ItemRemovedSubscriptionType?,
 
-        maxStacks: number,
-        usedStacks: number,
+        maxItems: number,
+        usedItemSlots: number,
 
         StacksArray: { [string]: StackClass<any> }
     },
@@ -102,13 +107,8 @@ local function fetchStackFromItemDataCallback<D>(self: InventoryClass, data: D):
         elseif typeof(data) ~= "table" and typeof(Stack.StackData) == "table" then continue
         elseif typeof(Stack.StackData) ~= "table" and typeof(data) == "table" then continue end
 
-        local success: false?
-
-        for stackDataIndex: any, v: any in pairs(Stack.StackData :: { [any]: any }) do
-            if not (data :: { [any]: any })[stackDataIndex] or (data :: { [any]: any })[stackDataIndex] ~= v then success = false end
-        end
-
-        if success ~= false then FoundStack = Stack; break end
+        local isMatch = TableUtils.deepCompare(data, Stack.StackData)
+        if isMatch ~= "mismatch" then FoundStack = Stack; break end
     end
 
     return FoundStack
@@ -137,8 +137,8 @@ end
     @return InventoryClass
 ]]
 local function addCallback(self: InventoryClass, AddingSchema: { itemData: any, itemId: string }): InventoryClass
-    if self.usedStacks >= self.maxStacks then return self end
-    self.usedStacks += 1
+    if self.usedItemSlots >= self.maxItems then return self end
+    self.usedItemSlots += 1
 
     local FetchedStack = self:fetchStackFromItemData(AddingSchema.itemData)
 
@@ -166,7 +166,7 @@ end
     @return InventoryClass
 ]]
 local function removeCallback(self: InventoryClass, itemId: string): InventoryClass
-    self.usedStacks -= 1
+    self.usedItemSlots -= 1
 
     local FetchedStack = self:fetchStackFromItemId(itemId)
     if not FetchedStack then return self end
@@ -189,8 +189,8 @@ end
 local function inventoryClassCallback(self: InventoryClass): SavingInventoryClassSchema
     local SavingInventoryClassSchema: SavingInventoryClassSchema
     = {
-        maxStacks = self.maxStacks,
-        usedStacks = self.usedStacks,
+        maxItems = self.maxItems,
+        usedItemSlots = self.usedItemSlots,
 
         StacksArray = {}
     }
@@ -207,30 +207,15 @@ end
 --[[
     @usage Create an inventory class.
 
-    @param PreviousInventory
-    {
-        maxStacks: number,
-        usedStacks: number,
-
-        StacksArray: { [string]: SavingStackSchema<any> }
-    }?
+    @param PreviousInventory SavingInventoryClassSchema?
 
     @return Inventory
 ]]
-local function constructorCallback
-(
-    PreviousInventoryClass
-    : {
-        maxStacks: number,
-        usedStacks: number,
-
-        StacksArray: { [string]: SavingStackSchema<any> }
-    }?
-): InventoryClass
+local function constructorCallback(PreviousInventoryClass: SavingInventoryClassSchema?): InventoryClass
     local NewInventory
     = {
-        maxStacks = if PreviousInventoryClass then PreviousInventoryClass.maxStacks else 500,
-        usedStacks = if PreviousInventoryClass then PreviousInventoryClass.usedStacks else 0,
+        maxItems = if PreviousInventoryClass then PreviousInventoryClass.maxItems else 25,
+        usedItemSlots = if PreviousInventoryClass then PreviousInventoryClass.usedItemSlots else 0,
 
         StacksArray = {}
     }

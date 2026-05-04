@@ -78,9 +78,18 @@ local function constructorCallback()
                         PetSchema.PetStats.color = RandomizedStats.color :: any
                         PetSchema.PetStats.size = RandomizedStats.size :: any
                         PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
+                        PetSchema.locked = {}
 
-                        PlayerState.Inventory += { itemData = PetSchema, itemId = randomId }
-                        if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(randomId) then return false end
+                        -- Attempt to give the player the pet.
+                        do
+                            local Inventory = PlayerState.Inventory :: InventoryClass
+
+                            local maxItems = Inventory.maxItems
+                            if Inventory.usedItemSlots >= maxItems then CrateMachineGroup.SendMaxPetsNotification:fireClient(sender, maxItems); return false end
+
+                            Inventory += { itemData = PetSchema, itemId = randomId }
+                            if not Inventory:fetchStackFromItemId(randomId) then return false end
+                        end
                     end
 
                     return true

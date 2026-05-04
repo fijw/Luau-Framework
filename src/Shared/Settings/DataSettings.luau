@@ -87,11 +87,11 @@ local DataSettings
 = {
     DataTemplate
     = {
-        gems = 2_500 :: any,
+        gems = 50_000 :: any,
         
         GameplayData
         = {
-            level = 1,
+            level = 100,
             xp = 0,
             xpToNextLevel = 1_000,
             levelsNeededToRebirth = 10,
@@ -105,7 +105,7 @@ local DataSettings
         } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "12fqafafaq"
+    PLAYER_DATA_STORAGE_KEY = "123tabatata"
 }
 
 

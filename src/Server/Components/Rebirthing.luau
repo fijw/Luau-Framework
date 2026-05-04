@@ -38,10 +38,13 @@ local function constructorCallback()
             local PlrDataClass = Registry(sender)
             if not PlrDataClass then return nil :: any end
 
+            local coinsMultiplier = 1.25 * PlrDataClass()().GameplayData().rebirths
+            local price = BASE_REBIRTHING_PRICE * (PlrDataClass()().GameplayData().rebirths * REBIRTH_PRICE_MULTIPLIER_PER_REBIRTH)
+
             local ReturningStats
             = {
-                coinsMultiplier = 1.25 * PlrDataClass()().GameplayData().rebirths,
-                price = BASE_REBIRTHING_PRICE * (PlrDataClass()().GameplayData().rebirths * REBIRTH_PRICE_MULTIPLIER_PER_REBIRTH),
+                coinsMultiplier = if coinsMultiplier == 0 then 1 else coinsMultiplier,
+                price = if price == 0 then BASE_REBIRTHING_PRICE else price,
                 neededLevels = PlrDataClass()().GameplayData().levelsNeededToRebirth * NEEDED_LEVELS_MULTIPLER_PER_REBIRTH
             }
 
@@ -59,14 +62,25 @@ local function constructorCallback()
                     local PlayerState = PlayerStates[sender]
                     if not PlayerState then return false end
 
-                    if PlayerState.GameplayData().rebirths >= MAX_REBIRTHS then return false end
+                    if PlayerState.GameplayData().rebirths >= MAX_REBIRTHS then
+                        RebirthingGroup.MaxRebirthsReached:fireClient(sender)
+                        return false
+                    end
+
+                    local neededLevels = PlayerState.GameplayData().levelsNeededToRebirth * NEEDED_LEVELS_MULTIPLER_PER_REBIRTH
+
+                    if neededLevels > PlayerState.GameplayData().level then
+                        RebirthingGroup.NotEnoughLevelsToRebirth:fireClient(sender, neededLevels - PlayerState.GameplayData().level)
+                        return false
+                    end
 
                     -- Update the player's coins.
                     do
                         local rebirthsPrice = BASE_REBIRTHING_PRICE * (PlayerState.GameplayData().rebirths * REBIRTH_PRICE_MULTIPLIER_PER_REBIRTH)
+                        if rebirthsPrice == 0 then rebirthsPrice = BASE_REBIRTHING_PRICE end
 
                         local oldPlrCoins = PlayerState.gems()
-                        if oldPlrCoins < rebirthsPrice then return false end
+                        if oldPlrCoins < rebirthsPrice then RebirthingGroup.NotEnoughGemsToRebirth:fireClient(sender, (oldPlrCoins - rebirthsPrice) * -1); return false end
 
                         PlayerState.gems(PlayerState.gems() - rebirthsPrice)
                         if PlayerState.gems() ~= oldPlrCoins - rebirthsPrice then return false end
@@ -82,7 +96,7 @@ local function constructorCallback()
 
                     -- Update the player's gameplay data.
                     do
-                        local newLevelsNeededToRebirth = PlayerState.GameplayData().levelsNeededToRebirth * NEEDED_LEVELS_MULTIPLER_PER_REBIRTH;
+                        local newLevelsNeededToRebirth = PlayerState.GameplayData().levelsNeededToRebirth * (NEEDED_LEVELS_MULTIPLER_PER_REBIRTH * PlayerState.GameplayData().rebirths);
 
                         (
                             PlayerState.GameplayData(1, "level") :: StateEngine<StateEngine<any>>
@@ -105,6 +119,8 @@ local function constructorCallback()
                             or PlayerState.GameplayData().xpToNextLevel ~= 1_000
                             or PlayerState.GameplayData().levelsNeededToRebirth ~= newLevelsNeededToRebirth
                         then return false end
+                        
+                        RebirthingGroup.SuccessfullyRebirthed:fireClient(sender, PlayerState.GameplayData().rebirths)
                     end
 
                     return true
