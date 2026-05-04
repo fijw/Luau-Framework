@@ -82,6 +82,13 @@ local Packets
             clientType = 0,
             serverType = nil
         }
+    ),
+
+    SuccessfullyMergedPets = NetworkLib("successfully_merged_pets", "Event",
+        {
+            clientType = nil,
+            serverType = nil
+        }
     )
 }
 

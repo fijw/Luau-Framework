@@ -87,7 +87,7 @@ local DataSettings
 = {
     DataTemplate
     = {
-        gems = 50_000 :: any,
+        gems = 10_000 :: any,
         
         GameplayData
         = {
@@ -105,7 +105,7 @@ local DataSettings
         } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "123tabatata"
+    PLAYER_DATA_STORAGE_KEY = "takethis"
 }
 
 

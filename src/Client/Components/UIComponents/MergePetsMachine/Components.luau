@@ -26,6 +26,7 @@ local TextBox = Instance.new("TextBox")
 local CloseBtn = Instance.new("ImageButton")
 local MergeBtn = Instance.new("ImageButton")
 local UIAspectRatioConstraint_5 = Instance.new("UIAspectRatioConstraint")
+local ExpandBtn = Instance.new("ImageButton")
 
 local ComponentsMap = { MergePetsMachine = MergePetsMachine }
 --[[ @end_section Variables ]]
@@ -87,6 +88,17 @@ do
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayout.Padding = UDim.new(0, 7)
     UIListLayout.Wraps = true
+
+    ExpandBtn.Name = "ExpandBtn"
+    ExpandBtn.Parent = Container
+    ExpandBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    ExpandBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ExpandBtn.BorderSizePixel = 0
+    ExpandBtn.Position = UDim2.new(0.425, 0, 0.068, 0)
+    ExpandBtn.Size = UDim2.new(0.09, 0, 0.12, 0)
+    ExpandBtn.Image = "rbxassetid://130599991371204"
+    ExpandBtn.BackgroundTransparency = 1
+    ExpandBtn.ZIndex = 3
 
     TextButton.Name = "Gigantic"
     TextButton.Parent = ScrollingFrame

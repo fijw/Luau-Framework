@@ -163,6 +163,23 @@ local function constructorCallback()
         end
     )
 
+    CrateMachineGroup.SendNotEnoughGemsNotification:onClientEvent(
+        function(data)
+            local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+            HandledNotificationUI:hoverAndToggleSizing(1.15)
+
+            NotificationComponents().container.Visible = true
+            NotificationComponents().notificationText.Text = `You don't have enough gems to open this crate.<br /><br />You need {data} more gems to be able to open this crate.`
+            
+            HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                function(pos1: number, pos2: number)
+                    NotificationComponents().container.Visible = false
+                    HandledNotificationUI:destroy()
+                end
+            )
+        end
+    )
+
     -- Animations for closing and opening.
     do
         local originalContainerSize = machineContainer.Size

@@ -41,7 +41,7 @@ local Packets
 
     RequestInventorySlots = NetworkLib("request_inventory_slots", "Function",
         {
-            clientType = 0,
+            clientType = "used_slots/max_slots",
             serverType = nil
         }
     ),

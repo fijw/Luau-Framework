@@ -133,13 +133,9 @@ local function constructorCallback()
 
     -- Networking connections.
     do
-        local petsCount = 0
-
         InventoryGroup.AddPetsToInventory:onClientEvent(
             function(data: { [string]: PetSchema })
                 for i: string, PetSchema: PetSchema in pairs(data) do
-                    petsCount += 1
-
                     local newPetLabel: ImageLabel
 
                     if PetSchema.PetStats.size == "Gigantic" then
@@ -238,7 +234,7 @@ local function constructorCallback()
                     )
                 end
 
-                slotsText.Text = `{petsCount}/{InventoryGroup.RequestInventorySlots:invokeServer()} Pets`
+                slotsText.Text = `{InventoryGroup.RequestInventorySlots:invokeServer()} Pets`
             end
         )
 
@@ -251,6 +247,8 @@ local function constructorCallback()
                     PetButton:Destroy()
                     PetButton.Parent = nil
                 end
+
+                slotsText.Text = `{InventoryGroup.RequestInventorySlots:invokeServer()} Pets`
             end
         )
 
@@ -260,6 +258,8 @@ local function constructorCallback()
                     PetButton:Destroy()
                     PetButton.Parent = nil
                 end
+
+                slotsText.Text = `{InventoryGroup.RequestInventorySlots:invokeServer()} Pets`
             end
         )
     end
@@ -267,12 +267,12 @@ local function constructorCallback()
     -- Toggle buttons.
     do
         HandledUI:handleButtonPress(lockBtn,
-            function(pos1: number, pos2: number) isLocking = not isLocking end
+            function(pos1: number, pos2: number) if not isDeleting then isLocking = not isLocking end end
         )
 
         HandledUI:handleButtonPress(deleteBtn,
             function(pos1: number, pos2: number)
-                isDeleting = not isDeleting
+                if not isLocking then isDeleting = not isDeleting else return end
                 if isDeleting or #SelectedDeletingPets <= 0 then return end
 
                 local AreYouSureHandledUI = UIUtilitiesLibrary("are_you_sure", AreYouSureComponents().areYouSure)
@@ -318,12 +318,12 @@ local function constructorCallback()
                 if isExpanded then
                     for i: number, inst: Instance in ipairs(scrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-                        inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2, inst.Size.Y.Scale / 2)
+                        inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2.04, inst.Size.Y.Scale / 2.025)
                     end
                 else
                     for i: number, inst: Instance in ipairs(scrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-                        inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2, inst.Size.Y.Scale * 2)
+                        inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2.04, inst.Size.Y.Scale * 2.025)
                     end
                 end
             end

@@ -24,6 +24,13 @@ local Packets
                 receiverId = 0
             }
         }
+    ),
+
+    SendResults = NetworkLib("send_spawning_results", "Event",
+        {
+            clientType = "results_string",
+            serverType = nil
+        }
     )
 }
 

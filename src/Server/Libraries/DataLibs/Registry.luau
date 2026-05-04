@@ -312,7 +312,7 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
 
         print(`Data mismatch when saving [{self.classKey}]'s data.`)
 
-        self:saveClass(keepInUseStatus)
+        task.wait(1); self:saveClass(keepInUseStatus)
     end
 end
 

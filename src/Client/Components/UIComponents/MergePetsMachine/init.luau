@@ -37,6 +37,8 @@ local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
 local CachedPetButtons: { [string]: ImageLabel } = {}
 local SelectedMergingPets: { string } = {}
 
+local CurrentPetSchema: PetSchema?
+
 local NEEDED_PETS_TO_MERGE = 9
 --[[ @end_section Variables ]]
 
@@ -105,16 +107,18 @@ end
 
     @return void
 ]]
-local function createNotification(data: number, type: "not_enough_pets" | "not_enough_gems")
+local function createNotification(data: number?, type: "not_enough_pets" | "not_enough_gems" | "success")
     local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
     HandledNotificationUI:hoverAndToggleSizing(1.15)
 
     NotificationComponents().container.Visible = true
 
     if type == "not_enough_pets" then
-        NotificationComponents().notificationText.Text = `Not enough pets to merge. <br /><br />You need to select {NEEDED_PETS_TO_MERGE - data} more pets.`
+        NotificationComponents().notificationText.Text = `Not enough pets to merge. <br /><br />You need to select {NEEDED_PETS_TO_MERGE - data :: number} more pets.`
     elseif type == "not_enough_gems" then
-        NotificationComponents().notificationText.Text = `Not enough gems to merge. You need {5_000 - data} more gems.`
+        NotificationComponents().notificationText.Text = `Not enough gems to merge. You need {5_000 - data :: number} more gems.`
+    else
+        NotificationComponents().notificationText.Text = `Successfully merged pets.`
     end
 
     HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
@@ -144,22 +148,30 @@ local function constructorCallback()
     local hugePetButton = scrollingFrame:WaitForChild("Huge") :: ImageLabel
     local giganticPetButton = scrollingFrame:WaitForChild("Gigantic") :: ImageLabel
     local uiListLayout = scrollingFrame:WaitForChild("UIListLayout") :: UIListLayout
+    local expandBtn = containerFrame:WaitForChild("ExpandBtn") :: ImageButton
 
-    textBox:GetPropertyChangedSignal("Text"):Connect(function() MergingGroup.SearchForPetsByString:fireServer(textBox.Text) end)
+    textBox:GetPropertyChangedSignal("Text"):Connect(
+        function()
+            if CurrentPetSchema then
+                MergingGroup.SearchForPetsByData:fireServer(CurrentPetSchema)
+                return
+            end
+
+            MergingGroup.SearchForPetsByString:fireServer(textBox.Text)
+        end
+    )
 
     local HandledUI = UIUtilitiesLibrary("merging_machine", clonedMachine)
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
+    local isExpanded = false
+
     -- Networking connections.
     do
-        local petsCount = 0
-
         MergingGroup.AddPetsToMergingSlots:onClientEvent(
             function(data)
                 for i: string, PetSchema: PetSchema in pairs(data) do
-                    petsCount += 1
-
                     local newPetLabel: ImageLabel
 
                     if PetSchema.PetStats.size == "Gigantic" then
@@ -227,11 +239,19 @@ local function constructorCallback()
 
                                 table.remove(SelectedMergingPets, foundPetIndex)
                             else
-                                createSelectedTick(newPetLabel)
-                                if #SelectedMergingPets < NEEDED_PETS_TO_MERGE then table.insert(SelectedMergingPets, i) end
+                                if #SelectedMergingPets < NEEDED_PETS_TO_MERGE then
+                                    table.insert(SelectedMergingPets, i)
+                                    createSelectedTick(newPetLabel)
+                                end
                             end
 
-                            if #SelectedMergingPets > 0 then MergingGroup.SearchForPetsByData:fireServer(PetSchema) else MergingGroup.RequestMergingData:fireServer() end
+                            if #SelectedMergingPets > 0 then
+                                MergingGroup.SearchForPetsByData:fireServer(PetSchema)
+                                CurrentPetSchema = PetSchema
+                            else
+                                MergingGroup.SearchForPetsByString:fireServer("")
+                                CurrentPetSchema = nil
+                            end
                         end
                     )
                 end
@@ -261,9 +281,35 @@ local function constructorCallback()
 
         MergingGroup.NotEnoughPetsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_pets") end)
         MergingGroup.NotEnoughGemsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_gems") end)
+        MergingGroup.SuccessfullyMergedPets:onClientEvent(function(data) createNotification(data, "success") end)
     end
 
-    HandledUI:handleButtonPress(mergeBtn, function(pos1: number, pos2: number) MergingGroup.MergePets:fireServer(SelectedMergingPets) end)
+    HandledUI:handleButtonPress(mergeBtn,
+        function(pos1: number, pos2: number)
+            MergingGroup.MergePets:fireServer(SelectedMergingPets)
+            MergingGroup.RequestMergingData:fireServer()
+
+            SelectedMergingPets = {}
+        end
+    )
+
+    HandledUI:handleButtonPress(expandBtn,
+        function(pos1: number, pos2: number)
+            isExpanded = not isExpanded
+
+            if isExpanded then
+                for i: number, inst: Instance in ipairs(scrollingFrame:GetChildren()) do
+                    if not inst:IsA("ImageLabel") then continue end
+                    inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2.04, inst.Size.Y.Scale / 2.025)
+                end
+            else
+                for i: number, inst: Instance in ipairs(scrollingFrame:GetChildren()) do
+                    if not inst:IsA("ImageLabel") then continue end
+                    inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2.04, inst.Size.Y.Scale * 2.025)
+                end
+            end
+        end
+    )
 
     -- Animations for closing and opening.
     do
@@ -296,6 +342,8 @@ local function constructorCallback()
 
                     UDim2.new(0, 0, 0, 0)
                 ):waitForCompletion()
+
+                SelectedMergingPets = {}
             end
         )
     end

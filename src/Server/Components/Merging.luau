@@ -166,7 +166,7 @@ local function constructorCallback()
 
                         if TableUtils.deepCompare(PetSchema :: any, MergingPetSchema :: any) ~= "match" then return false end
 
-                        PlayerState.Inventory -= { itemData = PetSchema, itemId = petId }
+                        PlayerState.Inventory -= petId
                         if (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(petId) then return false end
                     end
 
@@ -202,6 +202,8 @@ local function constructorCallback()
                         PlayerState.Inventory += { itemData = MergingPetSchema, itemId = randomizedPetId }
                         if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(randomizedPetId) then return false end
                     end
+
+                    MergingGroup.SuccessfullyMergedPets:fireClient(sender)
 
                     return true
                 end

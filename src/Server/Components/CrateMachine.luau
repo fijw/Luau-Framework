@@ -58,9 +58,12 @@ local function constructorCallback()
 
                     -- Deduct the player's coins.
                     do
-                        if CrateSchema.price > oldGems then return false end
-                        PlayerState.gems(oldGems - CrateSchema.price)
+                        if CrateSchema.price > oldGems then
+                            CrateMachineGroup.SendNotEnoughGemsNotification:fireClient(sender, CrateSchema.price - oldGems)
+                            return false
+                        end
 
+                        PlayerState.gems(oldGems - CrateSchema.price)
                         if PlayerState.gems() ~= oldGems - CrateSchema.price then return false end
                     end
 

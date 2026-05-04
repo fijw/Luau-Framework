@@ -56,7 +56,7 @@ export type InventoryClass = setmetatable
             subscribeToItemsRemoved: (self: InventoryClass, callback: ItemRemovedSubscriptionType) -> (),
         },
 
-        __add: (self: InventoryClass, AddingSchema: { itemData: any, itemId: string }) -> (InventoryClass),
+        __add: (self: InventoryClass, AddingSchema: { itemData: any, itemId: string, forceAdd: true? }) -> (InventoryClass),
         __sub: (self: InventoryClass, itemId: string) -> (InventoryClass),
 
         __call: (self: InventoryClass) -> (SavingInventoryClassSchema)
@@ -133,11 +133,12 @@ end
 
     @param self InventoryClass
     @param AddingSchema { itemData: any, itemId: string }
+    @param forceAdd true?
 
     @return InventoryClass
 ]]
-local function addCallback(self: InventoryClass, AddingSchema: { itemData: any, itemId: string }): InventoryClass
-    if self.usedItemSlots >= self.maxItems then return self end
+local function addCallback(self: InventoryClass, AddingSchema: { itemData: any, itemId: string, forceAdd: true? }): InventoryClass
+    if self.usedItemSlots >= self.maxItems and not AddingSchema.forceAdd then return self end
     self.usedItemSlots += 1
 
     local FetchedStack = self:fetchStackFromItemData(AddingSchema.itemData)
@@ -214,7 +215,7 @@ end
 local function constructorCallback(PreviousInventoryClass: SavingInventoryClassSchema?): InventoryClass
     local NewInventory
     = {
-        maxItems = if PreviousInventoryClass then PreviousInventoryClass.maxItems else 25,
+        maxItems = if PreviousInventoryClass then PreviousInventoryClass.maxItems else 205,
         usedItemSlots = if PreviousInventoryClass then PreviousInventoryClass.usedItemSlots else 0,
 
         StacksArray = {}

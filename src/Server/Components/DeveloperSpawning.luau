@@ -64,6 +64,7 @@ local function constuctorCallback()
             PetSchema.PetStats.color = DecompressedData.petColor :: any
             PetSchema.PetStats.size = DecompressedData.petSize :: any
             PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
+            PetSchema.locked = {}
 
             -- Attempt to perform the atomic transaction to give the player the pet.
             Registry.atomicTransaction({ foundPlayer },
@@ -73,10 +74,11 @@ local function constuctorCallback()
 
                     -- Attempt to give the player the pet.
                     do
-                        local randomPetId = RNG.randomString(16)
+                        local randomId = `{RNG.randomString(16)}`
+                        local Inventory = PlayerState.Inventory :: InventoryClass
 
-                        PlayerState.Inventory += { itemData = PetSchema, itemId = randomPetId }
-                        if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(randomPetId) then return false end
+                        Inventory += { itemData = PetSchema, itemId = randomId, forceAdd = true }
+                        if not Inventory:fetchStackFromItemId(randomId) then return false end
                     end
 
                     return true
@@ -96,6 +98,7 @@ local function constuctorCallback()
             PetSchema.PetStats.color = data.petColor :: any
             PetSchema.PetStats.size = data.petSize :: any
             PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
+            PetSchema.locked = {}
 
             -- Locally attempt to give the player the pet.
             do
@@ -109,11 +112,14 @@ local function constuctorCallback()
 
                             -- Attempt to give the player the pet.
                             do
-                                local randomPetId = RNG.randomString(16)
-                                
-                                PlayerState.Inventory += { itemData = PetSchema, itemId = randomPetId }
-                                if not (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(randomPetId) then return false end
+                                local randomId = `{RNG.randomString(16)}`
+                                local Inventory = PlayerState.Inventory :: InventoryClass
+
+                                Inventory += { itemData = PetSchema, itemId = randomId, forceAdd = true }
+                                if not Inventory:fetchStackFromItemId(randomId) then return false end
                             end
+
+                            DeveloperSpawningGroup.SendResults:fireClient(sender, `Successfully gave {data.petName} to {foundPlayer.Name}.`)
 
                             return true
                         end
@@ -137,6 +143,8 @@ local function constuctorCallback()
                         } :: DeveloperSpawningSchema
                     )
                 )
+
+                DeveloperSpawningGroup.SendResults:fireClient(sender, `Successfully queued {data.petName} for {data.receiverId}.`)
             else
                 local DecompressedData = {} :: { [string]: any }
 
@@ -180,6 +188,8 @@ local function constuctorCallback()
                     )
                     :onError(function(err: string?) print(`Failed to save pet spawning data changes. Error: {err}`) end)
                 end
+
+                DeveloperSpawningGroup.SendResults:fireClient(sender, `Set {data.petName} as spawned for {data.receiverId}.`)
             end
         end
     )

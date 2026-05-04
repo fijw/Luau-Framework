@@ -26,10 +26,18 @@ local Packets
         }
     ),
 
+
     SendMaxPetsNotification = NetworkLib("crate_machine_send_max_pets_notification", "Event",
         {
             clientType = 0,
             serverType = nil
+        }
+    ),
+
+    SendNotEnoughGemsNotification = NetworkLib("crate_machine_not_enough_gems_noti", "Event",
+        {
+            clientType = 0,
+            serverType = nil       
         }
     )
 }

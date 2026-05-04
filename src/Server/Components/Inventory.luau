@@ -109,7 +109,8 @@ local function constuctorCallback()
             local PlrDataClass = Registry(sender)
             if not PlrDataClass then return nil :: any end
 
-            return (PlrDataClass()().Inventory :: InventoryClass).maxItems
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
+            return `{Inventory.usedItemSlots}/{Inventory.maxItems}`
         end
     )
 

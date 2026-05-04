@@ -15,6 +15,7 @@ local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 
 local Components = require(script.Components)
+local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 
 local DeveloperSpawningGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.DeveloperSpawning)
 --[[ @end_section Imports ]]
@@ -113,7 +114,24 @@ local function constructorCallback()
     )
 
     InputMapper(false, Enum.KeyCode.F4,
-        function() if clonedDevPetSpawning.Enabled then HandledUI:removeFocus() else HandledUI:setFocus({ "Screen" }) end end
+        function() if clonedDevPetSpawning.Enabled then HandledUI:removeFocus() else HandledUI:setFocus({ "Screen", "Notification", "AreYouSure" }) end end
+    )
+
+    DeveloperSpawningGroup.SendResults:onClientEvent(
+        function(data)
+            local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+            HandledNotificationUI:hoverAndToggleSizing(1.15)
+
+            NotificationComponents().notificationText.Text = data
+            NotificationComponents().container.Visible = true
+
+            HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                function(pos1: number, pos2: number)
+                    NotificationComponents().container.Visible = false
+                    HandledNotificationUI:destroy()
+                end
+            )
+        end
     )
 
     -- Animations for closing and opening.
