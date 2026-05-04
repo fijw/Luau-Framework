@@ -184,6 +184,7 @@ local function constructorCallback()
 
                     newPetLabel.Name = i
                     newPetLabel.Visible = true
+                    newPetLabel.ImageColor3 = Color3.fromRGB(0, 155, 202)
                     newPetLabel.Parent = scrollingFrame
                     
                     if table.find(SelectedMergingPets, i) then createSelectedTick(newPetLabel) end

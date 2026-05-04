@@ -205,6 +205,7 @@ do
     TextButton.ZIndex = 2
     TextButton.BackgroundTransparency = 1
     TextButton.Visible = false
+    TextButton.Image = "rbxassetid://119610995981036"
 
     UIAspectRatioConstraint.Parent = TextButton
     UIAspectRatioConstraint.AspectRatio = 1.009
@@ -220,6 +221,7 @@ do
     TextButton_2.ZIndex = 2
     TextButton_2.BackgroundTransparency = 1
     TextButton_2.Visible = false
+    TextButton_2.Image = "rbxassetid://119610995981036"
 
     UIAspectRatioConstraint_2.Parent = TextButton_2
     UIAspectRatioConstraint_2.AspectRatio = 1.009
@@ -235,6 +237,7 @@ do
     TextButton_3.ZIndex = 2
     TextButton_3.BackgroundTransparency = 1
     TextButton_3.Visible = false
+    TextButton_3.Image = "rbxassetid://119610995981036"
 
     UIAspectRatioConstraint_3.Parent = TextButton_3
     UIAspectRatioConstraint_3.AspectRatio = 1.009

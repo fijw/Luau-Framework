@@ -109,9 +109,9 @@ do
     TextButton.Position = UDim2.new(0, 0, 0.584536374, 0)
     TextButton.Size = UDim2.new(0.495000005, 0, 1, 0)
     TextButton.ZIndex = 2
-    TextButton.ImageTransparency = 1
     TextButton.BackgroundTransparency = 1
     TextButton.Visible = false
+    TextButton.Image = "rbxassetid://119610995981036"
 
     UIAspectRatioConstraint.Parent = TextButton
     UIAspectRatioConstraint.AspectRatio = 1.009
@@ -125,9 +125,9 @@ do
     TextButton_2.Position = UDim2.new(0, 0, 0.584536374, 0)
     TextButton_2.Size = UDim2.new(0.243000001, 0, 0.5, 0)
     TextButton_2.ZIndex = 2
-    TextButton_2.ImageTransparency = 1
     TextButton_2.Visible = false
     TextButton_2.BackgroundTransparency = 1
+    TextButton_2.Image = "rbxassetid://119610995981036"
 
     UIAspectRatioConstraint_2.Parent = TextButton_2
     UIAspectRatioConstraint_2.AspectRatio = 1.009
@@ -141,9 +141,9 @@ do
     TextButton_3.Position = UDim2.new(0, 0, 0.584536374, 0)
     TextButton_3.Size = UDim2.new(0.116999999, 0, 0.25, 0)
     TextButton_3.ZIndex = 2
-    TextButton_3.ImageTransparency = 1
     TextButton_3.Visible = false
     TextButton_3.BackgroundTransparency = 1
+    TextButton_3.Image = "rbxassetid://119610995981036"
 
     UIAspectRatioConstraint_3.Parent = TextButton_3
     UIAspectRatioConstraint_3.AspectRatio = 1.009

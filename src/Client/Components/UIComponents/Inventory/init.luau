@@ -149,6 +149,7 @@ local function constructorCallback()
                     newPetLabel.Name = i
                     newPetLabel.Visible = true
                     newPetLabel.Parent = scrollingFrame
+                    newPetLabel.ImageColor3 = Color3.fromRGB(0, 155, 202)
 
                     if table.find(PetSchema.locked, i) then createTick(newPetLabel, "lock") end
 
@@ -359,6 +360,8 @@ local function constructorCallback()
 
                     UDim2.new(0, 0, 0, 0)
                 ):waitForCompletion()
+
+                textBox.Text = ""
             end
         )
     end

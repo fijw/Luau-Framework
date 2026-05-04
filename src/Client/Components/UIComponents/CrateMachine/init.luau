@@ -28,6 +28,7 @@ type CrateSchema = CratesData.CrateSchema
 type PetSchema = PetsData.PetSchema
 
 type HandledTween = TweensLib.HandledTween
+type HandledUI = UIUtilitiesLibrary.HandledUI
 --[[ @end_section Types ]]
 
 
@@ -35,7 +36,7 @@ type HandledTween = TweensLib.HandledTween
 local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 
-local CachedCrateFrames = {}
+local CachedCrateFrames: { Frame } = {}
 --[[ @end_section Variables ]]
 
 
@@ -75,6 +76,58 @@ local function tweenInst(inst: GuiObject, timeInput: number, type: "pos" | "tran
     return HandledTween
 end
 
+--[[
+    @usage Add crates to the machine.
+
+    @param Crates { CrateSchema }
+
+    @return void
+]]
+local function addCratesToMachine(crateFrame: Frame, Crates: { CrateSchema }, HandledUI: HandledUI)
+    for i: number, Crate: CrateSchema in ipairs(Crates :: { CrateSchema }) do
+        local clonedCrateFrame = crateFrame:Clone()
+        clonedCrateFrame.Parent = crateFrame.Parent
+        clonedCrateFrame.Name = Crate.name
+        clonedCrateFrame.Visible = true
+
+        local crateContainer = clonedCrateFrame:WaitForChild("CrateContainer") :: Frame
+
+        local chancesContainer = crateContainer:WaitForChild("ChancesContainer") :: Frame
+        local purchaseBtn = crateContainer:WaitForChild("PurchaseButton") :: ImageButton
+
+        local crateName = crateContainer:WaitForChild("CrateName") :: TextLabel
+        crateName.Text = Crate.name
+
+        local priceText = crateContainer:WaitForChild("PriceText") :: TextLabel
+        priceText.Text = `{Crate.price} Gems`
+
+        local detailsContainer = chancesContainer:WaitForChild("DetailsContainer") :: Frame
+        detailsContainer.Visible = false
+
+        for petName: string, chance: number in pairs(Crate.Chances :: { [string]: number }) do
+            local PetData = PetSchemas[petName]
+            if not PetData then continue end
+
+            local clonedDetailsContainer = detailsContainer:Clone()
+            clonedDetailsContainer.Parent = chancesContainer
+            clonedDetailsContainer.Name = petName
+            clonedDetailsContainer.Visible = true
+            
+            local ImageLabel = clonedDetailsContainer:WaitForChild("ImageLabel") :: ImageLabel
+            local TextLabel = clonedDetailsContainer:WaitForChild("TextLabel") :: TextLabel
+
+            ImageLabel.Image = PetData.petImageId
+            TextLabel.Text = `{chance}%`
+        end
+
+        HandledUI:handleButtonPress(purchaseBtn,
+            function(pos1: number, pos2: number) CrateMachineGroup.OpenCrate:fireServer(Crate.name) end
+        )
+
+        table.insert(CachedCrateFrames, clonedCrateFrame)
+    end
+end
+
 
 --[[ @section Constructor ]]
 --[[
@@ -88,11 +141,25 @@ local function constructorCallback()
 
     local machineContainer = clonedCrateMachine:WaitForChild("Container") :: Frame
     local searchBox = machineContainer:WaitForChild("SearchBox") :: Frame
+    local frameBox = searchBox:WaitForChild("FrameBox") :: ImageLabel
+    local textBox = frameBox:WaitForChild("TextBox") :: TextBox
     local closeBtn = machineContainer:WaitForChild("CloseBtn") :: ImageButton
     local mainFrame = machineContainer:WaitForChild("MainFrame") :: Frame
     local innerContainer = mainFrame:WaitForChild("InnerContainer") :: Frame
     local scrollingFrame = innerContainer:WaitForChild("ScrollingFrame") :: ScrollingFrame
     local crateFrame = scrollingFrame:WaitForChild("CrateFrame") :: Frame
+
+    textBox:GetPropertyChangedSignal("Text"):Connect(
+        function()
+            for i: number, crateFrame: Frame in ipairs(CachedCrateFrames) do crateFrame:Destroy() end
+
+            addCratesToMachine(
+                crateFrame,
+                CrateMachineGroup.GetCrates:invokeServer(textBox.Text) :: { CrateSchema },
+                UIUtilitiesLibrary("crate_machine", clonedCrateMachine)
+            )
+        end
+    )
 
     local HandledUI = UIUtilitiesLibrary("crate_machine", clonedCrateMachine)
     HandledUI:hoverAndToggleSizing(1.15)
@@ -101,49 +168,7 @@ local function constructorCallback()
     -- Add existing crates to the crate machine.
     do
         local Crates = CrateMachineGroup.GetCrates:invokeServer()
-
-        for i: number, Crate: { name: string, Chances: { [string]: number }, price: number } in ipairs(Crates) do
-            local clonedCrateFrame = crateFrame:Clone()
-            clonedCrateFrame.Parent = crateFrame.Parent
-            clonedCrateFrame.Name = Crate.name
-            clonedCrateFrame.Visible = true
-
-            local crateContainer = clonedCrateFrame:WaitForChild("CrateContainer") :: Frame
-
-            local chancesContainer = crateContainer:WaitForChild("ChancesContainer") :: Frame
-            local purchaseBtn = crateContainer:WaitForChild("PurchaseButton") :: ImageButton
-
-            local crateName = crateContainer:WaitForChild("CrateName") :: TextLabel
-            crateName.Text = Crate.name
-
-            local priceText = crateContainer:WaitForChild("PriceText") :: TextLabel
-            priceText.Text = `{Crate.price} Gems`
-
-            local detailsContainer = chancesContainer:WaitForChild("DetailsContainer") :: Frame
-            detailsContainer.Visible = false
-
-            for petName: string, chance: number in pairs(Crate.Chances) do
-                local PetData = PetSchemas[petName]
-                if not PetData then continue end
-
-                local clonedDetailsContainer = detailsContainer:Clone()
-                clonedDetailsContainer.Parent = chancesContainer
-                clonedDetailsContainer.Name = petName
-                clonedDetailsContainer.Visible = true
-                
-                local ImageLabel = clonedDetailsContainer:WaitForChild("ImageLabel") :: ImageLabel
-                local TextLabel = clonedDetailsContainer:WaitForChild("TextLabel") :: TextLabel
-
-                ImageLabel.Image = PetData.petImageId
-                TextLabel.Text = `{chance}%`
-            end
-
-            HandledUI:handleButtonPress(purchaseBtn,
-                function(pos1: number, pos2: number) CrateMachineGroup.OpenCrate:fireServer(Crate.name) end
-            )
-
-            table.insert(CachedCrateFrames, clonedCrateFrame)
-        end
+        addCratesToMachine(crateFrame, Crates :: { CrateSchema }, HandledUI)
     end
 
     CrateMachineGroup.SendMaxPetsNotification:onClientEvent(
