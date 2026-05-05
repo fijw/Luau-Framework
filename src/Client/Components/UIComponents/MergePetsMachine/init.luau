@@ -107,11 +107,11 @@ end
 
     @return void
 ]]
-local function createNotification(data: number?, type: "not_enough_pets" | "not_enough_gems" | "success")
+local function createNotification(data: number?, type: "not_enough_pets" | "not_enough_gems" | "success", machineName: string)
     local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
     HandledNotificationUI:hoverAndToggleSizing(1.15)
 
-    NotificationComponents().container.Visible = true
+    HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
 
     if type == "not_enough_pets" then
         NotificationComponents().notificationText.Text = `Not enough pets to merge. <br /><br />You need to select {NEEDED_PETS_TO_MERGE - data :: number} more pets.`
@@ -123,7 +123,7 @@ local function createNotification(data: number?, type: "not_enough_pets" | "not_
 
     HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
         function(pos1: number, pos2: number)
-            NotificationComponents().container.Visible = false
+            HandledNotificationUI:removeFocus( { machineName } )
             HandledNotificationUI:destroy()
         end
     )
@@ -165,7 +165,11 @@ local function constructorCallback()
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
-    local isExpanded = false
+    local MapFolder = workspace:WaitForChild("Map") :: Folder
+    local MachinesFolder = MapFolder:WaitForChild("Machines") :: Folder
+    local mergingMachine = MachinesFolder:WaitForChild("MergingMachine") :: Part
+    local proximityPrompt = mergingMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
+    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure" }) end)
 
     -- Networking connections.
     do
@@ -280,10 +284,12 @@ local function constructorCallback()
             end
         )
 
-        MergingGroup.NotEnoughPetsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_pets") end)
-        MergingGroup.NotEnoughGemsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_gems") end)
-        MergingGroup.SuccessfullyMergedPets:onClientEvent(function(data) createNotification(data, "success") end)
+        MergingGroup.NotEnoughPetsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_pets", clonedMachine.Name) end)
+        MergingGroup.NotEnoughGemsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_gems", clonedMachine.Name) end)
+        MergingGroup.SuccessfullyMergedPets:onClientEvent(function(data) createNotification(data, "success", clonedMachine.Name) end)
     end
+
+    local isExpanded = false
 
     HandledUI:handleButtonPress(mergeBtn,
         function(pos1: number, pos2: number)

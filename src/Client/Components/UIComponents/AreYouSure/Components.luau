@@ -23,8 +23,9 @@ local ComponentsMap = { AreYouSure = AreYouSure }
 -- Set all component properties.
 do
     AreYouSure.Name = "AreYouSure"
-    AreYouSure.Enabled = true
+    AreYouSure.Enabled = false
     AreYouSure.DisplayOrder = 999
+    AreYouSure.ResetOnSpawn = false
 
     Container.Name = "Container"
     Container.Parent = AreYouSure
@@ -35,7 +36,6 @@ do
     Container.BorderSizePixel = 0
     Container.Position = UDim2.new(0.5, 0, 0.45, 0)
     Container.Size = UDim2.new(0.315789461, 0, 0.4148148, 0)
-    Container.Visible = false
 
     UIAspectRatioConstraint.Parent = Container
     UIAspectRatioConstraint.AspectRatio = 1.353

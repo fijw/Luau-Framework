@@ -27,6 +27,7 @@ local Components = { Rebirth = Rebirth }
 do
     Rebirth.Name = "Rebirth"
     Rebirth.Enabled = false
+    Rebirth.ResetOnSpawn = false
 
     Container.Name = "Container"
     Container.Parent = Rebirth

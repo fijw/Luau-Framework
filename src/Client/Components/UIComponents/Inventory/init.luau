@@ -278,15 +278,15 @@ local function constructorCallback()
 
                 local AreYouSureHandledUI = UIUtilitiesLibrary("are_you_sure", AreYouSureComponents().areYouSure)
                 AreYouSureHandledUI:hoverAndToggleSizing(1.05)
-
-                AreYouSureComponents().container.Visible = true
+                AreYouSureHandledUI:setFocus( { "Screen", "Notification", "AreYouSure" } )
+                
                 AreYouSureComponents().notificationText.Text = "Are you sure you want to delete the selected pets?<br /><br />This action cannot be undone."
 
                 AreYouSureHandledUI:handleButtonPress(AreYouSureComponents().continueBtn,
                     function(pos1: number, pos2: number)
                         InventoryGroup.DeletePets:fireServer(SelectedDeletingPets)
 
-                        AreYouSureComponents().container.Visible = false
+                        AreYouSureHandledUI:removeFocus({ clonedInventory.Name })
                         AreYouSureHandledUI:destroy()
 
                         SelectedDeletingPets = {}
@@ -303,7 +303,7 @@ local function constructorCallback()
                             if foundTick then foundTick:Destroy() end
                         end
 
-                        AreYouSureComponents().container.Visible = false
+                        AreYouSureHandledUI:removeFocus({ clonedInventory.Name })
                         AreYouSureHandledUI:destroy()
 
                         SelectedDeletingPets = {}

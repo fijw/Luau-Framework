@@ -30,11 +30,11 @@ local function fireStatsToClient(player: Player, PlrDataClass: DataClass)
     StatsUpdatingGroup.UpdateStats:fireClient(player,
         {
             gems = PlrDataClass()().gems(),
-            levels = PlrDataClass()().GameplayData().level,
-            xp = PlrDataClass()().GameplayData().xp,
-            xpToNextLevel = PlrDataClass()().GameplayData().xpToNextLevel,
-            levelsToRebirth = PlrDataClass()().GameplayData().levelsNeededToRebirth,
-            rebirths = PlrDataClass()().GameplayData().rebirths
+            levels = PlrDataClass()().StatsData().level,
+            xp = PlrDataClass()().StatsData().xp,
+            xpToNextLevel = PlrDataClass()().StatsData().xpToNextLevel,
+            levelsToRebirth = PlrDataClass()().StatsData().levelsNeededToRebirth,
+            rebirths = PlrDataClass()().StatsData().rebirths
         }
     )
 end
@@ -53,9 +53,9 @@ local function subscribeToStats(player: Player, PlrDataClass: DataClass)
         "gems_update_client_subscription"
     )
 
-    PlrDataClass()().GameplayData:subscribe(
+    PlrDataClass()().StatsData:subscribe(
         function(self, data, key, ...) fireStatsToClient(player, PlrDataClass) end,
-        "gameplay_data_update_client_subscription"
+        "stats_data_update_client_subscription"
     )
 end
 --[[ @end_section Utility Functions ]]

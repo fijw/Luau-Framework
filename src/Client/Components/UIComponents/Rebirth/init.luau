@@ -114,13 +114,13 @@ local function constructorCallback()
             function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
-
-                NotificationComponents().container.Visible = true
+                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+                
                 NotificationComponents().notificationText.Text = `Not enough gems to rebirth.<br /><br />You need {data} more gems to  be able to rebirth.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                     function(pos1: number, pos2: number)
-                        NotificationComponents().container.Visible = false
+                        HandledNotificationUI:removeFocus({ clonedRebirth.Name })
                         HandledNotificationUI:destroy()
                     end
                 )
@@ -131,13 +131,13 @@ local function constructorCallback()
             function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
+                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
 
-                NotificationComponents().container.Visible = true
                 NotificationComponents().notificationText.Text = `Not enough levels to rebirth.<br /><br />You need {data} more levels to be able to rebirth.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                     function(pos1: number, pos2: number)
-                        NotificationComponents().container.Visible = false
+                        HandledNotificationUI:removeFocus({ clonedRebirth.Name })
                         HandledNotificationUI:destroy()
                     end
                 )
@@ -148,13 +148,13 @@ local function constructorCallback()
             function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
+                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
 
-                NotificationComponents().container.Visible = true
                 NotificationComponents().notificationText.Text = `You have reached the maximum amount of rebirths.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                     function(pos1: number, pos2: number)
-                        NotificationComponents().container.Visible = false
+                        HandledNotificationUI:removeFocus({ clonedRebirth.Name })
                         HandledNotificationUI:destroy()
                     end
                 )
@@ -165,13 +165,13 @@ local function constructorCallback()
             function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
+                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
 
-                NotificationComponents().container.Visible = true
                 NotificationComponents().notificationText.Text = `You have successfully rebirthed.<br /><br />You now have {data} rebirths.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                     function(pos1: number, pos2: number)
-                        NotificationComponents().container.Visible = false
+                        HandledNotificationUI:removeFocus({ clonedRebirth.Name })
                         HandledNotificationUI:destroy()
                     end
                 )

@@ -45,6 +45,7 @@ local StatsUpdatingComponent = ServerScriptService.Components.StatsUpdating
 local DeveloperSpawningComponent = ServerScriptService.Components.DeveloperSpawning
 local RebirthingComponent = ServerScriptService.Components.Rebirthing
 local MergingComponent = ServerScriptService.Components.Merging
+local HealingMachineComponent = ServerScriptService.Components.HealingMachine
 
 
 local Initialization = script.Initialization
@@ -68,7 +69,8 @@ local ModulesToLoad
     [StatsUpdatingComponent.Name] = StatsUpdatingComponent,
     [DeveloperSpawningComponent.Name] = DeveloperSpawningComponent,
     [RebirthingComponent.Name] = RebirthingComponent,
-    [MergingComponent.Name] = MergingComponent
+    [MergingComponent.Name] = MergingComponent,
+    [HealingMachineComponent.Name] = HealingMachineComponent
 }
 
 local NUM_OF_RETRIES = 10

@@ -1,8 +1,3 @@
---[[
-    @TODO: Add a way for players with stored pets to be added to actually have those pets get added
-    once they join the game. Currently players in the game will get their spawned pets, but players
-    that aren't in the game will just have the spawn data stored.
-]]
 --!strict
 --!native
 --!optimize 2

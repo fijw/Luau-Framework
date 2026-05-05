@@ -43,6 +43,7 @@ local Components = { DevPetSpawning = DevPetSpawning }
 do
     DevPetSpawning.Name = "DevPetSpawning"
     DevPetSpawning.Enabled = false
+    DevPetSpawning.ResetOnSpawn = false
 
     Container.Name = "Container"
     Container.Parent = DevPetSpawning

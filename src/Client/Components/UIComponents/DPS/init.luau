@@ -123,11 +123,11 @@ local function constructorCallback()
             HandledNotificationUI:hoverAndToggleSizing(1.15)
 
             NotificationComponents().notificationText.Text = data
-            NotificationComponents().container.Visible = true
+            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
 
             HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                 function(pos1: number, pos2: number)
-                    NotificationComponents().container.Visible = false
+                    HandledNotificationUI:removeFocus({ clonedDevPetSpawning.Name })
                     HandledNotificationUI:destroy()
                 end
             )

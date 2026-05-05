@@ -149,11 +149,11 @@ local function constructorCallback()
         )
 
         HandledUi:handleButtonPress(marketplaceBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "merging_machine", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "marketplace", true) end
         )
 
         HandledUi:handleButtonPress(settingsBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "crate_machine", true) end
+            function(pos1: number, pos2: number) setFocus(clonedScreen, "settings", true) end
         )
     end
 

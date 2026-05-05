@@ -165,6 +165,12 @@ local function constructorCallback()
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
+    local MapFolder = workspace:WaitForChild("Map") :: Folder
+    local MachinesFolder = MapFolder:WaitForChild("Machines") :: Folder
+    local crateMachine = MachinesFolder:WaitForChild("CrateMachine") :: Part
+    local proximityPrompt = crateMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
+    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure" }) end)
+
     -- Add existing crates to the crate machine.
     do
         local Crates = CrateMachineGroup.GetCrates:invokeServer()
@@ -175,13 +181,13 @@ local function constructorCallback()
         function(data)
             local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
             HandledNotificationUI:hoverAndToggleSizing(1.15)
+            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
 
-            NotificationComponents().container.Visible = true
             NotificationComponents().notificationText.Text = `You have used up all of your available pet slots.<br /><br />Please delete or trade pets to obtain more pet slots.`
             
             HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                 function(pos1: number, pos2: number)
-                    NotificationComponents().container.Visible = false
+                    HandledNotificationUI:removeFocus( { clonedCrateMachine.Name } )
                     HandledNotificationUI:destroy()
                 end
             )
@@ -192,13 +198,13 @@ local function constructorCallback()
         function(data)
             local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
             HandledNotificationUI:hoverAndToggleSizing(1.15)
-
-            NotificationComponents().container.Visible = true
+            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+            
             NotificationComponents().notificationText.Text = `You don't have enough gems to open this crate.<br /><br />You need {data} more gems to be able to open this crate.`
             
             HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                 function(pos1: number, pos2: number)
-                    NotificationComponents().container.Visible = false
+                    HandledNotificationUI:removeFocus( { clonedCrateMachine.Name } )
                     HandledNotificationUI:destroy()
                 end
             )

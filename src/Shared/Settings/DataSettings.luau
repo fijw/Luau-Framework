@@ -7,10 +7,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
+
+local Data = require(ReplicatedStorage.Assets.Pets.Data)
 --[[ @end_section Imports ]]
 
 
 --[[ @section Types ]]
+type PetSchema = Data.PetSchema
+
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.StateEngine<T>
 
@@ -19,7 +23,7 @@ export type DataTemplateSchema = setmetatable
     {
         gems: StateEngine<number>,
         
-        GameplayData: StateEngine
+        StatsData: StateEngine
         <
             {
                 level: number,
@@ -36,7 +40,9 @@ export type DataTemplateSchema = setmetatable
                 allTimeMaxDungeonLevelReached: number,
                 currentMaxDungeonLevelReached: number
             }
-        >
+        >,
+
+        HealingPets: StateEngine<{ string }>
     },
 
     {
@@ -62,17 +68,6 @@ export type DataTemplateSchema = setmetatable
                         Unbans: { [string]: { unbanningUserId: number, unbanReason: string, index: number } }?,
                         DataResets: { [string]: { resettingUserId: number, resetReason: string, index: number } }?
                     }?
-                }
-            >,
-
-            DeveloperSpawnedPets: StateEngine
-            <
-                {
-                    {
-                        petName: string,
-                        petSize: string,
-                        petColor: string
-                    }
                 }
             >,
 
@@ -102,10 +97,12 @@ local DataSettings
         = {
             allTimeMaxDungeonLevelReached = 1,
             currentMaxDungeonLevelReached = 1
-        } :: any
+        } :: any,
+
+        HealingPets = {} :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "takethis"
+    PLAYER_DATA_STORAGE_KEY = "takethis123"
 }
 
 

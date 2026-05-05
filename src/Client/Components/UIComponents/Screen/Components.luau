@@ -37,6 +37,7 @@ local Components = { Screen = Screen }
 do
     Screen.Name = "Screen"
     Screen.Enabled = false
+    Screen.ResetOnSpawn = false
 
     MenuContainer.Name = "MenuContainer"
     MenuContainer.Parent = Screen

@@ -36,6 +36,7 @@ local ComponentsMap = { MergePetsMachine = MergePetsMachine }
 do
     MergePetsMachine.Name = "MergePetsMachine"
     MergePetsMachine.Enabled = false
+    MergePetsMachine.ResetOnSpawn = false
 
     Container.Name = "Container"
     Container.Parent = MergePetsMachine

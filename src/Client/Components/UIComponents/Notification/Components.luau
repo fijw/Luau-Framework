@@ -21,8 +21,9 @@ local ComponentsMap = { Notification = Notification }
 -- Set all component properties.
 do
     Notification.Name = "Notification"
-    Notification.Enabled = true
+    Notification.Enabled = false
     Notification.DisplayOrder = 999
+    Notification.ResetOnSpawn = false
 
     Container.Name = "Container"
     Container.Parent = Notification
@@ -33,7 +34,6 @@ do
     Container.BorderSizePixel = 0
     Container.Position = UDim2.new(0.5, 0, 0.5, 0)
     Container.Size = UDim2.new(0.315789461, 0, 0.4148148, 0)
-    Container.Visible = false
 
     UIAspectRatioConstraint.Parent = Container
     UIAspectRatioConstraint.AspectRatio = 1.353

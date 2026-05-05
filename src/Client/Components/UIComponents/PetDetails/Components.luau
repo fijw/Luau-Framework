@@ -41,6 +41,7 @@ do
     PetDetails.Name = "PetDetails"
     PetDetails.Enabled = true
     PetDetails.DisplayOrder = 99
+    PetDetails.ResetOnSpawn = false
 
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = PetDetails

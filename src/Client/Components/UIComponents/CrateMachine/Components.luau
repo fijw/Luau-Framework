@@ -39,6 +39,7 @@ local Components = { CrateMachine = CrateMachine }
 do
     CrateMachine.Name = "CrateMachine"
     CrateMachine.Enabled = false
+    CrateMachine.ResetOnSpawn = false
 
     Container.Name = "Container"
     Container.Parent = CrateMachine
