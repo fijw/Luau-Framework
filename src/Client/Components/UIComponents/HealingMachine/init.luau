@@ -11,6 +11,7 @@ local StarterPlayer = game:GetService("StarterPlayer")
 local HealingMachineGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.HealingMachine)
 
 local UIComponents = require(script.Components)
+local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 local PetDetailsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.PetDetails)
 local SelectPetsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.SelectPets)
 
@@ -35,7 +36,8 @@ local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
 
-local CachedPetButtons: { [string]: ImageLabel } = {}
+local CachedSelectPetsPetButtons: { [string]: ImageLabel } = {}
+local CachedHealingMachinePetButtons: { [string]: ImageLabel } = {}
 local SelectingPets: { string } = {}
 --[[ @end_section Variables ]]
 
@@ -118,7 +120,7 @@ local function setHealingMachineData
         innerImgButton.Size = UDim2.fromScale(0.85, 0.85)
         innerImgButton.Image = PetSchema.petImageId
 
-        CachedPetButtons[i] = newPetLabel
+        CachedHealingMachinePetButtons[i] = newPetLabel
 
         local isHovering = false
 
@@ -149,7 +151,7 @@ local function setHealingMachineData
         )
     end
 
-    slotsText.Text = `Using {numOfPets}/nil healing slots.`
+    slotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} healing slots.`
     return numOfPets
 end
 
@@ -175,6 +177,11 @@ end
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the component.
+    
+    @return void
+]]
 local function constructorCallback()
     local clonedHealingMachine = UIComponents.HealingPetsMachine:Clone()
     clonedHealingMachine.Parent = PlayerGui
@@ -199,11 +206,52 @@ local function constructorCallback()
     local proximityPrompt = healingMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
     proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure" }) end)
 
+    local currentSelectPetsScreenGui: ScreenGui
+
     HandledUI:handleButtonPress(healPetBtn,
         function(pos1: number, pos2: number)
+            currentSelectPetsScreenGui = SelectPetsComponents().selectPets
+
+            for i: string, petButton: ImageLabel in pairs(CachedSelectPetsPetButtons) do
+                petButton:Destroy()
+                petButton.Parent = nil
+            end
+
+            local isExpanded = false
+
             local HandledSelectPetsUI = UIUtilitiesLibrary("select_pets", SelectPetsComponents().selectPets)
             HandledSelectPetsUI:hoverAndToggleSizing(1.15)
+            HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().closeBtn, function(pos1: number, pos2: number) end, true)
             HandledSelectPetsUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+
+            HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().expandBtn,
+                function(pos1: number, pos2: number)
+                    isExpanded = not isExpanded
+
+                    if isExpanded then
+                        for i: number, inst: Instance in ipairs(SelectPetsComponents().scrollingFrame:GetChildren()) do
+                            if not inst:IsA("ImageLabel") then continue end
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2.04, inst.Size.Y.Scale / 2.025)
+                        end
+                    else
+                        for i: number, inst: Instance in ipairs(SelectPetsComponents().scrollingFrame:GetChildren()) do
+                            if not inst:IsA("ImageLabel") then continue end
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2.04, inst.Size.Y.Scale * 2.025)
+                        end
+                    end
+                end
+            )
+
+            task.spawn(
+                function()
+                    while true do
+                        if not currentSelectPetsScreenGui then break else task.wait() end
+
+                        repeat task.wait(); if not currentSelectPetsScreenGui then break end until if currentSelectPetsScreenGui then currentSelectPetsScreenGui.Enabled else false
+                        SelectPetsComponents().scrollingFrame.CanvasSize = UDim2.fromOffset(0, SelectPetsComponents().uiListLayout.AbsoluteContentSize.Y)
+                    end
+                end
+            )
 
             for i: string, Pet: PetSchema in pairs(HealingMachineGroup.RequestPetsForHealingSelection:invokeServer()) do
                 local newPetLabel: ImageLabel
@@ -232,7 +280,7 @@ local function constructorCallback()
                 innerImgButton.Size = UDim2.fromScale(0.85, 0.85)
                 innerImgButton.Image = Pet.petImageId
 
-                CachedPetButtons[i] = newPetLabel
+                CachedSelectPetsPetButtons[i] = newPetLabel
 
                 local isHovering = false
 
@@ -282,16 +330,23 @@ local function constructorCallback()
             HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().continueBtn,
                 function(pos1: number, pos2: number)
                     if #SelectingPets > 0 then HealingMachineGroup.HealPets:fireServer(SelectingPets) end
+                    SelectingPets = {}
 
                     HandledSelectPetsUI:removeFocus({ clonedHealingMachine.Name })
                     HandledSelectPetsUI:destroy()
+
+                    currentSelectPetsScreenGui = nil :: any
                 end
             )
 
             HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().closeBtn,
                 function(pos1: number, pos2: number)
+                    SelectingPets = {}
+
                     HandledSelectPetsUI:removeFocus({ clonedHealingMachine.Name })
                     HandledSelectPetsUI:destroy()
+
+                    currentSelectPetsScreenGui = nil :: any
                 end
             )
         end
@@ -304,28 +359,62 @@ local function constructorCallback()
         HealingMachineGroup.RemovePetsFromHealingMachine:onClientEvent(
             function(data)
                 for i: number, petId: string in ipairs(data) do
-                    local PetButton = CachedPetButtons[petId]
-                    if not PetButton then return end
+                    local petButton = CachedHealingMachinePetButtons[petId]
+                    if not petButton then return end
 
-                    PetButton:Destroy()
-                    PetButton.Parent = nil
+                    petButton:Destroy()
+                    petButton.Parent = nil
 
                     numOfPets -= 1
                 end
 
-                usedSlotsText.Text = `Using {numOfPets}/nil healing slots.`
+                usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} healing slots.`
+            end
+        )
+
+        HealingMachineGroup.PetFinishedHealing:onClientEvent(
+            function(data)
+                local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+                HandledNotificationUI:hoverAndToggleSizing(1.15)
+                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+
+                local healingSlots = HealingMachineGroup.RequestHealingSlots:invokeServer()
+                NotificationComponents().notificationText.Text = `Your {data} has finished healing.<br /><br />You now have {healingSlots} healing slots.`
+
+                HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                    function(pos1: number, pos2: number)
+                        HandledNotificationUI:removeFocus({ clonedHealingMachine.Name })
+                        HandledNotificationUI:destroy()
+                    end
+                )
             end
         )
 
         HealingMachineGroup.SuccessfullyStartedHealing:onClientEvent(
             function(data)
-                for i: string, PetButton: Instance in pairs(CachedPetButtons) do
-                    PetButton:Destroy()
-                    PetButton.Parent = nil
+                -- Create a notification UI.
+                do
+                    local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+                    HandledNotificationUI:hoverAndToggleSizing(1.15)
+                    HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+
+                    NotificationComponents().notificationText.Text = `You have started healing {data} pets.<br /><br />Please wait 5 minutes for healing to complete.`
+
+                    HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                        function(pos1: number, pos2: number)
+                            HandledNotificationUI:removeFocus({ clonedHealingMachine.Name })
+                            HandledNotificationUI:destroy()
+                        end
+                    )
+                end
+
+                for i: string, petButton: Instance in pairs(CachedHealingMachinePetButtons) do
+                    petButton:Destroy()
+                    petButton.Parent = nil
                 end
 
                 numOfPets = setHealingMachineData(scrollingFrame, HealingMachineGroup.RequestHealingPets:invokeServer(), imageLabel, HandledUI, usedSlotsText)
-                usedSlotsText.Text = `Using {numOfPets}/nil healing slots.`
+                usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} healing slots.`
             end
         )
     end
@@ -346,6 +435,17 @@ local function constructorCallback()
 
                     originalContainerSize
                 )
+
+                -- Update the UI.
+                do
+                    for i: string, petButton: Instance in pairs(CachedHealingMachinePetButtons) do
+                        petButton:Destroy()
+                        petButton.Parent = nil
+                    end
+
+                    local numOfPets = setHealingMachineData(scrollingFrame, HealingMachineGroup.RequestHealingPets:invokeServer(), imageLabel, HandledUI, usedSlotsText)
+                    usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} healing slots.`
+                end
             end
         )
 

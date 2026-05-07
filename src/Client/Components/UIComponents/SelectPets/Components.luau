@@ -44,8 +44,8 @@ do
     ContainerFrame.BackgroundTransparency = 1.000
     ContainerFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ContainerFrame.BorderSizePixel = 0
-    ContainerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    ContainerFrame.Size = UDim2.new(0.515372574, 0, 0.548148155, 0)
+    ContainerFrame.Position = UDim2.new(0.5, 0, 0.45, 0)
+    ContainerFrame.Size = UDim2.new(0.515893698, 0, 0.584259272, 0)
 
     SearchBox.Name = "SearchBox"
     SearchBox.Parent = ContainerFrame
@@ -54,19 +54,9 @@ do
     SearchBox.BackgroundTransparency = 1.000
     SearchBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
     SearchBox.BorderSizePixel = 0
-    SearchBox.Position = UDim2.new(0.713446438, 0, 0.0752837732, 0)
-    SearchBox.Size = UDim2.new(0.358948439, 0, 0.0996621624, 0)
+    SearchBox.Position = UDim2.new(0.715468645, 0, 0.0832321942, 0)
+    SearchBox.Size = UDim2.new(0.358585864, 0, 0.09350238, 0)
     SearchBox.ZIndex = 3
-
-    ExpandBtn.Name = "ExpandBtn"
-    ExpandBtn.AnchorPoint = Vector2.new(0.5, 0.5)
-    ExpandBtn.Size = UDim2.new(0.073, 0, 0.122, 0)
-    ExpandBtn.Position = UDim2.new(0.418, 0, 0.074, 0)
-    ExpandBtn.Image = "rbxassetid://130599991371204"
-    ExpandBtn.BackgroundTransparency = 1
-    ExpandBtn.BorderSizePixel = 0
-    ExpandBtn.ZIndex = 3
-    ExpandBtn.Parent = ContainerFrame
 
     FrameImage.Name = "FrameImage"
     FrameImage.Parent = SearchBox
@@ -117,8 +107,8 @@ do
     CloseBtn.BackgroundTransparency = 1.000
     CloseBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     CloseBtn.BorderSizePixel = 0
-    CloseBtn.Position = UDim2.new(0.963029087, 0, 0.0752837732, 0)
-    CloseBtn.Size = UDim2.new(0.108190089, 0, 0.180743247, 0)
+    CloseBtn.Position = UDim2.new(0.965051353, 0, 0.0832321942, 0)
+    CloseBtn.Size = UDim2.new(0.108080812, 0, 0.169572115, 0)
     CloseBtn.ZIndex = 3
     CloseBtn.Image = "rbxassetid://82177231415737"
 
@@ -130,7 +120,7 @@ do
     MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     MainFrame.BorderSizePixel = 0
     MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    MainFrame.Size = UDim2.new(0.925176919, 0, 0.869932413, 0)
+    MainFrame.Size = UDim2.new(0.924242437, 0, 0.839936614, 0)
     MainFrame.ZIndex = 2
     MainFrame.Image = "rbxassetid://133757436459656"
 
@@ -141,8 +131,8 @@ do
     ScrollingFrame.BackgroundTransparency = 1.000
     ScrollingFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ScrollingFrame.BorderSizePixel = 0
-    ScrollingFrame.Position = UDim2.new(0.5, 0, 0.485500008, 0)
-    ScrollingFrame.Size = UDim2.new(0.890710354, 0, 0.776699007, 0)
+    ScrollingFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    ScrollingFrame.Size = UDim2.new(0.890710354, 0, 0.754716992, 0)
     ScrollingFrame.ZIndex = 2
     ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 
@@ -150,6 +140,7 @@ do
     UIListLayout.FillDirection = Enum.FillDirection.Horizontal
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayout.Padding = UDim.new(0, 7)
+    UIListLayout.Wraps = true
 
     TextButton.Parent = ScrollingFrame
     TextButton.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
@@ -160,8 +151,9 @@ do
     TextButton.Size = UDim2.new(0.495000005, 0, 1, 0)
     TextButton.ZIndex = 2
     TextButton.BackgroundTransparency = 1
-    TextButton.Name = "Gigantic"
+    TextButton.Visible = false
     TextButton.Image = "rbxassetid://119610995981036"
+    TextButton.Name = "Gigantic"
 
     UIAspectRatioConstraint.Parent = TextButton
     UIAspectRatioConstraint.AspectRatio = 1.009
@@ -170,13 +162,14 @@ do
     TextButton_2.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
     TextButton_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextButton_2.BorderSizePixel = 0
-    TextButton_2.LayoutOrder = 1
+    TextButton_2.LayoutOrder = 2
     TextButton_2.Position = UDim2.new(0, 0, 0.584536374, 0)
     TextButton_2.Size = UDim2.new(0.243000001, 0, 0.5, 0)
     TextButton_2.ZIndex = 2
     TextButton_2.BackgroundTransparency = 1
-    TextButton_2.Name = "Huge"
+    TextButton_2.Visible = false
     TextButton_2.Image = "rbxassetid://119610995981036"
+    TextButton_2.Name = "Huge"
 
     UIAspectRatioConstraint_2.Parent = TextButton_2
     UIAspectRatioConstraint_2.AspectRatio = 1.009
@@ -185,13 +178,14 @@ do
     TextButton_3.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
     TextButton_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextButton_3.BorderSizePixel = 0
-    TextButton_3.LayoutOrder = 1
+    TextButton_3.LayoutOrder = 3
     TextButton_3.Position = UDim2.new(0, 0, 0.584536374, 0)
     TextButton_3.Size = UDim2.new(0.116999999, 0, 0.25, 0)
     TextButton_3.ZIndex = 2
     TextButton_3.BackgroundTransparency = 1
-    TextButton_3.Name = "Default"
+    TextButton_3.Visible = false
     TextButton_3.Image = "rbxassetid://119610995981036"
+    TextButton_3.Name = "Default"
 
     UIAspectRatioConstraint_3.Parent = TextButton_3
     UIAspectRatioConstraint_3.AspectRatio = 1.009
@@ -203,8 +197,8 @@ do
     Title.BackgroundTransparency = 1.000
     Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Title.BorderSizePixel = 0
-    Title.Position = UDim2.new(0.192732975, 0, 0.071919173, 0)
-    Title.Size = UDim2.new(0.34681496, 0, 0.103697978, 0)
+    Title.Position = UDim2.new(0.1967877, 0, 0.0830370858, 0)
+    Title.Size = UDim2.new(0.346464634, 0, 0.0972887501, 0)
     Title.ZIndex = 3
     Title.Image = "rbxassetid://122394323802918"
 
@@ -220,23 +214,35 @@ do
     BackgroundImg.BorderSizePixel = 0
     BackgroundImg.Position = UDim2.new(0.5, 0, 0.5, 0)
     BackgroundImg.Rotation = -5.000
-    BackgroundImg.Size = UDim2.new(0.925176919, 0, 0.869932413, 0)
-    BackgroundImg.Image = "rbxassetid://137422724131671"
+    BackgroundImg.Size = UDim2.new(0.924242437, 0, 0.839936614, 0)
+    BackgroundImg.Image = "rbxassetid://114571910923938"
+
+    ExpandBtn.Name = "ExpandBtn"
+    ExpandBtn.Parent = ContainerFrame
+    ExpandBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ExpandBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    ExpandBtn.BackgroundTransparency = 1.000
+    ExpandBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ExpandBtn.BorderSizePixel = 0
+    ExpandBtn.Position = UDim2.new(0.429, 0, 0.082, 0)
+    ExpandBtn.Size = UDim2.new(0.0909090936, 0, 0.142630741, 0)
+    ExpandBtn.ZIndex = 3
+    ExpandBtn.Image = "rbxassetid://124678946983065"
 
     UIAspectRatioConstraint_5.Parent = ContainerFrame
-    UIAspectRatioConstraint_5.AspectRatio = 1.671
+    UIAspectRatioConstraint_5.AspectRatio = 1.569
 
     ContinueBtn.Name = "ContinueBtn"
     ContinueBtn.Parent = ContainerFrame
-    ContinueBtn.AnchorPoint = Vector2.new(0.5, 0.5)
     ContinueBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     ContinueBtn.BackgroundTransparency = 1.000
     ContinueBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ContinueBtn.BorderSizePixel = 0
-    ContinueBtn.Position = UDim2.new(0.499494433, 0, 0.9375, 0)
-    ContinueBtn.Size = UDim2.new(0.265925169, 0, 0.160472974, 0)
+    ContinueBtn.Position = UDim2.new(0.5, 0, 0.916, 0)
+    ContinueBtn.Size = UDim2.new(0.265656561, 0, 0.150554672, 0)
     ContinueBtn.ZIndex = 3
     ContinueBtn.Image = "rbxassetid://87907459450827"
+    ContinueBtn.AnchorPoint = Vector2.new(0.5, 0.5)
 end
 
 

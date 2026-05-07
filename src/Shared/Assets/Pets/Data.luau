@@ -22,7 +22,7 @@ export type PetSchema
         color: "Default" | "Rainbow" | "Radioactive" | "Glitched"
     },
     
-    locked: { string }
+    locked: { string }?
 }
 
 

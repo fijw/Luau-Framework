@@ -42,7 +42,15 @@ export type DataTemplateSchema = setmetatable
             }
         >,
 
-        HealingPets: StateEngine<{ string }>
+        HealingData: StateEngine
+        <
+            {
+                HealingPets: { [string]: number },
+
+                usedHealingSlots: number,
+                maxHealingSlots: number
+            }
+        >
     },
 
     {
@@ -84,7 +92,7 @@ local DataSettings
     = {
         gems = 10_000 :: any,
         
-        GameplayData
+        StatsData
         = {
             level = 100,
             xp = 0,
@@ -99,10 +107,16 @@ local DataSettings
             currentMaxDungeonLevelReached = 1
         } :: any,
 
-        HealingPets = {} :: any
+        HealingData
+        = {
+            HealingPets = {},
+
+            usedHealingSlots = 0,
+            maxHealingSlots = 10
+        } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "takethis123"
+    PLAYER_DATA_STORAGE_KEY = "test123st"
 }
 
 

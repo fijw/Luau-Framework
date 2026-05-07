@@ -98,6 +98,11 @@ end
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the component.
+    
+    @return void
+]]
 local function constructorCallback()
     local clonedInventory = UIComponents.Inventory:Clone()
     clonedInventory.Parent = PlayerGui
@@ -151,7 +156,7 @@ local function constructorCallback()
                     newPetLabel.Parent = scrollingFrame
                     newPetLabel.ImageColor3 = Color3.fromRGB(0, 155, 202)
 
-                    if table.find(PetSchema.locked, i) then createTick(newPetLabel, "lock") end
+                    if PetSchema.locked then if table.find(PetSchema.locked, i) then createTick(newPetLabel, "lock") end end
 
                     local innerImgButton = Instance.new("ImageButton")
                     innerImgButton.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -197,15 +202,15 @@ local function constructorCallback()
                     HandledUI:handleButtonPress(innerImgButton,
                         function(pos1: number, pos2: number)
                             if isLocking then
-                                local foundIdIndex = table.find(PetSchema.locked, i)
+                                local foundIdIndex = if PetSchema.locked then table.find(PetSchema.locked, i) else nil
 
                                 if not foundIdIndex then
-                                    table.insert(PetSchema.locked, i)
+                                    if PetSchema.locked then table.insert(PetSchema.locked, i) end
 
                                     InventoryGroup.LockPet:fireServer(i)
                                     createTick(newPetLabel, "lock")
                                 else
-                                    table.remove(PetSchema.locked, foundIdIndex)
+                                    if PetSchema.locked then table.remove(PetSchema.locked, foundIdIndex) end
                                     InventoryGroup.LockPet:fireServer(i)
                                     
                                     local foundTick = newPetLabel:FindFirstChild("LockTick")
@@ -214,7 +219,7 @@ local function constructorCallback()
                             end
 
                             if isDeleting then
-                                if table.find(PetSchema.locked, i) then return end
+                                if PetSchema.locked then if table.find(PetSchema.locked, i) then return end end
 
                                 -- Add or remove the pet from the deletion list.
                                 do

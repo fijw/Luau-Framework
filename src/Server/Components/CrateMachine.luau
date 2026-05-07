@@ -31,7 +31,7 @@ type PetSchema = PetsData.PetSchema
 
 --[[ @section Constructor ]]
 --[[
-    @usage Handles the hatch pet packet.
+    @usage Handles the crate machine packet group.
 
     @return void
 ]]
@@ -75,8 +75,31 @@ local function constructorCallback()
                         local PetSchema: PetSchema = TableUtils.deepClone(RNG.randomFromTableOfChances(CrateSchema.Chances))
                         PetSchema.PetStats.color = RandomizedStats.color :: any
                         PetSchema.PetStats.size = RandomizedStats.size :: any
-                        PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
                         PetSchema.locked = {}
+
+                        -- Size and color stat modifications.
+                        do
+                            if PetSchema.PetStats.size == "Gigantic" then
+                                PetSchema.GameplayStats.attackDamage *= 8
+                                PetSchema.GameplayStats.maxHealth *= 8
+                            elseif PetSchema.PetStats.size == "Huge" then
+                                PetSchema.GameplayStats.attackDamage *= 4
+                                PetSchema.GameplayStats.maxHealth *= 4
+                            end
+
+                            if PetSchema.PetStats.color == "Glitched" then
+                                PetSchema.GameplayStats.attackDamage *= 4
+                                PetSchema.GameplayStats.maxHealth *= 4
+                            elseif PetSchema.PetStats.color == "Radioactive" then
+                                PetSchema.GameplayStats.attackDamage *= 3
+                                PetSchema.GameplayStats.maxHealth *= 3
+                            elseif PetSchema.PetStats.color == "Rainbow" then
+                                PetSchema.GameplayStats.attackDamage *= 2
+                                PetSchema.GameplayStats.maxHealth *= 2
+                            end
+                        end
+
+                        PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
 
                         -- Attempt to give the player the pet.
                         do

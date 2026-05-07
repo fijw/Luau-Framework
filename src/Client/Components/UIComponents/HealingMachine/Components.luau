@@ -38,7 +38,7 @@ do
     Container.BackgroundTransparency = 1.000
     Container.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Container.BorderSizePixel = 0
-    Container.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Container.Position = UDim2.new(0.5, 0, 0.45, 0)
     Container.Size = UDim2.new(0.58259511, 0, 0.663888872, 0)
 
     MainFrame.Name = "MainFrame"
@@ -113,7 +113,7 @@ do
     ImageButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     ImageButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ImageButton.BorderSizePixel = 0
-    ImageButton.Size = UDim2.new(0.187165782, 0, 0.45555833, 0)
+    ImageButton.Size = UDim2.new(0.186, 0, 0.45555833, 0)
     ImageButton.ZIndex = 2
     ImageButton.BackgroundTransparency = 1
     ImageButton.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
@@ -127,6 +127,7 @@ do
     UIListLayout.FillDirection = Enum.FillDirection.Horizontal
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayout.Padding = UDim.new(0, 15)
+    UIListLayout.Wraps = true
 
     BackgroundImg.Name = "BackgroundImg"
     BackgroundImg.Parent = Container

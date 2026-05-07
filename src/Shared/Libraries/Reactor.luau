@@ -386,7 +386,7 @@ local function stateEngineCallback
     local CurrentState = getmetatable(self).state
 
     -- Checks for nil data or locked state to just return the state.
-    if freshData == nil or self.locked then
+    if (freshData == nil and freshKey == nil) or self.locked then
         local StateClone: { [any]: any } = {}
 
         if typeof(CurrentState) == "table" then

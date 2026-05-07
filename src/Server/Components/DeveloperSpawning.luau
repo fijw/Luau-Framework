@@ -26,7 +26,7 @@ type InventoryClass = Stackentory.InventoryClass
 
 --[[ @section Constructor ]]
 --[[
-    @usage Initialize the service.
+    @usage Initialize the component.
 
     @return void
 ]]

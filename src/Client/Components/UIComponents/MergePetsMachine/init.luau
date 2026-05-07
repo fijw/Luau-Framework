@@ -132,6 +132,11 @@ end
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the component.
+    
+    @return void
+]]
 local function constructorCallback()
     local clonedMachine = UIComponents.MergePetsMachine:Clone()
     clonedMachine.Parent = PlayerGui

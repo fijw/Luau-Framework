@@ -24,16 +24,31 @@ local Packets
         }
     ),
 
-    SuccessfullyStartedHealing = NetworkLib("successfully_started_healing", "Event",
+    RequestPetsForHealingSelection = NetworkLib("request_pets_for_healing_selection", "Function",
         {
-            clientType = nil,
+            clientType = { ["pet_id" :: string] = {} :: PetSchema },
             serverType = nil
         }
     ),
 
-    RequestPetsForHealingSelection = NetworkLib("request_pets_for_healing_selection", "Function",
+    RequestHealingSlots = NetworkLib("request_healing_slots", "Function",
         {
-            clientType = { ["pet_id" :: string] = {} :: PetSchema },
+            clientType = 0,
+            serverType = nil
+        }
+    ),
+
+
+    SuccessfullyStartedHealing = NetworkLib("successfully_started_healing", "Event",
+        {
+            clientType = 0,
+            serverType = nil
+        }
+    ),
+
+    PetFinishedHealing = NetworkLib("pet_finished_healing", "Event",
+        {
+            clientType = "pet_name",
             serverType = nil
         }
     ),

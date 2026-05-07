@@ -25,6 +25,11 @@ local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") els
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the component.
+    
+    @return void
+]]
 local function constructorCallback(): ComponentsMap
     local notification: ScreenGui
 

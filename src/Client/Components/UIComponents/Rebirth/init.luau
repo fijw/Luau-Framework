@@ -90,6 +90,11 @@ end
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the component.
+    
+    @return void
+]]
 local function constructorCallback()
     local clonedRebirth = Components.Rebirth
     clonedRebirth.Parent = PlayerGui

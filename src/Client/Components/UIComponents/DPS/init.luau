@@ -67,7 +67,7 @@ end
 
 --[[ @section Constructor ]]
 --[[
-    @usage Initialize the service.
+    @usage Initialize the component.
     
     @return void
 ]]
@@ -105,8 +105,8 @@ local function constructorCallback()
             DeveloperSpawningGroup.SpawnPet:fireServer(
                 {
                     receiverId = tonumber(targetTextBox.Text) :: number,
-                    petSize = petSizeTextBox.Text,
-                    petColor = petColorTextBox.Text,
+                    petSize = if petSizeTextBox.Text == "" then "Default" else petSizeTextBox.Text,
+                    petColor = if petColorTextBox.Text == "" then "Default" else petColorTextBox.Text,
                     petName = petNameTextBox.Text
                 }   
             )

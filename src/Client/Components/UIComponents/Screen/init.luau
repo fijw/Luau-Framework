@@ -80,6 +80,11 @@ end
 
 
 --[[ @section Constructor ]]
+--[[
+    @usage Initialize the component.
+    
+    @return void
+]]
 local function constructorCallback()
     local clonedScreen = UIComponents.Screen:Clone()
     clonedScreen.Enabled = true

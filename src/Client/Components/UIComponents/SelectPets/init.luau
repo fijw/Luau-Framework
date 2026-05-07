@@ -30,7 +30,12 @@ local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") els
 
 
 --[[ @section Constructor ]]
-local function constructorCallback()--: ComponentsMap
+--[[
+    @usage Initialize the component.
+    
+    @return void
+]]
+local function constructorCallback(): ComponentsMap
     local selectPets: ScreenGui
 
     -- Get the pet details screen gui.
@@ -43,7 +48,7 @@ local function constructorCallback()--: ComponentsMap
         else selectPets = foundSelectPets :: ScreenGui end
     end
 
-    local container = selectPets:WaitForChild("Container") :: Frame
+    local container = selectPets:WaitForChild("ContainerFrame") :: Frame
     local searchBox = container:WaitForChild("SearchBox") :: Frame
     local frameBox = searchBox:WaitForChild("FrameBox") :: ImageLabel
     local textBox = frameBox:WaitForChild("TextBox") :: TextBox

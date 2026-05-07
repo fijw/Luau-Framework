@@ -59,7 +59,7 @@ end
 
 --[[ @section Constructor ]]
 --[[
-    @usage Initialize the service.
+    @usage Initialize the component.
 
     @return void
 ]]
@@ -92,12 +92,12 @@ local function constuctorCallback()
             local FoundStack: Stack<PetSchema>? = Inventory:fetchStackFromItemId(data)
             if not FoundStack then return end
 
-            local foundIdIndex = table.find(FoundStack.StackData.locked, data)
+            local foundIdIndex = if FoundStack.StackData.locked then table.find(FoundStack.StackData.locked, data) else nil
 
             if foundIdIndex then
-                table.remove(FoundStack.StackData.locked, foundIdIndex)
+                if FoundStack.StackData.locked then table.remove(FoundStack.StackData.locked, foundIdIndex) end
             else
-                table.insert(FoundStack.StackData.locked, data)
+                if FoundStack.StackData.locked then table.insert(FoundStack.StackData.locked, data) end
             end
         end
     )
@@ -133,7 +133,11 @@ local function constuctorCallback()
                 
                 for i: string, Stack: Stack<PetSchema> in pairs(Inventory.StacksArray) do
                     if not string.find(Stack.StackData.petName:lower(), data:lower()) then continue end
-                    for i: number, id: string in ipairs(Stack.StackArray()) do PetsAddingToInventory[id] = Stack.StackData end
+
+                    for i: number, id: string in ipairs(Stack.StackArray()) do
+                        if PlrDataClass()().HealingData().HealingPets[id] then continue end
+                        PetsAddingToInventory[id] = Stack.StackData
+                    end
                 end
 
                 InventoryGroup.AddPetsToInventory:fireClient(sender, PetsAddingToInventory)
@@ -150,35 +154,39 @@ local function constuctorCallback()
             end
         end
     )
+    
+    -- Subscribe to the player's inventory.
+    do
+        local function onPlayerAdded(player: Player)
+            local PlrDataClass = Registry(player)
+            if not PlrDataClass then return end
 
-    local function onPlayerAdded(player: Player)
-        local PlrDataClass = Registry(player)
-        if not PlrDataClass then return end
+            -- Initialize the player's inventory.
+            local oldInventoryState = if PlrDataClass()().Inventory then PlrDataClass()().Inventory() :: SavingInventoryClassSchema else nil
+            PlrDataClass()(Stackentory(oldInventoryState), "Inventory")
 
-        -- Initialize the player's inventory.
-        local oldInventoryState = if PlrDataClass()().Inventory then PlrDataClass()().Inventory() :: SavingInventoryClassSchema else nil
-        PlrDataClass()(Stackentory(oldInventoryState), "Inventory")
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
 
-        local Inventory = PlrDataClass()().Inventory :: InventoryClass
-
-        -- Add existing pets to the player's client inventory.
-        do
-            local PetsAddingToInventory = {}
-            
-            for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
-                for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
-                    PetsAddingToInventory[id] = SavingStackSchema.StackData
+            -- Add existing pets to the player's client inventory.
+            do
+                local PetsAddingToInventory = {}
+                
+                for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
+                    for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
+                        if PlrDataClass()().HealingData().HealingPets[id] then continue end
+                        PetsAddingToInventory[id] = SavingStackSchema.StackData
+                    end
                 end
+                
+                InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
             end
-            
-            InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
+
+            subscribeToInventory(player, Inventory)
         end
 
-        subscribeToInventory(player, Inventory)
+        for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end
+        Players.PlayerAdded:Connect(onPlayerAdded)
     end
-
-    for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end
-    Players.PlayerAdded:Connect(onPlayerAdded)
 end
 
 return constuctorCallback

@@ -26,7 +26,7 @@ local NEEDED_LEVELS_MULTIPLER_PER_REBIRTH = 2
 
 --[[ @section Constructor ]]
 --[[
-    @usage Handles the rebirthing packet.
+    @usage Handles the rebirthing packet group.
 
     @return void
 ]]

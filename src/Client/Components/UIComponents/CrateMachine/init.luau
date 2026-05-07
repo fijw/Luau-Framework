@@ -131,7 +131,7 @@ end
 
 --[[ @section Constructor ]]
 --[[
-    @usage Initialize the service.
+    @usage Initialize the component.
     
     @return void
 ]]
