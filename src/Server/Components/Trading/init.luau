@@ -9,9 +9,6 @@ local Requests = require(script.Connections.Requests)
 local EndingActions = require(script.Connections.EndingActions)
 
 
-local ConnectionsMap: { () -> () } = { ArithmeticPetActions, Coins, Requests, EndingActions }
-
-
 --[[ @section Constructor ]]
 --[[
     @usage Initialize the component.
@@ -19,8 +16,10 @@ local ConnectionsMap: { () -> () } = { ArithmeticPetActions, Coins, Requests, En
     @return void
 ]]
 local function constuctorCallback()
-    for i: number, connectionCallback: () -> () in ipairs(ConnectionsMap) do
-        connectionCallback()
+    local ConstructorArray = { ArithmeticPetActions, Coins, Requests, EndingActions }
+
+    for i: number, constructorCallback: () -> () in ipairs(ConstructorArray) do
+        constructorCallback()
     end
 end
 
