@@ -49,11 +49,11 @@ local function constructorCallback(): ComponentsMap
     local mainFrame = petDetails:WaitForChild("MainFrame") :: ImageLabel
     local innerContainer = mainFrame:WaitForChild("InnerContainer") :: Frame
     local detailsContainer = innerContainer:WaitForChild("DetailsContainer") :: Frame
-    local color = detailsContainer:WaitForChild("Color") :: ImageLabel
+    local color = detailsContainer:WaitForChild("ColorContainer") :: ImageLabel
     local colorText = color:WaitForChild("TextLabel") :: TextLabel
-    local rarity = detailsContainer:WaitForChild("Rarity") :: ImageLabel
+    local rarity = innerContainer:WaitForChild("RarityFrame") :: ImageLabel
     local rarityText = rarity:WaitForChild("TextLabel") :: TextLabel
-    local size = detailsContainer:WaitForChild("Size") :: ImageLabel
+    local size = detailsContainer:WaitForChild("SizeContainer") :: ImageLabel
     local sizeText = size:WaitForChild("TextLabel") :: TextLabel
     local statsContainer = innerContainer:WaitForChild("StatsContainer") :: Frame
     local dmgContainer = statsContainer:WaitForChild("DmgContainer") :: Frame

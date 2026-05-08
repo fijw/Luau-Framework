@@ -6,7 +6,6 @@
 --[[ @section Variables ]]
 local PetDetails = Instance.new("ScreenGui")
 local MainFrame = Instance.new("ImageLabel")
-local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 local InnerContainer = Instance.new("Frame")
 local PetName = Instance.new("TextLabel")
 local UIListLayout = Instance.new("UIListLayout")
@@ -19,18 +18,21 @@ local DmgContainer = Instance.new("Frame")
 local ImageLabel_2 = Instance.new("ImageLabel")
 local TextLabel_2 = Instance.new("TextLabel")
 local ImageLabel_3 = Instance.new("ImageLabel")
-local DetailsContainer = Instance.new("Frame")
-local UIListLayout_3 = Instance.new("UIListLayout")
-local Rarity = Instance.new("ImageLabel")
-local TextLabel_3 = Instance.new("TextLabel")
-local Size = Instance.new("ImageLabel")
-local TextLabel_4 = Instance.new("TextLabel")
-local Color = Instance.new("ImageLabel")
-local TextLabel_5 = Instance.new("TextLabel")
 local ImageLabel_4 = Instance.new("ImageLabel")
 local TradeableContainer = Instance.new("Frame")
 local ImageLabel_5 = Instance.new("ImageLabel")
+local TextLabel_3 = Instance.new("TextLabel")
+local DetailsContainer = Instance.new("Frame")
+local SizeContainer = Instance.new("Frame")
+local ImageLabel_6 = Instance.new("ImageLabel")
+local TextLabel_4 = Instance.new("TextLabel")
+local UIListLayout_3 = Instance.new("UIListLayout")
+local ColorContainer = Instance.new("Frame")
+local ImageLabel_7 = Instance.new("ImageLabel")
+local TextLabel_5 = Instance.new("TextLabel")
+local RarityFrame = Instance.new("ImageLabel")
 local TextLabel_6 = Instance.new("TextLabel")
+local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 
 local ComponentsMap = { PetDetails = PetDetails }
 --[[ @end_section Variables ]]
@@ -39,7 +41,6 @@ local ComponentsMap = { PetDetails = PetDetails }
 -- Set all component properties.
 do
     PetDetails.Name = "PetDetails"
-    PetDetails.Enabled = true
     PetDetails.DisplayOrder = 99
     PetDetails.ResetOnSpawn = false
 
@@ -49,13 +50,9 @@ do
     MainFrame.BackgroundTransparency = 1.000
     MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     MainFrame.BorderSizePixel = 0
-    MainFrame.Position = UDim2.new(0.528400183, 0, 0.541666687, 0)
-    MainFrame.Size = UDim2.new(0.139134973, 0, 0.389814824, 0)
+    MainFrame.Size = UDim2.new(0.139134973, 0, 0.382407397, 0)
     MainFrame.Image = "rbxassetid://76165303610256"
     MainFrame.Visible = false
-
-    UIAspectRatioConstraint.Parent = MainFrame
-    UIAspectRatioConstraint.AspectRatio = 0.634
 
     InnerContainer.Name = "InnerContainer"
     InnerContainer.Parent = MainFrame
@@ -65,7 +62,7 @@ do
     InnerContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
     InnerContainer.BorderSizePixel = 0
     InnerContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-    InnerContainer.Size = UDim2.new(0.812734067, 0, 0.881235182, 0)
+    InnerContainer.Size = UDim2.new(0.812734067, 0, 0.878934622, 0)
 
     PetName.Name = "PetName"
     PetName.Parent = InnerContainer
@@ -75,7 +72,7 @@ do
     PetName.BorderSizePixel = 0
     PetName.Size = UDim2.new(1, 0, 0.105121292, 0)
     PetName.Font = Enum.Font.FredokaOne
-    PetName.Text = "Cat"
+    PetName.Text = "Dog"
     PetName.TextColor3 = Color3.fromRGB(0, 0, 0)
     PetName.TextScaled = true
     PetName.TextSize = 14.000
@@ -91,7 +88,7 @@ do
     StatsContainer.BackgroundTransparency = 1.000
     StatsContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
     StatsContainer.BorderSizePixel = 0
-    StatsContainer.LayoutOrder = 1
+    StatsContainer.LayoutOrder = 2
     StatsContainer.Size = UDim2.new(1, 0, 0.202156335, 0)
 
     HealthContainer.Name = "HealthContainer"
@@ -118,7 +115,7 @@ do
     TextLabel.Position = UDim2.new(0.230414748, 0, 0.0857142881, 0)
     TextLabel.Size = UDim2.new(0.769585252, 0, 0.828571439, 0)
     TextLabel.Font = Enum.Font.FredokaOne
-    TextLabel.Text = "100/100"
+    TextLabel.Text = "10/10"
     TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
     TextLabel.TextScaled = true
     TextLabel.TextSize = 14.000
@@ -153,7 +150,7 @@ do
     TextLabel_2.Position = UDim2.new(0.230414748, 0, 0.0857142881, 0)
     TextLabel_2.Size = UDim2.new(0.769585252, 0, 0.828571439, 0)
     TextLabel_2.Font = Enum.Font.FredokaOne
-    TextLabel_2.Text = "150"
+    TextLabel_2.Text = "10"
     TextLabel_2.TextColor3 = Color3.fromRGB(0, 0, 0)
     TextLabel_2.TextScaled = true
     TextLabel_2.TextSize = 14.000
@@ -165,110 +162,26 @@ do
     ImageLabel_3.BackgroundTransparency = 1.000
     ImageLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ImageLabel_3.BorderSizePixel = 0
-    ImageLabel_3.LayoutOrder = 2
+    ImageLabel_3.LayoutOrder = 5
     ImageLabel_3.Size = UDim2.new(1, 0, 0.0134770889, 0)
     ImageLabel_3.Image = "rbxassetid://107763108400322"
-
-    DetailsContainer.Name = "DetailsContainer"
-    DetailsContainer.Parent = InnerContainer
-    DetailsContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    DetailsContainer.BackgroundTransparency = 1.000
-    DetailsContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    DetailsContainer.BorderSizePixel = 0
-    DetailsContainer.LayoutOrder = 3
-    DetailsContainer.Size = UDim2.new(1, 0, 0.369272232, 0)
-
-    UIListLayout_3.Parent = DetailsContainer
-    UIListLayout_3.SortOrder = Enum.SortOrder.LayoutOrder
-    UIListLayout_3.Padding = UDim.new(0.0700000003, 0)
-
-    Rarity.Name = "Rarity"
-    Rarity.Parent = DetailsContainer
-    Rarity.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Rarity.BackgroundTransparency = 1.000
-    Rarity.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Rarity.BorderSizePixel = 0
-    Rarity.Size = UDim2.new(1, 0, 0.284671545, 0)
-    Rarity.Image = "rbxassetid://74350886926927"
-
-    TextLabel_3.Parent = Rarity
-    TextLabel_3.AnchorPoint = Vector2.new(0.5, 0.5)
-    TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    TextLabel_3.BackgroundTransparency = 1.000
-    TextLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    TextLabel_3.BorderSizePixel = 0
-    TextLabel_3.Position = UDim2.new(0.5, 0, 0.5, 0)
-    TextLabel_3.Size = UDim2.new(0.861751139, 0, 0.743589759, 0)
-    TextLabel_3.Font = Enum.Font.FredokaOne
-    TextLabel_3.Text = "Secret"
-    TextLabel_3.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextLabel_3.TextScaled = true
-    TextLabel_3.TextSize = 14.000
-    TextLabel_3.TextWrapped = true
-
-    Size.Name = "Size"
-    Size.Parent = DetailsContainer
-    Size.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Size.BackgroundTransparency = 1.000
-    Size.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Size.BorderSizePixel = 0
-    Size.Size = UDim2.new(1, 0, 0.284671545, 0)
-    Size.Image = "rbxassetid://74350886926927"
-
-    TextLabel_4.Parent = Size
-    TextLabel_4.AnchorPoint = Vector2.new(0.5, 0.5)
-    TextLabel_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    TextLabel_4.BackgroundTransparency = 1.000
-    TextLabel_4.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    TextLabel_4.BorderSizePixel = 0
-    TextLabel_4.Position = UDim2.new(0.5, 0, 0.5, 0)
-    TextLabel_4.Size = UDim2.new(0.861751139, 0, 0.743589759, 0)
-    TextLabel_4.Font = Enum.Font.FredokaOne
-    TextLabel_4.Text = "Gigantic"
-    TextLabel_4.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextLabel_4.TextScaled = true
-    TextLabel_4.TextSize = 14.000
-    TextLabel_4.TextWrapped = true
-
-    Color.Name = "Color"
-    Color.Parent = DetailsContainer
-    Color.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Color.BackgroundTransparency = 1.000
-    Color.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Color.BorderSizePixel = 0
-    Color.Size = UDim2.new(1, 0, 0.284671545, 0)
-    Color.Image = "rbxassetid://74350886926927"
-
-    TextLabel_5.Parent = Color
-    TextLabel_5.AnchorPoint = Vector2.new(0.5, 0.5)
-    TextLabel_5.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    TextLabel_5.BackgroundTransparency = 1.000
-    TextLabel_5.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    TextLabel_5.BorderSizePixel = 0
-    TextLabel_5.Position = UDim2.new(0.5, 0, 0.5, 0)
-    TextLabel_5.Size = UDim2.new(0.861751139, 0, 0.743589759, 0)
-    TextLabel_5.Font = Enum.Font.FredokaOne
-    TextLabel_5.Text = "Glitched"
-    TextLabel_5.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextLabel_5.TextScaled = true
-    TextLabel_5.TextSize = 14.000
-    TextLabel_5.TextWrapped = true
 
     ImageLabel_4.Parent = InnerContainer
     ImageLabel_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     ImageLabel_4.BackgroundTransparency = 1.000
     ImageLabel_4.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ImageLabel_4.BorderSizePixel = 0
-    ImageLabel_4.LayoutOrder = 4
+    ImageLabel_4.LayoutOrder = 3
     ImageLabel_4.Size = UDim2.new(1, 0, 0.0134770889, 0)
     ImageLabel_4.Image = "rbxassetid://107763108400322"
 
     TradeableContainer.Name = "TradeableContainer"
     TradeableContainer.Parent = InnerContainer
     TradeableContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TradeableContainer.BackgroundTransparency = 1.000
     TradeableContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TradeableContainer.BorderSizePixel = 0
-    TradeableContainer.LayoutOrder = 5
+    TradeableContainer.LayoutOrder = 6
     TradeableContainer.Size = UDim2.new(1, 0, 0.094339624, 0)
 
     ImageLabel_5.Parent = TradeableContainer
@@ -279,20 +192,123 @@ do
     ImageLabel_5.Size = UDim2.new(0.161290318, 0, 1, 0)
     ImageLabel_5.Image = "rbxassetid://129263572391188"
 
-    TextLabel_6.Parent = TradeableContainer
+    TextLabel_3.Parent = TradeableContainer
+    TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel_3.BackgroundTransparency = 1.000
+    TextLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_3.BorderSizePixel = 0
+    TextLabel_3.Position = UDim2.new(0.230414748, 0, 0.0857142881, 0)
+    TextLabel_3.Size = UDim2.new(0.769585252, 0, 0.828571439, 0)
+    TextLabel_3.Font = Enum.Font.FredokaOne
+    TextLabel_3.Text = "Tradeable"
+    TextLabel_3.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_3.TextScaled = true
+    TextLabel_3.TextSize = 14.000
+    TextLabel_3.TextWrapped = true
+    TextLabel_3.TextXAlignment = Enum.TextXAlignment.Left
+
+    DetailsContainer.Name = "DetailsContainer"
+    DetailsContainer.Parent = InnerContainer
+    DetailsContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    DetailsContainer.BackgroundTransparency = 1.000
+    DetailsContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    DetailsContainer.BorderSizePixel = 0
+    DetailsContainer.LayoutOrder = 4
+    DetailsContainer.Size = UDim2.new(1, 0, 0.202156335, 0)
+
+    SizeContainer.Name = "SizeContainer"
+    SizeContainer.Parent = DetailsContainer
+    SizeContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    SizeContainer.BackgroundTransparency = 1.000
+    SizeContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    SizeContainer.BorderSizePixel = 0
+    SizeContainer.Size = UDim2.new(1, 0, 0.466666669, 0)
+
+    ImageLabel_6.Parent = SizeContainer
+    ImageLabel_6.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ImageLabel_6.BackgroundTransparency = 1.000
+    ImageLabel_6.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ImageLabel_6.BorderSizePixel = 0
+    ImageLabel_6.Size = UDim2.new(0.161290318, 0, 1, 0)
+    ImageLabel_6.Image = "rbxassetid://89518300426565"
+
+    TextLabel_4.Parent = SizeContainer
+    TextLabel_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel_4.BackgroundTransparency = 1.000
+    TextLabel_4.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_4.BorderSizePixel = 0
+    TextLabel_4.Position = UDim2.new(0.230414748, 0, 0.0857142881, 0)
+    TextLabel_4.Size = UDim2.new(0.769585252, 0, 0.828571439, 0)
+    TextLabel_4.Font = Enum.Font.FredokaOne
+    TextLabel_4.Text = "Default"
+    TextLabel_4.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_4.TextScaled = true
+    TextLabel_4.TextSize = 14.000
+    TextLabel_4.TextWrapped = true
+    TextLabel_4.TextXAlignment = Enum.TextXAlignment.Left
+
+    UIListLayout_3.Parent = DetailsContainer
+    UIListLayout_3.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout_3.Padding = UDim.new(0.0599999987, 0)
+
+    ColorContainer.Name = "ColorContainer"
+    ColorContainer.Parent = DetailsContainer
+    ColorContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ColorContainer.BackgroundTransparency = 1.000
+    ColorContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ColorContainer.BorderSizePixel = 0
+    ColorContainer.Size = UDim2.new(1, 0, 0.466666669, 0)
+
+    ImageLabel_7.Parent = ColorContainer
+    ImageLabel_7.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ImageLabel_7.BackgroundTransparency = 1.000
+    ImageLabel_7.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ImageLabel_7.BorderSizePixel = 0
+    ImageLabel_7.Size = UDim2.new(0.161290318, 0, 1, 0)
+    ImageLabel_7.Image = "rbxassetid://71996075834460"
+
+    TextLabel_5.Parent = ColorContainer
+    TextLabel_5.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel_5.BackgroundTransparency = 1.000
+    TextLabel_5.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_5.BorderSizePixel = 0
+    TextLabel_5.Position = UDim2.new(0.230414748, 0, 0.0857142881, 0)
+    TextLabel_5.Size = UDim2.new(0.769585252, 0, 0.828571439, 0)
+    TextLabel_5.Font = Enum.Font.FredokaOne
+    TextLabel_5.Text = "Default"
+    TextLabel_5.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_5.TextScaled = true
+    TextLabel_5.TextSize = 14.000
+    TextLabel_5.TextWrapped = true
+    TextLabel_5.TextXAlignment = Enum.TextXAlignment.Left
+
+    RarityFrame.Name = "RarityFrame"
+    RarityFrame.Parent = InnerContainer
+    RarityFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    RarityFrame.BackgroundTransparency = 1.000
+    RarityFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    RarityFrame.BorderSizePixel = 0
+    RarityFrame.LayoutOrder = 1
+    RarityFrame.Size = UDim2.new(1, 0, 0.107438013, 0)
+    RarityFrame.Image = "rbxassetid://111740867546501"
+
+    TextLabel_6.Parent = RarityFrame
+    TextLabel_6.AnchorPoint = Vector2.new(0.5, 0.5)
     TextLabel_6.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     TextLabel_6.BackgroundTransparency = 1.000
     TextLabel_6.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextLabel_6.BorderSizePixel = 0
-    TextLabel_6.Position = UDim2.new(0.230414748, 0, 0.0857142881, 0)
-    TextLabel_6.Size = UDim2.new(0.769585252, 0, 0.828571439, 0)
+    TextLabel_6.Position = UDim2.new(0.5, 0, 0.5, 0)
+    TextLabel_6.Size = UDim2.new(0.94599998, 0, 0.743589759, 0)
     TextLabel_6.Font = Enum.Font.FredokaOne
-    TextLabel_6.Text = "Tradeable"
+    TextLabel_6.Text = "Common"
     TextLabel_6.TextColor3 = Color3.fromRGB(0, 0, 0)
     TextLabel_6.TextScaled = true
     TextLabel_6.TextSize = 14.000
     TextLabel_6.TextWrapped = true
-    TextLabel_6.TextXAlignment = Enum.TextXAlignment.Left
+
+    UIAspectRatioConstraint.Parent = MainFrame
+    UIAspectRatioConstraint.AspectRatio = 0.646
 end
 
 
