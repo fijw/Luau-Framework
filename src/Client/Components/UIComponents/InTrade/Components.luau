@@ -290,6 +290,7 @@ do
     TextBox.TextScaled = true
     TextBox.TextSize = 14.000
     TextBox.TextWrapped = true
+    TextBox.ZIndex = 2
 
     TheirGemsOffer.Name = "TheirGemsOffer"
     TheirGemsOffer.Parent = GemsOfferContainer

@@ -258,7 +258,7 @@ local function constructorCallback()
     do
         TradingGroup.AcceptTradeRequest:onClientEvent(
             function(data)
-                HandledUI:setFocus({ "Screen", "AreYouSure", "Notification", "TradeRequest" })
+                HandledUI:setFocus({ "AreYouSure", "Notification", "TradeRequest" })
             end
         )
 
