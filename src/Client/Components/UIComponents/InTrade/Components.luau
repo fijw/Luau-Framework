@@ -109,8 +109,8 @@ do
     Default.ZIndex = 2
     Default.Visible = false
 
-    UIAspectRatioConstraint.Parent = Default
-    UIAspectRatioConstraint.AspectRatio = 0.997
+    UIAspectRatioConstraint_1.Parent = Default
+    UIAspectRatioConstraint_1.AspectRatio = 0.997
 
     Gigantic.Name = "Gigantic"
     Gigantic.BackgroundTransparency = 1

@@ -215,6 +215,8 @@ local function constructorCallback()
             for i: string, petButton: ImageLabel in pairs(CachedSelectPetsPetButtons) do
                 petButton:Destroy()
                 petButton.Parent = nil
+
+                CachedSelectPetsPetButtons[i] = nil
             end
 
             local isExpanded = false
@@ -365,6 +367,8 @@ local function constructorCallback()
                     petButton:Destroy()
                     petButton.Parent = nil
 
+                    CachedHealingMachinePetButtons[petId] = nil
+
                     numOfPets -= 1
                 end
 
@@ -411,6 +415,8 @@ local function constructorCallback()
                 for i: string, petButton: Instance in pairs(CachedHealingMachinePetButtons) do
                     petButton:Destroy()
                     petButton.Parent = nil
+
+                    CachedHealingMachinePetButtons[i] = nil
                 end
 
                 numOfPets = setHealingMachineData(scrollingFrame, HealingMachineGroup.RequestHealingPets:invokeServer(), imageLabel, HandledUI, usedSlotsText)
@@ -441,6 +447,8 @@ local function constructorCallback()
                     for i: string, petButton: Instance in pairs(CachedHealingMachinePetButtons) do
                         petButton:Destroy()
                         petButton.Parent = nil
+
+                        CachedHealingMachinePetButtons[i] = nil
                     end
 
                     local numOfPets = setHealingMachineData(scrollingFrame, HealingMachineGroup.RequestHealingPets:invokeServer(), imageLabel, HandledUI, usedSlotsText)

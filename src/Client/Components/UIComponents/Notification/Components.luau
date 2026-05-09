@@ -22,7 +22,7 @@ local ComponentsMap = { Notification = Notification }
 do
     Notification.Name = "Notification"
     Notification.Enabled = false
-    Notification.DisplayOrder = 999
+    Notification.DisplayOrder = -1
     Notification.ResetOnSpawn = false
 
     Container.Name = "Container"

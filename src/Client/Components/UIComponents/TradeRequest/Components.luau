@@ -23,7 +23,7 @@ local ComponentsMap = { TradeRequest = TradeRequest }
 do
     TradeRequest.Name = "TradeRequest"
     TradeRequest.Enabled = false
-    TradeRequest.DisplayOrder = 99
+    TradeRequest.DisplayOrder = -1
     TradeRequest.ResetOnSpawn = false
 
     Container.Name = "Container"

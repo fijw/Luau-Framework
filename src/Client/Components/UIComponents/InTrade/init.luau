@@ -35,10 +35,14 @@ local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
 
+local CachedPetDatasForExpanding: { [string]: PetSchema } = {}
+
 local YourCachedPetButtons: { [string]: ImageLabel } = {}
 local TheirCachedPetButtons: { [string]: ImageLabel } = {}
 
 local SelectedPetsCache: { string } = {}
+
+local isReady = false
 --[[ @end_section Variables ]]
 
 
@@ -159,6 +163,8 @@ local function addPetToTrade
     if Pet.locked then if table.find(Pet.locked, id) then createTick(newPetLabel, "lock") end end
     if table.find(SelectedPetsCache, id) then createTick(newPetLabel, "selected") end
 
+    CachedPetDatasForExpanding[id] = Pet
+
     local innerImgButton = Instance.new("ImageButton")
     innerImgButton.AnchorPoint = Vector2.new(0.5, 0.5)
     innerImgButton.Position = UDim2.fromScale(0.5, 0.5)
@@ -204,7 +210,7 @@ local function addPetToTrade
 
         HandledUI:handleButtonPress(innerImgButton,
             function(pos1: number, pos2: number)
-                if side == "theirs" then return end
+                if side == "theirs" or isReady or table.find(Pet.locked :: { string }, id) then return end
 
                 local foundIndex = table.find(SelectedPetsCache, id)
                 
@@ -259,11 +265,15 @@ local function handleSearch
         for i: string, petImageLabel: ImageLabel in pairs(YourCachedPetButtons) do
             petImageLabel:Destroy()
             petImageLabel.Parent = nil
+
+            CachedPetDatasForExpanding[i] = nil
         end
     else
         for i: string, petImageLabel: ImageLabel in pairs(TheirCachedPetButtons) do
             petImageLabel:Destroy()
             petImageLabel.Parent = nil
+
+            CachedPetDatasForExpanding[i] = nil
         end
     end
 
@@ -381,8 +391,6 @@ local function constructorCallback()
         )
     end
 
-    local isReady = false
-
     -- Networking connections.
     do
         TradingGroup.AcceptTradeRequest:onClientEvent(
@@ -463,33 +471,80 @@ local function constructorCallback()
         )
     end
 
+    local isExpanded = false
+
     -- Buttons handling.
     do
-        local isExpanded = false
-
         HandledUI:handleButtonPress(expandBtn,
             function(pos1: number, pos2: number)
                 isExpanded = not isExpanded
 
+                local ExpandingNums
+                = {
+                    gigantic = 2.04,
+                    huge = 2.07,
+                    default = 2.1
+                }
+
                 if isExpanded then
                     for i: number, inst: Instance in ipairs(yourScrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-                        inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2.04, inst.Size.Y.Scale / 2.025)
+
+                        local InstPetData = CachedPetDatasForExpanding[inst.Name]
+                        if not InstPetData then continue end
+
+                        if InstPetData.PetStats.size == "Gigantic" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
+                        elseif InstPetData.PetStats.size == "Huge" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
+                        elseif InstPetData.PetStats.size == "Default" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
+                        end
                     end
 
                     for i: number, inst: Instance in ipairs(theirScrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-                        inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2.04, inst.Size.Y.Scale / 2.025)
+
+                        local InstPetData = CachedPetDatasForExpanding[inst.Name]
+                        if not InstPetData then continue end
+
+                        if InstPetData.PetStats.size == "Gigantic" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
+                        elseif InstPetData.PetStats.size == "Huge" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
+                        elseif InstPetData.PetStats.size == "Default" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
+                        end
                     end
                 else
                     for i: number, inst: Instance in ipairs(yourScrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-                        inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2.04, inst.Size.Y.Scale * 2.025)
+                        
+                        local InstPetData = CachedPetDatasForExpanding[inst.Name]
+                        if not InstPetData then continue end
+
+                        if InstPetData.PetStats.size == "Gigantic" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
+                        elseif InstPetData.PetStats.size == "Huge" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
+                        elseif InstPetData.PetStats.size == "Default" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
+                        end
                     end
 
                     for i: number, inst: Instance in ipairs(theirScrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-                        inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2.04, inst.Size.Y.Scale * 2.025)
+                        
+                        local InstPetData = CachedPetDatasForExpanding[inst.Name]
+                        if not InstPetData then continue end
+
+                        if InstPetData.PetStats.size == "Gigantic" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
+                        elseif InstPetData.PetStats.size == "Huge" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
+                        elseif InstPetData.PetStats.size == "Default" then
+                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
+                        end
                     end
                 end
             end
@@ -537,6 +592,11 @@ local function constructorCallback()
 
                 -- Clear old data.
                 do
+                    isExpanded = false
+
+                    SelectedPetsCache = {}
+                    CachedPetDatasForExpanding = {}
+
                     yourSide.ImageColor3 = Color3.fromHex("#FFFFFF")
                     theirSide.ImageColor3 = Color3.fromHex("#FFFFFF")
 
@@ -548,11 +608,15 @@ local function constructorCallback()
                         for i: string, petBtn: ImageLabel in pairs(YourCachedPetButtons) do
                             petBtn:Destroy()
                             petBtn.Parent = nil
+
+                            YourCachedPetButtons[i] = nil
                         end
 
                         for i: string, petBtn: ImageLabel in pairs(TheirCachedPetButtons) do
                             petBtn:Destroy()
                             petBtn.Parent = nil
+
+                            TheirCachedPetButtons[i] = nil
                         end
                     end
 

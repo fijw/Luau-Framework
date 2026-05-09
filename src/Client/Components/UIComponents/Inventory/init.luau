@@ -352,6 +352,8 @@ local function constructorCallback()
 
                     originalContainerSize
                 )
+
+                SelectedDeletingPets = {}
             end
         )
 

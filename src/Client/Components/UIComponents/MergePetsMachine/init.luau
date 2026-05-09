@@ -275,6 +275,8 @@ local function constructorCallback()
 
                     PetButton:Destroy()
                     PetButton.Parent = nil
+
+                    CachedPetButtons[petId] = nil
                 end
             end
         )
@@ -284,6 +286,8 @@ local function constructorCallback()
                 for i: string, PetButton: ImageLabel in pairs(CachedPetButtons) do
                     PetButton:Destroy()
                     PetButton.Parent = nil
+
+                    CachedPetButtons[i] = nil
                 end
             end
         )

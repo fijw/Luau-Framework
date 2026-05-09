@@ -24,7 +24,7 @@ local ComponentsMap = { AreYouSure = AreYouSure }
 do
     AreYouSure.Name = "AreYouSure"
     AreYouSure.Enabled = false
-    AreYouSure.DisplayOrder = 999
+    AreYouSure.DisplayOrder = -1
     AreYouSure.ResetOnSpawn = false
 
     Container.Name = "Container"

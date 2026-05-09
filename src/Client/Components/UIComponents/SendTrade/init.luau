@@ -12,6 +12,7 @@ local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Component
 
 local UIComponents = require(script.Components)
 local TradeRequestComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.TradeRequest)
+local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
@@ -107,7 +108,22 @@ local function addPlayerTradingContainer
     CachedPlayerTradingContainers[plr] = PlayerTradingContainer
 
     HandledUI:handleButtonPress(SendTradeBtn,
-        function(pos1: number, pos2: number) TradingGroup.SendTradeRequest:fireServer(plr.UserId) end, true
+        function(pos1: number, pos2: number)
+            TradingGroup.SendTradeRequest:fireServer(plr.UserId)
+
+            local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+            HandledNotificationUI:hoverAndToggleSizing(1.15)
+            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
+            
+            NotificationComponents().notificationText.Text = `Attempted to send a trade request to {plr.DisplayName}.<br /><br />If they are in a trade or already have a pending trade request, they will not be notified.`
+            
+            HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                function(pos1: number, pos2: number)
+                    HandledNotificationUI:removeFocus({ HandledUI.ScreenGui.Name })
+                    HandledNotificationUI:destroy()
+                end
+            )
+        end
     )
 end
 --[[ @end_section Utility Functions ]]
@@ -154,7 +170,9 @@ local function constructorCallback()
         Players.PlayerRemoving:Connect(
             function(player: Player)
                 if not CachedPlayerTradingContainers[player] then return end
+                
                 CachedPlayerTradingContainers[player]:Destroy()
+                CachedPlayerTradingContainers[player] = nil
             end
         )
     end
