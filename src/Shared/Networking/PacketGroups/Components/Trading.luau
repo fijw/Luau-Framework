@@ -19,7 +19,7 @@ local Packets
 = {
     SendTradeRequest = NetworkLib("send_trade_request", "Event",
         {
-            clientType = 0,
+            clientType = "sending_display_name",
             serverType = 0
         }
     ),
@@ -41,21 +41,21 @@ local Packets
 
     AddPetToTradeOffer = NetworkLib("add_pet_to_trade_offer", "Event",
         {
-            clientType = { side = "theirs_or_yours", PetData = {} :: PetSchema },
+            clientType = { petId = "", PetData = {} :: PetSchema },
             serverType = "pet_id"
         }
     ),
 
     RemovePetFromTradeOffer = NetworkLib("remove_pet_from_trade_offer", "Event",
         {
-            clientType = { side = "theirs_or_yours", petId = "" },
+            clientType = "pet_id",
             serverType = "pet_id"
         }
     ),
 
     SetGemsInTradeOffer = NetworkLib("set_gems_in_trade_offer", "Event",
         {
-            clientType = { side = "theirs_or_yours", gems = 0 },
+            clientType = 0,
             serverType = 0
         }
     ),
@@ -71,6 +71,14 @@ local Packets
     AcceptTrade = NetworkLib("accept_trade", "Event",
         {
             clientType = nil,
+            serverType = nil
+        }
+    ),
+
+
+    RequestOwnedPetsForTrade = NetworkLib("request_owned_pets_for_trade", "Function",
+        {
+            clientType = { ["pet_id" :: string] = {} :: PetSchema },
             serverType = nil
         }
     )

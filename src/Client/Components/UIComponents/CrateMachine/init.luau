@@ -169,7 +169,7 @@ local function constructorCallback()
     local MachinesFolder = MapFolder:WaitForChild("Machines") :: Folder
     local crateMachine = MachinesFolder:WaitForChild("CrateMachine") :: Part
     local proximityPrompt = crateMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
-    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure" }) end)
+    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
 
     -- Add existing crates to the crate machine.
     do
@@ -181,7 +181,7 @@ local function constructorCallback()
         function(data)
             local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
             HandledNotificationUI:hoverAndToggleSizing(1.15)
-            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
 
             NotificationComponents().notificationText.Text = `You have used up all of your available pet slots.<br /><br />Please delete or trade pets to obtain more pet slots.`
             
@@ -198,7 +198,7 @@ local function constructorCallback()
         function(data)
             local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
             HandledNotificationUI:hoverAndToggleSizing(1.15)
-            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
             
             NotificationComponents().notificationText.Text = `You don't have enough gems to open this crate.<br /><br />You need {data} more gems to be able to open this crate.`
             

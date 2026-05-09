@@ -133,7 +133,7 @@ local function constructorCallback()
     HandledUi:hoverAndToggleSizing(1.15)
 
     local oldInvBtnPos = inventoryBtn.Position
-    tweenInst(inventoryBtn, 0.25, "pos", UDim2.new(0.5, 0, 0.5, 0))
+    inventoryBtn.Position = UDim2.new(0.5, 0, 0.5, 0)
 
     -- HUD button presses.
     do

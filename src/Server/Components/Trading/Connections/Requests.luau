@@ -25,10 +25,7 @@ local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Component
 local function constuctorCallback()
     TradingGroup.AcceptTradeRequest:onServerEvent(
         function(sender: Player, data: nil)
-            if not sender then return end
-
-            local RequestingPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
-            if not RequestingPlayer then return end
+            --if not sender or sender.Name == TradesMap.MappedTradeRequests[sender].Name then return end
 
             -- Create a new trade between the two players.
             do
@@ -37,7 +34,7 @@ local function constuctorCallback()
                 TradesMap.ActiveTrades[TradeId]
                 = {
                     player1 = sender,
-                    player2 = RequestingPlayer,
+                    player2 = TradesMap.MappedTradeRequests[sender],
 
                     Player1Pets = {},
                     Player2Pets = {},
@@ -50,8 +47,13 @@ local function constuctorCallback()
                 }
 
                 TradesMap.MappedTradingPlayers[sender] = TradeId
-                TradesMap.MappedTradingPlayers[RequestingPlayer] = TradeId
+                TradesMap.MappedTradingPlayers[TradesMap.MappedTradeRequests[sender]] = TradeId
             end
+
+            TradingGroup.AcceptTradeRequest:fireClient(sender)
+            TradingGroup.AcceptTradeRequest:fireClient(TradesMap.MappedTradeRequests[sender])
+
+            TradesMap.MappedTradeRequests[sender] = nil :: any
         end
     )
 
@@ -61,7 +63,8 @@ local function constuctorCallback()
 
             local TargetPlayer = Players:GetPlayerByUserId(data)
             if not TargetPlayer then return end
-            
+
+            TradingGroup.SendTradeRequest:fireClient(TargetPlayer, sender.DisplayName)
             TradesMap.MappedTradeRequests[TargetPlayer] = sender
         end
     )

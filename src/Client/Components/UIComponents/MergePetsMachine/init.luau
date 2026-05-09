@@ -110,8 +110,7 @@ end
 local function createNotification(data: number?, type: "not_enough_pets" | "not_enough_gems" | "success", machineName: string)
     local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
     HandledNotificationUI:hoverAndToggleSizing(1.15)
-
-    HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+    HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
 
     if type == "not_enough_pets" then
         NotificationComponents().notificationText.Text = `Not enough pets to merge. <br /><br />You need to select {NEEDED_PETS_TO_MERGE - data :: number} more pets.`
@@ -174,7 +173,7 @@ local function constructorCallback()
     local MachinesFolder = MapFolder:WaitForChild("Machines") :: Folder
     local mergingMachine = MachinesFolder:WaitForChild("MergingMachine") :: Part
     local proximityPrompt = mergingMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
-    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure" }) end)
+    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
 
     -- Networking connections.
     do

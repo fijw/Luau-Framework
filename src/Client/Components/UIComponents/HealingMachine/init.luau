@@ -204,7 +204,7 @@ local function constructorCallback()
     local MachinesFolder = MapFolder:WaitForChild("Machines") :: Folder
     local healingMachine = MachinesFolder:WaitForChild("HealingMachine") :: Part
     local proximityPrompt = healingMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
-    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure" }) end)
+    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
 
     local currentSelectPetsScreenGui: ScreenGui
 
@@ -222,7 +222,7 @@ local function constructorCallback()
             local HandledSelectPetsUI = UIUtilitiesLibrary("select_pets", SelectPetsComponents().selectPets)
             HandledSelectPetsUI:hoverAndToggleSizing(1.15)
             HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().closeBtn, function(pos1: number, pos2: number) end, true)
-            HandledSelectPetsUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+            HandledSelectPetsUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
 
             HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().expandBtn,
                 function(pos1: number, pos2: number)
@@ -376,7 +376,7 @@ local function constructorCallback()
             function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
-                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
 
                 local healingSlots = HealingMachineGroup.RequestHealingSlots:invokeServer()
                 NotificationComponents().notificationText.Text = `Your {data} has finished healing.<br /><br />You now have {healingSlots} healing slots.`
@@ -396,7 +396,7 @@ local function constructorCallback()
                 do
                     local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                     HandledNotificationUI:hoverAndToggleSizing(1.15)
-                    HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+                    HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
 
                     NotificationComponents().notificationText.Text = `You have started healing {data} pets.<br /><br />Please wait 5 minutes for healing to complete.`
 

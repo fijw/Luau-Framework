@@ -114,7 +114,7 @@ local function constructorCallback()
     )
 
     InputMapper(false, Enum.KeyCode.F4,
-        function() if clonedDevPetSpawning.Enabled then HandledUI:removeFocus() else HandledUI:setFocus({ "Screen", "Notification", "AreYouSure" }) end end
+        function() if clonedDevPetSpawning.Enabled then HandledUI:removeFocus() else HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end end
     )
 
     DeveloperSpawningGroup.SendResults:onClientEvent(
@@ -123,7 +123,7 @@ local function constructorCallback()
             HandledNotificationUI:hoverAndToggleSizing(1.15)
 
             NotificationComponents().notificationText.Text = data
-            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure" })
+            HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
 
             HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                 function(pos1: number, pos2: number)

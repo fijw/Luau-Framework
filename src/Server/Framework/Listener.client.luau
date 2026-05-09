@@ -27,6 +27,8 @@ local DevPetSpawningComponent = StarterPlayer.StarterPlayerScripts.Components.UI
 local RebirthComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Rebirth
 local MergePetsMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.MergePetsMachine
 local HealingMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.HealingMachine
+local SendTradeComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.SendTrade
+local InTradeComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.InTrade
 
 
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
@@ -48,10 +50,12 @@ local ModulesToLoad
     [DevPetSpawningComponent.Name] = DevPetSpawningComponent,
     [InventoryComponent.Name] = InventoryComponent,
     [CrateMachineComponent.Name] = CrateMachineComponent,
-    [ScreenComponent.Name] = ScreenComponent,
     [RebirthComponent.Name] = RebirthComponent,
     [MergePetsMachineComponent.Name] = MergePetsMachineComponent,
-    [HealingMachineComponent.Name] = HealingMachineComponent
+    [HealingMachineComponent.Name] = HealingMachineComponent,
+    [SendTradeComponent.Name] = SendTradeComponent,
+    [ScreenComponent.Name] = ScreenComponent,
+    [InTradeComponent.Name] = InTradeComponent
 }
 
 local NUM_OF_RETRIES = 10

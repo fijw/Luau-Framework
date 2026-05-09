@@ -283,7 +283,7 @@ local function constructorCallback()
 
                 local AreYouSureHandledUI = UIUtilitiesLibrary("are_you_sure", AreYouSureComponents().areYouSure)
                 AreYouSureHandledUI:hoverAndToggleSizing(1.05)
-                AreYouSureHandledUI:setFocus( { "Screen", "Notification", "AreYouSure" } )
+                AreYouSureHandledUI:setFocus( { "Screen", "Notification", "AreYouSure", "TradeRequest" } )
                 
                 AreYouSureComponents().notificationText.Text = "Are you sure you want to delete the selected pets?<br /><br />This action cannot be undone."
 

@@ -10,7 +10,22 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Trading)
 
 local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
+
+local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
+local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
+local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.Stacking)
+
+local Data = require(ReplicatedStorage.Assets.Pets.Data)
 --[[ @end_section Imports ]]
+
+
+--[[ @section Types ]]
+--[[ @generic D Data type. ]]
+type Stack<D> = StackingLib.StackClass<D>
+
+type InventoryClass = Stackentory.InventoryClass
+type PetSchema = Data.PetSchema
+--[[ @end_section Types ]]
 
 
 --[[ @section Constructor ]]
@@ -32,6 +47,20 @@ local function constuctorCallback()
 
             local isPlayer1 = Trade.player1 == sender
             table.insert(if isPlayer1 then Trade.Player1Pets else Trade.Player2Pets, data)
+
+            -- Send the pet to the other player.
+            do
+                local PlrDataClass = Registry(sender)
+                if not PlrDataClass then return end
+
+                local Inventory = PlrDataClass()().Inventory :: InventoryClass
+                if not Inventory then return end
+
+                local FoundStack: Stack<PetSchema>? = Inventory:fetchStackFromItemId(data)
+                if not FoundStack then return end
+
+                TradingGroup.AddPetToTradeOffer:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, { petId = data, PetData = FoundStack.StackData })
+            end
         end
     )
 
@@ -53,6 +82,7 @@ local function constuctorCallback()
                 if not FoundPetId then return end
                 
                 table.remove(if isPlayer1 then Trade.Player1Pets else Trade.Player2Pets, FoundPetId)
+                TradingGroup.RemovePetFromTradeOffer:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, data)
             end
         end
     )
