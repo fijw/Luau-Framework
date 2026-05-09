@@ -36,6 +36,8 @@ local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
 
 local YourCachedPetButtons: { [string]: ImageLabel } = {}
 local TheirCachedPetButtons: { [string]: ImageLabel } = {}
+
+local SelectedPetsCache: { string } = {}
 --[[ @end_section Variables ]]
 
 
@@ -83,14 +85,14 @@ end
 
     @return void
 ]]
-local function createTick(petLabel: ImageLabel, type: "lock" | "delete")
+local function createTick(petLabel: ImageLabel, type: "lock" | "delete" | "selected")
     local newTick = Instance.new("ImageLabel")
-    newTick.Image = if type == "lock" then "rbxassetid://138368172974659" else "rbxassetid://138335893507994"
+    newTick.Image = if type == "lock" then "rbxassetid://138368172974659" elseif type == "delete" then "rbxassetid://138335893507994" else "rbxassetid://120401071933338"
     newTick.BackgroundTransparency = 1
     newTick.BorderSizePixel = 0
     newTick.Position = UDim2.new(0, 0, 0, 0)
     newTick.Size = UDim2.new(0.35, 0, 0.35, 0)
-    newTick.Name = if type == "lock" then "LockTick" else "DeleteTick"
+    newTick.Name = if type == "lock" then "LockTick" elseif type == "delete" then "DeleteTick" else "SelectedTick"
     newTick.ZIndex = 3
     newTick.Parent = petLabel
 end
@@ -199,8 +201,22 @@ local function addPetToTrade
 
         HandledUI:handleButtonPress(innerImgButton,
             function(pos1: number, pos2: number)
-                if side == "yours" then return end
-                TradingGroup.AddPetToTradeOffer:fireServer(id)
+                if side == "theirs" then return end
+
+                local foundIndex = table.find(SelectedPetsCache, id)
+                
+                if foundIndex then
+                    table.remove(SelectedPetsCache, foundIndex)
+                    TradingGroup.RemovePetFromTradeOffer:fireServer(id)
+
+                    local foundSelectedTick = newPetLabel:FindFirstChild("SelectedTick")
+                    if foundSelectedTick then foundSelectedTick:Destroy() end
+                else
+                    table.insert(SelectedPetsCache, id)
+                    TradingGroup.AddPetToTradeOffer:fireServer(id)
+
+                    createTick(newPetLabel, "selected")
+                end
             end
         )
     end
