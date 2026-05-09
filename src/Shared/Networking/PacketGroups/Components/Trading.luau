@@ -17,21 +17,21 @@ type PetSchema = Data.PetSchema
 
 local Packets
 = {
-    SendTradeRequest = NetworkLib("send_trade_request", "Event",
+    SendTradeRequest = NetworkLib("td_send_trade_request", "Event",
         {
             clientType = "sending_display_name",
             serverType = 0
         }
     ),
 
-    AcceptTradeRequest = NetworkLib("accept_trade_request", "Event",
+    AcceptTradeRequest = NetworkLib("td_accept_trade_request", "Event",
         {
             clientType = nil,
             serverType = nil
         }
     ),
 
-    DeclineTradeRequest = NetworkLib("decline_trade_request", "Event",
+    DeclineTradeRequest = NetworkLib("td_decline_trade_request", "Event",
         {
             clientType = nil,
             serverType = nil
@@ -39,21 +39,21 @@ local Packets
     ),
 
 
-    AddPetToTradeOffer = NetworkLib("add_pet_to_trade_offer", "Event",
+    AddPetToTradeOffer = NetworkLib("td_add_pet_to_trade_offer", "Event",
         {
             clientType = { petId = "", PetData = {} :: PetSchema },
             serverType = "pet_id"
         }
     ),
 
-    RemovePetFromTradeOffer = NetworkLib("remove_pet_from_trade_offer", "Event",
+    RemovePetFromTradeOffer = NetworkLib("td_remove_pet_from_trade_offer", "Event",
         {
             clientType = "pet_id",
             serverType = "pet_id"
         }
     ),
 
-    SetGemsInTradeOffer = NetworkLib("set_gems_in_trade_offer", "Event",
+    SetGemsInTradeOffer = NetworkLib("td_set_gems_in_trade_offer", "Event",
         {
             clientType = 0,
             serverType = 0
@@ -61,25 +61,39 @@ local Packets
     ),
 
 
-    CancelTrade = NetworkLib("cancel_trade", "Event",
+    CancelTrade = NetworkLib("td_cancel_trade", "Event",
         {
-            clientType = "player_name_who_cancelled",
+            clientType = "other_player_display_name",
             serverType = nil
         }
     ),
 
-    AcceptTrade = NetworkLib("accept_trade", "Event",
+    AcceptTrade = NetworkLib("td_accept_trade", "Event",
         {
             clientType = nil,
             serverType = nil
         }
     ),
 
+    TradeCompleted = NetworkLib("td_trade_completed", "Event",
+        {
+            clientType = "other_player_display_name",
+            serverType = nil
+        }
+    ),
 
-    RequestOwnedPetsForTrade = NetworkLib("request_owned_pets_for_trade", "Function",
+
+    RequestOwnedPetsForTrade = NetworkLib("td_request_owned_pets_for_trade", "Function",
         {
             clientType = { ["pet_id" :: string] = {} :: PetSchema },
             serverType = nil
+        }
+    ),
+
+    SearchForTradingPets = NetworkLib("td_search_for_trading_pets", "Function",
+        {
+            clientType = { ["pet_id" :: string] = {} :: PetSchema },
+            serverType = { side = "yours_or_theirs" :: "yours" | "theirs", text = "searching_string" }
         }
     )
 }

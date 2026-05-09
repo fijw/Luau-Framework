@@ -24,14 +24,16 @@ local function constuctorCallback()
         function(sender: Player, data: number)
             if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[sender]
-            if not TradeId then return end
+            local tradeId = TradesMap.MappedTradingPlayers[sender]
+            if not tradeId then return end
 
-            local Trade = TradesMap.ActiveTrades[TradeId]
+            local Trade = TradesMap.ActiveTrades[tradeId]
             if not Trade then return end
 
             local isPlayer1 = Trade.player1 == sender
-            if isPlayer1 then Trade.player1Coins = data else Trade.player2Coins = data end
+            if isPlayer1 then Trade.player1Coins = data or 0 else Trade.player2Coins = data or 0 end
+
+            TradingGroup.SetGemsInTradeOffer:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, data or 0)
         end
     )
 end

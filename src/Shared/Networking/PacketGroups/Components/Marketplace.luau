@@ -12,21 +12,21 @@ local NetworkLib = require(ReplicatedStorage.Networking.NetworkLib)
 
 local Packets
 = {
-    PlacePetOnMarketplace = NetworkLib("place_pet_on_marketplace", "Event",
+    PlacePetOnMarketplace = NetworkLib("mp_place_pet_on_marketplace", "Event",
         {
             clientType = true,
             serverType = { petId = "", price = 0 }
         }
     ),
 
-    RemovePetFromMarketplace = NetworkLib("remove_pet_from_marketplace", "Event",
+    RemovePetFromMarketplace = NetworkLib("mp_remove_pet_from_marketplace", "Event",
         {
             clientType = true,
             serverType = "pet_id"
         }
     ),
 
-    BuyPetFromMarketplace = NetworkLib("buy_pet_from_marketplace", "Event",
+    BuyPetFromMarketplace = NetworkLib("mp_buy_pet_from_marketplace", "Event",
         {
             clientType = true,
             serverType = "pet_id"

@@ -86,6 +86,8 @@ do
             local retries = 0
             while true do if result or retries >= NUM_OF_RETRIES then break else retries += 1; task.wait() end end
 
+            task.wait(5)
+
             if result == "success" or not localPlayer then return end
             (localPlayer :: Player):Kick(`\n\n\nYour client scripts could not be initialized.\nPlease try rejoining.\n\n`)
         end

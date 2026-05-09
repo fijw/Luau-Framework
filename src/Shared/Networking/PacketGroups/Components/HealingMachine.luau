@@ -17,21 +17,21 @@ type PetSchema = Data.PetSchema
 
 local Packets
 = {
-    RequestHealingPets = NetworkLib("request_healing_pets", "Function",
+    RequestHealingPets = NetworkLib("hm_request_healing_pets", "Function",
         {
             clientType = { ["pet_id" :: string] = {} :: PetSchema },
             serverType = nil
         }
     ),
 
-    RequestPetsForHealingSelection = NetworkLib("request_pets_for_healing_selection", "Function",
+    RequestPetsForHealingSelection = NetworkLib("hm_request_pets_for_healing_selection", "Function",
         {
             clientType = { ["pet_id" :: string] = {} :: PetSchema },
             serverType = nil
         }
     ),
 
-    RequestHealingSlots = NetworkLib("request_healing_slots", "Function",
+    RequestHealingSlots = NetworkLib("hm_request_healing_slots", "Function",
         {
             clientType = 0,
             serverType = nil
@@ -39,14 +39,14 @@ local Packets
     ),
 
 
-    SuccessfullyStartedHealing = NetworkLib("successfully_started_healing", "Event",
+    SuccessfullyStartedHealing = NetworkLib("hm_successfully_started_healing", "Event",
         {
             clientType = 0,
             serverType = nil
         }
     ),
 
-    PetFinishedHealing = NetworkLib("pet_finished_healing", "Event",
+    PetFinishedHealing = NetworkLib("hm_pet_finished_healing", "Event",
         {
             clientType = "pet_name",
             serverType = nil
@@ -54,14 +54,14 @@ local Packets
     ),
 
 
-    RemovePetsFromHealingMachine = NetworkLib("remove_pet_from_healing_machine", "Event",
+    RemovePetsFromHealingMachine = NetworkLib("hm_remove_pet_from_healing_machine", "Event",
         {
             clientType = { "pet_id" },
             serverType = nil
         }
     ),
 
-    HealPets = NetworkLib("heal_pet", "Event",
+    HealPets = NetworkLib("hm_heal_pet", "Event",
         {
             clientType = nil,
             serverType = { "pet_id" }

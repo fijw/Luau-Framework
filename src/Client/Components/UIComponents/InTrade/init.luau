@@ -12,6 +12,7 @@ local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Component
 
 local UIComponents = require(script.Components)
 local PetDetailsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.PetDetails)
+local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
@@ -85,14 +86,14 @@ end
 
     @return void
 ]]
-local function createTick(petLabel: ImageLabel, type: "lock" | "delete" | "selected")
+local function createTick(petLabel: ImageLabel, type: "lock" | "selected")
     local newTick = Instance.new("ImageLabel")
-    newTick.Image = if type == "lock" then "rbxassetid://138368172974659" elseif type == "delete" then "rbxassetid://138335893507994" else "rbxassetid://120401071933338"
+    newTick.Image = if type == "lock" then "rbxassetid://138368172974659" else "rbxassetid://120401071933338"
     newTick.BackgroundTransparency = 1
     newTick.BorderSizePixel = 0
     newTick.Position = UDim2.new(0, 0, 0, 0)
     newTick.Size = UDim2.new(0.35, 0, 0.35, 0)
-    newTick.Name = if type == "lock" then "LockTick" elseif type == "delete" then "DeleteTick" else "SelectedTick"
+    newTick.Name = if type == "lock" then "LockTick" else "SelectedTick"
     newTick.ZIndex = 3
     newTick.Parent = petLabel
 end
@@ -154,7 +155,9 @@ local function addPetToTrade
     newPetLabel.ImageColor3 = Color3.fromRGB(0, 155, 202)
 
     if side == "yours" then newPetLabel.Parent = yourScrollingFrame else newPetLabel.Parent = theirScrollingFrame end
+
     if Pet.locked then if table.find(Pet.locked, id) then createTick(newPetLabel, "lock") end end
+    if table.find(SelectedPetsCache, id) then createTick(newPetLabel, "selected") end
 
     local innerImgButton = Instance.new("ImageButton")
     innerImgButton.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -167,7 +170,7 @@ local function addPetToTrade
     innerImgButton.Size = UDim2.fromScale(0.85, 0.85)
     innerImgButton.Image = Pet.petImageId
 
-    TheirCachedPetButtons[id] = newPetLabel
+    if side == "yours" then YourCachedPetButtons[id] = newPetLabel else TheirCachedPetButtons[id] = newPetLabel end
 
     -- Hovering.
     do
@@ -221,6 +224,66 @@ local function addPetToTrade
         )
     end
 end
+
+--[[
+    @usage Add searching pets to the trade.
+
+    @param side "yours" | "theirs"
+    @param Pets { [string]: PetSchema }
+    @param theirScrollingFrame ScrollingFrame
+    @param yourScrollingFrame ScrollingFrame
+    @param theirDefaultPet ImageLabel
+    @param theirHugePet ImageLabel
+    @param theirGiganticPet ImageLabel
+    @param yourDefaultPet ImageLabel
+    @param yourHugePet ImageLabel
+    @param yourGiganticPet ImageLabel
+    
+    @return void
+]]
+local function handleSearch
+(
+    side: "yours" | "theirs",
+    Pets: { [string]: PetSchema },
+    theirScrollingFrame: ScrollingFrame,
+    yourScrollingFrame: ScrollingFrame,
+    theirDefaultPet: ImageLabel,
+    theirHugePet: ImageLabel,
+    theirGiganticPet: ImageLabel,
+    yourDefaultPet: ImageLabel,
+    yourHugePet: ImageLabel,
+    yourGiganticPet: ImageLabel,
+    HandledUI: HandledUI
+)
+    if side == "yours" then
+        for i: string, petImageLabel: ImageLabel in pairs(YourCachedPetButtons) do
+            petImageLabel:Destroy()
+            petImageLabel.Parent = nil
+        end
+    else
+        for i: string, petImageLabel: ImageLabel in pairs(TheirCachedPetButtons) do
+            petImageLabel:Destroy()
+            petImageLabel.Parent = nil
+        end
+    end
+
+    for i: string, Pet: PetSchema in pairs(Pets) do
+        addPetToTrade(
+            side,
+            Pet,
+            i,
+            theirScrollingFrame,
+            yourScrollingFrame,
+            theirDefaultPet,
+            theirHugePet,
+            theirGiganticPet,
+            yourDefaultPet,
+            yourHugePet,
+            yourGiganticPet,
+            HandledUI
+        )
+    end
+end
 --[[ @end_section Utility Functions ]]
 
 
@@ -243,7 +306,7 @@ local function constructorCallback()
     local gemsOfferContainer = innerContainer:WaitForChild("GemsOfferContainer") :: Frame
     local yourGemsOffer = gemsOfferContainer:WaitForChild("YourGemsOffer") :: Frame
     local yourAmountBox = yourGemsOffer:WaitForChild("AmountBox") :: ImageLabel
-    local yourTextBox = yourAmountBox:WaitForChild("TextBox") :: TextBox
+    local yourGemsTextBox = yourAmountBox:WaitForChild("TextBox") :: TextBox
     local theirGemsOffer = gemsOfferContainer:WaitForChild("TheirGemsOffer") :: Frame
     local theirGemsFrame = theirGemsOffer:WaitForChild("Frame") :: Frame
     local theirGemsText = theirGemsFrame:WaitForChild("TextLabel") :: TextLabel
@@ -264,11 +327,61 @@ local function constructorCallback()
     local yourSearchBoxFrame = yourSearchBox:WaitForChild("SearchBoxFrame") :: Frame
     local theirSearchTextBox = theirSearchBoxFrame:WaitForChild("TextBox") :: TextBox
     local yourSearchTextBox = yourSearchBoxFrame:WaitForChild("TextBox") :: TextBox
-    local yourUiListLayout = yourScrollingFrame:WaitForChild("UIListLayout") :: UIListLayout
-    local theirUiListLayout = theirScrollingFrame:WaitForChild("UIListLayout") :: UIListLayout
+    local actionsContainer = containerFrame:WaitForChild("ActionsContainer") :: Frame
+    local readyUpBtn = actionsContainer:WaitForChild("ReadyUpBtn") :: ImageButton
+    local cancelBtn = actionsContainer:WaitForChild("CancelBtn") :: ImageButton
+
+    yourGemsTextBox.FocusLost:Connect(
+        function(enterPressed: boolean, Input: InputObject) TradingGroup.SetGemsInTradeOffer:fireServer(tonumber(yourGemsTextBox.Text) :: number) end
+    )
 
     local HandledUI = UIUtilitiesLibrary("in_trade", clonedInTrade)
     HandledUI:hoverAndToggleSizing(1.15)
+
+    -- Search box connections.
+    do
+        yourSearchTextBox:GetPropertyChangedSignal("Text"):Connect(
+            function()
+                local Pets = TradingGroup.SearchForTradingPets:invokeServer({ side = "yours", text = yourSearchTextBox.Text })
+
+                handleSearch(
+                    "yours",
+                    Pets,
+                    theirScrollingFrame,
+                    yourScrollingFrame,
+                    theirDefaultPet,
+                    theirHugePet,
+                    theirGiganticPet,
+                    yourDefaultPet,
+                    yourHugePet,
+                    yourGiganticPet,
+                    HandledUI
+                )
+            end
+        )
+
+        theirSearchTextBox:GetPropertyChangedSignal("Text"):Connect(
+            function()
+                local Pets = TradingGroup.SearchForTradingPets:invokeServer({ side = "theirs", text = theirSearchTextBox.Text })
+
+                handleSearch(
+                    "theirs",
+                    Pets,
+                    theirScrollingFrame,
+                    yourScrollingFrame,
+                    theirDefaultPet,
+                    theirHugePet,
+                    theirGiganticPet,
+                    yourDefaultPet,
+                    yourHugePet,
+                    yourGiganticPet,
+                    HandledUI
+                )
+            end
+        )
+    end
+
+    local isReady = false
 
     -- Networking connections.
     do
@@ -305,6 +418,104 @@ local function constructorCallback()
         )
 
         TradingGroup.SetGemsInTradeOffer:onClientEvent(function(data) theirGemsText.Text = `{data}` end)
+
+        TradingGroup.TradeCompleted:onClientEvent(
+            function(data)
+                local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+                HandledNotificationUI:hoverAndToggleSizing(1.15)
+                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
+
+                NotificationComponents().notificationText.Text = `Your trade with {data} has been completed.`
+
+                HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                    function(pos1: number, pos2: number)
+                        HandledNotificationUI:removeFocus({ "Screen" })
+                        HandledNotificationUI:destroy()
+                    end
+                )
+            end
+        )
+
+        TradingGroup.CancelTrade:onClientEvent(
+            function(data)
+                local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
+                HandledNotificationUI:hoverAndToggleSizing(1.15)
+                HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
+
+                NotificationComponents().notificationText.Text = `Your trade with {data} has been cancelled.`
+
+                HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
+                    function(pos1: number, pos2: number)
+                        HandledNotificationUI:removeFocus({ "Screen" })
+                        HandledNotificationUI:destroy()
+                    end
+                )
+            end
+        )
+
+        local theyAreAccepting = false
+
+        TradingGroup.AcceptTrade:onClientEvent(
+            function(data)
+                if not theyAreAccepting then theirSide.ImageColor3 = Color3.fromHex("#64FF64"); theyAreAccepting = true; return end
+                theirSide.ImageColor3 = Color3.fromHex("#FFFFFF"); theyAreAccepting = false
+            end
+        )
+    end
+
+    -- Buttons handling.
+    do
+        local isExpanded = false
+
+        HandledUI:handleButtonPress(expandBtn,
+            function(pos1: number, pos2: number)
+                isExpanded = not isExpanded
+
+                if isExpanded then
+                    for i: number, inst: Instance in ipairs(yourScrollingFrame:GetChildren()) do
+                        if not inst:IsA("ImageLabel") then continue end
+                        inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2.04, inst.Size.Y.Scale / 2.025)
+                    end
+
+                    for i: number, inst: Instance in ipairs(theirScrollingFrame:GetChildren()) do
+                        if not inst:IsA("ImageLabel") then continue end
+                        inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2.04, inst.Size.Y.Scale / 2.025)
+                    end
+                else
+                    for i: number, inst: Instance in ipairs(yourScrollingFrame:GetChildren()) do
+                        if not inst:IsA("ImageLabel") then continue end
+                        inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2.04, inst.Size.Y.Scale * 2.025)
+                    end
+
+                    for i: number, inst: Instance in ipairs(theirScrollingFrame:GetChildren()) do
+                        if not inst:IsA("ImageLabel") then continue end
+                        inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2.04, inst.Size.Y.Scale * 2.025)
+                    end
+                end
+            end
+        )
+
+        HandledUI:handleButtonPress(readyUpBtn,
+            function(pos1: number, pos2: number)
+                isReady = not isReady
+
+                if isReady then
+                    yourSide.ImageColor3 = Color3.fromHex("#64FF64")
+                else
+                    yourSide.ImageColor3 = Color3.fromHex("#FFFFFF")
+                end
+
+                TradingGroup.AcceptTrade:fireServer()
+            end
+        )
+
+        HandledUI:handleButtonPress(cancelBtn,
+            function(pos1: number, pos2: number)
+                TradingGroup.CancelTrade:fireServer()
+            end,
+
+            true
+        )
     end
 
     -- Animations for closing and opening.
@@ -324,6 +535,34 @@ local function constructorCallback()
                     originalContainerSize
                 )
 
+                -- Clear old data.
+                do
+                    yourSide.ImageColor3 = Color3.fromHex("#FFFFFF")
+                    theirSide.ImageColor3 = Color3.fromHex("#FFFFFF")
+
+                    yourSearchTextBox.Text = ""
+                    theirSearchTextBox.Text = ""
+
+                    -- Destroy pet buttons.
+                    do
+                        for i: string, petBtn: ImageLabel in pairs(YourCachedPetButtons) do
+                            petBtn:Destroy()
+                            petBtn.Parent = nil
+                        end
+
+                        for i: string, petBtn: ImageLabel in pairs(TheirCachedPetButtons) do
+                            petBtn:Destroy()
+                            petBtn.Parent = nil
+                        end
+                    end
+
+                    yourGemsTextBox.Text = ""
+                    theirGemsText.Text = "0"
+
+                    isReady = false
+                end
+
+                -- Add new data.
                 for i: string, Pet: PetSchema in pairs(TradingGroup.RequestOwnedPetsForTrade:invokeServer()) do
                     addPetToTrade(
                         "yours",
@@ -353,22 +592,6 @@ local function constructorCallback()
 
                     UDim2.new(0, 0, 0, 0)
                 ):waitForCompletion()
-
-                yourSearchTextBox.Text = ""
-                theirSearchTextBox.Text = ""
-
-                -- Destroy pet buttons.
-                do
-                    for i: string, petBtn: ImageLabel in pairs(YourCachedPetButtons) do
-                        petBtn:Destroy()
-                        petBtn.Parent = nil
-                    end
-
-                    for i: string, petBtn: ImageLabel in pairs(TheirCachedPetButtons) do
-                        petBtn:Destroy()
-                        petBtn.Parent = nil
-                    end
-                end
             end
         )
     end

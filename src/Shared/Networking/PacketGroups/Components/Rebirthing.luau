@@ -12,14 +12,14 @@ local NetworkLib = require(ReplicatedStorage.Networking.NetworkLib)
 
 local Packets
 = {
-    Rebirth = NetworkLib("rebirth", "Event",
+    Rebirth = NetworkLib("rb_rebirth", "Event",
         {
             clientType = true,
             serverType = nil
         }
     ),
 
-    GetRebirthStats = NetworkLib("get_rebirth_stats", "Function",
+    GetRebirthStats = NetworkLib("rb_get_rebirth_stats", "Function",
         {
             clientType
             = {
@@ -33,21 +33,21 @@ local Packets
     ),
 
 
-    NotEnoughGemsToRebirth = NetworkLib("not_enough_gems_to_rebirth", "Event",
+    NotEnoughGemsToRebirth = NetworkLib("rb_not_enough_gems_to_rebirth", "Event",
         {
             clientType = 0,
             serverType = nil
         }
     ),
 
-    NotEnoughLevelsToRebirth = NetworkLib("not_enough_levels_to_rebirth", "Event",
+    NotEnoughLevelsToRebirth = NetworkLib("rb_not_enough_levels_to_rebirth", "Event",
         {
             clientType = 0,
             serverType = nil
         }
     ),
 
-    MaxRebirthsReached = NetworkLib("max_rebirths_reached", "Event",
+    MaxRebirthsReached = NetworkLib("rb_max_rebirths_reached", "Event",
         {
             clientType = nil,
             serverType = nil
@@ -55,7 +55,7 @@ local Packets
     ),
 
 
-    SuccessfullyRebirthed = NetworkLib("successfully_rebirthed", "Event",
+    SuccessfullyRebirthed = NetworkLib("rb_successfully_rebirthed", "Event",
         {
             clientType = 0,
             serverType = nil

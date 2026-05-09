@@ -12,14 +12,14 @@ local NetworkLib = require(ReplicatedStorage.Networking.NetworkLib)
 
 local Packets
 = {
-    OpenCrate = NetworkLib("open_crate", "Event",
+    OpenCrate = NetworkLib("cm_open_crate", "Event",
         {
             clientType = nil,
             serverType = "crate_id"
         }
     ),
 
-    GetCrates = NetworkLib("get_crates", "Function",
+    GetCrates = NetworkLib("cm_get_crates", "Function",
         {
             clientType = { {} :: { name: string, price: number, Chances: { [string]: number } } },
             serverType = "searching_string" :: string?
@@ -27,14 +27,14 @@ local Packets
     ),
 
 
-    SendMaxPetsNotification = NetworkLib("crate_machine_send_max_pets_notification", "Event",
+    SendMaxPetsNotification = NetworkLib("cm_crate_machine_send_max_pets_notification", "Event",
         {
             clientType = 0,
             serverType = nil
         }
     ),
 
-    SendNotEnoughGemsNotification = NetworkLib("crate_machine_not_enough_gems_noti", "Event",
+    SendNotEnoughGemsNotification = NetworkLib("cm_crate_machine_not_enough_gems_noti", "Event",
         {
             clientType = 0,
             serverType = nil       

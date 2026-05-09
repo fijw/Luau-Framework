@@ -107,7 +107,7 @@ local function addPlayerTradingContainer
     CachedPlayerTradingContainers[plr] = PlayerTradingContainer
 
     HandledUI:handleButtonPress(SendTradeBtn,
-        function(pos1: number, pos2: number) TradingGroup.SendTradeRequest:fireServer(plr.UserId) end
+        function(pos1: number, pos2: number) TradingGroup.SendTradeRequest:fireServer(plr.UserId) end, true
     )
 end
 --[[ @end_section Utility Functions ]]
@@ -164,7 +164,7 @@ local function constructorCallback()
         TradingGroup.SendTradeRequest:onClientEvent(
             function(data)
                 local TradeRequestHandledUI = UIUtilitiesLibrary("trade_request", TradeRequestComponents().tradeRequest)
-                TradeRequestHandledUI:hoverAndToggleSizing(1.05)
+                TradeRequestHandledUI:hoverAndToggleSizing(1.15)
                 TradeRequestHandledUI:setFocus( { "Screen", "Notification", "AreYouSure", "TradeRequest" } )
                 
                 TradeRequestComponents().tradeRequestText.Text = `You received a trade request from {data}.<br /><br />Would you like to accept?`
@@ -180,6 +180,8 @@ local function constructorCallback()
 
                 TradeRequestHandledUI:handleButtonPress(TradeRequestComponents().declineBtn,
                     function(pos1: number, pos2: number)
+                        TradingGroup.DeclineTradeRequest:fireServer()
+
                         TradeRequestHandledUI:removeFocus({ clonedSendTrade.Name })
                         TradeRequestHandledUI:destroy()
                     end

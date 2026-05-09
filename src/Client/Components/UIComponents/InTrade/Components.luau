@@ -82,7 +82,7 @@ do
     Container.BackgroundTransparency = 1.000
     Container.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Container.BorderSizePixel = 0
-    Container.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Container.Position = UDim2.new(0.5, 0, 0.45, 0)
     Container.Size = UDim2.new(0.601354897, 0, 0.824999988, 0)
 
     MainFrame.Name = "MainFrame"
@@ -436,6 +436,7 @@ do
     ScrollingFrame.Size = UDim2.new(0.887565017, 0, 0.888888896, 0)
     ScrollingFrame.ZIndex = 2
     ScrollingFrame.ScrollBarThickness = 0
+    ScrollingFrame.CanvasSize = UDim2.fromOffset(0, 0)
     ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
     UIListLayout_2.Parent = ScrollingFrame
@@ -466,6 +467,7 @@ do
     ScrollingFrame_2.Size = UDim2.new(0.887565017, 0, 0.888888896, 0)
     ScrollingFrame_2.ZIndex = 2
     ScrollingFrame_2.ScrollBarThickness = 0
+    ScrollingFrame_2.CanvasSize = UDim2.fromOffset(0, 0)
     ScrollingFrame_2.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
     UIListLayout_3.Parent = ScrollingFrame_2
@@ -644,6 +646,7 @@ do
     ActionsContainer.Position = UDim2.new(0.279896021, 0, 0.884399533, 0)
     ActionsContainer.Size = UDim2.new(0.439341426, 0, 0.106621772, 0)
     ActionsContainer.ZIndex = 3
+    ActionsContainer.ClipsDescendants = false
 
     ReadyUpBtn.Name = "ReadyUpBtn"
     ReadyUpBtn.Parent = ActionsContainer
@@ -652,7 +655,7 @@ do
     ReadyUpBtn.BackgroundTransparency = 1.000
     ReadyUpBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ReadyUpBtn.BorderSizePixel = 0
-    ReadyUpBtn.Position = UDim2.new(0.265285999, 0, 0.5, 0)
+    ReadyUpBtn.Position = UDim2.new(0.255285999, 0, 0.5, 0)
     ReadyUpBtn.Size = UDim2.new(0.530571997, 0, 1, 0)
     ReadyUpBtn.Image = "rbxassetid://114341575596821"
     ReadyUpBtn.ZIndex = 3
@@ -664,7 +667,7 @@ do
     CancelBtn.BackgroundTransparency = 1.000
     CancelBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     CancelBtn.BorderSizePixel = 0
-    CancelBtn.Position = UDim2.new(0.780078888, 0, 0.5, 0)
+    CancelBtn.Position = UDim2.new(0.790078888, 0, 0.5, 0)
     CancelBtn.Size = UDim2.new(0.439842194, 0, 1, 0)
     CancelBtn.Image = "rbxassetid://110571593143299"
     CancelBtn.ZIndex = 3

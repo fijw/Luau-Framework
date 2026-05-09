@@ -12,7 +12,7 @@ local NetworkLib = require(ReplicatedStorage.Networking.NetworkLib)
 
 local Packets
 = {
-    SpawnPet = NetworkLib("spawn_pet", "Event",
+    SpawnPet = NetworkLib("ds_spawn_pet", "Event",
         {
             clientType = nil,
 
@@ -26,7 +26,7 @@ local Packets
         }
     ),
 
-    SendResults = NetworkLib("send_spawning_results", "Event",
+    SendResults = NetworkLib("ds_send_spawning_results", "Event",
         {
             clientType = "results_string",
             serverType = nil

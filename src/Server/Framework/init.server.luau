@@ -93,15 +93,20 @@ do
     local initResult: "success" | "failure"
     task.spawn(function() initResult = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
 
-    local retries = 0
-    while true do if initResult or retries >= NUM_OF_RETRIES then break else retries += 1; task.wait() end end
+    -- Handle initialization failures.s
+    do
+        local retries = 0
+        while true do if initResult or retries >= NUM_OF_RETRIES then break else retries += 1; task.wait() end end
 
-    if initResult == "failure" or not initResult then
-        for i: number, player: Player in Players:GetPlayers() do
-            player:Kick(serverKickMessage)
+        if initResult == "failure" or not initResult then
+            task.wait(5); if initResult or initResult == "success" then return end
+
+            for i: number, player: Player in Players:GetPlayers() do
+                player:Kick(serverKickMessage)
+            end
+
+            return
         end
-
-        return
     end
 
     FrameworkGroup.LoadClientModules:fireAllClients()
@@ -110,6 +115,8 @@ do
     do
         local function onPlayerAdded(player: Player)
             if initResult == "success" then FrameworkGroup.LoadClientModules:fireClient(player); return end
+            task.wait(5); if initResult == "success" then FrameworkGroup.LoadClientModules:fireClient(player); return end
+
             player:Kick(serverKickMessage)
         end
 

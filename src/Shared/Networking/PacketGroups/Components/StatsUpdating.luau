@@ -12,7 +12,7 @@ local NetworkLib = require(ReplicatedStorage.Networking.NetworkLib)
 
 local Packets
 = {
-    UpdateStats = NetworkLib("update_stats", "Event",
+    UpdateStats = NetworkLib("su_update_stats", "Event",
         {
             clientType
             = {

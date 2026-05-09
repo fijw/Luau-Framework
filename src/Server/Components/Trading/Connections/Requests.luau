@@ -23,15 +23,19 @@ local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Component
     @return void
 ]]
 local function constuctorCallback()
+    TradingGroup.DeclineTradeRequest:onServerEvent(
+        function(sender, data) TradesMap.MappedTradeRequests[sender] = nil :: any end
+    )
+
     TradingGroup.AcceptTradeRequest:onServerEvent(
         function(sender: Player, data: nil)
             --if not sender or sender.Name == TradesMap.MappedTradeRequests[sender].Name then return end
 
             -- Create a new trade between the two players.
             do
-                local TradeId = RNG.randomString(8)
+                local tradeId = RNG.randomString(8)
 
-                TradesMap.ActiveTrades[TradeId]
+                TradesMap.ActiveTrades[tradeId]
                 = {
                     player1 = sender,
                     player2 = TradesMap.MappedTradeRequests[sender],
@@ -46,8 +50,8 @@ local function constuctorCallback()
                     player2Ready = false
                 }
 
-                TradesMap.MappedTradingPlayers[sender] = TradeId
-                TradesMap.MappedTradingPlayers[TradesMap.MappedTradeRequests[sender]] = TradeId
+                TradesMap.MappedTradingPlayers[sender] = tradeId
+                TradesMap.MappedTradingPlayers[TradesMap.MappedTradeRequests[sender]] = tradeId
             end
 
             TradingGroup.AcceptTradeRequest:fireClient(sender)
@@ -61,11 +65,11 @@ local function constuctorCallback()
         function(sender: Player, data: number)
             if not sender then return end
 
-            local TargetPlayer = Players:GetPlayerByUserId(data)
-            if not TargetPlayer then return end
+            local targetPlayer = Players:GetPlayerByUserId(data)
+            if not targetPlayer or TradesMap.MappedTradeRequests[targetPlayer] then return end
 
-            TradingGroup.SendTradeRequest:fireClient(TargetPlayer, sender.DisplayName)
-            TradesMap.MappedTradeRequests[TargetPlayer] = sender
+            TradesMap.MappedTradeRequests[targetPlayer] = sender
+            TradingGroup.SendTradeRequest:fireClient(targetPlayer, sender.DisplayName)
         end
     )
 end

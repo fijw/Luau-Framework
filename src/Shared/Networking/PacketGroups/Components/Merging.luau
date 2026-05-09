@@ -17,7 +17,7 @@ type PetSchema = Data.PetSchema
 
 local Packets
 = {
-    MergePets = NetworkLib("merge_pets", "Event",
+    MergePets = NetworkLib("mg_merge_pets", "Event",
         {
             clientType = true,
             serverType = { "pet_id" }
@@ -25,21 +25,21 @@ local Packets
     ),
 
 
-    AddPetsToMergingSlots = NetworkLib("add_pets_to_merging_slots", "Event",
+    AddPetsToMergingSlots = NetworkLib("mg_add_pets_to_merging_slots", "Event",
         {
             clientType = { ["" :: string] = {} :: PetSchema },  
             serverType = nil  
         }
     ),
 
-    RemovePetsFromMergingSlots = NetworkLib("remove_pets_from_merging_slots", "Event",
+    RemovePetsFromMergingSlots = NetworkLib("mg_remove_pets_from_merging_slots", "Event",
         {
             clientType = { "pet_id" },
             serverType = nil
         }
     ),
 
-    RemoveAllPetsFromMergingSlots = NetworkLib("remove_all_pets_from_merging_slots", "Event",
+    RemoveAllPetsFromMergingSlots = NetworkLib("mg_remove_all_pets_from_merging_slots", "Event",
         {
             clientType = nil,
             serverType = nil
@@ -47,14 +47,14 @@ local Packets
     ),
 
 
-    SearchForPetsByString = NetworkLib("merging_search_for_pets_by_string", "Event",
+    SearchForPetsByString = NetworkLib("mg_merging_search_for_pets_by_string", "Event",
         {
             clientType = nil,
             serverType = "searching_string"
         }
     ),
 
-    SearchForPetsByData = NetworkLib("merging_search_for_pets_by_data", "Event",
+    SearchForPetsByData = NetworkLib("mg_merging_search_for_pets_by_data", "Event",
         {
             clientType = nil,
             serverType = {} :: PetSchema
@@ -62,7 +62,7 @@ local Packets
     ),
 
 
-    RequestMergingData = NetworkLib("request_merging_data", "Event",
+    RequestMergingData = NetworkLib("mg_request_merging_data", "Event",
         {
             clientType = nil,
             serverType = nil
@@ -70,21 +70,21 @@ local Packets
     ),
 
 
-    NotEnoughPetsToMerge = NetworkLib("not_enough_pets_to_merge", "Event",
+    NotEnoughPetsToMerge = NetworkLib("mg_not_enough_pets_to_merge", "Event",
         {
             clientType = 0,
             serverType = nil
         }
     ),
 
-    NotEnoughGemsToMerge = NetworkLib("not_enough_gems_to_merge", "Event",
+    NotEnoughGemsToMerge = NetworkLib("mg_not_enough_gems_to_merge", "Event",
         {
             clientType = 0,
             serverType = nil
         }
     ),
 
-    SuccessfullyMergedPets = NetworkLib("successfully_merged_pets", "Event",
+    SuccessfullyMergedPets = NetworkLib("mg_successfully_merged_pets", "Event",
         {
             clientType = nil,
             serverType = nil

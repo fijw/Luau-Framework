@@ -33,7 +33,7 @@ do
     Container.BackgroundTransparency = 1.000
     Container.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Container.BorderSizePixel = 0
-    Container.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Container.Position = UDim2.new(0.5, 0, 0.45, 0)
     Container.Size = UDim2.new(0.315789461, 0, 0.4148148, 0)
 
     UIAspectRatioConstraint.Parent = Container
@@ -96,7 +96,7 @@ do
     AcceptBtn.BackgroundTransparency = 1.000
     AcceptBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     AcceptBtn.BorderSizePixel = 0
-    AcceptBtn.Position = UDim2.new(0.236286923, 0, 0.49473685, 0)
+    AcceptBtn.Position = UDim2.new(0.226286923, 0, 0.49473685, 0)
     AcceptBtn.Size = UDim2.new(0.474683553, 0, 1, 0)
     AcceptBtn.ZIndex = 2
     AcceptBtn.Image = "rbxassetid://97115211730032"
@@ -108,7 +108,7 @@ do
     DeclineBtn.BackgroundTransparency = 1.000
     DeclineBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     DeclineBtn.BorderSizePixel = 0
-    DeclineBtn.Position = UDim2.new(0.75316453, 0, 0.49473685, 0)
+    DeclineBtn.Position = UDim2.new(0.76316453, 0, 0.49473685, 0)
     DeclineBtn.Size = UDim2.new(0.493670881, 0, 1, 0)
     DeclineBtn.ZIndex = 2
     DeclineBtn.Image = "rbxassetid://84700849818274"

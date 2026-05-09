@@ -39,10 +39,10 @@ local function constuctorCallback()
         function(sender: Player, data: string)
             if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[sender]
-            if not TradeId then return end
+            local tradeId = TradesMap.MappedTradingPlayers[sender]
+            if not tradeId then return end
 
-            local Trade = TradesMap.ActiveTrades[TradeId]
+            local Trade = TradesMap.ActiveTrades[tradeId]
             if not Trade then return end
 
             local isPlayer1 = Trade.player1 == sender
@@ -68,10 +68,10 @@ local function constuctorCallback()
         function(sender: Player, data: string)
             if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[sender]
-            if not TradeId then return end
+            local tradeId = TradesMap.MappedTradingPlayers[sender]
+            if not tradeId then return end
 
-            local Trade = TradesMap.ActiveTrades[TradeId]
+            local Trade = TradesMap.ActiveTrades[tradeId]
             if not Trade then return end
 
             -- Remove the pet from the trade.

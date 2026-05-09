@@ -31,9 +31,6 @@ type SavingStackSchema<D> = StackingLib.SavingStackSchema<D>
 --[[ @end_section Types ]]
 
 
-local Debounce: { Player } = {}
-
-
 --[[
     @usage Subscribe to the player's inventory.
 
@@ -116,12 +113,10 @@ local function constuctorCallback()
 
     InventoryGroup.SearchForPets:onServerEvent(
         function(sender, data)
-            if not sender or table.find(Debounce, sender) then return end
+            if not sender then return end
             
             local PlrDataClass = Registry(sender)
             if not PlrDataClass then return end
-
-            table.insert(Debounce, sender)
 
             InventoryGroup.RemoveAllPetsFromInventory:fireClient(sender)
 
@@ -141,16 +136,6 @@ local function constuctorCallback()
                 end
 
                 InventoryGroup.AddPetsToInventory:fireClient(sender, PetsAddingToInventory)
-            end
-
-            -- Handle debounce logic.
-            do
-                task.wait()
-
-                local foundSender = table.find(Debounce, sender)
-                if not foundSender then return end
-
-                table.remove(Debounce, foundSender)
             end
         end
     )

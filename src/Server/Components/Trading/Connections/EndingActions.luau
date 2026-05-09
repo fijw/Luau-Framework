@@ -13,10 +13,13 @@ local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
+
+local Data = require(ReplicatedStorage.Assets.Pets.Data)
 --[[ @end_section Imports ]]
 
 
 type InventoryClass = Stackentory.InventoryClass
+type PetSchema = Data.PetSchema
 
 
 --[[
@@ -27,10 +30,10 @@ type InventoryClass = Stackentory.InventoryClass
     @return void
 ]]
 local function commenceTrade(tradeIdentifyingPlayer: Player)
-    local TradeId = TradesMap.MappedTradingPlayers[tradeIdentifyingPlayer]
-    if not TradeId then return end
+    local tradeId = TradesMap.MappedTradingPlayers[tradeIdentifyingPlayer]
+    if not tradeId then return end
 
-    local Trade = TradesMap.ActiveTrades[TradeId]
+    local Trade = TradesMap.ActiveTrades[tradeId]
     if not Trade then return end
 
     Registry.atomicTransaction({ Trade.player1, Trade.player2 },
@@ -38,14 +41,25 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
             local Player1State, Player2State = PlayerStates[Trade.player1], PlayerStates[Trade.player2]
             if not Player1State or not Player2State then return false end
 
+            local Plr1Inventory, Plr2Inventory = Player1State.Inventory :: InventoryClass, Player2State.Inventory :: InventoryClass
+
+            local Plr1Pets: { [string]: PetSchema } = {}
+            local Plr2Pets: { [string]: PetSchema } = {}
+
             -- Check if both players have the pets and coins they are trying to trade.
             do
                 for i: number, id: string in ipairs(Trade.Player1Pets) do
-                    if not (Player1State.Inventory :: InventoryClass):fetchStackFromItemId(id) then return false end
+                    local FoundPetStack = Plr1Inventory:fetchStackFromItemId(id)
+                    if not FoundPetStack then return false end
+
+                    Plr1Pets[id] = FoundPetStack.StackData
                 end
 
                 for i: number, id: string in ipairs(Trade.Player2Pets) do
-                    if not (Player2State.Inventory :: InventoryClass):fetchStackFromItemId(id) then return false end
+                    local FoundPetStack = Plr2Inventory:fetchStackFromItemId(id)
+                    if not FoundPetStack then return false end
+
+                    Plr2Pets[id] = FoundPetStack.StackData
                 end
 
                 if Player1State.gems() < Trade.player1Coins then return false end
@@ -66,8 +80,8 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
 
             -- Add the pets and coins to both players.
             do
-                for i: number, id: string in ipairs(Trade.Player2Pets) do Player1State.Inventory += id end
-                for i: number, id: string in ipairs(Trade.Player1Pets) do Player2State.Inventory += id end
+                for i: string, Pet: PetSchema in pairs(Plr2Pets) do Plr1Inventory += { itemData = Pet, itemId = i } end
+                for i: string, Pet: PetSchema in pairs(Plr1Pets) do Plr2Inventory += { itemData = Pet, itemId = i } end
 
                 Player1State.gems(Player1State.gems() + Trade.player2Coins)
                 Player2State.gems(Player2State.gems() + Trade.player1Coins)
@@ -91,7 +105,7 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
         end
     )
 
-    TradesMap.ActiveTrades[TradeId] = nil
+    TradesMap.ActiveTrades[tradeId] = nil
     TradesMap.MappedTradingPlayers[Trade.player1] = nil; TradesMap.MappedTradingPlayers[Trade.player2] = nil
 end
 
@@ -107,21 +121,21 @@ local function constuctorCallback()
         function(sender: Player, data: nil)
             if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[sender]
-            if not TradeId then return end
+            local tradeId = TradesMap.MappedTradingPlayers[sender]
+            if not tradeId then return end
 
-            local Trade = TradesMap.ActiveTrades[TradeId]
+            local Trade = TradesMap.ActiveTrades[tradeId]
             if not Trade then return end
 
             -- Send a packet to both players to close the trade UI.
             do
                 local OtherPlayer = if Trade.player1 == sender then Trade.player2 else Trade.player1
 
-                TradingGroup.CancelTrade:fireClient(OtherPlayer, "they_cancelled")
-                TradingGroup.CancelTrade:fireClient(sender, "you_cancelled")
+                TradingGroup.CancelTrade:fireClient(OtherPlayer, sender.DisplayName)
+                TradingGroup.CancelTrade:fireClient(sender, OtherPlayer.DisplayName)
             end
 
-            TradesMap.ActiveTrades[TradeId] = nil
+            TradesMap.ActiveTrades[tradeId] = nil
             TradesMap.MappedTradingPlayers[Trade.player1] = nil; TradesMap.MappedTradingPlayers[Trade.player2] = nil
         end
     )
@@ -130,10 +144,10 @@ local function constuctorCallback()
         function(sender: Player, data: nil)
             if not sender then return end
 
-            local TradeId = TradesMap.MappedTradingPlayers[sender]
-            if not TradeId then return end
+            local tradeId = TradesMap.MappedTradingPlayers[sender]
+            if not tradeId then return end
 
-            local Trade = TradesMap.ActiveTrades[TradeId]
+            local Trade = TradesMap.ActiveTrades[tradeId]
             if not Trade then return end
 
             local isPlayer1 = Trade.player1 == sender
@@ -141,8 +155,13 @@ local function constuctorCallback()
 
             TradingGroup.AcceptTrade:fireClient(if isPlayer1 then Trade.player2 else Trade.player1)
 
-            if not Trade.player1Ready and Trade.player2Ready then return end
+            if not Trade.player1Ready or not Trade.player2Ready then return end
+            task.wait(3); if not Trade.player1Ready or not Trade.player2Ready then return end
+
             commenceTrade(Trade.player1)
+
+            TradingGroup.TradeCompleted:fireClient(if isPlayer1 then Trade.player1 else Trade.player2, if isPlayer1 then Trade.player2.DisplayName else Trade.player1.DisplayName)
+            TradingGroup.TradeCompleted:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, if isPlayer1 then Trade.player1.DisplayName else Trade.player2.DisplayName)
         end
     )
 end

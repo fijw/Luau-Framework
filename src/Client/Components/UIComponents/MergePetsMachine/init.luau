@@ -122,7 +122,7 @@ local function createNotification(data: number?, type: "not_enough_pets" | "not_
 
     HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
         function(pos1: number, pos2: number)
-            HandledNotificationUI:removeFocus( { machineName } )
+            HandledNotificationUI:removeFocus({ machineName })
             HandledNotificationUI:destroy()
         end
     )

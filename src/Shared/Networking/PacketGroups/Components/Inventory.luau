@@ -17,21 +17,21 @@ type PetSchema = Data.PetSchema
 
 local Packets
 = {
-    AddPetsToInventory = NetworkLib("add_pets_to_inventory", "Event",
+    AddPetsToInventory = NetworkLib("it_add_pets_to_inventory", "Event",
         {
             clientType = { ["" :: string] = {} :: PetSchema },
             serverType = nil
         }
     ),
 
-    RemovePetsFromInventory = NetworkLib("remove_pets_from_inventory", "Event",
+    RemovePetsFromInventory = NetworkLib("it_remove_pets_from_inventory", "Event",
         {
             clientType = { "pet_id" },
             serverType = nil
         }
     ),
 
-    RemoveAllPetsFromInventory = NetworkLib("remove_all_pets_from_inventory", "Event",
+    RemoveAllPetsFromInventory = NetworkLib("it_remove_all_pets_from_inventory", "Event",
         {
             clientType = nil,
             serverType = nil
@@ -39,14 +39,14 @@ local Packets
     ),
     
 
-    RequestInventorySlots = NetworkLib("request_inventory_slots", "Function",
+    RequestInventorySlots = NetworkLib("it_request_inventory_slots", "Function",
         {
             clientType = "used_slots/max_slots",
             serverType = nil
         }
     ),
 
-    SearchForPets = NetworkLib("inventory_search_for_pets", "Event",
+    SearchForPets = NetworkLib("it_inventory_search_for_pets", "Event",
         {
             clientType = nil,
             serverType = "searching_string"
@@ -54,14 +54,14 @@ local Packets
     ),
 
 
-    LockPet = NetworkLib("lock_pet", "Event",
+    LockPet = NetworkLib("it_lock_pet", "Event",
         {
             clientType = nil,
             serverType = "pet_id"
         }
     ),
 
-    DeletePets = NetworkLib("delete_pets", "Event",
+    DeletePets = NetworkLib("it_delete_pets", "Event",
         {
             clientType = nil,
             serverType = { "pet_id" }

@@ -52,7 +52,7 @@ do
     Container.BackgroundTransparency = 1.000
     Container.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Container.BorderSizePixel = 0
-    Container.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Container.Position = UDim2.new(0.5, 0, 0.45, 0)
     Container.Size = UDim2.new(0.467952073, 0, 0.553703725, 0)
 
     UIAspectRatioConstraint.Parent = Container
