@@ -103,7 +103,7 @@ local function addPlayerTradingContainer
     local SendTradeBtn = PlayerTradingContainer:WaitForChild("SendTradeBtn") :: ImageButton
 
     PlrDisplayText.Text = plr.DisplayName
-    PlrNameText.Text = plr.Name
+    PlrNameText.Text = `@{plr.Name}`
 
     CachedPlayerTradingContainers[plr] = PlayerTradingContainer
 
@@ -162,7 +162,7 @@ local function constructorCallback()
 
         Players.PlayerAdded:Connect(
             function(player: Player)
-                if player.Name == localPlayer.Name then return end
+                --if player.Name == localPlayer.Name then return end
                 addPlayerTradingContainer(player, scrollingFrame, defaultPlayerTradingContainer, HandledUI)
             end
         )
@@ -170,7 +170,7 @@ local function constructorCallback()
         Players.PlayerRemoving:Connect(
             function(player: Player)
                 if not CachedPlayerTradingContainers[player] then return end
-                
+
                 CachedPlayerTradingContainers[player]:Destroy()
                 CachedPlayerTradingContainers[player] = nil
             end
@@ -224,6 +224,18 @@ local function constructorCallback()
 
                     originalContainerSize
                 )
+                
+                for i: Player, v: Frame in pairs(CachedPlayerTradingContainers) do
+                    v:Destroy()
+                    v.Parent = nil
+
+                    CachedPlayerTradingContainers[i] = nil
+                end
+
+                for i: number, plr: Player in ipairs(Players:GetPlayers()) do
+                    --if plr.Name == localPlayer.Name then continue end
+                    addPlayerTradingContainer(plr, scrollingFrame, defaultPlayerTradingContainer, HandledUI)
+                end
             end
         )
 

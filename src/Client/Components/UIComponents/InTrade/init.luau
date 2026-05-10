@@ -294,6 +294,68 @@ local function handleSearch
         )
     end
 end
+
+--[[
+    @usage Expand items.
+
+    @param inst ImageLabel
+    @param ExpandingNums { [string]: number }
+
+    @return void
+]]
+local function expandItems(inst: ImageLabel, ExpandingNums: { [string]: number }, expanding: boolean)
+    if inst.Name == "Gigantic" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
+        return
+    elseif inst.Name == "Huge" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
+        return
+    elseif inst.Name == "Default" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
+        return
+    end
+
+    local InstPetData = CachedPetDatasForExpanding[inst.Name]
+    if not InstPetData then return end
+
+    if InstPetData.PetStats.size == "Gigantic" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
+    elseif InstPetData.PetStats.size == "Huge" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
+    elseif InstPetData.PetStats.size == "Default" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
+    end
+end
 --[[ @end_section Utility Functions ]]
 
 
@@ -483,68 +545,28 @@ local function constructorCallback()
                 = {
                     gigantic = 2.04,
                     huge = 2.07,
-                    default = 2.1
+                    default = 2.16
                 }
 
                 if isExpanded then
                     for i: number, inst: Instance in ipairs(yourScrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-
-                        local InstPetData = CachedPetDatasForExpanding[inst.Name]
-                        if not InstPetData then continue end
-
-                        if InstPetData.PetStats.size == "Gigantic" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
-                        elseif InstPetData.PetStats.size == "Huge" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
-                        elseif InstPetData.PetStats.size == "Default" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
-                        end
+                        expandItems(inst, ExpandingNums, true)
                     end
 
                     for i: number, inst: Instance in ipairs(theirScrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-
-                        local InstPetData = CachedPetDatasForExpanding[inst.Name]
-                        if not InstPetData then continue end
-
-                        if InstPetData.PetStats.size == "Gigantic" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
-                        elseif InstPetData.PetStats.size == "Huge" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
-                        elseif InstPetData.PetStats.size == "Default" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
-                        end
+                        expandItems(inst, ExpandingNums, true)
                     end
                 else
                     for i: number, inst: Instance in ipairs(yourScrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-                        
-                        local InstPetData = CachedPetDatasForExpanding[inst.Name]
-                        if not InstPetData then continue end
-
-                        if InstPetData.PetStats.size == "Gigantic" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
-                        elseif InstPetData.PetStats.size == "Huge" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
-                        elseif InstPetData.PetStats.size == "Default" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
-                        end
+                        expandItems(inst, ExpandingNums, false)
                     end
 
                     for i: number, inst: Instance in ipairs(theirScrollingFrame:GetChildren()) do
                         if not inst:IsA("ImageLabel") then continue end
-                        
-                        local InstPetData = CachedPetDatasForExpanding[inst.Name]
-                        if not InstPetData then continue end
-
-                        if InstPetData.PetStats.size == "Gigantic" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
-                        elseif InstPetData.PetStats.size == "Huge" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
-                        elseif InstPetData.PetStats.size == "Default" then
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
-                        end
+                        expandItems(inst, ExpandingNums, false)
                     end
                 end
             end

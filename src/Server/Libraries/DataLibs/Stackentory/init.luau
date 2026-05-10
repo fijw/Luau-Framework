@@ -209,13 +209,14 @@ end
     @usage Create an inventory class.
 
     @param PreviousInventory SavingInventoryClassSchema?
+    @param maxItems number?
 
     @return Inventory
 ]]
-local function constructorCallback(PreviousInventoryClass: SavingInventoryClassSchema?): InventoryClass
+local function constructorCallback(PreviousInventoryClass: SavingInventoryClassSchema?, maxItems: number?): InventoryClass
     local NewInventory
     = {
-        maxItems = if PreviousInventoryClass then PreviousInventoryClass.maxItems else 205,
+        maxItems = if PreviousInventoryClass then PreviousInventoryClass.maxItems elseif maxItems then maxItems else math.huge,
         usedItemSlots = if PreviousInventoryClass then PreviousInventoryClass.usedItemSlots else 0,
 
         StacksArray = {}

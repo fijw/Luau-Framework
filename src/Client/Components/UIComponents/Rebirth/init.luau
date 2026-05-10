@@ -121,7 +121,7 @@ local function constructorCallback()
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
                 
-                NotificationComponents().notificationText.Text = `Not enough gems to rebirth.<br /><br />You need {data} more gems to  be able to rebirth.`
+                NotificationComponents().notificationText.Text = `Not enough gems to rebirth.<br /><br />You need {data} more gems to be able to rebirth.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                     function(pos1: number, pos2: number)

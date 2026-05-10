@@ -148,7 +148,7 @@ local function constuctorCallback()
 
             -- Initialize the player's inventory.
             local oldInventoryState = if PlrDataClass()().Inventory then PlrDataClass()().Inventory() :: SavingInventoryClassSchema else nil
-            PlrDataClass()(Stackentory(oldInventoryState), "Inventory")
+            PlrDataClass()(Stackentory(oldInventoryState, 250), "Inventory")
 
             local Inventory = PlrDataClass()().Inventory :: InventoryClass
 

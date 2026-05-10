@@ -165,8 +165,8 @@ local function constructorCallback()
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
-    local MapFolder = workspace:WaitForChild("Map") :: Folder
-    local MachinesFolder = MapFolder:WaitForChild("Machines") :: Folder
+    local GameFolder = workspace:WaitForChild("Game") :: Folder
+    local MachinesFolder = GameFolder:WaitForChild("Machines") :: Folder
     local crateMachine = MachinesFolder:WaitForChild("CrateMachine") :: Part
     local proximityPrompt = crateMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
     proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
@@ -187,7 +187,7 @@ local function constructorCallback()
             
             HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                 function(pos1: number, pos2: number)
-                    HandledNotificationUI:removeFocus( { clonedCrateMachine.Name } )
+                    HandledNotificationUI:removeFocus({ clonedCrateMachine.Name })
                     HandledNotificationUI:destroy()
                 end
             )
@@ -204,7 +204,7 @@ local function constructorCallback()
             
             HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                 function(pos1: number, pos2: number)
-                    HandledNotificationUI:removeFocus( { clonedCrateMachine.Name } )
+                    HandledNotificationUI:removeFocus({ clonedCrateMachine.Name })
                     HandledNotificationUI:destroy()
                 end
             )

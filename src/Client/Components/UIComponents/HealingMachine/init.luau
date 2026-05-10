@@ -200,8 +200,8 @@ local function constructorCallback()
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
-    local MapFolder = workspace:WaitForChild("Map") :: Folder
-    local MachinesFolder = MapFolder:WaitForChild("Machines") :: Folder
+    local GameFolder = workspace:WaitForChild("Game") :: Folder
+    local MachinesFolder = GameFolder:WaitForChild("Machines") :: Folder
     local healingMachine = MachinesFolder:WaitForChild("HealingMachine") :: Part
     local proximityPrompt = healingMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
     proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
