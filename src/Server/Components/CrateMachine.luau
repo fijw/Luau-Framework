@@ -75,7 +75,8 @@ local function constructorCallback()
                         local PetSchema: PetSchema = TableUtils.deepClone(RNG.randomFromTableOfChances(CrateSchema.Chances))
                         PetSchema.PetStats.color = RandomizedStats.color :: any
                         PetSchema.PetStats.size = RandomizedStats.size :: any
-                        PetSchema.locked = {}
+                        PetSchema.Locked = {}
+                        PetSchema.Equipped = {}
 
                         -- Size and color stat modifications.
                         do

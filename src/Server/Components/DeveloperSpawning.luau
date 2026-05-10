@@ -42,7 +42,8 @@ local function constuctorCallback()
             PetSchema.PetStats.color = data.petColor :: any
             PetSchema.PetStats.size = data.petSize :: any
             PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
-            PetSchema.locked = {}
+            PetSchema.Locked = {}
+            PetSchema.Equipped = {}
 
             local foundPlayer = Players:GetPlayerByUserId(data.receiverId)
             if not foundPlayer then return end

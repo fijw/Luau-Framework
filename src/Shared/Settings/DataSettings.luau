@@ -116,7 +116,7 @@ local DataSettings
         } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "test123sttst"
+    PLAYER_DATA_STORAGE_KEY = "test123sttstst"
 }
 
 

@@ -81,20 +81,20 @@ local function tweenInst(inst: GuiObject, timeInput: number, type: "pos" | "tran
 end
 
 --[[
-    @usage Creates the selected tick for a pet.
+    @usage Creates a tick for a pet.
 
     @param petLabel ImageLabel
 
     @return void
 ]]
-local function createSelectedTick(petLabel: ImageLabel)
+local function createTick(petLabel: ImageLabel, type: "lock" | "selected")
     local newTick = Instance.new("ImageLabel")
-    newTick.Image = "rbxassetid://120401071933338"
+    newTick.Image = if type == "lock" then "rbxassetid://138368172974659" else "rbxassetid://120401071933338"
     newTick.BackgroundTransparency = 1
     newTick.BorderSizePixel = 0
-    newTick.Position = UDim2.new(0.65, 0, 0, 0)
+    newTick.Position = if type == "lock" then UDim2.new(0, 0, 0, 0) else UDim2.new(0.65, 0, 0, 0)
     newTick.Size = UDim2.new(0.35, 0, 0.35, 0)
-    newTick.Name = "SelectedTick"
+    newTick.Name = if type == "lock" then "LockTick" else "SelectedTick"
     newTick.ZIndex = 3
     newTick.Parent = petLabel
 end
@@ -195,7 +195,8 @@ local function constructorCallback()
                     newPetLabel.ImageColor3 = Color3.fromRGB(0, 155, 202)
                     newPetLabel.Parent = scrollingFrame
                     
-                    if table.find(SelectedMergingPets, i) then createSelectedTick(newPetLabel) end
+                    if table.find(PetSchema.Locked or {}, i) then createTick(newPetLabel, "lock") end
+                    if table.find(SelectedMergingPets, i) then createTick(newPetLabel, "selected") end
 
                     local innerImgButton = Instance.new("ImageButton")
                     innerImgButton.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -240,17 +241,22 @@ local function constructorCallback()
 
                     HandledUI:handleButtonPress(innerImgButton,
                         function(pos1: number, pos2: number)
-                            local foundPetIndex = table.find(SelectedMergingPets, i)
+                            if table.find(PetSchema.Locked or {}, i) then return end
 
-                            if foundPetIndex then
-                                local foundTick = newPetLabel:FindFirstChild("SelectedTick")
-                                if foundTick then foundTick:Destroy() end
+                            -- Handle selection logic.
+                            do
+                                local foundPetIndex = table.find(SelectedMergingPets, i)
 
-                                table.remove(SelectedMergingPets, foundPetIndex)
-                            else
-                                if #SelectedMergingPets < NEEDED_PETS_TO_MERGE then
-                                    table.insert(SelectedMergingPets, i)
-                                    createSelectedTick(newPetLabel)
+                                if foundPetIndex then
+                                    local foundTick = newPetLabel:FindFirstChild("SelectedTick")
+                                    if foundTick then foundTick:Destroy() end
+
+                                    table.remove(SelectedMergingPets, foundPetIndex)
+                                else
+                                    if #SelectedMergingPets < NEEDED_PETS_TO_MERGE then
+                                        table.insert(SelectedMergingPets, i)
+                                        createTick(newPetLabel, "selected")
+                                    end
                                 end
                             end
 

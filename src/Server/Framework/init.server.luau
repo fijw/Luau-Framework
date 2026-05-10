@@ -47,6 +47,7 @@ local RebirthingComponent = ServerScriptService.Components.Rebirthing
 local MergingComponent = ServerScriptService.Components.Merging
 local HealingMachineComponent = ServerScriptService.Components.HealingMachine
 local TradingComponent = ServerScriptService.Components.Trading
+local PetsHandlingComponent = ServerScriptService.Components.PetsHandling
 
 
 local Initialization = script.Initialization
@@ -72,7 +73,8 @@ local ModulesToLoad
     [RebirthingComponent.Name] = RebirthingComponent,
     [MergingComponent.Name] = MergingComponent,
     [HealingMachineComponent.Name] = HealingMachineComponent,
-    [TradingComponent.Name] = TradingComponent
+    [TradingComponent.Name] = TradingComponent,
+    [PetsHandlingComponent.Name] = PetsHandlingComponent
 }
 
 local NUM_OF_RETRIES = 10

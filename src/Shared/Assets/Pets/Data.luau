@@ -22,7 +22,8 @@ export type PetSchema
         color: "Default" | "Rainbow" | "Radioactive" | "Glitched"
     },
     
-    locked: { string }?
+    Locked: { string }?,
+    Equipped: { string }?
 }
 
 

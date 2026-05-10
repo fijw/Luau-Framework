@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
+local PetsHandlingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.PetsHandling)
 
 local UIComponents = require(script.Components)
 local PetDetailsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.PetDetails)
@@ -83,14 +84,14 @@ end
 
     @return void
 ]]
-local function createTick(petLabel: ImageLabel, type: "lock" | "delete")
+local function createTick(petLabel: ImageLabel, type: "lock" | "delete" | "selected")
     local newTick = Instance.new("ImageLabel")
-    newTick.Image = if type == "lock" then "rbxassetid://138368172974659" else "rbxassetid://138335893507994"
+    newTick.Image = if type == "lock" then "rbxassetid://138368172974659" elseif type == "selected" then "rbxassetid://120401071933338" else "rbxassetid://138335893507994"
     newTick.BackgroundTransparency = 1
     newTick.BorderSizePixel = 0
-    newTick.Position = UDim2.new(0, 0, 0, 0)
+    newTick.Position = if type == "lock" or type == "delete" then UDim2.new(0, 0, 0, 0) else UDim2.new(0.65, 0, 0, 0)
     newTick.Size = UDim2.new(0.35, 0, 0.35, 0)
-    newTick.Name = if type == "lock" then "LockTick" else "DeleteTick"
+    newTick.Name = if type == "lock" then "LockTick" elseif type == "selected" then "SelectTick" else "DeleteTick"
     newTick.ZIndex = 3
     newTick.Parent = petLabel
 end
@@ -156,7 +157,8 @@ local function constructorCallback()
                     newPetLabel.Parent = scrollingFrame
                     newPetLabel.ImageColor3 = Color3.fromRGB(0, 155, 202)
 
-                    if PetSchema.locked then if table.find(PetSchema.locked, i) then createTick(newPetLabel, "lock") end end
+                    if PetSchema.Locked then if table.find(PetSchema.Locked, i) then createTick(newPetLabel, "lock") end end
+                    if PetSchema.Equipped then if table.find(PetSchema.Equipped, i) then createTick(newPetLabel, "selected") end end
 
                     local innerImgButton = Instance.new("ImageButton")
                     innerImgButton.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -202,24 +204,24 @@ local function constructorCallback()
                     HandledUI:handleButtonPress(innerImgButton,
                         function(pos1: number, pos2: number)
                             if isLocking then
-                                local foundIdIndex = if PetSchema.locked then table.find(PetSchema.locked, i) else nil
+                                local foundIdIndex = if PetSchema.Locked then table.find(PetSchema.Locked, i) else nil
 
                                 if not foundIdIndex then
-                                    if PetSchema.locked then table.insert(PetSchema.locked, i) end
+                                    if PetSchema.Locked then table.insert(PetSchema.Locked, i) end
 
                                     InventoryGroup.LockPet:fireServer(i)
                                     createTick(newPetLabel, "lock")
                                 else
-                                    if PetSchema.locked then table.remove(PetSchema.locked, foundIdIndex) end
+                                    if PetSchema.Locked then table.remove(PetSchema.Locked, foundIdIndex) end
                                     InventoryGroup.LockPet:fireServer(i)
                                     
                                     local foundTick = newPetLabel:FindFirstChild("LockTick")
                                     if foundTick then foundTick:Destroy() end
                                 end
-                            end
 
-                            if isDeleting then
-                                if PetSchema.locked then if table.find(PetSchema.locked, i) then return end end
+                                return
+                            elseif isDeleting then
+                                if PetSchema.Locked then if table.find(PetSchema.Locked, i) then return end end
 
                                 -- Add or remove the pet from the deletion list.
                                 do
@@ -234,6 +236,26 @@ local function constructorCallback()
                                         createTick(newPetLabel, "delete")
                                         table.insert(SelectedDeletingPets, i)
                                     end
+                                end
+
+                                return
+                            end
+
+                            -- Add or remove the pet from the equipped list.
+                            do
+                                local foundEquipIndex = table.find(PetSchema.Equipped or {}, i)
+
+                                if foundEquipIndex then
+                                    table.remove(PetSchema.Equipped or {}, foundEquipIndex)
+                                    PetsHandlingGroup.UnequipPet:fireServer(i)
+
+                                    local foundTick = newPetLabel:FindFirstChild("SelectTick")
+                                    if foundTick then foundTick:Destroy() end
+                                else
+                                    PetsHandlingGroup.EquipPet:fireServer(i)
+                                    table.insert(PetSchema.Equipped or {}, i)
+
+                                    createTick(newPetLabel, "selected")
                                 end
                             end
                         end

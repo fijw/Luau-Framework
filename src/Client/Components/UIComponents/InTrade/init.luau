@@ -95,7 +95,7 @@ local function createTick(petLabel: ImageLabel, type: "lock" | "selected")
     newTick.Image = if type == "lock" then "rbxassetid://138368172974659" else "rbxassetid://120401071933338"
     newTick.BackgroundTransparency = 1
     newTick.BorderSizePixel = 0
-    newTick.Position = UDim2.new(0, 0, 0, 0)
+    newTick.Position = if type == "lock" then UDim2.new(0, 0, 0, 0) else UDim2.new(0.65, 0, 0, 0)
     newTick.Size = UDim2.new(0.35, 0, 0.35, 0)
     newTick.Name = if type == "lock" then "LockTick" else "SelectedTick"
     newTick.ZIndex = 3
@@ -160,7 +160,7 @@ local function addPetToTrade
 
     if side == "yours" then newPetLabel.Parent = yourScrollingFrame else newPetLabel.Parent = theirScrollingFrame end
 
-    if Pet.locked then if table.find(Pet.locked, id) then createTick(newPetLabel, "lock") end end
+    if Pet.Locked then if table.find(Pet.Locked, id) then createTick(newPetLabel, "lock") end end
     if table.find(SelectedPetsCache, id) then createTick(newPetLabel, "selected") end
 
     CachedPetDatasForExpanding[id] = Pet
@@ -210,7 +210,7 @@ local function addPetToTrade
 
         HandledUI:handleButtonPress(innerImgButton,
             function(pos1: number, pos2: number)
-                if side == "theirs" or isReady or table.find(Pet.locked :: { string }, id) then return end
+                if side == "theirs" or isReady or table.find(Pet.Locked :: { string }, id) then return end
 
                 local foundIndex = table.find(SelectedPetsCache, id)
                 

@@ -89,12 +89,12 @@ local function constuctorCallback()
             local FoundStack: Stack<PetSchema>? = Inventory:fetchStackFromItemId(data)
             if not FoundStack then return end
 
-            local foundIdIndex = if FoundStack.StackData.locked then table.find(FoundStack.StackData.locked, data) else nil
+            local foundIdIndex = if FoundStack.StackData.Locked then table.find(FoundStack.StackData.Locked, data) else nil
 
             if foundIdIndex then
-                if FoundStack.StackData.locked then table.remove(FoundStack.StackData.locked, foundIdIndex) end
+                if FoundStack.StackData.Locked then table.remove(FoundStack.StackData.Locked, foundIdIndex) end
             else
-                if FoundStack.StackData.locked then table.insert(FoundStack.StackData.locked, data) end
+                if FoundStack.StackData.Locked then table.insert(FoundStack.StackData.Locked, data) end
             end
         end
     )

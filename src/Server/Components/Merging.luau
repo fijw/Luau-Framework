@@ -62,7 +62,7 @@ local function constructorCallback()
                 if not FoundStack then return end
 
                 for i: number, id: string in ipairs(FoundStack.StackArray()) do
-                    if FoundStack.StackData.locked then if table.find(FoundStack.StackData.locked, id) then continue end end
+                    --if FoundStack.StackData.locked then if table.find(FoundStack.StackData.locked, id) then continue end end
                     PetsAddingToMergingSlots[id] = FoundStack.StackData
                 end
 
@@ -91,7 +91,7 @@ local function constructorCallback()
                     if not string.find(SavingStackSchema.StackData.petName:lower(), data:lower()) then continue end
 
                     for i: number, id: string in ipairs(SavingStackSchema.StackArray) do
-                        if SavingStackSchema.StackData.locked then if table.find(SavingStackSchema.StackData.locked, id) then continue end end
+                        --if SavingStackSchema.StackData.locked then if table.find(SavingStackSchema.StackData.locked, id) then continue end end
                         PetsAddingToMergingSlots[id] = SavingStackSchema.StackData
                     end
                 end
@@ -119,7 +119,7 @@ local function constructorCallback()
                 
                 for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
                     for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
-                        if SavingStackSchema.StackData.locked then if table.find(SavingStackSchema.StackData.locked, id) then continue end end
+                        --if SavingStackSchema.StackData.Locked then if table.find(SavingStackSchema.StackData.Locked, id) then continue end end
                         PetsAddingToMergingSlots[id] = SavingStackSchema.StackData
                     end
                 end
