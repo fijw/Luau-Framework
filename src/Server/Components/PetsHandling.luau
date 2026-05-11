@@ -39,6 +39,9 @@ local RADIUS_MAP
     Huge = { min = 5 * 6, max = 20 * 2 },
     Default = { min = 5, max = 20 }
 }
+
+local PET_DIV_SPEED = 50
+local WADDLE_SPEED = 0.15
 --[[ @end_section Variables ]]
 
 
@@ -71,7 +74,7 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
         local radiusOffset = Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
 
         local targetPosition = plrRootPart.Position + radiusOffset
-        local tweenTime = (petRootPart.Position - targetPosition).Magnitude / 50
+        local tweenTime = (petRootPart.Position - targetPosition).Magnitude
 
         -- Floor detection.
         do
@@ -91,33 +94,56 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
             if not result then return end; targetPosition = result.Position + Vector3.new(0, petRootPart.Size.Y / 2, 0)
         end
 
-        TweensLib(
-            petRootPart,
+        local waddleDirection = 1
 
+        for i = 1, math.max(1, math.ceil(tweenTime / (PET_DIV_SPEED * WADDLE_SPEED))) do
+            local remaining = targetPosition - petRootPart.Position
+            if remaining.Magnitude <= 0.01 then break end
 
-            tweenTime,
+            local nextPosition = petRootPart.Position + remaining.Unit * math.min(PET_DIV_SPEED * WADDLE_SPEED, remaining.Magnitude)
 
-            Enum.EasingStyle.Sine,
-            Enum.EasingDirection.Out,
-
-            0,
-            false,
-            0,
-
-
-            {
-                CFrame
-                = CFrame.lookAt(
-                    targetPosition,
-
-                    Vector3.new(
-                        plrRootPart.Position.X,
-                        targetPosition.Y,
-                        plrRootPart.Position.Z
-                    )
+            nextPosition
+            = CFrame.lookAt(
+                petRootPart.Position + remaining.Unit * math.min(PET_DIV_SPEED * WADDLE_SPEED, remaining.Magnitude),
+                Vector3.new(
+                    plrRootPart.Position.X,
+                    nextPosition.Y,
+                    plrRootPart.Position.Z
                 )
-            }
-        ):waitForCompletion()
+            )
+
+            TweensLib(
+                petRootPart,
+
+                WADDLE_SPEED,
+
+                Enum.EasingStyle.Sine,
+                Enum.EasingDirection.Out,
+
+                0,
+                false,
+                0,
+
+                { CFrame = nextPosition * CFrame.Angles(math.rad(10 * waddleDirection), 0, 0) }
+            ):waitForCompletion()
+
+            waddleDirection *= -1
+
+            TweensLib(
+                petRootPart,
+
+                WADDLE_SPEED,
+
+                Enum.EasingStyle.Sine,
+                Enum.EasingDirection.Out,
+
+                0,
+                false,
+                0,
+
+                { CFrame = nextPosition * CFrame.Angles(math.rad(0), 0, 0) }
+            ):waitForCompletion()
+        end
 
         local randomWaitTime = RNG.betterRandomNumber(
             {
