@@ -61,6 +61,9 @@ local function constuctorCallback()
 
                 TradingGroup.AddPetToTradeOffer:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, { petId = data, PetData = FoundStack.StackData })
             end
+
+            TradingGroup.TradeOfferUpdated:fireClient(Trade.player1)
+            TradingGroup.TradeOfferUpdated:fireClient(Trade.player2)
         end
     )
 
@@ -84,6 +87,9 @@ local function constuctorCallback()
                 table.remove(if isPlayer1 then Trade.Player1Pets else Trade.Player2Pets, FoundPetId)
                 TradingGroup.RemovePetFromTradeOffer:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, data)
             end
+
+            TradingGroup.TradeOfferUpdated:fireClient(Trade.player1)
+            TradingGroup.TradeOfferUpdated:fireClient(Trade.player2)
         end
     )
 end

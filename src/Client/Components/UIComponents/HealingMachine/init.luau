@@ -38,6 +38,8 @@ local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
 
 local CachedSelectPetsPetButtons: { [string]: ImageLabel } = {}
 local CachedHealingMachinePetButtons: { [string]: ImageLabel } = {}
+local CachedPetDatasForExpanding: { [string]: PetSchema } = {}
+
 local SelectingPets: { string } = {}
 --[[ @end_section Variables ]]
 
@@ -173,6 +175,68 @@ local function createSelectedTick(petLabel: ImageLabel)
     newTick.ZIndex = 3
     newTick.Parent = petLabel
 end
+
+--[[
+    @usage Expand items.
+
+    @param inst ImageLabel
+    @param ExpandingNums { [string]: number }
+
+    @return void
+]]
+local function expandItems(inst: ImageLabel, ExpandingNums: { [string]: number }, expanding: boolean)
+    if inst.Name == "Gigantic" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
+        return
+    elseif inst.Name == "Huge" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
+        return
+    elseif inst.Name == "Default" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
+        return
+    end
+
+    local InstPetData = CachedPetDatasForExpanding[inst.Name]
+    if not InstPetData then return end
+
+    if InstPetData.PetStats.size == "Gigantic" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
+    elseif InstPetData.PetStats.size == "Huge" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
+    elseif InstPetData.PetStats.size == "Default" then
+        if not expanding then
+            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
+            return
+        end
+
+        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
+    end
+end
 --[[ @end_section Utility Functions ]]
 
 
@@ -217,6 +281,7 @@ local function constructorCallback()
                 petButton.Parent = nil
 
                 CachedSelectPetsPetButtons[i] = nil
+                CachedPetDatasForExpanding[i] = nil
             end
 
             local isExpanded = false
@@ -230,15 +295,22 @@ local function constructorCallback()
                 function(pos1: number, pos2: number)
                     isExpanded = not isExpanded
 
+                    local ExpandingNums
+                    = {
+                        gigantic = 2.04,
+                        huge = 2.08,
+                        default = 2.17
+                    }
+
                     if isExpanded then
                         for i: number, inst: Instance in ipairs(SelectPetsComponents().scrollingFrame:GetChildren()) do
                             if not inst:IsA("ImageLabel") then continue end
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale / 2.04, inst.Size.Y.Scale / 2.025)
+                            expandItems(inst, ExpandingNums, true)
                         end
                     else
                         for i: number, inst: Instance in ipairs(SelectPetsComponents().scrollingFrame:GetChildren()) do
                             if not inst:IsA("ImageLabel") then continue end
-                            inst.Size = UDim2.fromScale(inst.Size.X.Scale * 2.04, inst.Size.Y.Scale * 2.025)
+                            expandItems(inst, ExpandingNums, false)
                         end
                     end
                 end
@@ -283,6 +355,7 @@ local function constructorCallback()
                 innerImgButton.Image = Pet.petImageId
 
                 CachedSelectPetsPetButtons[i] = newPetLabel
+                CachedPetDatasForExpanding[i] = Pet
 
                 local isHovering = false
 

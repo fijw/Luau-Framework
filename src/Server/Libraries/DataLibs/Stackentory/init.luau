@@ -29,7 +29,7 @@ export type SavingInventoryClassSchema
     maxItems: number,
     usedItemSlots: number,
 
-    StacksArray: { [string]: SavingStackSchema<any> }
+    StacksDictionary: { [string]: SavingStackSchema<any> }
 }
 
 
@@ -43,7 +43,7 @@ export type InventoryClass = setmetatable
         maxItems: number,
         usedItemSlots: number,
 
-        StacksArray: { [string]: StackClass<any> }
+        StacksDictionary: { [string]: StackClass<any> }
     },
 
     {
@@ -77,7 +77,7 @@ export type InventoryClass = setmetatable
 local function fetchStackFromItemIdCallback(self: InventoryClass, id: string): StackClass<any>?
     local FoundStack: StackClass<any>?
 
-    for i: string, Stack: StackClass<any> in pairs(self.StacksArray) do
+    for i: string, Stack: StackClass<any> in pairs(self.StacksDictionary) do
         for idIndex: number, loopedStackId: string in ipairs(Stack.StackArray()) do
             if loopedStackId == id then FoundStack = Stack; break end
         end
@@ -101,7 +101,7 @@ end
 local function fetchStackFromItemDataCallback<D>(self: InventoryClass, data: D): StackClass<D>?
     local FoundStack: StackClass<D>?
 
-    for stackIndex: string, Stack: StackClass<D> in pairs(self.StacksArray) do
+    for stackIndex: string, Stack: StackClass<D> in pairs(self.StacksDictionary) do
         if typeof(Stack.StackData) ~= "table" and typeof(data) ~= "table" then
             if Stack.StackData == data then FoundStack = Stack; break end
         elseif typeof(data) ~= "table" and typeof(Stack.StackData) == "table" then continue
@@ -144,11 +144,12 @@ local function addCallback(self: InventoryClass, AddingSchema: { itemData: any, 
     local FetchedStack = self:fetchStackFromItemData(AddingSchema.itemData)
 
     if not FetchedStack then
-        FetchedStack = Stacking(AddingSchema.itemData, { AddingSchema.itemId })
+        local stackId = HttpService:GenerateGUID(false)
+        FetchedStack = Stacking(AddingSchema.itemData, { AddingSchema.itemId }, stackId)
 
-        self.StacksArray[HttpService:GenerateGUID(false)] = FetchedStack
+        self.StacksDictionary[stackId] = FetchedStack
+
         if self.onItemAddedSubscription then self.onItemAddedSubscription(AddingSchema.itemData, AddingSchema.itemId) end
-
         return self
     end
 
@@ -173,8 +174,9 @@ local function removeCallback(self: InventoryClass, itemId: string): InventoryCl
     if not FetchedStack then return self end
 
     FetchedStack -= itemId
-    if self.onItemRemovedSubscription then self.onItemRemovedSubscription(itemId) end
+    if #FetchedStack.StackArray() <= 0 then self.StacksDictionary[FetchedStack.stackId] = nil end
 
+    if self.onItemRemovedSubscription then self.onItemRemovedSubscription(itemId) end
     return self
 end
 --[[ @end_section Arithmetic Callbacks ]]
@@ -193,11 +195,11 @@ local function inventoryClassCallback(self: InventoryClass): SavingInventoryClas
         maxItems = self.maxItems,
         usedItemSlots = self.usedItemSlots,
 
-        StacksArray = {}
+        StacksDictionary = {}
     }
 
-    for i: string, Stack: StackClass<any> in pairs(self.StacksArray) do
-        SavingInventoryClassSchema.StacksArray[i] = Stack()
+    for i: string, Stack: StackClass<any> in pairs(self.StacksDictionary) do
+        SavingInventoryClassSchema.StacksDictionary[i] = Stack()
     end
 
     return SavingInventoryClassSchema
@@ -219,15 +221,15 @@ local function constructorCallback(PreviousInventoryClass: SavingInventoryClassS
         maxItems = if PreviousInventoryClass then PreviousInventoryClass.maxItems elseif maxItems then maxItems else math.huge,
         usedItemSlots = if PreviousInventoryClass then PreviousInventoryClass.usedItemSlots else 0,
 
-        StacksArray = {}
+        StacksDictionary = {}
     }
 
     -- Initialize the stored stacks if they exist.
     do
-        local StacksArray = if PreviousInventoryClass then PreviousInventoryClass.StacksArray else {}
+        local StacksArray = if PreviousInventoryClass then PreviousInventoryClass.StacksDictionary else {}
 
         for i: string, SavingStackSchema: SavingStackSchema<any> in pairs(StacksArray) do
-            NewInventory.StacksArray[i] = Stacking(SavingStackSchema.StackData, SavingStackSchema.StackArray)
+            NewInventory.StacksDictionary[i] = Stacking(SavingStackSchema.StackData, SavingStackSchema.StackArray, i)
         end
     end
 

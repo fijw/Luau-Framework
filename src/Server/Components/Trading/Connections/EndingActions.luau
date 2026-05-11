@@ -13,13 +13,19 @@ local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
+local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.Stacking)
 
 local Data = require(ReplicatedStorage.Assets.Pets.Data)
 --[[ @end_section Imports ]]
 
 
+--[[ @section Types ]]
 type InventoryClass = Stackentory.InventoryClass
 type PetSchema = Data.PetSchema
+
+--[[ @generic D Data type. ]]
+type StackClass<D> = StackingLib.StackClass<D>
+--[[ @end_section Types ]]
 
 
 --[[
@@ -46,13 +52,18 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
             local Plr1Pets: { [string]: PetSchema } = {}
             local Plr2Pets: { [string]: PetSchema } = {}
 
-            -- Check if both players have the pets and coins they are trying to trade.
+            -- Check if both players have the pets and coins they are trying to trade and remove all of the pets' equipped status.
             do
                 for i: number, id: string in ipairs(Trade.Player1Pets) do
-                    local FoundPetStack = Plr1Inventory:fetchStackFromItemId(id)
+                    local FoundPetStack: StackClass<PetSchema>? = Plr1Inventory:fetchStackFromItemId(id)
                     if not FoundPetStack then return false end
 
                     Plr1Pets[id] = FoundPetStack.StackData
+                    
+                    local foundIndex = table.find(FoundPetStack.StackData.Equipped or {}, id)
+                    if not foundIndex then continue end
+
+                    table.remove(FoundPetStack.StackData.Equipped or {}, foundIndex)
                 end
 
                 for i: number, id: string in ipairs(Trade.Player2Pets) do
@@ -60,6 +71,11 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                     if not FoundPetStack then return false end
 
                     Plr2Pets[id] = FoundPetStack.StackData
+
+                    local foundIndex = table.find(FoundPetStack.StackData.Equipped or {}, id)
+                    if not foundIndex then continue end
+
+                    table.remove(FoundPetStack.StackData.Equipped or {}, foundIndex)
                 end
 
                 if Player1State.gems() < Trade.player1Coins then return false end

@@ -169,7 +169,7 @@ local function constructorCallback()
 
             local ReturningData: { [string]: PetSchema } = {}
 
-            for i: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
+            for i: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
                 for i: number, id: string in ipairs(SavingStackSchema.StackArray) do
                     if PlrDataClass()().HealingData().HealingPets[id] then continue end
                     ReturningData[id] = SavingStackSchema.StackData

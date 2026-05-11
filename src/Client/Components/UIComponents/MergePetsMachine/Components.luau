@@ -101,50 +101,50 @@ do
     ExpandBtn.BackgroundTransparency = 1
     ExpandBtn.ZIndex = 3
 
-    TextButton.Name = "Gigantic"
     TextButton.Parent = ScrollingFrame
     TextButton.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
     TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextButton.BorderSizePixel = 0
     TextButton.LayoutOrder = 1
     TextButton.Position = UDim2.new(0, 0, 0.584536374, 0)
-    TextButton.Size = UDim2.new(0.495000005, 0, 1, 0)
+    TextButton.Size = UDim2.new(0.487, 0, 1, 0)
     TextButton.ZIndex = 2
     TextButton.BackgroundTransparency = 1
     TextButton.Visible = false
     TextButton.Image = "rbxassetid://119610995981036"
+    TextButton.Name = "Gigantic"
 
     UIAspectRatioConstraint.Parent = TextButton
     UIAspectRatioConstraint.AspectRatio = 1.009
 
-    TextButton_2.Name = "Huge"
     TextButton_2.Parent = ScrollingFrame
     TextButton_2.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
     TextButton_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextButton_2.BorderSizePixel = 0
     TextButton_2.LayoutOrder = 2
     TextButton_2.Position = UDim2.new(0, 0, 0.584536374, 0)
-    TextButton_2.Size = UDim2.new(0.243000001, 0, 0.5, 0)
+    TextButton_2.Size = UDim2.new(0.239, 0, 0.5, 0)
     TextButton_2.ZIndex = 2
-    TextButton_2.Visible = false
     TextButton_2.BackgroundTransparency = 1
+    TextButton_2.Visible = false
     TextButton_2.Image = "rbxassetid://119610995981036"
+    TextButton_2.Name = "Huge"
 
     UIAspectRatioConstraint_2.Parent = TextButton_2
     UIAspectRatioConstraint_2.AspectRatio = 1.009
 
-    TextButton_3.Name = "Default"
     TextButton_3.Parent = ScrollingFrame
     TextButton_3.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
     TextButton_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextButton_3.BorderSizePixel = 0
     TextButton_3.LayoutOrder = 3
     TextButton_3.Position = UDim2.new(0, 0, 0.584536374, 0)
-    TextButton_3.Size = UDim2.new(0.116999999, 0, 0.25, 0)
+    TextButton_3.Size = UDim2.new(0.114, 0, 0.25, 0)
     TextButton_3.ZIndex = 2
-    TextButton_3.Visible = false
     TextButton_3.BackgroundTransparency = 1
+    TextButton_3.Visible = false
     TextButton_3.Image = "rbxassetid://119610995981036"
+    TextButton_3.Name = "Default"
 
     UIAspectRatioConstraint_3.Parent = TextButton_3
     UIAspectRatioConstraint_3.AspectRatio = 1.009

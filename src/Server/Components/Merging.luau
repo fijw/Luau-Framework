@@ -87,7 +87,7 @@ local function constructorCallback()
             do
                 local PetsAddingToMergingSlots: { [string]: PetSchema } = {}
                 
-                for i: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
+                for i: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
                     if not string.find(SavingStackSchema.StackData.petName:lower(), data:lower()) then continue end
 
                     for i: number, id: string in ipairs(SavingStackSchema.StackArray) do
@@ -117,7 +117,7 @@ local function constructorCallback()
             do
                 local PetsAddingToMergingSlots = {}
                 
-                for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
+                for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
                     for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
                         --if SavingStackSchema.StackData.Locked then if table.find(SavingStackSchema.StackData.Locked, id) then continue end end
                         PetsAddingToMergingSlots[id] = SavingStackSchema.StackData

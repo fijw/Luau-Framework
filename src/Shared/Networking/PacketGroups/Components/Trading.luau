@@ -95,6 +95,14 @@ local Packets
             clientType = { ["pet_id" :: string] = {} :: PetSchema },
             serverType = { side = "yours_or_theirs" :: "yours" | "theirs", text = "searching_string" }
         }
+    ),
+
+
+    TradeOfferUpdated = NetworkLib("td_trade_offer_updated", "Event",
+        {
+            clientType = nil,
+            serverType = nil
+        }
     )
 }
 

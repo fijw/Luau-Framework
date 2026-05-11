@@ -18,6 +18,8 @@ type StateEngine<T> = Reactor.StateEngine<T>
 --[[ @generic D Data type. ]]
 export type SavingStackSchema<D>
 = {
+    stackId: string,
+
     StackData: D,
     StackArray: { string }
 }
@@ -27,6 +29,8 @@ export type SavingStackSchema<D>
 export type StackClass<D> = setmetatable
 <
     {
+        stackId: string,
+
         StackData: D,
         StackArray: StateEngine<{ string }>
     },
@@ -52,6 +56,8 @@ export type StackClass<D> = setmetatable
 local function stackCallback(self: StackClass<any>): SavingStackSchema<any>
     local SavingStack: SavingStackSchema<any>
     = {
+        stackId = self.stackId,
+
         StackData = self.StackData,
         StackArray = self.StackArray()
     }
@@ -100,9 +106,11 @@ end
 
     @return StackClass<D>
 ]]
-local function constructorCallback<D>(stackData: D, IdsArray: { string }): StackClass<D>
+local function constructorCallback<D>(stackData: D, IdsArray: { string }, stackId: string): StackClass<D>
     local NewStack
     = {
+        stackId = stackId,
+
         StackData = stackData,
         StackArray = Reactor(IdsArray)
     }

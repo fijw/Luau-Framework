@@ -39,7 +39,7 @@ local function setFocus(screen: ScreenGui, name: string, keepHudFocus: boolean)
     if not CachedClass then return end
 
     if CachedClass.ScreenGui.Enabled then CachedClass:removeFocus(); return end
-    CachedClass:setFocus(if keepHudFocus then { screen.Name, "Notification", "AreYouSure" } else nil)
+    CachedClass:setFocus(if keepHudFocus then { screen.Name, "Notification", "AreYouSure", "TradeRequest" } else nil)
 end
 
 --[[

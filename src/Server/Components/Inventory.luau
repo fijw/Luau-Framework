@@ -61,6 +61,39 @@ end
     @return void
 ]]
 local function constuctorCallback()
+    -- Subscribe to the player's inventory.
+    do
+        local function onPlayerAdded(player: Player)
+            local PlrDataClass = Registry(player)
+            if not PlrDataClass then return end
+
+            -- Initialize the player's inventory.
+            local oldInventoryState = if PlrDataClass()().Inventory then PlrDataClass()().Inventory() :: SavingInventoryClassSchema else nil
+            PlrDataClass()(Stackentory(oldInventoryState, 250), "Inventory")
+
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
+
+            -- Add existing pets to the player's client inventory.
+            do
+                local PetsAddingToInventory = {}
+                
+                for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
+                    for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
+                        if PlrDataClass()().HealingData().HealingPets[id] then continue end
+                        PetsAddingToInventory[id] = SavingStackSchema.StackData
+                    end
+                end
+                
+                InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
+            end
+
+            subscribeToInventory(player, Inventory)
+        end
+
+        for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end
+        Players.PlayerAdded:Connect(onPlayerAdded)
+    end
+
     InventoryGroup.DeletePets:onServerEvent(
         function(sender, data)
             if not sender then return end
@@ -126,7 +159,7 @@ local function constuctorCallback()
             do
                 local PetsAddingToInventory: { [string]: PetSchema } = {}
                 
-                for i: string, Stack: Stack<PetSchema> in pairs(Inventory.StacksArray) do
+                for i: string, Stack: Stack<PetSchema> in pairs(Inventory.StacksDictionary) do
                     if not string.find(Stack.StackData.petName:lower(), data:lower()) then continue end
 
                     for i: number, id: string in ipairs(Stack.StackArray()) do
@@ -139,39 +172,6 @@ local function constuctorCallback()
             end
         end
     )
-    
-    -- Subscribe to the player's inventory.
-    do
-        local function onPlayerAdded(player: Player)
-            local PlrDataClass = Registry(player)
-            if not PlrDataClass then return end
-
-            -- Initialize the player's inventory.
-            local oldInventoryState = if PlrDataClass()().Inventory then PlrDataClass()().Inventory() :: SavingInventoryClassSchema else nil
-            PlrDataClass()(Stackentory(oldInventoryState, 250), "Inventory")
-
-            local Inventory = PlrDataClass()().Inventory :: InventoryClass
-
-            -- Add existing pets to the player's client inventory.
-            do
-                local PetsAddingToInventory = {}
-                
-                for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
-                    for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
-                        if PlrDataClass()().HealingData().HealingPets[id] then continue end
-                        PetsAddingToInventory[id] = SavingStackSchema.StackData
-                    end
-                end
-                
-                InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
-            end
-
-            subscribeToInventory(player, Inventory)
-        end
-
-        for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end
-        Players.PlayerAdded:Connect(onPlayerAdded)
-    end
 end
 
 return constuctorCallback

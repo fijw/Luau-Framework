@@ -66,7 +66,12 @@ local function constuctorCallback()
             if not sender then return end
 
             local targetPlayer = Players:GetPlayerByUserId(data)
-            if not targetPlayer or TradesMap.MappedTradeRequests[targetPlayer] then return end
+
+            if not targetPlayer
+                or TradesMap.MappedTradeRequests[targetPlayer]
+                or TradesMap.MappedTradingPlayers[targetPlayer]
+                or targetPlayer == sender
+            then return end
 
             TradesMap.MappedTradeRequests[targetPlayer] = sender
             TradingGroup.SendTradeRequest:fireClient(targetPlayer, sender.DisplayName)

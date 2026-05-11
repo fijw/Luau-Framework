@@ -153,30 +153,6 @@ local function constructorCallback()
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
-    -- Adding and removing player trading containers.
-    do
-        for i: number, plr: Player in ipairs(Players:GetPlayers()) do
-            --if plr.Name == localPlayer.Name then continue end
-            addPlayerTradingContainer(plr, scrollingFrame, defaultPlayerTradingContainer, HandledUI)
-        end
-
-        Players.PlayerAdded:Connect(
-            function(player: Player)
-                --if player.Name == localPlayer.Name then return end
-                addPlayerTradingContainer(player, scrollingFrame, defaultPlayerTradingContainer, HandledUI)
-            end
-        )
-
-        Players.PlayerRemoving:Connect(
-            function(player: Player)
-                if not CachedPlayerTradingContainers[player] then return end
-
-                CachedPlayerTradingContainers[player]:Destroy()
-                CachedPlayerTradingContainers[player] = nil
-            end
-        )
-    end
-
     -- Networking connections.
     do
         TradingGroup.SendTradeRequest:onClientEvent(
@@ -233,7 +209,7 @@ local function constructorCallback()
                 end
 
                 for i: number, plr: Player in ipairs(Players:GetPlayers()) do
-                    --if plr.Name == localPlayer.Name then continue end
+                    if plr.Name == localPlayer.Name then continue end
                     addPlayerTradingContainer(plr, scrollingFrame, defaultPlayerTradingContainer, HandledUI)
                 end
             end

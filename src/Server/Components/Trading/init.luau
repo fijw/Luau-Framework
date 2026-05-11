@@ -69,7 +69,7 @@ local function constuctorCallback()
 
             local ReturningPets: { [string]: PetSchema } = {}
 
-            for i: string, Stack: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
+            for i: string, Stack: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
                 for i: number, id: string in ipairs(Stack.StackArray) do ReturningPets[id] = Stack.StackData end
             end
 
@@ -97,7 +97,7 @@ local function constuctorCallback()
                 do
                     local PetsAddingToTrade: { [string]: PetSchema } = {}
                     
-                    for i: string, Stack: SavingStackSchema<PetSchema> in pairs(Inventory().StacksArray) do
+                    for i: string, Stack: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
                         if not string.find(Stack.StackData.petName:lower(), data.text:lower()) then continue end
 
                         for i: number, id: string in ipairs(Stack.StackArray) do
@@ -120,7 +120,7 @@ local function constuctorCallback()
                 do
                     local PetsAddingToTrade: { [string]: PetSchema } = {}
 
-                    for i: string, Stack: SavingStackSchema<PetSchema> in pairs(otherPlrInventory().StacksArray) do
+                    for i: string, Stack: SavingStackSchema<PetSchema> in pairs(otherPlrInventory().StacksDictionary) do
                         if not string.find(Stack.StackData.petName:lower(), data.text:lower()) then continue end
 
                         for i: number, id: string in ipairs(Stack.StackArray) do

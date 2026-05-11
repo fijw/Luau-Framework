@@ -148,7 +148,7 @@ do
     TextButton.BorderSizePixel = 0
     TextButton.LayoutOrder = 1
     TextButton.Position = UDim2.new(0, 0, 0.584536374, 0)
-    TextButton.Size = UDim2.new(0.495000005, 0, 1, 0)
+    TextButton.Size = UDim2.new(0.487, 0, 1, 0)
     TextButton.ZIndex = 2
     TextButton.BackgroundTransparency = 1
     TextButton.Visible = false
@@ -164,7 +164,7 @@ do
     TextButton_2.BorderSizePixel = 0
     TextButton_2.LayoutOrder = 2
     TextButton_2.Position = UDim2.new(0, 0, 0.584536374, 0)
-    TextButton_2.Size = UDim2.new(0.243000001, 0, 0.5, 0)
+    TextButton_2.Size = UDim2.new(0.239, 0, 0.5, 0)
     TextButton_2.ZIndex = 2
     TextButton_2.BackgroundTransparency = 1
     TextButton_2.Visible = false
@@ -180,7 +180,7 @@ do
     TextButton_3.BorderSizePixel = 0
     TextButton_3.LayoutOrder = 3
     TextButton_3.Position = UDim2.new(0, 0, 0.584536374, 0)
-    TextButton_3.Size = UDim2.new(0.116999999, 0, 0.25, 0)
+    TextButton_3.Size = UDim2.new(0.114, 0, 0.25, 0)
     TextButton_3.ZIndex = 2
     TextButton_3.BackgroundTransparency = 1
     TextButton_3.Visible = false

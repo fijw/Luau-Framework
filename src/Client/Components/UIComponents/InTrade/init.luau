@@ -453,6 +453,8 @@ local function constructorCallback()
         )
     end
 
+    local theyAreAccepting = false
+
     -- Networking connections.
     do
         TradingGroup.AcceptTradeRequest:onClientEvent(
@@ -489,6 +491,15 @@ local function constructorCallback()
 
         TradingGroup.SetGemsInTradeOffer:onClientEvent(function(data) theirGemsText.Text = `{data}` end)
 
+        TradingGroup.TradeOfferUpdated:onClientEvent(
+            function(data)
+                if isReady then TradingGroup.AcceptTrade:fireServer() end
+                
+                isReady = false
+                yourSide.ImageColor3 = Color3.fromHex("#FFFFFF")
+            end
+        )
+
         TradingGroup.TradeCompleted:onClientEvent(
             function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
@@ -522,8 +533,6 @@ local function constructorCallback()
                 )
             end
         )
-
-        local theyAreAccepting = false
 
         TradingGroup.AcceptTrade:onClientEvent(
             function(data)
