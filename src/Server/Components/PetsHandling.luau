@@ -42,18 +42,12 @@ local RADIUS_MAP
 }
 
 local PET_MUL_SPEED = 50
-local TIME_MUL = 8
+local WOBBLE_TIME_MUL = 10
+local LOOK_AT_TIME_MUL = 6
 local WOBBLE_ANGLE = math.rad(1.25)
 --[[ @end_section Variables ]]
 
 
---[[
-    @TODO
-
-    FIX THE WEIRD ASS AFTER-WADDLE CUZ OF
-        if offset.Magnitude > 0.1 then return end
-    (i think at least lol)
-]]
 --[[ @section Utility Functions ]]
 --[[
     @usage Make the pet follow the player.
@@ -112,25 +106,23 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
 
                     local offset = targetPosition - petRootPart.Position
                     local step = offset.Unit * deltaTime * PET_MUL_SPEED
-                    local newPos = petRootPart.Position + step
-                    local movingRotation = Vector3.new(offset.Unit.X, 0, offset.Unit.Z).Unit
 
-                    local smoothRotation = petRootPart.CFrame.Rotation:Lerp(
-                        CFrame.lookAt(Vector3.zero, movingRotation).Rotation,
-                        deltaTime * 8
+                    local smoothLookAtMoveDirRotation = petRootPart.CFrame.Rotation:Lerp(
+                        CFrame.lookAt(Vector3.zero, Vector3.new(offset.Unit.X, 0, offset.Unit.Z).Unit).Rotation,
+                        deltaTime * LOOK_AT_TIME_MUL
                     )
 
                     local wobbleRotation = CFrame.Angles(
-                        math.sin(time() * TIME_MUL) * WOBBLE_ANGLE,
+                        math.sin(time() * WOBBLE_TIME_MUL) * WOBBLE_ANGLE,
                         0,
                         0
                     )
 
-                    petRootPart.CFrame = CFrame.new(newPos) * smoothRotation * wobbleRotation
+                    petRootPart.CFrame = CFrame.new(petRootPart.Position + step) * smoothLookAtMoveDirRotation * wobbleRotation
 
                     -- Cleanup.
                     do
-                        if offset.Magnitude > 0.1 then return end
+                        if offset.Magnitude > 1 then return end
                         movementConnection:Disconnect()
 
                         -- Face player after movement.
@@ -145,16 +137,16 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
                                     local flatFeetVec = Vector3.new(lookPos.X, 0, lookPos.Z)
                                     if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then break end
 
-                                    local smoothRotation = petRootPart.CFrame.Rotation:Lerp(
+                                    local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
                                         CFrame.lookAt(
                                             Vector3.zero,
                                             flatFeetVec.Unit
                                         ).Rotation,
 
-                                        dt * TIME_MUL
+                                        dt * LOOK_AT_TIME_MUL
                                     )
 
-                                    petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothRotation
+                                    petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothLookAtPlrDirRotation
                                 end
 
                                 isWaiting = false
