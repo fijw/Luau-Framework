@@ -47,6 +47,13 @@ local WOBBLE_ANGLE = math.rad(1.25)
 --[[ @end_section Variables ]]
 
 
+--[[
+    @TODO
+
+    FIX THE WEIRD ASS AFTER-WADDLE CUZ OF
+        if offset.Magnitude > 0.1 then return end
+    (i think at least lol)
+]]
 --[[ @section Utility Functions ]]
 --[[
     @usage Make the pet follow the player.
