@@ -78,8 +78,8 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
 
         -- Floor detection.
         do
-            local rayOrigin = targetPosition + Vector3.new(0, 50, 0)
-            local rayDirection = Vector3.new(0, -200, 0)
+            local rayOrigin = targetPosition
+            local rayDirection = Vector3.new(0, -1_000, 0)
 
             local rayParams = RaycastParams.new()
             rayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -95,6 +95,7 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
         end
 
         local isWaiting = true
+        local isNew = false
 
         -- Walking connection handling.
         do
@@ -122,20 +123,19 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
 
                     -- Cleanup.
                     do
-                        if offset.Magnitude > 1 then return end
-                        movementConnection:Disconnect()
+                        if offset.Magnitude > 1 then return end; movementConnection:Disconnect(); isWaiting = false
 
-                        -- Face player after movement.
-                        task.spawn(
-                            function()
-                                while true do
-                                    if not petModel or not petModel.Parent then break end
+                        -- Look at the player.
+                        do
+                            local lookAtConnection: RBXScriptConnection
 
-                                    local dt = RunService.Heartbeat:Wait()
+                            lookAtConnection = RunService.Heartbeat:Connect(
+                                function(deltaTime: number)
+                                    if not petModel or not petModel.Parent or isNew then lookAtConnection:Disconnect(); return end
                                     local lookPos = plrRootPart.Position - petRootPart.Position
 
                                     local flatFeetVec = Vector3.new(lookPos.X, 0, lookPos.Z)
-                                    if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then break end
+                                    if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then lookAtConnection:Disconnect(); return end
 
                                     local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
                                         CFrame.lookAt(
@@ -143,15 +143,13 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
                                             flatFeetVec.Unit
                                         ).Rotation,
 
-                                        dt * LOOK_AT_TIME_MUL
+                                        deltaTime * LOOK_AT_TIME_MUL
                                     )
 
                                     petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothLookAtPlrDirRotation
                                 end
-
-                                isWaiting = false
-                            end
-                        )
+                            )
+                        end
                     end
                 end
             )
@@ -166,7 +164,7 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
             }
         )
 
-        task.wait(randomWaitTime)
+        task.wait(randomWaitTime); isNew = true
     end
 end
 
