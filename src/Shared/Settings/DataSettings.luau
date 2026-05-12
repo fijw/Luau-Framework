@@ -116,7 +116,7 @@ local DataSettings
         } :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "testing123taster"
+    PLAYER_DATA_STORAGE_KEY = "teststart1234"
 }
 
 

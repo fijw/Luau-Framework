@@ -6,6 +6,7 @@
 --[[ @section Imports ]]
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Data = require(ReplicatedStorage.Assets.Pets.Data)
@@ -40,8 +41,9 @@ local RADIUS_MAP
     Default = { min = 5, max = 20 }
 }
 
-local PET_DIV_SPEED = 50
-local WADDLE_SPEED = 0.15
+local PET_MUL_SPEED = 50
+local TIME_MUL = 8
+local WOBBLE_ANGLE = math.rad(1.25)
 --[[ @end_section Variables ]]
 
 
@@ -57,7 +59,7 @@ local WADDLE_SPEED = 0.15
 
     @return void
 ]]
-local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plrRootPart: BasePart, plrChar: Model, animation: Animation)
+local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plrRootPart: BasePart, plrChar: Model)
     local petRootPart = petModel.PrimaryPart
     if not petRootPart then return end
 
@@ -71,10 +73,7 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
 
         local angle = math.rad(RNG.betterRandomNumber({ min = 0, max = 360 }))
         local distance = RNG.betterRandomNumber({ min = RadiusData.min, max = RadiusData.max })
-        local radiusOffset = Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
-
-        local targetPosition = plrRootPart.Position + radiusOffset
-        local tweenTime = (petRootPart.Position - targetPosition).Magnitude
+        local targetPosition = plrRootPart.Position + Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
 
         -- Floor detection.
         do
@@ -94,56 +93,72 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
             if not result then return end; targetPosition = result.Position + Vector3.new(0, petRootPart.Size.Y / 2, 0)
         end
 
-        local waddleDirection = 1
+        local isWaiting = true
 
-        for i = 1, math.max(1, math.ceil(tweenTime / (PET_DIV_SPEED * WADDLE_SPEED))) do
-            local remaining = targetPosition - petRootPart.Position
-            if remaining.Magnitude <= 0.01 then break end
+        -- Walking connection handling.
+        do
+            local movementConnection: RBXScriptConnection
+            
+            movementConnection = RunService.Heartbeat:Connect(
+                function(deltaTime: number)
+                    if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
 
-            local nextPosition = petRootPart.Position + remaining.Unit * math.min(PET_DIV_SPEED * WADDLE_SPEED, remaining.Magnitude)
+                    local offset = targetPosition - petRootPart.Position
+                    local step = offset.Unit * deltaTime * PET_MUL_SPEED
+                    local newPos = petRootPart.Position + step
+                    local movingRotation = Vector3.new(offset.Unit.X, 0, offset.Unit.Z).Unit
 
-            nextPosition
-            = CFrame.lookAt(
-                petRootPart.Position + remaining.Unit * math.min(PET_DIV_SPEED * WADDLE_SPEED, remaining.Magnitude),
-                Vector3.new(
-                    plrRootPart.Position.X,
-                    nextPosition.Y,
-                    plrRootPart.Position.Z
-                )
+                    local smoothRotation = petRootPart.CFrame.Rotation:Lerp(
+                        CFrame.lookAt(Vector3.zero, movingRotation).Rotation,
+                        deltaTime * 8
+                    )
+
+                    local wobbleRotation = CFrame.Angles(
+                        math.sin(time() * TIME_MUL) * WOBBLE_ANGLE,
+                        0,
+                        0
+                    )
+
+                    petRootPart.CFrame = CFrame.new(newPos) * smoothRotation * wobbleRotation
+
+                    -- Cleanup.
+                    do
+                        if offset.Magnitude > 0.1 then return end
+                        movementConnection:Disconnect()
+
+                        -- Face player after movement.
+                        task.spawn(
+                            function()
+                                while true do
+                                    if not petModel or not petModel.Parent then break end
+
+                                    local dt = RunService.Heartbeat:Wait()
+                                    local lookPos = plrRootPart.Position - petRootPart.Position
+
+                                    local flatFeetVec = Vector3.new(lookPos.X, 0, lookPos.Z)
+                                    if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then break end
+
+                                    local smoothRotation = petRootPart.CFrame.Rotation:Lerp(
+                                        CFrame.lookAt(
+                                            Vector3.zero,
+                                            flatFeetVec.Unit
+                                        ).Rotation,
+
+                                        dt * TIME_MUL
+                                    )
+
+                                    petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothRotation
+                                end
+
+                                isWaiting = false
+                            end
+                        )
+                    end
+                end
             )
-
-            TweensLib(
-                petRootPart,
-
-                WADDLE_SPEED,
-
-                Enum.EasingStyle.Sine,
-                Enum.EasingDirection.Out,
-
-                0,
-                false,
-                0,
-
-                { CFrame = nextPosition * CFrame.Angles(math.rad(10 * waddleDirection), 0, 0) }
-            ):waitForCompletion()
-
-            waddleDirection *= -1
-
-            TweensLib(
-                petRootPart,
-
-                WADDLE_SPEED,
-
-                Enum.EasingStyle.Sine,
-                Enum.EasingDirection.Out,
-
-                0,
-                false,
-                0,
-
-                { CFrame = nextPosition * CFrame.Angles(math.rad(0), 0, 0) }
-            ):waitForCompletion()
         end
+
+        repeat task.wait() until not isWaiting
 
         local randomWaitTime = RNG.betterRandomNumber(
             {
