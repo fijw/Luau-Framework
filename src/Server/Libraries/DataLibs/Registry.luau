@@ -97,7 +97,7 @@ local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 
-local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
+local DataSettings = require(ReplicatedStorage.FrameworkSettings.DataSettings)
 --[[ @end_section Imports ]]
 
 
