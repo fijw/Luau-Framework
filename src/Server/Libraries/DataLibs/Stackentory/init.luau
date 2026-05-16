@@ -1,3 +1,85 @@
+--[[
+    -------------------------------------------------------------------------
+    |                                                                       |
+    |    @author                                                            |
+    |    ```                                                                |
+    |        Roblox: @roblox_user_5618502527                                |
+    |        GitHub: @fijw (k4)                                             |
+    |        Twitter: @Xjwfi (k4)                                           |
+    |        Discord: @vfjx (k4)                                            |
+    |    ```                                                                |
+    |                                                                       |
+    |    @version 1.0.1                                                     |
+    |                                                                       |
+    |    @description                                                       |
+    |    ```                                                                |
+    |        Library for storing and managing player items. Includes        |
+    |        features such as duplicate-item-stacking for data              |
+    |        efficiency, subscription functions for items added and         |
+    |        removed, advanced stack fetching functions, and advanced       |
+    |        item addition and removal methods.                             |
+    |    ```                                                                |
+    |                                                                       |
+    -------------------------------------------------------------------------
+
+    @usage
+    ```luau
+        local function onPlayerAdded(player: Player)
+            local PlrDataClass = Registry(player)
+            if not PlrDataClass then return end
+
+            -- Initialize the player's inventory.
+            local oldInventoryState = if PlrDataClass()().Inventory then PlrDataClass()().Inventory() :: SavingInventoryClassSchema else nil
+            PlrDataClass()(Stackentory(oldInventoryState, 250), "Inventory")
+
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
+
+            -- Testing inventory functionality.
+            do
+                local ItemData = { name = "test", data = 123_456 }
+
+                Inventory += { itemId = "test_id_1", itemData = ItemData }
+                Inventory += { itemId = "test_id_2", itemData = ItemData }
+                Inventory -= "test_id_1"
+
+                if Inventory:fetchStackFromItemData(ItemData) then print(ItemData, "should only be 1") end
+                if Inventory:fetchStackFromItemId("test_id_1") then print("found, that's bad!") end
+            end
+
+            -- Add existing pets to the player's client inventory.
+            do
+                local PetsAddingToInventory = {}
+                
+                for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
+                    for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
+                        if PlrDataClass()().HealingData().HealingPets[id] then continue end
+                        PetsAddingToInventory[id] = SavingStackSchema.StackData
+                    end
+                end
+                
+                InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
+            end
+
+            -- Subscribe to the player's inventory.
+            do
+                Inventory:subscribeToItemsAdded(
+                    function(ItemData: PetSchema, itemId: string)
+                        InventoryGroup.AddPetsToInventory:fireClient(player, { [itemId] = ItemData })
+                    end
+                )
+
+                Inventory:subscribeToItemsRemoved(
+                    function(itemId: string)
+                        InventoryGroup.RemovePetsFromInventory:fireClient(player, { itemId })
+                    end
+                )
+            end
+        end
+
+        for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end
+        Players.PlayerAdded:Connect(onPlayerAdded)
+    ```
+]]
 --!strict
 --!native
 --!optimize 2

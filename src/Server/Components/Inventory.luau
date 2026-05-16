@@ -31,29 +31,6 @@ type SavingStackSchema<D> = StackingLib.SavingStackSchema<D>
 --[[ @end_section Types ]]
 
 
---[[
-    @usage Subscribe to the player's inventory.
-
-    @param player Player
-    @param Inventory InventoryClass
-
-    @return void
-]]
-local function subscribeToInventory(player: Player, Inventory: InventoryClass)
-    Inventory:subscribeToItemsAdded(
-        function(ItemData: PetSchema, itemId: string)
-            InventoryGroup.AddPetsToInventory:fireClient(player, { [itemId] = ItemData })
-        end
-    )
-
-    Inventory:subscribeToItemsRemoved(
-        function(itemId: string)
-            InventoryGroup.RemovePetsFromInventory:fireClient(player, { itemId })
-        end
-    )
-end
-
-
 --[[ @section Constructor ]]
 --[[
     @usage Initialize the component.
@@ -87,7 +64,20 @@ local function constuctorCallback()
                 InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
             end
 
-            subscribeToInventory(player, Inventory)
+            -- Subscribe to the player's inventory.
+            do
+                Inventory:subscribeToItemsAdded(
+                    function(ItemData: PetSchema, itemId: string)
+                        InventoryGroup.AddPetsToInventory:fireClient(player, { [itemId] = ItemData })
+                    end
+                )
+
+                Inventory:subscribeToItemsRemoved(
+                    function(itemId: string)
+                        InventoryGroup.RemovePetsFromInventory:fireClient(player, { itemId })
+                    end
+                )
+            end
         end
 
         for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end

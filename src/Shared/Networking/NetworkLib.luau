@@ -1,3 +1,129 @@
+--[[
+    -------------------------------------------------------------------------
+    |                                                                       |
+    |    @author                                                            |
+    |    ```                                                                |
+    |        Roblox: @roblox_user_5618502527                                |
+    |        GitHub: @fijw (k4)                                             |
+    |        Twitter: @Xjwfi (k4)                                           |
+    |        Discord: @vfjx (k4)                                            |
+    |    ```                                                                |
+    |                                                                       |
+    |    @version 1.0.2                                                     |
+    |                                                                       |
+    |    @description                                                       |
+    |    ```                                                                |
+    |        Library for managing client-server interactions with type      |
+    |        checking features built-in. This library was built mainly      |
+    |        for better security purposes and encoded / bufferized data.    |
+    |        Each packet should have all of the functionality of the        |
+    |        inputted remote type, eg. RemoteEvent or RemoteFunction.       |
+    |    ```                                                                |
+    |                                                                       |
+    -------------------------------------------------------------------------
+
+    @usage
+    ```luau
+        -- Packet group module script located in ReplicatedStorage.
+        do
+            local Packets
+            = {
+                TestEvent = NetworkLib("testing_test_event", "Event",
+                    {
+                        clientType = { data1 = "data", data2 = "data" },
+                        serverType = { data1 = "data", data2 = "data" }
+                    }
+                ),
+
+                TestFunction = NetworkLib("testing_test_function", "Function",
+                    {
+                        clientType = { data1 = "data", data2 = "data" },
+                        serverType = { data1 = "data", data2 = "data" }
+                    }
+                )
+            }
+
+            return Packets
+        end
+
+
+        -- Server script located in ServerScriptService.
+        do
+            path.to.Packets.TestEvent:onServerEvent(
+                function(sender, data)
+                    if not sender then return end
+                    -- Server event logic here.
+                end
+            )
+
+            path.to.Packets.TestFunction:onServerInvoke(
+                function(sender, data)
+                    local ReturningCrates = { data1 = "data", data2 = "data" }
+
+                    -- Server invoke logic here.
+                    do
+                        ReturningCrates.data1 = "data"
+                        ReturningCrates.data2 = "data"
+                    end
+
+                    return ReturningCrates
+                end
+            )
+        end
+
+        -- Client script located in StarterPlayerScripts.
+        do
+            path.to.Packets.TestEvent:onClientEvent(
+                function(data)
+                    -- Client event logic here.
+                end
+            )
+
+            path.to.Packets.TestFunction:onClientInvoke(
+                function(data)
+                    local ReturningCrates = { data1 = "data", data2 = "data" }
+
+                    -- Client invoke logic here.
+                    do
+                        ReturningCrates.data1 = "data"
+                        ReturningCrates.data2 = "data"
+                    end
+
+                    return ReturningCrates
+                end
+            )
+        end
+
+
+        -- Usages.
+        do
+            -- All client usages.
+            do
+                Packets.TestEvent:fireServer({ data1 = "data", data2 = "data" })
+
+                local data = Packets.TestFunction:invokeServer({ data1 = "data", data2 = "data" })
+                print(data, "server response")
+
+                Packets.TestEvent:disconnectAllFromSide()
+                Packets.TestFunction:disconnectAllFromSide()
+            end
+
+            -- All server usages.
+            do
+                Packets.TestEvent:fireAllClients({ data1 = "data", data2 = "data" })
+
+                local targetPlr: Player = nil :: any
+                Packets.TestEvent:fireClient(targetPlr, { data1 = "data", data2 = "data" })
+
+                local data = Packets.TestFunction:invokeClient(targetPlr, { data1 = "data", data2 = "data" })
+                print(data, "client response")
+
+                Packets.TestEvent:disconnectAllFromSide()
+                Packets.TestFunction:disconnectAllFromSide()
+            end
+        end
+    ```
+]]
 --!strict
 --!native
 --!optimize 2
@@ -47,7 +173,9 @@ export type Packet<C, S> = setmetatable
         securityTag: string,
 
         serverConnection: RBXScriptConnection?,
-        clientConnection: RBXScriptConnection?
+        clientConnection: RBXScriptConnection?,
+
+        isEventOrRemote: "Event" | "Function"
     },
 
     {
@@ -66,7 +194,7 @@ export type Packet<C, S> = setmetatable
             onClientInvoke: (self: Packet<C, S>, callback: ClientRemoteFunctionCallbackType<C, S>) -> (S),
             onServerInvoke: (self: Packet<C, S>, callback: ServerRemoteFunctionCallbackType<C, S>) -> (C),
 
-            disconnectAll: (self: Packet<C, S>) -> ()
+            disconnectAllFromSide: (self: Packet<C, S>) -> ()
         }
     }
 >
@@ -93,7 +221,7 @@ local CachedPackets = {}
     @return void
 ]]
 local function fireClientCallback<C>(self: Packet<any, any>, player: Player, data: C)
-    if isClient then return end
+    if isClient or self.isEventOrRemote ~= "Event" then return end
 
     local CompressedData = {}
 
@@ -127,7 +255,7 @@ end
     @return void
 ]]
 local function fireAllClientsCallback<C>(self: Packet<any, any>, data: C)
-    if isClient then return end
+    if isClient or self.isEventOrRemote ~= "Event" then return end
 
     local CompressedData = {}
 
@@ -161,7 +289,7 @@ end
     @return void
 ]]
 local function fireServerCallback<S>(self: Packet<any, any>, data: S)
-    if not isClient then return end
+    if not isClient or self.isEventOrRemote ~= "Event" then return end
 
     local player = Players.LocalPlayer :: Player
     if not player then return end
@@ -196,7 +324,7 @@ end
     @return any
 ]]
 local function invokeClientCallback<C>(self: Packet<any, any>, player: Player, data: C): any
-    if isClient then return end
+    if isClient or self.isEventOrRemote ~= "Function" then return end
 
     local CompressedData = {}
 
@@ -230,7 +358,7 @@ end
     @return any
 ]]
 local function invokeServerCallback<S>(self: Packet<any, any>, data: S): any
-    if not isClient then return end
+    if not isClient or self.isEventOrRemote ~= "Function" then return end
 
     local CompressedData = {}
 
@@ -259,7 +387,7 @@ end
     @return void
 ]]
 local function onClientEventCallback<C>(self: Packet<any, any>, callback: ClientRemoteEventCallbackType<C>)
-    if not isClient then return end
+    if not isClient or self.isEventOrRemote ~= "Event" then return end
 
     self.clientConnection
     = (self.clientRemote :: RemoteEvent).OnClientEvent:Connect(
@@ -289,7 +417,7 @@ end
     @return void
 ]]
 local function onServerEventCallback<S>(self: Packet<any, any>, callback: ServerRemoteEventCallbackType<S>)
-    if isClient then return end
+    if isClient or self.isEventOrRemote ~= "Event" then return end
 
     local remoteEvent = script:FindFirstChild(self.packetId) :: RemoteEvent
     if not remoteEvent then return end
@@ -322,7 +450,7 @@ end
     @return void
 ]]
 local function onClientInvokeCallback<C, S>(self: Packet<any, any>, callback: ClientRemoteFunctionCallbackType<C, S>)
-    if not isClient then return end
+    if not isClient or self.isEventOrRemote ~= "Function" then return end
 
     (self.clientRemote :: RemoteFunction).OnClientInvoke
     = function(data: buffer, securityTag: buffer): S
@@ -353,7 +481,7 @@ end
     @return void
 ]]
 local function onServerInvokeCallback<C, S>(self: Packet<any, any>, callback: ServerRemoteFunctionCallbackType<C, S>)
-    if isClient then return end
+    if isClient or self.isEventOrRemote ~= "Function" then return end
 
     local remoteFunction = script:FindFirstChild(self.packetId) :: RemoteFunction
     if not remoteFunction then return end
@@ -387,12 +515,14 @@ end
 
     @return void
 ]]
-local function disconnectAllCallback(self: Packet<any, any>)
+local function disconnectAllFromSideCallback(self: Packet<any, any>)
     if self.serverConnection then self.serverConnection:Disconnect(); self.serverConnection = nil end
     if self.clientConnection then self.clientConnection:Disconnect(); self.clientConnection = nil end
 
     -- Disconnect the remote functions.
     do
+        if self.isEventOrRemote == "Event" then return end
+
         local clientRemoteFunction = script:FindFirstChild(self.packetId) :: RemoteFunction
         local serverRemoteFunction = script:FindFirstChild(self.packetId) :: RemoteFunction
 
@@ -424,7 +554,7 @@ local function constructorCallback<C, S>
     if CachedPackets[packetId] then return CachedPackets[packetId] end
 
     local NewPacket
-    = setmetatable({ packetId = packetId, securityTag = StringToHex.convert(packetId) }, 
+    = setmetatable({ packetId = packetId, securityTag = StringToHex.convert(packetId), isEventOrRemote = type }, 
         {
             __index
             = {
@@ -441,7 +571,7 @@ local function constructorCallback<C, S>
                 onClientInvoke = onClientInvokeCallback,
                 onServerInvoke = onServerInvokeCallback,
 
-                disconnectAll = disconnectAllCallback
+                disconnectAllFromSide = disconnectAllFromSideCallback
             }
         }
     ) :: Packet<C, S>;

@@ -124,32 +124,29 @@ local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plr
                     -- Cleanup.
                     do
                         if offset.Magnitude > 1 then return end; movementConnection:Disconnect(); isWaiting = false
+                        
+                        local lookPos = plrRootPart.Position - petRootPart.Position
+                        local flatFeetVec = Vector3.new(lookPos.X, 0, lookPos.Z)
 
-                        -- Look at the player.
-                        do
-                            local lookAtConnection: RBXScriptConnection
+                        local lookAtConnection: RBXScriptConnection
 
-                            lookAtConnection = RunService.Heartbeat:Connect(
-                                function(deltaTime: number)
-                                    if not petModel or not petModel.Parent or isNew then lookAtConnection:Disconnect(); return end
-                                    local lookPos = plrRootPart.Position - petRootPart.Position
+                        lookAtConnection = RunService.Heartbeat:Connect(
+                            function(deltaTime: number)
+                                if not petModel or not petModel.Parent or isNew then lookAtConnection:Disconnect(); return end
+                                if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then lookAtConnection:Disconnect(); return end
 
-                                    local flatFeetVec = Vector3.new(lookPos.X, 0, lookPos.Z)
-                                    if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then lookAtConnection:Disconnect(); return end
+                                local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
+                                    CFrame.lookAt(
+                                        Vector3.zero,
+                                        flatFeetVec.Unit
+                                    ).Rotation,
 
-                                    local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
-                                        CFrame.lookAt(
-                                            Vector3.zero,
-                                            flatFeetVec.Unit
-                                        ).Rotation,
+                                    deltaTime * LOOK_AT_TIME_MUL
+                                )
 
-                                        deltaTime * LOOK_AT_TIME_MUL
-                                    )
-
-                                    petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothLookAtPlrDirRotation
-                                end
-                            )
-                        end
+                                petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothLookAtPlrDirRotation
+                            end
+                        )
                     end
                 end
             )

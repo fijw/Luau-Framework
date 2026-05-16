@@ -61,11 +61,7 @@ local function constructorCallback()
                 local FoundStack = Inventory:fetchStackFromItemData(data)
                 if not FoundStack then return end
 
-                for i: number, id: string in ipairs(FoundStack.StackArray()) do
-                    --if FoundStack.StackData.locked then if table.find(FoundStack.StackData.locked, id) then continue end end
-                    PetsAddingToMergingSlots[id] = FoundStack.StackData
-                end
-
+                for i: number, id: string in ipairs(FoundStack.StackArray()) do PetsAddingToMergingSlots[id] = FoundStack.StackData end
                 MergingGroup.AddPetsToMergingSlots:fireClient(sender, PetsAddingToMergingSlots)
             end
         end
@@ -89,11 +85,7 @@ local function constructorCallback()
                 
                 for i: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
                     if not string.find(SavingStackSchema.StackData.petName:lower(), data:lower()) then continue end
-
-                    for i: number, id: string in ipairs(SavingStackSchema.StackArray) do
-                        --if SavingStackSchema.StackData.locked then if table.find(SavingStackSchema.StackData.locked, id) then continue end end
-                        PetsAddingToMergingSlots[id] = SavingStackSchema.StackData
-                    end
+                    for i: number, id: string in ipairs(SavingStackSchema.StackArray) do PetsAddingToMergingSlots[id] = SavingStackSchema.StackData end
                 end
 
                 MergingGroup.AddPetsToMergingSlots:fireClient(sender, PetsAddingToMergingSlots)
@@ -118,10 +110,7 @@ local function constructorCallback()
                 local PetsAddingToMergingSlots = {}
                 
                 for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
-                    for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
-                        --if SavingStackSchema.StackData.Locked then if table.find(SavingStackSchema.StackData.Locked, id) then continue end end
-                        PetsAddingToMergingSlots[id] = SavingStackSchema.StackData
-                    end
+                    for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do PetsAddingToMergingSlots[id] = SavingStackSchema.StackData end
                 end
                 
                 MergingGroup.AddPetsToMergingSlots:fireClient(sender, PetsAddingToMergingSlots)
