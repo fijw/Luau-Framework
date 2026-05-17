@@ -202,6 +202,8 @@ local function constructorCallback()
 
     -- Networking connections.
     do
+        InventoryGroup.UpdatePetsEquippedText:onClientEvent(function(data) equippedText.Text = `{data} Pets Equipped` end)
+
         InventoryGroup.AddPetsToInventory:onClientEvent(
             function(data: { [string]: PetSchema })
                 for i: string, PetSchema: PetSchema in pairs(data) do
@@ -310,16 +312,18 @@ local function constructorCallback()
                                 local foundEquipIndex = table.find(PetSchema.Equipped or {}, i)
 
                                 if foundEquipIndex then
-                                    table.remove(PetSchema.Equipped or {}, foundEquipIndex)
-                                    PetsHandlingGroup.UnequipPet:fireServer(i)
+                                    local status = PetsHandlingGroup.UnequipPet:invokeServer(i)
+                                    if status then table.remove(PetSchema.Equipped or {}, foundEquipIndex) end
 
                                     local foundTick = newPetLabel:FindFirstChild("SelectTick")
-                                    if foundTick then foundTick:Destroy() end
+                                    if status and foundTick then foundTick:Destroy() end
                                 else
-                                    PetsHandlingGroup.EquipPet:fireServer(i)
-                                    table.insert(PetSchema.Equipped or {}, i)
+                                    local status = PetsHandlingGroup.EquipPet:invokeServer(i)
 
-                                    createTick(newPetLabel, "selected")
+                                    if status then
+                                        table.insert(PetSchema.Equipped or {}, i)
+                                        createTick(newPetLabel, "selected")
+                                    end
                                 end
                             end
                         end

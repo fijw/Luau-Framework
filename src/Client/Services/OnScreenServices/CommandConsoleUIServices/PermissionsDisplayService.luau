@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 
-local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
+local CmdsSettings = require(ReplicatedStorage.FrameworkSettings.CmdsSettings)
 
 local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 --[[ @end_section Imports ]]

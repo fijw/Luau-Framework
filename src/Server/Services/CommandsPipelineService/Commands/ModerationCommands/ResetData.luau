@@ -20,7 +20,7 @@ local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
 
-local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
+local DataSettings = require(ReplicatedStorage.FrameworkSettings.DataSettings)
 --[[ @end_section Imports ]]
 
 

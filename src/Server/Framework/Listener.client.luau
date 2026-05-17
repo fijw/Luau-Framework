@@ -29,6 +29,7 @@ local MergePetsMachineComponent = StarterPlayer.StarterPlayerScripts.Components.
 local HealingMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.HealingMachine
 local SendTradeComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.SendTrade
 local InTradeComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.InTrade
+local PetFollowingComponent = StarterPlayer.StarterPlayerScripts.Components.PetFollowing
 
 
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
@@ -55,7 +56,8 @@ local ModulesToLoad
     [HealingMachineComponent.Name] = HealingMachineComponent,
     [SendTradeComponent.Name] = SendTradeComponent,
     [ScreenComponent.Name] = ScreenComponent,
-    [InTradeComponent.Name] = InTradeComponent
+    [InTradeComponent.Name] = InTradeComponent,
+    [PetFollowingComponent.Name] = PetFollowingComponent
 }
 
 local NUM_OF_RETRIES = 10

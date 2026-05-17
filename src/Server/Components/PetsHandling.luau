@@ -17,6 +17,7 @@ local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.Stacking)
 
+local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
 local PetsHandlingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.PetsHandling)
 --[[ @end_section Imports ]]
 
@@ -31,21 +32,7 @@ type StackClass<D> = StackingLib.StackClass<D>
 --[[ @end_section Types ]]
 
 
---[[ @section Variables ]]
 local CachedEquippedPets: { [Player]: { [string]: { PetData: PetSchema, model: Model } } } = {}
-
-local RADIUS_MAP
-= {
-    Gigantic = { min = 5 * 12, max = 20 * 3 },
-    Huge = { min = 5 * 6, max = 20 * 2 },
-    Default = { min = 5, max = 20 }
-}
-
-local PET_MUL_SPEED = 50
-local WOBBLE_TIME_MUL = 10
-local LOOK_AT_TIME_MUL = 6
-local WOBBLE_ANGLE = math.rad(1.25)
---[[ @end_section Variables ]]
 
 
 --[[ @section Utility Functions ]]
@@ -53,115 +40,68 @@ local WOBBLE_ANGLE = math.rad(1.25)
     @usage Make the pet follow the player.
 
     @param petModel Model
+    @param petId string
     @param PetData PetSchema
     @param plr Player
-    @param plrRootPart BasePart
-    @param plrChar Model
 
     @return void
 ]]
-local function followOwner(petModel: Model, PetData: PetSchema, plr: Player, plrRootPart: BasePart, plrChar: Model)
+local function followOwner(petModel: Model, petId: string, PetData: PetSchema, plr: Player)
     local petRootPart = petModel.PrimaryPart
     if not petRootPart then return end
 
-    petRootPart.CFrame = plrRootPart.CFrame
+    local NewCachedEquippedPets: { [string]: PetSchema } = {}
 
-    local RadiusData = RADIUS_MAP[PetData.PetStats.size]
-    if not RadiusData then return end
+    for i: string, CachedData: { PetData: PetSchema, model: Model } in pairs(CachedEquippedPets[plr]) do
+        NewCachedEquippedPets[i] = CachedData.PetData
+    end
 
-    while true do
-        if not petModel or not petModel.Parent then break end
+    PetsHandlingGroup.UpdatePetFollowingPosition:fireAllClients(
+        {
+            petId = petId,
+            PetData = PetData,
+            ownerId = plr.UserId,
+            instaTravel = true,
+            CachedEquippedPets = NewCachedEquippedPets
+        }
+    )
 
-        local angle = math.rad(RNG.betterRandomNumber({ min = 0, max = 360 }))
-        local distance = RNG.betterRandomNumber({ min = RadiusData.min, max = RadiusData.max })
-        local targetPosition = plrRootPart.Position + Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
+    local isWaiting = false
 
-        -- Floor detection.
-        do
-            local rayOrigin = targetPosition
-            local rayDirection = Vector3.new(0, -1_000, 0)
+    -- Heartbeat loop while the pet is equipped.
+    do
+        local heartbeatConnection: RBXScriptConnection
 
-            local rayParams = RaycastParams.new()
-            rayParams.FilterType = Enum.RaycastFilterType.Exclude
-            rayParams.FilterDescendantsInstances = { plrChar }
+        heartbeatConnection = RunService.Heartbeat:Connect(
+            function(deltaTime: number)
+                if not petModel or not petModel.Parent then heartbeatConnection:Disconnect(); return end; if isWaiting then return end
+                isWaiting = true
 
-            for i: string, CacheData: { PetData: PetSchema, model: Model } in pairs(CachedEquippedPets[plr]) do
-                local OldFilter = rayParams.FilterDescendantsInstances; table.insert(OldFilter, CacheData.model)
-                rayParams.FilterDescendantsInstances = OldFilter
-            end
+                local HeartbeatEquippedPets: { [string]: PetSchema } = {}
 
-            local result = workspace:Raycast(rayOrigin, rayDirection, rayParams)
-            if not result then return end; targetPosition = result.Position + Vector3.new(0, petRootPart.Size.Y / 2, 0)
-        end
-
-        local isWaiting = true
-        local isNew = false
-
-        -- Walking connection handling.
-        do
-            local movementConnection: RBXScriptConnection
-            
-            movementConnection = RunService.Heartbeat:Connect(
-                function(deltaTime: number)
-                    if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
-
-                    local offset = targetPosition - petRootPart.Position
-                    local step = offset.Unit * deltaTime * PET_MUL_SPEED
-
-                    local smoothLookAtMoveDirRotation = petRootPart.CFrame.Rotation:Lerp(
-                        CFrame.lookAt(Vector3.zero, Vector3.new(offset.Unit.X, 0, offset.Unit.Z).Unit).Rotation,
-                        deltaTime * LOOK_AT_TIME_MUL
-                    )
-
-                    local wobbleRotation = CFrame.Angles(
-                        math.sin(time() * WOBBLE_TIME_MUL) * WOBBLE_ANGLE,
-                        0,
-                        0
-                    )
-
-                    petRootPart.CFrame = CFrame.new(petRootPart.Position + step) * smoothLookAtMoveDirRotation * wobbleRotation
-
-                    -- Cleanup.
-                    do
-                        if offset.Magnitude > 1 then return end; movementConnection:Disconnect(); isWaiting = false
-                        
-                        local lookPos = plrRootPart.Position - petRootPart.Position
-                        local flatFeetVec = Vector3.new(lookPos.X, 0, lookPos.Z)
-
-                        local lookAtConnection: RBXScriptConnection
-
-                        lookAtConnection = RunService.Heartbeat:Connect(
-                            function(deltaTime: number)
-                                if not petModel or not petModel.Parent or isNew then lookAtConnection:Disconnect(); return end
-                                if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then lookAtConnection:Disconnect(); return end
-
-                                local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
-                                    CFrame.lookAt(
-                                        Vector3.zero,
-                                        flatFeetVec.Unit
-                                    ).Rotation,
-
-                                    deltaTime * LOOK_AT_TIME_MUL
-                                )
-
-                                petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothLookAtPlrDirRotation
-                            end
-                        )
-                    end
+                for i: string, CachedData: { PetData: PetSchema, model: Model } in pairs(CachedEquippedPets[plr]) do
+                    HeartbeatEquippedPets[i] = CachedData.PetData
                 end
-            )
-        end
 
-        repeat task.wait() until not isWaiting
+                PetsHandlingGroup.UpdatePetFollowingPosition:fireAllClients(
+                    {
+                        petId = petId,
+                        PetData = PetData,
+                        ownerId = plr.UserId,
+                        CachedEquippedPets = HeartbeatEquippedPets
+                    }
+                )
 
-        local randomWaitTime = RNG.betterRandomNumber(
-            {
-                min = RNG.betterRandomNumber({ min = 1, max = 3 }),
-                max = RNG.betterRandomNumber({ min = 3, max = 10 })
-            }
+                local randomWaitTime = RNG.betterRandomNumber(
+                    {
+                        min = RNG.betterRandomNumber({ min = 1, max = 3 }),
+                        max = RNG.betterRandomNumber({ min = 3, max = 10 })
+                    }
+                )
+
+                task.wait(randomWaitTime); isWaiting = false
+            end
         )
-
-        task.wait(randomWaitTime); isNew = true
     end
 end
 
@@ -177,11 +117,6 @@ end
     @return void
 ]]
 local function equipPet(sender: Player, data: string, PetsFolder: Folder, GamePetsFolder: Folder, isJoining: boolean)
-    local plrChar: Model = sender.Character :: Model
-    if not plrChar then repeat task.wait() until sender.Character; plrChar = sender.Character :: Model end
-
-    local plrRootPart = plrChar:WaitForChild("HumanoidRootPart") :: BasePart
-
     local PlrDataClass = Registry(sender)
     if not PlrDataClass then return end
 
@@ -192,7 +127,15 @@ local function equipPet(sender: Player, data: string, PetsFolder: Folder, GamePe
     if not FoundStack then return end
 
     if table.find(FoundStack.StackData.Equipped or {}, data) and not isJoining then return end
-    if not isJoining then table.insert(FoundStack.StackData.Equipped or {}, data) end
+
+    if not isJoining then
+        table.insert(FoundStack.StackData.Equipped or {}, data)
+
+        local newEquippedNum = PlrDataClass()().currentNumOfPetsEquipped() + 1
+        PlrDataClass()().currentNumOfPetsEquipped(newEquippedNum)
+
+        InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
+    end
 
     -- Create the pet model and cache it.
     do
@@ -227,7 +170,7 @@ local function equipPet(sender: Player, data: string, PetsFolder: Folder, GamePe
         end
 
         CachedEquippedPets[sender][data] = { model = clonedPetModel :: Model, PetData = FoundStack.StackData }
-        task.spawn(function() followOwner(clonedPetModel, FoundStack.StackData, sender, plrRootPart, plrChar, animation) end)
+        followOwner(clonedPetModel, data, FoundStack.StackData, sender)
     end
 end
 
@@ -259,6 +202,11 @@ local function unequipPetFunction(sender: Player, data: { PetData: PetSchema, pe
 
             table.remove(FoundStack.StackData.Equipped or {}, foundEquippedIndex)
         end
+
+        local newEquippedNum = PlrDataClass()().currentNumOfPetsEquipped() - 1
+        PlrDataClass()().currentNumOfPetsEquipped(newEquippedNum)
+
+        InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
     end
 
     local FoundCachedPet = CachedEquippedPets[sender][data.petId]
@@ -304,6 +252,8 @@ local function constructorCallback()
             end
         end
 
+        InventoryGroup.UpdatePetsEquippedText:fireClient(plr, `{PlrDataClass()().currentNumOfPetsEquipped()}/{PlrDataClass()().maxPetsEquipped()}`)
+
         task.spawn(
             function()
                 while true do
@@ -320,6 +270,7 @@ local function constructorCallback()
                         if FoundStack then continue end
 
                         unequipPetFunction(plr, { petId = i, PetData = data.PetData })
+                        InventoryGroup.UpdatePetsEquippedText:fireClient(plr, `{FreshPlrDataClass()().currentNumOfPetsEquipped()}/{FreshPlrDataClass()().maxPetsEquipped()}`)
                     end
                 end
             end
@@ -340,17 +291,26 @@ local function constructorCallback()
         end
     )
 
-    PetsHandlingGroup.EquipPet:onServerEvent(
+    PetsHandlingGroup.EquipPet:onServerInvoke(
         function(sender, data)
-            if not sender then return end
+            if not sender then return false end
+
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return false end
+
+            if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
             equipPet(sender, data, PetsFolder, GamePetsFolder, false)
+
+            return true
         end
     )
 
-    PetsHandlingGroup.UnequipPet:onServerEvent(
+    PetsHandlingGroup.UnequipPet:onServerInvoke(
         function(sender, data)
-            if not sender or not CachedEquippedPets[sender][data] then return end
+            if not sender or not CachedEquippedPets[sender][data] then return false end
             unequipPetFunction(sender, { petId = data, PetData = CachedEquippedPets[sender][data].PetData })
+
+            return true
         end
     )
 end

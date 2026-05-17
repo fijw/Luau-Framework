@@ -17,17 +17,33 @@ type PetSchema = Data.PetSchema
 
 local Packets
 = {
-    EquipPet = NetworkLib("ph_equip_pet", "Event",
+    EquipPet = NetworkLib("ph_equip_pet", "Function",
         {
-            clientType = nil,
+            clientType = true or false,
             serverType = "pet_id"
         }
     ),
 
-    UnequipPet = NetworkLib("ph_unequip_pet", "Event",
+    UnequipPet = NetworkLib("ph_unequip_pet", "Function",
         {
-            clientType = nil,
+            clientType = true or false,
             serverType = "pet_id"
+        }
+    ),
+
+
+    UpdatePetFollowingPosition = NetworkLib("ph_update_pet_position", "Event",
+        {
+            clientType
+            = {
+                petId = "",
+                PetData = {} :: PetSchema,
+                ownerId = 0,
+                instaTravel = nil :: true?,
+                CachedEquippedPets = {} :: { [string]: PetSchema },
+            },
+
+            serverType = nil
         }
     )
 }

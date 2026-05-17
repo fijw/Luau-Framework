@@ -12,7 +12,7 @@ local MarketplaceService = game:GetService("MarketplaceService")
 
 local ChatWindowConfiguration = TextChatService.ChatWindowConfiguration
 
-local ChatSettings = require(ReplicatedStorage.Settings.ChatSettings)
+local ChatSettings = require(ReplicatedStorage.FrameworkSettings.ChatSettings)
 --[[ @end_section Imports ]]
 
 

@@ -11,7 +11,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 
-local CmdsSettings = require(ReplicatedStorage.Settings.CmdsSettings)
+local CmdsSettings = require(ReplicatedStorage.FrameworkSettings.CmdsSettings)
 --[[ @end_section Imports ]]
 
 

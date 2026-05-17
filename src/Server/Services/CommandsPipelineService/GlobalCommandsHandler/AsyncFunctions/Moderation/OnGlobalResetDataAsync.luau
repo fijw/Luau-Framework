@@ -14,7 +14,7 @@ local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
 local Types = require(script.Parent.Parent.Parent.Types)
 
-local DataSettings = require(ReplicatedStorage.Settings.DataSettings)
+local DataSettings = require(ReplicatedStorage.FrameworkSettings.DataSettings)
 --[[ @end_section Imports ]]
 
 

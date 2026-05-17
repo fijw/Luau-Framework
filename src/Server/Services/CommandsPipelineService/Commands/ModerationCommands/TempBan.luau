@@ -20,7 +20,7 @@ local TimeLib = require(ReplicatedStorage.Libraries.TimeLib)
 
 local GlobalCommandsHandlerTypes = require(ServerScriptService.Services.CommandsPipelineService.GlobalCommandsHandler.Types)
 
-local Settings = require(ReplicatedStorage.Settings)
+local DataSettings = require(ReplicatedStorage.FrameworkSettings.DataSettings)
 --[[ @end_section Imports ]]
 
 
@@ -28,7 +28,7 @@ type DecompressedDataSchema = GlobalCommandsHandlerTypes.DecompressedDataSchema
 type TimeFrameTypes = TimeLib.TimeFrameTypes
 
 
-local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
+local DataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE_KEY)
 
 
 --[[ @section Constructor ]]

@@ -66,6 +66,14 @@ local Packets
             clientType = nil,
             serverType = { "pet_id" }
         }
+    ),
+
+
+    UpdatePetsEquippedText = NetworkLib("it_update_pets_equipped_text", "Event",
+        {
+            clientType = "used_slots/max_slots",
+            serverType = nil
+        }
     )
 }
 

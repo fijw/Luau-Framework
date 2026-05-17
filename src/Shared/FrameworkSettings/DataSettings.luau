@@ -50,7 +50,10 @@ export type DataTemplateSchema = setmetatable
                 usedHealingSlots: number,
                 maxHealingSlots: number
             }
-        >
+        >,
+
+        maxPetsEquipped: StateEngine<number>,
+        currentNumOfPetsEquipped: StateEngine<number>
     },
 
     {
@@ -113,10 +116,13 @@ local DataSettings
 
             usedHealingSlots = 0,
             maxHealingSlots = 10
-        } :: any
+        } :: any,
+
+        maxPetsEquipped = 5 :: any,
+        currentNumOfPetsEquipped = 0 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "teststart12345"
+    PLAYER_DATA_STORAGE_KEY = "teststarloldata2"
 }
 
 

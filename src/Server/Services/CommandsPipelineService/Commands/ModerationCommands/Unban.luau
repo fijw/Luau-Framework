@@ -15,11 +15,11 @@ local RNG = require(ReplicatedStorage.Libraries.RNG)
 local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 
-local Settings = require(ReplicatedStorage.Settings)
+local DataSettings = require(ReplicatedStorage.FrameworkSettings.DataSettings)
 --[[ @end_section Imports ]]
 
 
-local DataStore = DataStoreService:GetDataStore(Settings.DataSettings.PLAYER_DATA_STORAGE_KEY)
+local DataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE_KEY)
 
 
 --[[ @section Constructor ]]

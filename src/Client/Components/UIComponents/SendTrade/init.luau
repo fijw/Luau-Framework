@@ -153,36 +153,33 @@ local function constructorCallback()
     HandledUI:hoverAndToggleSizing(1.15)
     HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
-    -- Networking connections.
-    do
-        TradingGroup.SendTradeRequest:onClientEvent(
-            function(data)
-                local TradeRequestHandledUI = UIUtilitiesLibrary("trade_request", TradeRequestComponents().tradeRequest)
-                TradeRequestHandledUI:hoverAndToggleSizing(1.15)
-                TradeRequestHandledUI:setFocus( { "Screen", "Notification", "AreYouSure", "TradeRequest" } )
-                
-                TradeRequestComponents().tradeRequestText.Text = `You received a trade request from {data}.<br /><br />Would you like to accept?`
+    TradingGroup.SendTradeRequest:onClientEvent(
+        function(data)
+            local TradeRequestHandledUI = UIUtilitiesLibrary("trade_request", TradeRequestComponents().tradeRequest)
+            TradeRequestHandledUI:hoverAndToggleSizing(1.15)
+            TradeRequestHandledUI:setFocus( { "Screen", "Notification", "AreYouSure", "TradeRequest" } )
+            
+            TradeRequestComponents().tradeRequestText.Text = `You received a trade request from {data}.<br /><br />Would you like to accept?`
 
-                TradeRequestHandledUI:handleButtonPress(TradeRequestComponents().acceptBtn,
-                    function(pos1: number, pos2: number)
-                        TradingGroup.AcceptTradeRequest:fireServer()
+            TradeRequestHandledUI:handleButtonPress(TradeRequestComponents().acceptBtn,
+                function(pos1: number, pos2: number)
+                    TradingGroup.AcceptTradeRequest:fireServer()
 
-                        TradeRequestHandledUI:removeFocus({ clonedSendTrade.Name })
-                        TradeRequestHandledUI:destroy()
-                    end
-                )
+                    TradeRequestHandledUI:removeFocus({ clonedSendTrade.Name })
+                    TradeRequestHandledUI:destroy()
+                end
+            )
 
-                TradeRequestHandledUI:handleButtonPress(TradeRequestComponents().declineBtn,
-                    function(pos1: number, pos2: number)
-                        TradingGroup.DeclineTradeRequest:fireServer()
+            TradeRequestHandledUI:handleButtonPress(TradeRequestComponents().declineBtn,
+                function(pos1: number, pos2: number)
+                    TradingGroup.DeclineTradeRequest:fireServer()
 
-                        TradeRequestHandledUI:removeFocus({ clonedSendTrade.Name })
-                        TradeRequestHandledUI:destroy()
-                    end
-                )
-            end
-        )
-    end
+                    TradeRequestHandledUI:removeFocus({ clonedSendTrade.Name })
+                    TradeRequestHandledUI:destroy()
+                end
+            )
+        end
+    )
 
     -- Animations for closing and opening.
     do
