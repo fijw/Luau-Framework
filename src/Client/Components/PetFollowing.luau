@@ -20,7 +20,7 @@ type PetSchema = Data.PetSchema
 
 
 --[[ @section Variables ]]
-local localPlr = Players.LocalPlayer
+local localPlr = Players.LocalPlayer :: Player
 
 local GameFolder = workspace:WaitForChild("Game") :: Folder
 local PetsFolder = GameFolder:WaitForChild("Pets") :: Folder
