@@ -117,11 +117,18 @@ local function constructorCallback()
                             0
                         )
 
-                        petRootPart.CFrame = CFrame.new(petRootPart.Position + step) * smoothLookAtMoveDirRotation * wobbleRotation
+                        local bobbleOffset = math.abs(math.sin(time() * WOBBLE_TIME_MUL)) * 2.5
+
+                        petRootPart.CFrame = CFrame.new(
+                            petRootPart.Position.X + step.X,
+                            targetPosition.Y + bobbleOffset,
+                            petRootPart.Position.Z + step.Z
+                        ) * smoothLookAtMoveDirRotation * wobbleRotation
 
                         -- Cleanup.
                         do
-                            if offset.Magnitude > 1 then return end; movementConnection:Disconnect()
+                            if offset.Magnitude > 0.25 then return end
+                            movementConnection:Disconnect(); petRootPart.CFrame = CFrame.new(targetPosition)
                             
                             local lookPos = plrRootPart.Position - petRootPart.Position
                             local flatFeetVec = Vector3.new(lookPos.X, 0, lookPos.Z)
@@ -133,11 +140,11 @@ local function constructorCallback()
                                     if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
 
                                     if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then
-                                        lookAtConnection:Disconnect()
+                                        lookAtConnection:Disconnect(); petRootPart.CFrame = CFrame.new(petRootPart.Position) * CFrame.lookAt(Vector3.zero, flatFeetVec.Unit).Rotation
 
                                         local foundPetIndex = table.find(CurrentlyMovingPets, data.petId)
                                         if foundPetIndex then table.remove(CurrentlyMovingPets, foundPetIndex) end
-
+                                        
                                         return
                                     end
 
