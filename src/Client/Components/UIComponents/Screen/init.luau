@@ -162,11 +162,15 @@ local function constructorCallback()
         )
     end
 
-    local SubscribingUINames = { "inventory", "send_trade", "rebirth", "shop", "marketplace", "settings" }
+    local SubscribingUINames = { "inventory", "send_trade", "rebirth" }
 
     for i: number, str: string in ipairs(SubscribingUINames) do
         local CachedClass = UIUtilitiesLibrary.CachedUIClasses[str]
-        if not CachedClass then continue end
+
+        if not CachedClass then
+            repeat task.wait() until UIUtilitiesLibrary.CachedUIClasses[str]
+            CachedClass = UIUtilitiesLibrary.CachedUIClasses[str]
+        end
 
         CachedClass:subscribeToRemoveFocus("screen_subscription",
             function(self, NamesToBringBackToFocus)
@@ -198,6 +202,15 @@ local function constructorCallback()
                 end
             end
         )
+    end
+
+    -- Waiting for the waiting classes to exist.
+    do
+        local WaitingClasses = { "healing_machine", "merging_machine", "crate_machine", "in_trade" }
+
+        for i: number, str: string in ipairs(WaitingClasses) do
+            repeat task.wait() until UIUtilitiesLibrary.CachedUIClasses[str]
+        end
     end
 
     for i: string, CachedClass: HandledUI in pairs(UIUtilitiesLibrary.CachedUIClasses) do

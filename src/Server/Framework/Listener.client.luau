@@ -55,9 +55,9 @@ local ModulesToLoad
     [MergePetsMachineComponent.Name] = MergePetsMachineComponent,
     [HealingMachineComponent.Name] = HealingMachineComponent,
     [SendTradeComponent.Name] = SendTradeComponent,
-    [ScreenComponent.Name] = ScreenComponent,
     [InTradeComponent.Name] = InTradeComponent,
-    [PetFollowingComponent.Name] = PetFollowingComponent
+    [PetFollowingComponent.Name] = PetFollowingComponent,
+    [ScreenComponent.Name] = ScreenComponent
 }
 
 local NUM_OF_RETRIES = 10

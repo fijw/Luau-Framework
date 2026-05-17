@@ -133,10 +133,10 @@ local function constructorCallback()
                                     if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
 
                                     if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then
+                                        lookAtConnection:Disconnect()
+
                                         local foundPetIndex = table.find(CurrentlyMovingPets, data.petId)
                                         if foundPetIndex then table.remove(CurrentlyMovingPets, foundPetIndex) end
-
-                                        lookAtConnection:Disconnect()
 
                                         return
                                     end
