@@ -26,9 +26,10 @@ local GameFolder = workspace:WaitForChild("Game") :: Folder
 local PetsFolder = GameFolder:WaitForChild("Pets") :: Folder
 
 local PET_MUL_SPEED = 50
-local WOBBLE_TIME_MUL = 10
-local LOOK_AT_TIME_MUL = 6
+local WOBBLE_TIME_MUL = 8
+local LOOK_AT_TIME_MUL = 5
 local WOBBLE_ANGLE = math.rad(1.025)
+local BOBBLE_HEIGHT = 2.5
 
 local RADIUS_MAP
 = {
@@ -117,7 +118,7 @@ local function constructorCallback()
                             0
                         )
 
-                        local bobbleOffset = math.abs(math.sin(time() * WOBBLE_TIME_MUL)) * 2.5
+                        local bobbleOffset = math.abs(math.sin(time() * WOBBLE_TIME_MUL)) * BOBBLE_HEIGHT
 
                         petRootPart.CFrame = CFrame.new(
                             petRootPart.Position.X + step.X,
@@ -130,7 +131,7 @@ local function constructorCallback()
                             if offset.Magnitude > 0.25 then return end
                             movementConnection:Disconnect(); petRootPart.CFrame = CFrame.new(targetPosition)
                             
-                            local lookPos = plrRootPart.Position - petRootPart.Position
+                            local lookPos = plrRootPart.Position - targetPosition
                             local flatFeetVec = Vector3.new(lookPos.X, 0, lookPos.Z)
 
                             local lookAtConnection: RBXScriptConnection
@@ -140,7 +141,7 @@ local function constructorCallback()
                                     if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
 
                                     if petRootPart.CFrame.LookVector:Dot(flatFeetVec.Unit) > 0.999 then
-                                        lookAtConnection:Disconnect(); petRootPart.CFrame = CFrame.new(petRootPart.Position) * CFrame.lookAt(Vector3.zero, flatFeetVec.Unit).Rotation
+                                        lookAtConnection:Disconnect(); petRootPart.CFrame = CFrame.new(targetPosition) * CFrame.lookAt(Vector3.zero, flatFeetVec.Unit).Rotation
 
                                         local foundPetIndex = table.find(CurrentlyMovingPets, data.petId)
                                         if foundPetIndex then table.remove(CurrentlyMovingPets, foundPetIndex) end
@@ -157,7 +158,7 @@ local function constructorCallback()
                                         deltaTime * LOOK_AT_TIME_MUL
                                     )
 
-                                    petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothLookAtPlrDirRotation
+                                    petRootPart.CFrame = CFrame.new(targetPosition) * smoothLookAtPlrDirRotation
                                 end
                             )
                         end
