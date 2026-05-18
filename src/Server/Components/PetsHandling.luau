@@ -35,34 +35,14 @@ local CachedEquippedPets: { [Player]: { [string]: PetSchema } } = {}
 
 --[[ @section Utility Functions ]]
 --[[
-    @usage Make the pet follow the player.
-
-    @param petId string
-    @param PetData PetSchema
-    @param sender Player
-
-    @return void
-]]
-local function followOwner(petId: string, PetData: PetSchema, sender: Player)
-    PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
-        {
-            petId = petId,
-            PetData = PetData,
-            ownerId = sender.UserId
-        }
-    )
-end
-
---[[
     @usage Equip a pet to a player.
 
     @param sender Player
     @param data string
-    @param isJoining boolean
 
     @return void
 ]]
-local function equipPet(sender: Player, data: string, isJoining: boolean)
+local function equipPet(sender: Player, data: string)
     local PlrDataClass = Registry(sender)
     if not PlrDataClass then return end
 
@@ -72,16 +52,13 @@ local function equipPet(sender: Player, data: string, isJoining: boolean)
     local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(data)
     if not FoundStack then return end
 
-    if table.find(FoundStack.StackData.Equipped or {}, data) and not isJoining then return end
+    if table.find(FoundStack.StackData.Equipped or {}, data)  then return end
+    table.insert(FoundStack.StackData.Equipped or {}, data)
 
-    if not isJoining then
-        table.insert(FoundStack.StackData.Equipped or {}, data)
+    local newEquippedNum = PlrDataClass()().currentNumOfPetsEquipped() + 1
+    PlrDataClass()().currentNumOfPetsEquipped(newEquippedNum)
 
-        local newEquippedNum = PlrDataClass()().currentNumOfPetsEquipped() + 1
-        PlrDataClass()().currentNumOfPetsEquipped(newEquippedNum)
-
-        InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
-    end
+    CachedEquippedPets[sender][data] = FoundStack.StackData
 
     PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
         {
@@ -91,8 +68,7 @@ local function equipPet(sender: Player, data: string, isJoining: boolean)
         }
     )
 
-    CachedEquippedPets[sender][data] = FoundStack.StackData
-    followOwner(data, FoundStack.StackData, sender)
+    InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
 end
 
 --[[
@@ -154,16 +130,34 @@ local function constructorCallback()
         local Inventory = PlrDataClass()().Inventory :: InventoryClass
         if not Inventory then return end
 
+        -- Add existing server pets.
         for i: Player, PlrEquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
-            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do equipPet(i, petId, true) end
+            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do
+                PetsHandlingGroup.PetStartFollowingOwner:fireClient(
+                    plr,
+
+                    {
+                        petId = petId,
+                        PetData = PetData,
+                        ownerId = i.UserId
+                    }
+                )
+            end
         end
 
+        -- Add equipped client pets.
         for stackId: string, PetStack: StackClass<PetSchema> in pairs(Inventory.StacksDictionary) do
             for idIndex: number, id: string in ipairs(PetStack.StackArray()) do
                 if PlrDataClass()().HealingData().HealingPets[id] then continue end
                 if not table.find(PetStack.StackData.Equipped or {}, id) then continue end
 
-                equipPet(plr, id, true)
+                PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
+                    {
+                        petId = id,
+                        PetData = PetStack.StackData,
+                        ownerId = plr.UserId
+                    }
+                )
             end
         end
 
@@ -215,7 +209,7 @@ local function constructorCallback()
             if not PlrDataClass then return false end
 
             if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
-            equipPet(sender, data, false)
+            equipPet(sender, data)
 
             return true
         end

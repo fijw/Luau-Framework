@@ -94,16 +94,15 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
     if EquippedPetsCache[EquippingData.petId] then return end
 
     local petModel = AssetsPetsFolder:WaitForChild(EquippingData.PetData.petName) :: Model
-    if not petModel.PrimaryPart then return end
-
+    if not petModel.PrimaryPart then repeat task.wait() until petModel.PrimaryPart end
+    
     local clonedPetModel = petModel:Clone()
     clonedPetModel.Name = EquippingData.petId
     clonedPetModel.Parent = GamePetsFolder
 
     EquippedPetsCache[EquippingData.petId] = clonedPetModel
 
-    local petRootPart = clonedPetModel.PrimaryPart
-    if not petRootPart then repeat task.wait() until clonedPetModel.PrimaryPart; petRootPart = clonedPetModel.PrimaryPart end
+    local petRootPart = clonedPetModel.PrimaryPart :: BasePart
 
     if EquippingData.PetData.PetStats.size == "Worldbreaker" then
         petRootPart.Size
@@ -199,6 +198,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
     end
 
     petRootPart.Position = plrRootPart.Position
+    print("hr 4")
 end
 --[[ @end_section Util Functions ]]
 
@@ -220,7 +220,6 @@ local function constructorCallback()
                 if not plrChar then repeat task.wait() until plr.Character; plrChar = plr.Character :: Model end
                 
                 local plrRootPart = plrChar:WaitForChild("HumanoidRootPart") :: BasePart
-
                 addPetToWorkspace({ PetData = data.PetData, petId = data.petId }, plrRootPart)
             elseif EquippedPetsCache[data.petId] then return end
 
