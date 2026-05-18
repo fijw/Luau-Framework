@@ -198,7 +198,6 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
     end
 
     petRootPart.Position = plrRootPart.Position
-    print("hr 4")
 end
 --[[ @end_section Util Functions ]]
 

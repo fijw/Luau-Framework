@@ -39,10 +39,11 @@ local CachedEquippedPets: { [Player]: { [string]: PetSchema } } = {}
 
     @param sender Player
     @param data string
+    @param isJoining boolean
 
     @return void
 ]]
-local function equipPet(sender: Player, data: string)
+local function equipPet(sender: Player, data: string, isJoining: boolean)
     local PlrDataClass = Registry(sender)
     if not PlrDataClass then return end
 
@@ -52,11 +53,16 @@ local function equipPet(sender: Player, data: string)
     local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(data)
     if not FoundStack then return end
 
-    if table.find(FoundStack.StackData.Equipped or {}, data)  then return end
-    table.insert(FoundStack.StackData.Equipped or {}, data)
+    if table.find(FoundStack.StackData.Equipped or {}, data) and not isJoining then return end
 
-    local newEquippedNum = PlrDataClass()().currentNumOfPetsEquipped() + 1
-    PlrDataClass()().currentNumOfPetsEquipped(newEquippedNum)
+    if not isJoining then
+        table.insert(FoundStack.StackData.Equipped or {}, data)
+
+        local newEquippedNum = PlrDataClass()().currentNumOfPetsEquipped() + 1
+        PlrDataClass()().currentNumOfPetsEquipped(newEquippedNum)
+
+        InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
+    end
 
     CachedEquippedPets[sender][data] = FoundStack.StackData
 
@@ -67,8 +73,6 @@ local function equipPet(sender: Player, data: string)
             ownerId = sender.UserId
         }
     )
-
-    InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
 end
 
 --[[
@@ -130,34 +134,16 @@ local function constructorCallback()
         local Inventory = PlrDataClass()().Inventory :: InventoryClass
         if not Inventory then return end
 
-        -- Add existing server pets.
         for i: Player, PlrEquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
-            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do
-                PetsHandlingGroup.PetStartFollowingOwner:fireClient(
-                    plr,
-
-                    {
-                        petId = petId,
-                        PetData = PetData,
-                        ownerId = i.UserId
-                    }
-                )
-            end
+            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do equipPet(i, petId, true) end
         end
 
-        -- Add equipped client pets.
         for stackId: string, PetStack: StackClass<PetSchema> in pairs(Inventory.StacksDictionary) do
             for idIndex: number, id: string in ipairs(PetStack.StackArray()) do
                 if PlrDataClass()().HealingData().HealingPets[id] then continue end
                 if not table.find(PetStack.StackData.Equipped or {}, id) then continue end
 
-                PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
-                    {
-                        petId = id,
-                        PetData = PetStack.StackData,
-                        ownerId = plr.UserId
-                    }
-                )
+                equipPet(plr, id, true)
             end
         end
 
@@ -209,7 +195,7 @@ local function constructorCallback()
             if not PlrDataClass then return false end
 
             if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
-            equipPet(sender, data)
+            equipPet(sender, data, false)
 
             return true
         end
