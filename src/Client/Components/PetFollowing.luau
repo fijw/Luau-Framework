@@ -44,6 +44,43 @@ local CurrentlyWalkingCache: { string } = {}
 --[[ @end_section Variables ]]
 
 
+--[[ @section Color Functions ]]
+--[[
+    @usage Interpolate between colors.
+
+    @param t number
+
+    @return Color3
+]]
+local function radioactiveColor(t: number): Color3
+	if t < 0.25 then
+		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(0, 255, 0), t / 0.25)
+	elseif t < 0.5 then
+		return Color3.fromRGB(0, 255, 0):Lerp(Color3.new(0, 0, 0), (t - 0.25) / 0.25)
+	elseif t < 0.75 then
+		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(255, 255, 0), (t - 0.5) / 0.25)
+	else
+		return Color3.fromRGB(255, 255, 0):Lerp(Color3.new(0, 0, 0), (t - 0.75) / 0.25)
+	end
+end
+
+--[[
+    @usage Interpolate between colors.
+
+    @param t number
+
+    @return Color3
+]]
+local function glitchedColor(t: number): Color3
+	if t < 0.5 then
+		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(170, 0, 255), t / 0.5)
+	else
+		return Color3.fromRGB(170, 0, 255):Lerp(Color3.new(0, 0, 0), (t - 0.5) / 0.5)
+	end
+end
+--[[ @end_section Color Functions ]]
+
+
 --[[ @section Util Functions ]]
 --[[
     @usage Add pet to the game world.
@@ -65,39 +102,103 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
 
     EquippedPetsCache[EquippingData.petId] = clonedPetModel
 
+    local petRootPart = clonedPetModel.PrimaryPart
+    if not petRootPart then repeat task.wait() until clonedPetModel.PrimaryPart; petRootPart = clonedPetModel.PrimaryPart end
+
     if EquippingData.PetData.PetStats.size == "Worldbreaker" then
-        if clonedPetModel.PrimaryPart then
-            clonedPetModel.PrimaryPart.Size
-            = Vector3.new(
-                clonedPetModel.PrimaryPart.Size.X * 16,
-                clonedPetModel.PrimaryPart.Size.Y * 16,
-                clonedPetModel.PrimaryPart.Size.Z * 16
-            )
-        end
+        petRootPart.Size
+        = Vector3.new(
+            petRootPart.Size.X * 16,
+            petRootPart.Size.Y * 16,
+            petRootPart.Size.Z * 16
+        )
     elseif EquippingData.PetData.PetStats.size == "Gigantic" then
-        if clonedPetModel.PrimaryPart then
-            clonedPetModel.PrimaryPart.Size
-            = Vector3.new(
-                clonedPetModel.PrimaryPart.Size.X * 8,
-                clonedPetModel.PrimaryPart.Size.Y * 8,
-                clonedPetModel.PrimaryPart.Size.Z * 8
-            )
-        end
+        petRootPart.Size
+        = Vector3.new(
+            petRootPart.Size.X * 8,
+            petRootPart.Size.Y * 8,
+            petRootPart.Size.Z * 8
+        )
     elseif EquippingData.PetData.PetStats.size == "Huge" then
-        if clonedPetModel.PrimaryPart then
-            clonedPetModel.PrimaryPart.Size
-            = Vector3.new(
-                clonedPetModel.PrimaryPart.Size.X * 4,
-                clonedPetModel.PrimaryPart.Size.Y * 4,
-                clonedPetModel.PrimaryPart.Size.Z * 4
-            )
+        petRootPart.Size
+        = Vector3.new(
+            petRootPart.Size.X * 4,
+            petRootPart.Size.Y * 4,
+            petRootPart.Size.Z * 4
+        )
+    end
+
+    local Textures: { Texture } = {}
+
+    if EquippingData.PetData.PetStats.color == "Glitched" or EquippingData.PetData.PetStats.color == "Radioactive" then
+        for i = 1, 6 do
+            local newTexture = Instance.new("Texture")
+            newTexture.Texture = "rbxasset://textures/water/normal_21.dds"
+            newTexture.Color3 = Color3.fromRGB(0, 0, 0)
+            newTexture.Parent = petRootPart
+
+            if i == 1 then newTexture.Face = Enum.NormalId.Top end
+            if i == 2 then newTexture.Face = Enum.NormalId.Bottom end
+            if i == 3 then newTexture.Face = Enum.NormalId.Left end
+            if i == 4 then newTexture.Face = Enum.NormalId.Right end
+            if i == 5 then newTexture.Face = Enum.NormalId.Front end
+            if i == 6 then newTexture.Face = Enum.NormalId.Back end
+
+            if EquippingData.PetData.PetStats.size == "Worldbreaker" then
+                newTexture.StudsPerTileU *= 16; newTexture.StudsPerTileV *= 16
+            elseif EquippingData.PetData.PetStats.size == "Gigantic" then
+                newTexture.StudsPerTileU *= 8; newTexture.StudsPerTileV *= 8
+            elseif EquippingData.PetData.PetStats.size == "Huge" then
+                newTexture.StudsPerTileU *= 4; newTexture.StudsPerTileV *= 4
+            end
+
+            table.insert(Textures, newTexture)
         end
     end
 
-    local primaryPart: BasePart = clonedPetModel.PrimaryPart :: BasePart
-    if not primaryPart then repeat task.wait() until clonedPetModel.PrimaryPart; primaryPart = clonedPetModel.PrimaryPart :: BasePart end
+    if EquippingData.PetData.PetStats.color == "Glitched"
+        or EquippingData.PetData.PetStats.color == "Radioactive"
+        or EquippingData.PetData.PetStats.color == "Rainbow"
+    then
+        local textureOffset = 0
+        local colorOffset = 0
 
-    primaryPart.Position = plrRootPart.Position
+        local whileEquippedConnection: RBXScriptConnection
+
+        whileEquippedConnection = RunService.Heartbeat:Connect(
+            function(deltaTime: number)
+                if not EquippedPetsCache[EquippingData.petId] then whileEquippedConnection:Disconnect(); return end
+
+                if EquippingData.PetData.PetStats.size == "Worldbreaker" then
+                    textureOffset += deltaTime * 16
+                elseif EquippingData.PetData.PetStats.size == "Gigantic" then
+                    textureOffset += deltaTime * 8
+                elseif EquippingData.PetData.PetStats.size == "Huge" then
+                    textureOffset += deltaTime * 4
+                else textureOffset += deltaTime end
+                
+                colorOffset += deltaTime * 0.15; colorOffset %= 1
+
+                if EquippingData.PetData.PetStats.size == "Worldbreaker" then textureOffset %= 2 * 16
+                elseif EquippingData.PetData.PetStats.size == "Gigantic" then textureOffset %= 2 * 8
+                elseif EquippingData.PetData.PetStats.size == "Huge" then textureOffset %= 2 * 4
+                else textureOffset %= 2 end
+
+                if EquippingData.PetData.PetStats.color == "Glitched" then
+                    for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
+                    petRootPart.Color = glitchedColor(colorOffset)
+                elseif EquippingData.PetData.PetStats.color == "Radioactive" then
+                    for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
+                    petRootPart.Color = radioactiveColor(colorOffset)
+                elseif EquippingData.PetData.PetStats.color == "Rainbow" then
+                    for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
+                    petRootPart.Color = Color3.fromHSV(colorOffset, 0.75, 1)
+                end
+            end
+        )
+    end
+
+    petRootPart.Position = plrRootPart.Position
 end
 --[[ @end_section Util Functions ]]
 

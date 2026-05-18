@@ -286,7 +286,7 @@ local function constructorCallback()
                     CachedPetButtons[i] = newPetLabel
                     CachedPetDatasForExpanding[i] = PetSchema
 
-                    --[[if PetSchema.PetStats.color == "Rainbow"
+                    if PetSchema.PetStats.color == "Rainbow"
                         or PetSchema.PetStats.color == "Radioactive"
                         or PetSchema.PetStats.color == "Glitched"
                     then
@@ -309,9 +309,15 @@ local function constructorCallback()
                                     gradient.Color = ColorSequence.new(
                                         {
                                             ColorSequenceKeypoint.new(0, Color3.fromHSV((t + 0) % 1, 1, 1)),
-                                            ColorSequenceKeypoint.new(0.25, Color3.fromHSV((t + 0.25) % 1, 1, 1)),
-                                            ColorSequenceKeypoint.new(0.50, Color3.fromHSV((t + 0.5) % 1, 1, 1)),
-                                            ColorSequenceKeypoint.new(0.75, Color3.fromHSV((t + 0.75) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.1, Color3.fromHSV((t + 0.1) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.2, Color3.fromHSV((t + 0.2) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.3, Color3.fromHSV((t + 0.3) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.4, Color3.fromHSV((t + 0.4) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.5, Color3.fromHSV((t + 0.5) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.6, Color3.fromHSV((t + 0.6) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.7, Color3.fromHSV((t + 0.7) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.8, Color3.fromHSV((t + 0.8) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.9, Color3.fromHSV((t + 0.9) % 1, 1, 1)),
                                             ColorSequenceKeypoint.new(1, Color3.fromHSV((t + 1) % 1, 1, 1))
                                         }
                                     )
@@ -319,8 +325,15 @@ local function constructorCallback()
                                     gradient.Color = ColorSequence.new(
                                         {
                                             ColorSequenceKeypoint.new(0, radioactiveColor((t + 0) % 1)),
-                                            ColorSequenceKeypoint.new(0.25, radioactiveColor((t + 0.25) % 1)),
-                                            ColorSequenceKeypoint.new(0.75, radioactiveColor((t + 0.5) % 1)),
+                                            ColorSequenceKeypoint.new(0.1, radioactiveColor((t + 0.1) % 1)),
+                                            ColorSequenceKeypoint.new(0.2, radioactiveColor((t + 0.2) % 1)),
+                                            ColorSequenceKeypoint.new(0.3, radioactiveColor((t + 0.3) % 1)),
+                                            ColorSequenceKeypoint.new(0.4, radioactiveColor((t + 0.4) % 1)),
+                                            ColorSequenceKeypoint.new(0.5, radioactiveColor((t + 0.5) % 1)),
+                                            ColorSequenceKeypoint.new(0.6, radioactiveColor((t + 0.6) % 1)),
+                                            ColorSequenceKeypoint.new(0.7, radioactiveColor((t + 0.7) % 1)),
+                                            ColorSequenceKeypoint.new(0.8, radioactiveColor((t + 0.8) % 1)),
+                                            ColorSequenceKeypoint.new(0.9, radioactiveColor((t + 0.9) % 1)),
                                             ColorSequenceKeypoint.new(1, radioactiveColor((t + 1) % 1))
                                         }
                                     )
@@ -337,7 +350,7 @@ local function constructorCallback()
                                 end
                             end
                         )
-                    end]]
+                    end
 
                     local isHovering = false
 

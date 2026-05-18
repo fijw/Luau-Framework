@@ -6,6 +6,7 @@
 --[[ @section Imports ]]
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local MergingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Merging)
@@ -204,6 +205,41 @@ end
 --[[ @end_section Utility Functions ]]
 
 
+--[[ @usage Color Functions ]]
+--[[
+    @usage Get radioactive color.
+
+    @param x number
+
+    @return Color3
+]]
+local function radioactiveColor(x: number): Color3
+    x = x % 1
+
+    if x < 0.25 then
+        return Color3.fromRGB(0, 0, 0):Lerp(Color3.fromRGB(0, 255, 0), x / 0.25)
+    elseif x < 0.5 then
+        return Color3.fromRGB(0, 255, 0):Lerp(Color3.fromRGB(0, 0, 0), (x - 0.25) / 0.25)
+    elseif x < 0.75 then
+        return Color3.fromRGB(0, 0, 0):Lerp(Color3.fromRGB(255, 255, 0), (x - 0.5) / 0.25)
+    else
+        return Color3.fromRGB(255, 255, 0):Lerp(Color3.fromRGB(0, 0, 0), (x - 0.75) / 0.25)
+    end
+end
+
+--[[
+    @usage Get glitched color.
+
+    @param x number
+
+    @return Color3
+]]
+local function glitchedColor(x: number): Color3
+    return Color3.fromRGB(0, 0, 0):Lerp(Color3.fromRGB(128, 0, 255), math.sin(x * math.pi * 2) * 0.5 + 0.5)
+end
+--[[ @end_section Color Functions ]]
+
+
 --[[ @section Constructor ]]
 --[[
     @usage Initialize the component.
@@ -284,6 +320,72 @@ local function constructorCallback()
 
                     CachedPetButtons[i] = newPetLabel
                     CachedPetDatasForExpanding[i] = PetSchema
+
+                    if PetSchema.PetStats.color == "Rainbow"
+                        or PetSchema.PetStats.color == "Radioactive"
+                        or PetSchema.PetStats.color == "Glitched"
+                    then
+                        local t = 0
+                        local gradient = Instance.new("UIGradient")
+                        gradient.Parent = innerImgButton
+
+                        local colorConnection: RBXScriptConnection
+
+                        colorConnection = RunService.Heartbeat:Connect(
+                            function(dt: number)
+                                if not CachedPetButtons[i] then
+                                    colorConnection:Disconnect()
+                                    return
+                                end
+
+                                t = (t + dt * 0.25) % 1
+
+                                if PetSchema.PetStats.color == "Rainbow" then
+                                    gradient.Color = ColorSequence.new(
+                                        {
+                                            ColorSequenceKeypoint.new(0, Color3.fromHSV((t + 0) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.1, Color3.fromHSV((t + 0.1) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.2, Color3.fromHSV((t + 0.2) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.3, Color3.fromHSV((t + 0.3) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.4, Color3.fromHSV((t + 0.4) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.5, Color3.fromHSV((t + 0.5) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.6, Color3.fromHSV((t + 0.6) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.7, Color3.fromHSV((t + 0.7) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.8, Color3.fromHSV((t + 0.8) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.9, Color3.fromHSV((t + 0.9) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(1, Color3.fromHSV((t + 1) % 1, 1, 1))
+                                        }
+                                    )
+                                elseif PetSchema.PetStats.color == "Radioactive" then
+                                    gradient.Color = ColorSequence.new(
+                                        {
+                                            ColorSequenceKeypoint.new(0, radioactiveColor((t + 0) % 1)),
+                                            ColorSequenceKeypoint.new(0.1, radioactiveColor((t + 0.1) % 1)),
+                                            ColorSequenceKeypoint.new(0.2, radioactiveColor((t + 0.2) % 1)),
+                                            ColorSequenceKeypoint.new(0.3, radioactiveColor((t + 0.3) % 1)),
+                                            ColorSequenceKeypoint.new(0.4, radioactiveColor((t + 0.4) % 1)),
+                                            ColorSequenceKeypoint.new(0.5, radioactiveColor((t + 0.5) % 1)),
+                                            ColorSequenceKeypoint.new(0.6, radioactiveColor((t + 0.6) % 1)),
+                                            ColorSequenceKeypoint.new(0.7, radioactiveColor((t + 0.7) % 1)),
+                                            ColorSequenceKeypoint.new(0.8, radioactiveColor((t + 0.8) % 1)),
+                                            ColorSequenceKeypoint.new(0.9, radioactiveColor((t + 0.9) % 1)),
+                                            ColorSequenceKeypoint.new(1, radioactiveColor((t + 1) % 1))
+                                        }
+                                    )
+                                elseif PetSchema.PetStats.color == "Glitched" then
+                                    gradient.Color = ColorSequence.new(
+                                        {
+                                            ColorSequenceKeypoint.new(0, glitchedColor((t + 0) % 1)),
+                                            ColorSequenceKeypoint.new(0.25, glitchedColor((t + 0.25) % 1)),
+                                            ColorSequenceKeypoint.new(0.50, glitchedColor((t + 0.5) % 1)),
+                                            ColorSequenceKeypoint.new(0.75, glitchedColor((t + 0.75) % 1)),
+                                            ColorSequenceKeypoint.new(1, glitchedColor((t + 1) % 1))
+                                        }
+                                    )
+                                end
+                            end
+                        )
+                    end
 
                     local isHovering = false
 
