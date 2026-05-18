@@ -393,14 +393,17 @@ local function constructorCallback()
 
     PetsHandlingGroup.RemovePetFromClient:onClientEvent(
         function(data)
-            if not EquippedPetsCache[data] then return end
-
-            EquippedPetsCache[data]:Destroy()
-            EquippedPetsCache[data].Parent = nil
-            EquippedPetsCache[data] = nil
-
             local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data)
             if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
+
+            -- Remove from equipped pets cache.
+            do
+                if not EquippedPetsCache[data] then return end
+
+                EquippedPetsCache[data]:Destroy()
+                EquippedPetsCache[data].Parent = nil
+                EquippedPetsCache[data] = nil
+            end
         end
     )
 end
