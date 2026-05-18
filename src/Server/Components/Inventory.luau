@@ -50,20 +50,6 @@ local function constuctorCallback()
 
             local Inventory = PlrDataClass()().Inventory :: InventoryClass
 
-            -- Add existing pets to the player's client inventory.
-            do
-                local PetsAddingToInventory = {}
-                
-                for stackIndex: string, SavingStackSchema: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
-                    for idIndex: number, id: string in ipairs(SavingStackSchema.StackArray) do
-                        if PlrDataClass()().HealingData().HealingPets[id] then continue end
-                        PetsAddingToInventory[id] = SavingStackSchema.StackData
-                    end
-                end
-                
-                InventoryGroup.AddPetsToInventory:fireClient(player, PetsAddingToInventory)
-            end
-
             -- Subscribe to the player's inventory.
             do
                 Inventory:subscribeToItemsAdded(

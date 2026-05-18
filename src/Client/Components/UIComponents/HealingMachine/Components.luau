@@ -116,9 +116,8 @@ do
     ImageButton.Size = UDim2.new(0.186, 0, 0.45555833, 0)
     ImageButton.ZIndex = 2
     ImageButton.BackgroundTransparency = 1
-    ImageButton.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
     ImageButton.Visible = false
-    ImageButton.Image = "rbxassetid://119610995981036"
+    ImageButton.Image = "rbxassetid://111833470989816"
 
     UIAspectRatioConstraint.Parent = ImageButton
     UIAspectRatioConstraint.AspectRatio = 1.050

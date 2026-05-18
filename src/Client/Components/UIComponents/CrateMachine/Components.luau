@@ -181,7 +181,6 @@ do
     ImageLabel.BorderSizePixel = 0
     ImageLabel.Size = UDim2.new(1, 0, 0.774, 0)
     ImageLabel.ZIndex = 2
-    ImageLabel.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 
     TextLabel.Parent = DetailsContainer
     TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)

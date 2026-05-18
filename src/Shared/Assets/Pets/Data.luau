@@ -18,7 +18,7 @@ export type PetSchema
     PetStats
     : {
         rarity: "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | "???" | "Secret",
-        size: "Default" | "Huge" | "Gigantic",
+        size: "Default" | "Huge" | "Gigantic" | "Worldbreaker",
         color: "Default" | "Rainbow" | "Radioactive" | "Glitched"
     },
     
@@ -46,7 +46,8 @@ local Data
         = {
             [1] = "Default",
             [2] = "Huge",
-            [3] = "Gigantic"
+            [3] = "Gigantic",
+            [4] = "Worldbreaker"
         },
 
         COLORS
@@ -62,9 +63,10 @@ local Data
     = {
         SIZE
         = {
-            [1] = 100 - (1 / 50_000_000 * 100) - (1 / 1_000_000_000_000 * 100),
+            [1] = 100 - (1 / 50_000_000 * 100) - (1 / 250_000_000 * 100) - (1 / 1_000_000_000_000_000 * 100),
             [2] = 1 / 50_000_000 * 100,
-            [3] = 1 / 1_000_000_000_000 * 100
+            [3] = 1 / 250_000_000 * 100,
+            [4] = 1 / 1_000_000_000_000_000 * 100
         },
 
         COLOR

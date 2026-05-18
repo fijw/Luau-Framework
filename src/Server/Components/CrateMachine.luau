@@ -80,7 +80,10 @@ local function constructorCallback()
 
                         -- Size and color stat modifications.
                         do
-                            if PetSchema.PetStats.size == "Gigantic" then
+                            if PetSchema.PetStats.size == "Worldbreaker" then
+                                PetSchema.GameplayStats.attackDamage *= 16
+                                PetSchema.GameplayStats.maxHealth *= 16
+                            elseif PetSchema.PetStats.size == "Gigantic" then
                                 PetSchema.GameplayStats.attackDamage *= 8
                                 PetSchema.GameplayStats.maxHealth *= 8
                             elseif PetSchema.PetStats.size == "Huge" then

@@ -16,6 +16,7 @@ local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.S
 
 local HealingMachineGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.HealingMachine)
 local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
+local PetsHandlingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.PetsHandling)
 --[[ @end_section Imports ]]
 
 
@@ -69,6 +70,7 @@ local function constructorCallback()
                                 InventoryGroup.AddPetsToInventory:fireClient(player, { [i] = PetStack.StackData })
                                 HealingMachineGroup.RemovePetsFromHealingMachine:fireClient(player, { i })
                                 HealingMachineGroup.PetFinishedHealing:fireClient(player, PetStack.StackData.petName)
+                                PetsHandlingGroup.PetStartFollowingOwner:fireClient(player, { petId = i, PetData = PetStack.StackData, ownerId = player.UserId })
                             end
                         end
 
@@ -114,6 +116,7 @@ local function constructorCallback()
                 PlrDataClass()().HealingData(duration, petId, "HealingPets")
 
                 InventoryGroup.RemovePetsFromInventory:fireClient(sender, { petId })
+                PetsHandlingGroup.RemovePetFromClient:fireAllClients(petId)
 
                 task.spawn(
                     function()
@@ -129,6 +132,7 @@ local function constructorCallback()
                         InventoryGroup.AddPetsToInventory:fireClient(sender, { [petId] = PetStack.StackData })
                         HealingMachineGroup.RemovePetsFromHealingMachine:fireClient(sender, { petId })
                         HealingMachineGroup.PetFinishedHealing:fireClient(sender, PetStack.StackData.petName)
+                        PetsHandlingGroup.PetStartFollowingOwner:fireClient(sender, { petId = petId, PetData = PetStack.StackData, ownerId = sender.UserId })
                     end
                 )
             end

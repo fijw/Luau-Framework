@@ -42,7 +42,7 @@ local isServer = RunService:IsServer()
 
 local ModulesToLoad
 = {
-    [ChatTagsService.Name] = ChatTagsService,
+    --[ChatTagsService.Name] = ChatTagsService,
     [FlyingService.Name] = FlyingService,
     [PermissionsDisplayService.Name] = PermissionsDisplayService,
     [CommandConsoleUIService.Name] = CommandConsoleUIService,

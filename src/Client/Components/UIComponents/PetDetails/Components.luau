@@ -33,6 +33,8 @@ local TextLabel_5 = Instance.new("TextLabel")
 local RarityFrame = Instance.new("ImageLabel")
 local TextLabel_6 = Instance.new("TextLabel")
 local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+local UIAspectRatioConstraint_2 = Instance.new("UIAspectRatioConstraint")
+local UIAspectRatioConstraint_3 = Instance.new("UIAspectRatioConstraint")
 
 local ComponentsMap = { PetDetails = PetDetails }
 --[[ @end_section Variables ]]
@@ -302,13 +304,19 @@ do
     TextLabel_6.Size = UDim2.new(0.94599998, 0, 0.743589759, 0)
     TextLabel_6.Font = Enum.Font.FredokaOne
     TextLabel_6.Text = "Common"
-    TextLabel_6.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_6.TextColor3 = Color3.fromRGB(255, 255, 255)
     TextLabel_6.TextScaled = true
     TextLabel_6.TextSize = 14.000
     TextLabel_6.TextWrapped = true
 
     UIAspectRatioConstraint.Parent = MainFrame
     UIAspectRatioConstraint.AspectRatio = 0.646
+
+    UIAspectRatioConstraint_2.Parent = ImageLabel_3
+    UIAspectRatioConstraint_2.AspectRatio = 44.323
+
+    UIAspectRatioConstraint_3.Parent = ImageLabel_4
+    UIAspectRatioConstraint_3.AspectRatio = 44.323
 end
 
 

@@ -6,11 +6,9 @@
 --[[ @section Imports ]]
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Data = require(ReplicatedStorage.Assets.Pets.Data)
-local RNG = require(ReplicatedStorage.Libraries.RNG)
 
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
@@ -32,77 +30,27 @@ type StackClass<D> = StackingLib.StackClass<D>
 --[[ @end_section Types ]]
 
 
-local CachedEquippedPets: { [Player]: { [string]: { PetData: PetSchema, model: Model } } } = {}
+local CachedEquippedPets: { [Player]: { [string]: PetSchema } } = {}
 
 
 --[[ @section Utility Functions ]]
 --[[
     @usage Make the pet follow the player.
 
-    @param petModel Model
     @param petId string
     @param PetData PetSchema
-    @param plr Player
+    @param sender Player
 
     @return void
 ]]
-local function followOwner(petModel: Model, petId: string, PetData: PetSchema, plr: Player)
-    local petRootPart = petModel.PrimaryPart
-    if not petRootPart then return end
-
-    local NewCachedEquippedPets: { [string]: PetSchema } = {}
-
-    for i: string, CachedData: { PetData: PetSchema, model: Model } in pairs(CachedEquippedPets[plr]) do
-        NewCachedEquippedPets[i] = CachedData.PetData
-    end
-
-    PetsHandlingGroup.UpdatePetFollowingPosition:fireAllClients(
+local function followOwner(petId: string, PetData: PetSchema, sender: Player)
+    PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
         {
             petId = petId,
             PetData = PetData,
-            ownerId = plr.UserId,
-            instaTravel = true,
-            CachedEquippedPets = NewCachedEquippedPets
+            ownerId = sender.UserId
         }
     )
-
-    local isWaiting = false
-
-    -- Heartbeat loop while the pet is equipped.
-    do
-        local heartbeatConnection: RBXScriptConnection
-
-        heartbeatConnection = RunService.Heartbeat:Connect(
-            function(deltaTime: number)
-                if not petModel or not petModel.Parent then heartbeatConnection:Disconnect(); return end; if isWaiting then return end
-                isWaiting = true
-
-                local HeartbeatEquippedPets: { [string]: PetSchema } = {}
-
-                for i: string, CachedData: { PetData: PetSchema, model: Model } in pairs(CachedEquippedPets[plr]) do
-                    HeartbeatEquippedPets[i] = CachedData.PetData
-                end
-
-                PetsHandlingGroup.UpdatePetFollowingPosition:fireAllClients(
-                    {
-                        petId = petId,
-                        PetData = PetData,
-                        ownerId = plr.UserId,
-                        CachedEquippedPets = HeartbeatEquippedPets
-                    }
-                )
-
-                local randomWaitTime = RNG.betterRandomNumber(
-                    {
-                        min = RNG.betterRandomNumber({ min = 1, max = 3 }),
-                        max = RNG.betterRandomNumber({ min = 3, max = 10 })
-                    }
-                )
-
-                task.wait(randomWaitTime); isWaiting = false
-            end
-        )
-    end
 end
 
 --[[
@@ -110,13 +58,11 @@ end
 
     @param sender Player
     @param data string
-    @param PetsFolder Folder
-    @param GamePetsFolder Folder
     @param isJoining boolean
 
     @return void
 ]]
-local function equipPet(sender: Player, data: string, PetsFolder: Folder, GamePetsFolder: Folder, isJoining: boolean)
+local function equipPet(sender: Player, data: string, isJoining: boolean)
     local PlrDataClass = Registry(sender)
     if not PlrDataClass then return end
 
@@ -137,56 +83,32 @@ local function equipPet(sender: Player, data: string, PetsFolder: Folder, GamePe
         InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
     end
 
-    -- Create the pet model and cache it.
-    do
-        local foundPetModel = PetsFolder:WaitForChild(FoundStack.StackData.petName) :: Model
-        repeat task.wait() until foundPetModel.PrimaryPart
+    PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
+        {
+            petId = data,
+            PetData = FoundStack.StackData,
+            ownerId = sender.UserId
+        }
+    )
 
-        local clonedPetModel = foundPetModel:Clone()
-        clonedPetModel.Name = data
-        clonedPetModel.Parent = GamePetsFolder
-
-        local animation = Instance.new("Animation")
-        animation.AnimationId = "rbxassetid://105564049799467"
-
-        if FoundStack.StackData.PetStats.size == "Gigantic" then
-            if clonedPetModel.PrimaryPart then
-                clonedPetModel.PrimaryPart.Size
-                = Vector3.new(
-                    clonedPetModel.PrimaryPart.Size.X * 8,
-                    clonedPetModel.PrimaryPart.Size.Y * 8,
-                    clonedPetModel.PrimaryPart.Size.Z * 8
-                )
-            end
-        elseif FoundStack.StackData.PetStats.size == "Huge" then
-            if clonedPetModel.PrimaryPart then
-                clonedPetModel.PrimaryPart.Size
-                = Vector3.new(
-                    clonedPetModel.PrimaryPart.Size.X * 4,
-                    clonedPetModel.PrimaryPart.Size.Y * 4,
-                    clonedPetModel.PrimaryPart.Size.Z * 4
-                )
-            end
-        end
-
-        CachedEquippedPets[sender][data] = { model = clonedPetModel :: Model, PetData = FoundStack.StackData }
-        followOwner(clonedPetModel, data, FoundStack.StackData, sender)
-    end
+    CachedEquippedPets[sender][data] = FoundStack.StackData
+    followOwner(data, FoundStack.StackData, sender)
 end
 
 --[[
     @usage Unequip a pet from a player.
 
     @param sender Player
-    @param data string
+    @param data { PetData: PetSchema, petId: string }
 
     @return void
 ]]
-local function unequipPetFunction(sender: Player, data: { PetData: PetSchema, petId: string })
+local function unequipPetFunction(sender: Player, data: { PetData: PetSchema, petId: string }, isLeaving: boolean)
     if not sender or not CachedEquippedPets[sender][data.petId] then return end
+    CachedEquippedPets[sender][data.petId] = nil
 
-    -- Remove the pet from the stack's equipped pets data.
-    do
+    -- Remove the pet from the stack's equipped pets data if the player isn't leaving.
+    if not isLeaving then
         local PlrDataClass = Registry(sender)
         if not PlrDataClass then return end
 
@@ -209,13 +131,7 @@ local function unequipPetFunction(sender: Player, data: { PetData: PetSchema, pe
         InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
     end
 
-    local FoundCachedPet = CachedEquippedPets[sender][data.petId]
-    if not FoundCachedPet then return end
-
-    FoundCachedPet.model:Destroy()
-    FoundCachedPet.model.Parent = nil
-
-    CachedEquippedPets[sender][data.petId] = nil
+    PetsHandlingGroup.RemovePetFromClient:fireAllClients(data.petId)
 end
 --[[ @end_section Utility Functions ]]
 
@@ -227,11 +143,6 @@ end
     @return void
 ]]
 local function constructorCallback()
-    local AssetsFolder = workspace:WaitForChild("Assets") :: Folder
-    local PetsFolder = AssetsFolder:WaitForChild("Pets") :: Folder
-    local GameFolder = workspace:WaitForChild("Game") :: Folder
-    local GamePetsFolder = GameFolder:WaitForChild("Pets") :: Folder
-
     local function onPlrAdded(plr: Player)
         CachedEquippedPets[plr] = {}
 
@@ -243,12 +154,16 @@ local function constructorCallback()
         local Inventory = PlrDataClass()().Inventory :: InventoryClass
         if not Inventory then return end
 
+        for i: Player, PlrEquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
+            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do equipPet(i, petId, true) end
+        end
+
         for stackId: string, PetStack: StackClass<PetSchema> in pairs(Inventory.StacksDictionary) do
             for idIndex: number, id: string in ipairs(PetStack.StackArray()) do
                 if PlrDataClass()().HealingData().HealingPets[id] then continue end
                 if not table.find(PetStack.StackData.Equipped or {}, id) then continue end
 
-                equipPet(plr, id, PetsFolder, GamePetsFolder, true)
+                equipPet(plr, id, true)
             end
         end
 
@@ -257,7 +172,7 @@ local function constructorCallback()
         task.spawn(
             function()
                 while true do
-                    if not Players:GetPlayerByUserId(plr.UserId) or not CachedEquippedPets[plr] then break end; task.wait()
+                    if not Players:GetPlayerByUserId(plr.UserId) or not CachedEquippedPets[plr] then break end
 
                     local FreshPlrDataClass = Registry(plr)
                     if not FreshPlrDataClass then break end
@@ -265,31 +180,32 @@ local function constructorCallback()
                     local FreshInventory = FreshPlrDataClass()().Inventory :: InventoryClass
                     if not FreshInventory then break end
 
-                    for i: string, data: { PetData: PetSchema, model: Model } in pairs(if CachedEquippedPets[plr] then CachedEquippedPets[plr] else {}) do
+                    for i: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
                         local FoundStack: StackClass<PetSchema>? = FreshInventory:fetchStackFromItemId(i)
                         if FoundStack then continue end
 
-                        unequipPetFunction(plr, { petId = i, PetData = data.PetData })
+                        unequipPetFunction(plr, { petId = i, PetData = PetData }, false)
                         InventoryGroup.UpdatePetsEquippedText:fireClient(plr, `{FreshPlrDataClass()().currentNumOfPetsEquipped()}/{FreshPlrDataClass()().maxPetsEquipped()}`)
                     end
+
+                    task.wait()
                 end
             end
         )
     end
 
-    for i: number, plr: Player in ipairs(Players:GetPlayers()) do onPlrAdded(plr) end
-    Players.PlayerAdded:Connect(onPlrAdded)
+    -- Initialize the component's connections.
+    do
+        for i: number, plr: Player in ipairs(Players:GetPlayers()) do onPlrAdded(plr) end
+        Players.PlayerAdded:Connect(onPlrAdded)
 
-    Players.PlayerRemoving:Connect(
-        function(plr: Player)
-            for i: string, data: { PetData: PetSchema, model: Model } in pairs(CachedEquippedPets[plr]) do
-                data.model:Destroy()
-                data.model.Parent = nil
+        Players.PlayerRemoving:Connect(
+            function(plr: Player)
+                for i: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do unequipPetFunction(plr, { petId = i, PetData = PetData }, true) end
+                CachedEquippedPets[plr] = nil
             end
-
-            CachedEquippedPets[plr] = nil
-        end
-    )
+        )
+    end
 
     PetsHandlingGroup.EquipPet:onServerInvoke(
         function(sender, data)
@@ -299,7 +215,7 @@ local function constructorCallback()
             if not PlrDataClass then return false end
 
             if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
-            equipPet(sender, data, PetsFolder, GamePetsFolder, false)
+            equipPet(sender, data, false)
 
             return true
         end
@@ -308,7 +224,7 @@ local function constructorCallback()
     PetsHandlingGroup.UnequipPet:onServerInvoke(
         function(sender, data)
             if not sender or not CachedEquippedPets[sender][data] then return false end
-            unequipPetFunction(sender, { petId = data, PetData = CachedEquippedPets[sender][data].PetData })
+            unequipPetFunction(sender, { petId = data, PetData = CachedEquippedPets[sender][data] }, false)
 
             return true
         end

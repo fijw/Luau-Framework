@@ -6,7 +6,9 @@
 --[[ @section Imports ]]
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
+local TweenService = game:GetService("TweenService")
 
 local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
 local PetsHandlingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.PetsHandling)
@@ -38,6 +40,17 @@ local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
 local CachedPetButtons: { [string]: ImageLabel } = {}
 local SelectedDeletingPets: { string } = {}
 local CachedPetDatasForExpanding: { [string]: PetSchema } = {}
+
+local COLOR_RARITY_MAP
+= {
+    Common = Color3.fromRGB(150, 150, 150),
+    Uncommon = Color3.fromRGB(50, 50, 150),
+    Rare = Color3.fromRGB(50, 150, 50),
+    Epic = Color3.fromRGB(150, 150, 50),
+    Legendary = Color3.fromRGB(162, 0, 150),
+    Secret = Color3.fromRGB(0, 0, 0),
+    ["???"] = Color3.fromRGB(99, 0, 0)
+}
 --[[ @end_section Variables ]]
 
 
@@ -149,7 +162,7 @@ local function expandItems(inst: ImageLabel, ExpandingNums: { [string]: number }
         end
 
         inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
-    elseif InstPetData.PetStats.size == "Default" then
+    else
         if not expanding then
             inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
             return
@@ -220,7 +233,7 @@ local function constructorCallback()
                     newPetLabel.Name = i
                     newPetLabel.Visible = true
                     newPetLabel.Parent = scrollingFrame
-                    newPetLabel.ImageColor3 = Color3.fromRGB(0, 155, 202)
+                    newPetLabel.ImageColor3 = COLOR_RARITY_MAP[PetSchema.PetStats.rarity]
 
                     if PetSchema.Locked then if table.find(PetSchema.Locked, i) then createTick(newPetLabel, "lock") end end
                     if PetSchema.Equipped then if table.find(PetSchema.Equipped, i) then createTick(newPetLabel, "selected") end end
@@ -229,8 +242,7 @@ local function constructorCallback()
                     innerImgButton.AnchorPoint = Vector2.new(0.5, 0.5)
                     innerImgButton.Position = UDim2.fromScale(0.5, 0.5)
                     innerImgButton.Parent = newPetLabel
-                    innerImgButton.BackgroundTransparency = 0
-                    innerImgButton.BackgroundColor3 = Color3.fromRGB(161, 0, 0)
+                    innerImgButton.BackgroundTransparency = 1
                     innerImgButton.BorderSizePixel = 0
                     innerImgButton.ZIndex = 2
                     innerImgButton.Size = UDim2.fromScale(0.85, 0.85)
@@ -238,6 +250,37 @@ local function constructorCallback()
 
                     CachedPetButtons[i] = newPetLabel
                     CachedPetDatasForExpanding[i] = PetSchema
+
+                    if PetSchema.PetStats.color == "Rainbow"
+                        or PetSchema.PetStats.color == "Radioactive"
+                        or PetSchema.PetStats.color == "Glitched"
+                    then
+                        local t = 0
+                        local gradient: UIGradient
+
+                        local colorConnection: RBXScriptConnection
+
+                        colorConnection = RunService.Heartbeat:Connect(
+                            function(dt: number)
+                                if not CachedPetButtons[i] then colorConnection:Disconnect(); return end
+
+                                if gradient then gradient:Destroy() end; gradient = Instance.new("UIGradient")
+                                gradient.Parent = innerImgButton
+
+                                t = (t + dt * 0.25) % 1
+
+                                gradient.Color = ColorSequence.new(
+                                    {
+                                        ColorSequenceKeypoint.new(0.00, Color3.fromHSV((t + 0.00) % 1, 1, 1)),
+                                        ColorSequenceKeypoint.new(0.25, Color3.fromHSV((t + 0.33) % 1, 1, 1)),
+                                        ColorSequenceKeypoint.new(0.50, Color3.fromHSV((t + 0.66) % 1, 1, 1)),
+                                        ColorSequenceKeypoint.new(0.75, Color3.fromHSV((t + 0.90) % 1, 1, 1)),
+                                        ColorSequenceKeypoint.new(1.00, Color3.fromHSV((t + 1.00) % 1, 1, 1)),
+                                    }
+                                )
+                            end
+                        )
+                    end
 
                     local isHovering = false
 
@@ -252,6 +295,16 @@ local function constructorCallback()
                             PetDetailsComponents().colorText.Text = PetSchema.PetStats.color
                             PetDetailsComponents().sizeText.Text = PetSchema.PetStats.size
                             PetDetailsComponents().rarityText.Text = PetSchema.PetStats.rarity
+
+                            if PetSchema.PetStats.rarity == "Common" then
+                                PetDetailsComponents().rarityFrame.ImageColor3 = Color3.fromRGB(255, 255, 255)
+                                PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(0, 0, 0)
+                            elseif PetSchema.PetStats.rarity == "Epic" then
+                                PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(0, 0, 0)
+                            else
+                                PetDetailsComponents().rarityFrame.ImageColor3 = COLOR_RARITY_MAP[PetSchema.PetStats.rarity]
+                                PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                            end
 
                             while true do
                                 if not isHovering then break else task.wait() end
@@ -457,6 +510,7 @@ local function constructorCallback()
                 )
 
                 SelectedDeletingPets = {}
+                InventoryGroup.SearchForPets:fireServer("")
             end
         )
 

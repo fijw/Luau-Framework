@@ -52,7 +52,7 @@ end
 
     @return HandledTween
 ]]
-local function tweenInst(inst: GuiObject, timeInput: number, type: "pos" | "trans", input: number | UDim2): HandledTween
+local function tweenInst(inst: GuiObject, timeInput: number, type: "pos" | "trans" | "size", input: number | UDim2): HandledTween
     local HandledTween
     = TweensLib(
         inst,
@@ -70,7 +70,8 @@ local function tweenInst(inst: GuiObject, timeInput: number, type: "pos" | "tran
 
         {
             Position = if type == "pos" then input else nil,
-            ImageTransparency = if type == "trans" then input else nil
+            ImageTransparency = if type == "trans" then input else nil,
+            Size = if type == "size" then input else nil
         }
     )
 
@@ -86,11 +87,14 @@ end
     @return void
 ]]
 local function constructorCallback()
+    repeat task.wait() until not UIUtilitiesLibrary.CachedUIClasses.loading_screen
+
     local clonedScreen = UIComponents.Screen:Clone()
     clonedScreen.Enabled = true
     clonedScreen.Parent = PlayerGui
 
     local menuContainer = clonedScreen:WaitForChild("MenuContainer") :: Frame
+    local teleportBtn = clonedScreen:WaitForChild("TeleportBtn") :: ImageButton
     local inventoryBtn = menuContainer:WaitForChild("InventoryBtn") :: ImageButton
     local tradingBtn = menuContainer:WaitForChild("TradingBtn") :: ImageButton
     local rebirthBtn = menuContainer:WaitForChild("RebirthBtn") :: ImageButton
@@ -106,6 +110,18 @@ local function constructorCallback()
     local levelText = levelsDisplay:WaitForChild("LevelText") :: TextLabel
     local xpToNextLevelText = levelsDisplay:WaitForChild("XPToNextLevelText") :: TextLabel
     local levelsToRebirthText = rebirthsDisplay:WaitForChild("LevelsToRebirthText") :: TextLabel
+
+    -- Opening animations.
+    do
+        local originalMenuSize, originalStatsSize, originalTeleportSize = menuContainer.Size, statsContainer.Size, teleportBtn.Size
+        menuContainer.Size = UDim2.fromScale(0, 0)
+        statsContainer.Size = UDim2.fromScale(0, 0)
+        teleportBtn.Size = UDim2.fromScale(0, 0)
+
+        tweenInst(menuContainer, 0.25, "size", originalMenuSize)
+        tweenInst(statsContainer, 0.25, "size", originalStatsSize)
+        tweenInst(teleportBtn, 0.25, "size", originalTeleportSize)
+    end
 
     local HideAndShowBarButtons = { tradingBtn, rebirthBtn, shopBtn, marketplaceBtn, settingsBtn }
     for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do button.Visible = false end

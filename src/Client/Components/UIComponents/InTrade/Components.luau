@@ -64,6 +64,8 @@ local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 local ActionsContainer = Instance.new("Frame")
 local ReadyUpBtn = Instance.new("ImageButton")
 local CancelBtn = Instance.new("ImageButton")
+local UIAspectRatioConstraint_7 = Instance.new("UIAspectRatioConstraint")
+local UIAspectRatioConstraint_8 = Instance.new("UIAspectRatioConstraint")
 
 local ComponentsMap = { InTrade = InTrade }
 --[[ @end_section Variables ]]
@@ -108,6 +110,7 @@ do
     Default.Size = UDim2.new(0.233999997, 0, 0.233999997, 0)
     Default.ZIndex = 2
     Default.Visible = false
+    Default.Image = "rbxassetid://111833470989816"
 
     UIAspectRatioConstraint_1.Parent = Default
     UIAspectRatioConstraint_1.AspectRatio = 0.997
@@ -123,6 +126,7 @@ do
     Gigantic.Size = UDim2.new(0.998000026, 0, 1, 0)
     Gigantic.ZIndex = 2
     Gigantic.Visible = false
+    Gigantic.Image = "rbxassetid://111833470989816"
 
     UIAspectRatioConstraint_2.Parent = Gigantic
     UIAspectRatioConstraint_2.AspectRatio = 0.995
@@ -138,6 +142,7 @@ do
     Huge.Size = UDim2.new(0.486000001, 0, 0.486000001, 0)
     Huge.ZIndex = 2
     Huge.Visible = false
+    Huge.Image = "rbxassetid://111833470989816"
 
     UIAspectRatioConstraint_3.Parent = Huge
     UIAspectRatioConstraint_3.AspectRatio = 0.997
@@ -153,6 +158,7 @@ do
     Default_2.Size = UDim2.new(0.233999997, 0, 0.233999997, 0)
     Default_2.ZIndex = 2
     Default_2.Visible = false
+    Default_2.Image = "rbxassetid://111833470989816"
 
     UIAspectRatioConstraint_4.Parent = Default_2
     UIAspectRatioConstraint_4.AspectRatio = 0.997
@@ -168,6 +174,7 @@ do
     Gigantic_2.Size = UDim2.new(0.998000026, 0, 1, 0)
     Gigantic_2.ZIndex = 2
     Gigantic_2.Visible = false
+    Gigantic_2.Image = "rbxassetid://111833470989816"
 
     UIAspectRatioConstraint_5.Parent = Gigantic_2
     UIAspectRatioConstraint_5.AspectRatio = 0.995
@@ -183,6 +190,7 @@ do
     Huge_2.Size = UDim2.new(0.486000001, 0, 0.486000001, 0)
     Huge_2.ZIndex = 2
     Huge_2.Visible = false
+    Huge_2.Image = "rbxassetid://111833470989816"
 
     UIAspectRatioConstraint_6.Parent = Huge_2
     UIAspectRatioConstraint_6.AspectRatio = 0.997
@@ -671,6 +679,12 @@ do
     CancelBtn.Size = UDim2.new(0.439842194, 0, 1, 0)
     CancelBtn.Image = "rbxassetid://110571593143299"
     CancelBtn.ZIndex = 3
+
+    UIAspectRatioConstraint_7.Parent = Separator
+    UIAspectRatioConstraint_7.AspectRatio = 197.573
+
+    UIAspectRatioConstraint_8.Parent = Separator_2
+    UIAspectRatioConstraint_8.AspectRatio = 1.295
 end
 
 

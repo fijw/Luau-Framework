@@ -14,6 +14,7 @@ type ComponentsMap
 = {
     mainFrame: ImageLabel,
     colorText: TextLabel,
+    rarityFrame: ImageLabel,
     rarityText: TextLabel,
     sizeText: TextLabel,
     healthText: TextLabel,
@@ -67,6 +68,7 @@ local function constructorCallback(): ComponentsMap
     local ComponentsMap: ComponentsMap
     = {
         mainFrame = mainFrame,
+        rarityFrame = rarity,
         colorText = colorText,
         rarityText = rarityText,
         sizeText = sizeText,

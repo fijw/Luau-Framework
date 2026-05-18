@@ -32,17 +32,22 @@ local Packets
     ),
 
 
-    UpdatePetFollowingPosition = NetworkLib("ph_update_pet_position", "Event",
+    PetStartFollowingOwner = NetworkLib("ph_pet_start_following_owner", "Event",
         {
             clientType
             = {
                 petId = "",
                 PetData = {} :: PetSchema,
-                ownerId = 0,
-                instaTravel = nil :: true?,
-                CachedEquippedPets = {} :: { [string]: PetSchema },
+                ownerId = 0
             },
 
+            serverType = nil
+        }
+    ),
+
+    RemovePetFromClient = NetworkLib("ph_remove_pet_from_client", "Event",
+        {
+            clientType = "pet_id",
             serverType = nil
         }
     )

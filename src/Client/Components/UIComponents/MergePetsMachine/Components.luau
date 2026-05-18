@@ -111,7 +111,7 @@ do
     TextButton.ZIndex = 2
     TextButton.BackgroundTransparency = 1
     TextButton.Visible = false
-    TextButton.Image = "rbxassetid://119610995981036"
+    TextButton.Image = "rbxassetid://111833470989816"
     TextButton.Name = "Gigantic"
 
     UIAspectRatioConstraint.Parent = TextButton
@@ -127,7 +127,7 @@ do
     TextButton_2.ZIndex = 2
     TextButton_2.BackgroundTransparency = 1
     TextButton_2.Visible = false
-    TextButton_2.Image = "rbxassetid://119610995981036"
+    TextButton_2.Image = "rbxassetid://111833470989816"
     TextButton_2.Name = "Huge"
 
     UIAspectRatioConstraint_2.Parent = TextButton_2
@@ -143,7 +143,7 @@ do
     TextButton_3.ZIndex = 2
     TextButton_3.BackgroundTransparency = 1
     TextButton_3.Visible = false
-    TextButton_3.Image = "rbxassetid://119610995981036"
+    TextButton_3.Image = "rbxassetid://111833470989816"
     TextButton_3.Name = "Default"
 
     UIAspectRatioConstraint_3.Parent = TextButton_3

@@ -118,11 +118,11 @@ local DataSettings
             maxHealingSlots = 10
         } :: any,
 
-        maxPetsEquipped = 5 :: any,
+        maxPetsEquipped = 500 :: any,
         currentNumOfPetsEquipped = 0 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "teststarloldata2"
+    PLAYER_DATA_STORAGE_KEY = "teststarloldata10"
 }
 
 
