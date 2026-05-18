@@ -286,7 +286,7 @@ local function constructorCallback()
                     CachedPetButtons[i] = newPetLabel
                     CachedPetDatasForExpanding[i] = PetSchema
 
-                    if PetSchema.PetStats.color == "Rainbow"
+                    --[[if PetSchema.PetStats.color == "Rainbow"
                         or PetSchema.PetStats.color == "Radioactive"
                         or PetSchema.PetStats.color == "Glitched"
                     then
@@ -306,37 +306,38 @@ local function constructorCallback()
                                 t = (t + dt * 0.25) % 1
 
                                 if PetSchema.PetStats.color == "Rainbow" then
-                                    gradient.Color = ColorSequence.new({
-                                        ColorSequenceKeypoint.new(0.00, Color3.fromHSV((t + 0.00) % 1, 1, 1)),
-                                        ColorSequenceKeypoint.new(0.25, Color3.fromHSV((t + 0.33) % 1, 1, 1)),
-                                        ColorSequenceKeypoint.new(0.50, Color3.fromHSV((t + 0.66) % 1, 1, 1)),
-                                        ColorSequenceKeypoint.new(0.75, Color3.fromHSV((t + 0.90) % 1, 1, 1)),
-                                        ColorSequenceKeypoint.new(1.00, Color3.fromHSV((t + 1.00) % 1, 1, 1)),
-                                    })
-
+                                    gradient.Color = ColorSequence.new(
+                                        {
+                                            ColorSequenceKeypoint.new(0, Color3.fromHSV((t + 0) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.25, Color3.fromHSV((t + 0.25) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.50, Color3.fromHSV((t + 0.5) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(0.75, Color3.fromHSV((t + 0.75) % 1, 1, 1)),
+                                            ColorSequenceKeypoint.new(1, Color3.fromHSV((t + 1) % 1, 1, 1))
+                                        }
+                                    )
                                 elseif PetSchema.PetStats.color == "Radioactive" then
-                                    gradient.Color = ColorSequence.new({
-                                        ColorSequenceKeypoint.new(0.00, radioactiveColor((t + 0.00) % 1)),
-                                        ColorSequenceKeypoint.new(0.25, radioactiveColor((t + 0.33) % 1)),
-                                        ColorSequenceKeypoint.new(0.50, radioactiveColor((t + 0.66) % 1)),
-                                        ColorSequenceKeypoint.new(0.75, radioactiveColor((t + 0.90) % 1)),
-                                        ColorSequenceKeypoint.new(1.00, radioactiveColor((t + 1.00) % 1)),
-                                    })
-
+                                    gradient.Color = ColorSequence.new(
+                                        {
+                                            ColorSequenceKeypoint.new(0, radioactiveColor((t + 0) % 1)),
+                                            ColorSequenceKeypoint.new(0.25, radioactiveColor((t + 0.25) % 1)),
+                                            ColorSequenceKeypoint.new(0.75, radioactiveColor((t + 0.5) % 1)),
+                                            ColorSequenceKeypoint.new(1, radioactiveColor((t + 1) % 1))
+                                        }
+                                    )
                                 elseif PetSchema.PetStats.color == "Glitched" then
                                     gradient.Color = ColorSequence.new(
                                         {
-                                            ColorSequenceKeypoint.new(0.00, glitchedColor((t + 0.00) % 1)),
+                                            ColorSequenceKeypoint.new(0, glitchedColor((t + 0) % 1)),
                                             ColorSequenceKeypoint.new(0.25, glitchedColor((t + 0.25) % 1)),
-                                            ColorSequenceKeypoint.new(0.50, glitchedColor((t + 0.50) % 1)),
+                                            ColorSequenceKeypoint.new(0.50, glitchedColor((t + 0.5) % 1)),
                                             ColorSequenceKeypoint.new(0.75, glitchedColor((t + 0.75) % 1)),
-                                            ColorSequenceKeypoint.new(1.00, glitchedColor((t + 1.00) % 1)),
+                                            ColorSequenceKeypoint.new(1, glitchedColor((t + 1) % 1))
                                         }
                                     )
                                 end
                             end
                         )
-                    end
+                    end]]
 
                     local isHovering = false
 
