@@ -133,77 +133,47 @@ end
 
     @param PetSchema PetSchema
     @param i string
-    @param t number
+    @param colorOffset number
     @param gradient UIGradient
+    @param side "select" | "display"
 
     @return RBXScriptConnection
 ]]
-local function newColorConnection(PetSchema: PetSchema, i: string, t: number, gradient: UIGradient): RBXScriptConnection
+local function newColorConnection(PetSchema: PetSchema, i: string, colorOffset: number, gradient: UIGradient, side: "select" | "display"): RBXScriptConnection
     local colorConnection: RBXScriptConnection
 
     colorConnection = RunService.Heartbeat:Connect(
         function(dt: number)
-            if not CachedSelectPetsPetButtons[i] then
-                colorConnection:Disconnect()
-                return
-            end
-
-            t = (t + dt * 0.25) % 1
+            if side == "select" and not CachedSelectPetsPetButtons[i] then colorConnection:Disconnect(); return end
+            if side == "display" and not CachedHealingMachinePetButtons[i] then colorConnection:Disconnect(); return end
 
             if PetSchema.PetStats.color == "Rainbow" then
-                gradient.Color = ColorSequence.new(
-                    {
-                        ColorSequenceKeypoint.new(0, Color3.fromHSV(t % 1, 1, 1)),
-                        ColorSequenceKeypoint.new(0.0625, Color3.fromHSV((t + 0.0625) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 2), Color3.fromHSV((t + (0.0625 * 2)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 3), Color3.fromHSV((t + (0.0625 * 3)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 4), Color3.fromHSV((t + (0.0625 * 4)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 5), Color3.fromHSV((t + (0.0625 * 5)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 6), Color3.fromHSV((t + (0.0625 * 6)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 7), Color3.fromHSV((t + (0.0625 * 7)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 8), Color3.fromHSV((t + (0.0625 * 8)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 9), Color3.fromHSV((t + (0.0625 * 9)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 10), Color3.fromHSV((t + (0.0625 * 10)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 11), Color3.fromHSV((t + (0.0625 * 11)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 12), Color3.fromHSV((t + (0.0625 * 12)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 13), Color3.fromHSV((t + (0.0625 * 13)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 14), Color3.fromHSV((t + (0.0625 * 14)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 15), Color3.fromHSV((t + (0.0625 * 15)) % 1, 1, 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 16), Color3.fromHSV((t + (0.0625 * 16)) % 1, 1, 1))
-                    }
-                )
+                colorOffset = colorOffset + (dt * 0.1) % 1; local ColorSeqArray = {}
+                
+                for i = 0, 17 do
+                    local indexOffset = i * (1 / 17)
+                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, Color3.fromHSV((colorOffset + indexOffset) % 1, 1, 1)))
+                end
+
+                gradient.Color = ColorSequence.new(ColorSeqArray)
             elseif PetSchema.PetStats.color == "Radioactive" then
-                gradient.Color = ColorSequence.new(
-                    {
-                        ColorSequenceKeypoint.new(0, radioactiveColor(t % 1)),
-                        ColorSequenceKeypoint.new(0.0625, radioactiveColor((t + 0.0625) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 2), radioactiveColor((t + (0.0625 * 2)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 3), radioactiveColor((t + (0.0625 * 3)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 4), radioactiveColor((t + (0.0625 * 4)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 5), radioactiveColor((t + (0.0625 * 5)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 6), radioactiveColor((t + (0.0625 * 6)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 7), radioactiveColor((t + (0.0625 * 7)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 8), radioactiveColor((t + (0.0625 * 8)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 9), radioactiveColor((t + (0.0625 * 9)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 10), radioactiveColor((t + (0.0625 * 10)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 11), radioactiveColor((t + (0.0625 * 11)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 12), radioactiveColor((t + (0.0625 * 12)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 13), radioactiveColor((t + (0.0625 * 13)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 14), radioactiveColor((t + (0.0625 * 14)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 15), radioactiveColor((t + (0.0625 * 15)) % 1)),
-                        ColorSequenceKeypoint.new((0.0625 * 16), radioactiveColor((t + (0.0625 * 16)) % 1))
-                    }
-                )
+                colorOffset = colorOffset + (dt * 0.1) % 1; local ColorSeqArray = {}
+                
+                for i = 0, 17 do
+                    local indexOffset = i * (1 / 17)
+                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, radioactiveColor((colorOffset + indexOffset) % 1)))
+                end
+
+                gradient.Color = ColorSequence.new(ColorSeqArray)
             elseif PetSchema.PetStats.color == "Glitched" then
-                gradient.Color = ColorSequence.new(
-                    {
-                        ColorSequenceKeypoint.new(0, glitchedColor((t + 0) % 1)),
-                        ColorSequenceKeypoint.new(0.25, glitchedColor((t + 0.25) % 1)),
-                        ColorSequenceKeypoint.new(0.50, glitchedColor((t + 0.5) % 1)),
-                        ColorSequenceKeypoint.new(0.75, glitchedColor((t + 0.75) % 1)),
-                        ColorSequenceKeypoint.new(1, glitchedColor((t + 1) % 1))
-                    }
-                )
+                colorOffset = colorOffset + (dt * 0.25) % 1; local ColorSeqArray = {}
+                
+                for i = 0, 17 do
+                    local indexOffset = i * (1 / 17)
+                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, glitchedColor((colorOffset + indexOffset) % 1)))
+                end
+
+                gradient.Color = ColorSequence.new(ColorSeqArray)
             end
         end
     )
@@ -258,10 +228,11 @@ local function setHealingMachineData
             or PetSchema.PetStats.color == "Glitched"
         then
             local t = 0
+
             local gradient = Instance.new("UIGradient")
             gradient.Parent = innerImgButton
 
-            newColorConnection(PetSchema, i, t, gradient)
+            newColorConnection(PetSchema, i, t, gradient, "display")
         end
 
         local isHovering = false
@@ -511,10 +482,11 @@ local function constructorCallback()
                     or Pet.PetStats.color == "Glitched"
                 then
                     local t = 0
+                    
                     local gradient = Instance.new("UIGradient")
                     gradient.Parent = innerImgButton
 
-                    newColorConnection(Pet, i, t, gradient)
+                    newColorConnection(Pet, i, t, gradient, "select")
                 end
 
                 local isHovering = false

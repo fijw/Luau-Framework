@@ -68,7 +68,7 @@ local function returnPurpleAndBlueWaveText(text: string, textColorOffset: number
     for first: number, last: number in utf8.graphemes(text) do
         charIndex += 1
 
-        local wave = math.sin(textColorOffset * (#text + 1) + (charIndex * 1))
+        local wave = math.sin(textColorOffset * (#text + 0.5) + charIndex)
         local t = (wave + 1) / 2
 
         result ..= `<font color="#{color1:Lerp(color2, t):ToHex()}">{text:sub(first, last)}</font>`
@@ -94,7 +94,7 @@ local function returnGoldAndPinkWaveText(text: string, textColorOffset: number):
     for first: number, last: number in utf8.graphemes(text) do
         charIndex += 1
 
-        local wave = math.sin(textColorOffset * (#text + 1) + (charIndex * 1))
+        local wave = math.sin(textColorOffset * (#text + 0.5) + charIndex)
         local t = (wave + 1) / 2
 
         result ..= `<font color="#{color1:Lerp(color2, t):ToHex()}">{text:sub(first, last)}</font>`
