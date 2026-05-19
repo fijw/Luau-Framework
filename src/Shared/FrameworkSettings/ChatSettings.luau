@@ -6,8 +6,7 @@
 export type ChatTagSchema
 = {
     tagText: string,
-    isRainbow: true?,
-    tagColor: Color3?
+    tagColor: Color3 | "rainbow" | "purple_and_blue" | "gold_and_pink"
 }
 
 
@@ -17,45 +16,45 @@ local ChatSettings
     = {
         [255]
         = {
-            tagText = "🔒 Holder",
-            isRainbow = true
-        },
+            tagText = "👑 Owner",
+            tagColor = "purple_and_blue"
+        } :: ChatTagSchema,
 
         [254]
         = {
-            tagText = "👑 Owner",
-            isRainbow = true
-        },
+            tagText = "🔨 Developer",
+            tagColor = "rainbow"
+        } :: ChatTagSchema,
 
         [253]
         = {
-            tagText = "🔨 Developer",
-            isRainbow = true
-        },
+            tagText = "🔧 Contributor",
+            tagColor = Color3.fromRGB(255, 145, 0)
+        } :: ChatTagSchema,
 
         [252]
         = {
             tagText = "👀 Manager",
             tagColor = Color3.fromRGB(119, 0, 255)
-        },
+        } :: ChatTagSchema,
 
         [251]
         = {
             tagText = "⚖ Moderator",
             tagColor = Color3.fromRGB(0, 132, 255)
-        },
+        } :: ChatTagSchema,
 
         [250]
         = {
             tagText = "🕵️‍♂️ Tester",
             tagColor = Color3.fromRGB(255, 0, 0)
-        },
+        } :: ChatTagSchema,
 
         [249]
         = {
             tagText = "✅ Verified",
             tagColor = Color3.fromRGB(0, 255, 0)
-        }
+        } :: ChatTagSchema
     },
 
     UserIdsWithChatTags
@@ -64,13 +63,13 @@ local ChatSettings
         = {
             tagText = "🤫 Lewis",
             tagColor = Color3.fromRGB(255, 255, 0)
-        },
+        } :: ChatTagSchema,
 
         [5575325013]
         = {
             tagText = "🤔 Alice",
             tagColor = Color3.fromRGB(0, 255, 0)
-        }
+        } :: ChatTagSchema
     },
 
     GamepassesWithChatTags
@@ -79,15 +78,15 @@ local ChatSettings
         = {
             tagText = "🌹 Paid1",
             tagColor = Color3.fromRGB(255, 0, 255)
-        },
+        } :: ChatTagSchema,
 
         [1783948225]
         = {
             tagText = "🌷 Paid2",
-            isRainbow = true
-        }
+            tagColor = "gold_and_pink"
+        } :: ChatTagSchema
     }
-} :: { [string]: { [number]: ChatTagSchema } }
+}
 
 
 table.freeze(ChatSettings)

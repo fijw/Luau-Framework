@@ -14,11 +14,11 @@ local Initialization = ReplicatedStorage:FindFirstChild("Initialization")
 local FrameworkGroup = require(ReplicatedStorage.Networking.PacketGroups.Framework)
 
 
-local ChatTagsService = StarterPlayer.StarterPlayerScripts.Services.ChatTagsService
 local FlyingService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.FlyingService
 local PermissionsDisplayService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIServices.PermissionsDisplayService
 local CommandConsoleUIService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIServices.CommandConsoleUIService
 local SpectateService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.SpectateService
+local ChatTagService = StarterPlayer.StarterPlayerScripts.Services.ChatTagService
 
 local InventoryComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Inventory
 local CrateMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.CrateMachine
@@ -42,11 +42,11 @@ local isServer = RunService:IsServer()
 
 local ModulesToLoad
 = {
-    --[ChatTagsService.Name] = ChatTagsService,
     [FlyingService.Name] = FlyingService,
     [PermissionsDisplayService.Name] = PermissionsDisplayService,
     [CommandConsoleUIService.Name] = CommandConsoleUIService,
     [SpectateService.Name] = SpectateService,
+    [ChatTagService.Name] = ChatTagService,
     
     [DevPetSpawningComponent.Name] = DevPetSpawningComponent,
     [InventoryComponent.Name] = InventoryComponent,

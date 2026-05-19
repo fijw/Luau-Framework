@@ -248,33 +248,45 @@ local function addPetToTrade
                 if Pet.PetStats.color == "Rainbow" then
                     gradient.Color = ColorSequence.new(
                         {
-                            ColorSequenceKeypoint.new(0, Color3.fromHSV((t + 0) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.1, Color3.fromHSV((t + 0.1) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.2, Color3.fromHSV((t + 0.2) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.3, Color3.fromHSV((t + 0.3) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.4, Color3.fromHSV((t + 0.4) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.5, Color3.fromHSV((t + 0.5) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.6, Color3.fromHSV((t + 0.6) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.7, Color3.fromHSV((t + 0.7) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.8, Color3.fromHSV((t + 0.8) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(0.9, Color3.fromHSV((t + 0.9) % 1, 1, 1)),
-                            ColorSequenceKeypoint.new(1, Color3.fromHSV((t + 1) % 1, 1, 1))
+                            ColorSequenceKeypoint.new(0, Color3.fromHSV(t % 1, 1, 1)),
+                            ColorSequenceKeypoint.new(0.0625, Color3.fromHSV((t + 0.0625) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 2), Color3.fromHSV((t + (0.0625 * 2)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 3), Color3.fromHSV((t + (0.0625 * 3)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 4), Color3.fromHSV((t + (0.0625 * 4)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 5), Color3.fromHSV((t + (0.0625 * 5)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 6), Color3.fromHSV((t + (0.0625 * 6)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 7), Color3.fromHSV((t + (0.0625 * 7)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 8), Color3.fromHSV((t + (0.0625 * 8)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 9), Color3.fromHSV((t + (0.0625 * 9)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 10), Color3.fromHSV((t + (0.0625 * 10)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 11), Color3.fromHSV((t + (0.0625 * 11)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 12), Color3.fromHSV((t + (0.0625 * 12)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 13), Color3.fromHSV((t + (0.0625 * 13)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 14), Color3.fromHSV((t + (0.0625 * 14)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 15), Color3.fromHSV((t + (0.0625 * 15)) % 1, 1, 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 16), Color3.fromHSV((t + (0.0625 * 16)) % 1, 1, 1))
                         }
                     )
                 elseif Pet.PetStats.color == "Radioactive" then
                     gradient.Color = ColorSequence.new(
                         {
-                            ColorSequenceKeypoint.new(0, radioactiveColor((t + 0) % 1)),
-                            ColorSequenceKeypoint.new(0.1, radioactiveColor((t + 0.1) % 1)),
-                            ColorSequenceKeypoint.new(0.2, radioactiveColor((t + 0.2) % 1)),
-                            ColorSequenceKeypoint.new(0.3, radioactiveColor((t + 0.3) % 1)),
-                            ColorSequenceKeypoint.new(0.4, radioactiveColor((t + 0.4) % 1)),
-                            ColorSequenceKeypoint.new(0.5, radioactiveColor((t + 0.5) % 1)),
-                            ColorSequenceKeypoint.new(0.6, radioactiveColor((t + 0.6) % 1)),
-                            ColorSequenceKeypoint.new(0.7, radioactiveColor((t + 0.7) % 1)),
-                            ColorSequenceKeypoint.new(0.8, radioactiveColor((t + 0.8) % 1)),
-                            ColorSequenceKeypoint.new(0.9, radioactiveColor((t + 0.9) % 1)),
-                            ColorSequenceKeypoint.new(1, radioactiveColor((t + 1) % 1))
+                            ColorSequenceKeypoint.new(0, radioactiveColor(t % 1)),
+                            ColorSequenceKeypoint.new(0.0625, radioactiveColor((t + 0.0625) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 2), radioactiveColor((t + (0.0625 * 2)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 3), radioactiveColor((t + (0.0625 * 3)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 4), radioactiveColor((t + (0.0625 * 4)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 5), radioactiveColor((t + (0.0625 * 5)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 6), radioactiveColor((t + (0.0625 * 6)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 7), radioactiveColor((t + (0.0625 * 7)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 8), radioactiveColor((t + (0.0625 * 8)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 9), radioactiveColor((t + (0.0625 * 9)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 10), radioactiveColor((t + (0.0625 * 10)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 11), radioactiveColor((t + (0.0625 * 11)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 12), radioactiveColor((t + (0.0625 * 12)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 13), radioactiveColor((t + (0.0625 * 13)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 14), radioactiveColor((t + (0.0625 * 14)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 15), radioactiveColor((t + (0.0625 * 15)) % 1)),
+                            ColorSequenceKeypoint.new((0.0625 * 16), radioactiveColor((t + (0.0625 * 16)) % 1))
                         }
                     )
                 elseif Pet.PetStats.color == "Glitched" then
