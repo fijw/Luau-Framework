@@ -93,6 +93,9 @@ end
 local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: string }, plrRootPart: BasePart)
     if EquippedPetsCache[EquippingData.petId] then return end
 
+    local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, EquippingData.petId)
+    if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
+
     local petModel = AssetsPetsFolder:WaitForChild(EquippingData.PetData.petName) :: Model
     if not petModel.PrimaryPart then repeat task.wait() until petModel.PrimaryPart end
     
