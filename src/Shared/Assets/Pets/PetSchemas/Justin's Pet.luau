@@ -27,7 +27,7 @@ local PetSchema: PetSchema
 
     PetStats
     = {
-        rarity = Data.RARITIES[7] :: any,
+        rarity = "Unobtainable",
         size = nil :: any,
         color = nil :: any
     }

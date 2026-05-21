@@ -51,58 +51,6 @@ local function returnRainbowText(text: string, textColorOffset: number): string
     return rbText
 end
 
---[[
-    @usage Returns the purple and blue wave text of a string.
-
-    @param baseText string
-    @param timeOffset number
-
-    @return string
-]]
-local function returnPurpleAndBlueWaveText(text: string, textColorOffset: number): string
-    local result = ""
-    local charIndex = 0
-    local color1 = Color3.fromRGB(170, 0, 255)
-    local color2 = Color3.fromRGB(0, 110, 255)
-
-    for first: number, last: number in utf8.graphemes(text) do
-        charIndex += 1
-
-        local wave = math.sin(textColorOffset * (#text + 0.5) + charIndex)
-        local t = (wave + 1) / 2
-
-        result ..= `<font color="#{color1:Lerp(color2, t):ToHex()}">{text:sub(first, last)}</font>`
-    end
-
-    return result
-end
-
---[[
-    @usage Returns the gold and pink wave text of a string.
-
-    @param baseText string
-    @param timeOffset number
-
-    @return string
-]]
-local function returnGoldAndPinkWaveText(text: string, textColorOffset: number): string
-    local result = ""
-    local charIndex = 0
-    local color1 = Color3.fromRGB(255, 255, 0)
-    local color2 = Color3.fromRGB(255, 0, 255)
-
-    for first: number, last: number in utf8.graphemes(text) do
-        charIndex += 1
-
-        local wave = math.sin(textColorOffset * (#text + 0.5) + charIndex)
-        local t = (wave + 1) / 2
-
-        result ..= `<font color="#{color1:Lerp(color2, t):ToHex()}">{text:sub(first, last)}</font>`
-    end
-
-    return result
-end
-
 
 --[[ @section Constructor ]]
 --[[
@@ -112,30 +60,22 @@ end
 ]]
 local function constructorCallback()
     local chatColorOffset = 255
-    local dualColorTextColorOffset = 0
-    local singleWaveTextColorOffset = 0
+    local waveTextColorOffset = 0
 
     RunService.Heartbeat:Connect(
         function(dt: number)
-            dualColorTextColorOffset += dt / 2.5; dualColorTextColorOffset %= 1
-            singleWaveTextColorOffset += dt / 2; singleWaveTextColorOffset %= 1
+            waveTextColorOffset += dt / 2; waveTextColorOffset %= 1
 
             for i: number, ChatData: HandledChatSchema in ipairs(HandledChatsArray) do
                 local prefixText = ""
 
                 for i: number, TagData: ChatTagSchema in ipairs(ChatData.TagsArray) do
-                    if TagData.tagColor ~= "rainbow" and TagData.tagColor ~= "gold_and_pink" and TagData.tagColor ~= "purple_and_blue" then
+                    if TagData.tagColor ~= "rainbow" then
                         if typeof(TagData.tagColor) ~= "Color3" then continue end
                         prefixText ..= `<font color="#{TagData.tagColor:ToHex()}">[{TagData.tagText}]</font> `; continue
                     end
                     
-                    if TagData.tagColor == "rainbow" then
-                        prefixText ..= `{returnRainbowText(`[{TagData.tagText}]`, singleWaveTextColorOffset)} `
-                    elseif TagData.tagColor == "purple_and_blue" then
-                        prefixText ..= `{returnPurpleAndBlueWaveText(`[{TagData.tagText}]`, dualColorTextColorOffset)} `
-                    elseif TagData.tagColor == "gold_and_pink" then
-                        prefixText ..= `{returnGoldAndPinkWaveText(`[{TagData.tagText}]`, dualColorTextColorOffset)} `
-                    end
+                    if TagData.tagColor == "rainbow" then prefixText ..= `{returnRainbowText(`[{TagData.tagText}]`, waveTextColorOffset)} ` end
                 end
 
                 ChatData.Props.PrefixText = `{prefixText}{ChatData.storedPrefixText}`
@@ -177,9 +117,7 @@ local function constructorCallback()
             local hasWavingTags = false
 
             for i: number, TagData: ChatTagSchema in ipairs(TagsArray) do
-                if TagData.tagColor == "rainbow" or TagData.tagColor == "gold_and_pink" or TagData.tagColor == "purple_and_blue" then
-                    hasWavingTags = true; break
-                end
+                if TagData.tagColor == "rainbow" then hasWavingTags = true; break end
             end
 
             if not hasWavingTags then

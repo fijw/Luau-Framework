@@ -12,7 +12,7 @@ local CrateSchemas = require(ReplicatedStorage.Assets.Crates.CrateSchemas)
 local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
 local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
 
-local RNG = require(ReplicatedStorage.Libraries.RNG)
+local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
@@ -133,6 +133,7 @@ local function constructorCallback()
                 local CopiedChances = {}
 
                 for Pet: PetSchema, chance: number in pairs(Crate.Chances) do
+                    if Pet.PetStats.rarity == "Secret" then continue end
                     CopiedChances[Pet.petName] = chance
                 end
 

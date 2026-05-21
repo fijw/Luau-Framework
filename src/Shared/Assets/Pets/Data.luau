@@ -17,7 +17,7 @@ export type PetSchema
 
     PetStats
     : {
-        rarity: "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | "???" | "Secret",
+        rarity: "Common" | "Rare" | "Legendary" | "Secret" | "Unobtainable",
         size: "Default" | "Huge" | "Gigantic" | "Worldbreaker",
         color: "Default" | "Rainbow" | "Radioactive" | "Glitched"
     },
@@ -29,17 +29,6 @@ export type PetSchema
 
 local Data
 = {
-    RARITIES
-    = {
-        [1] = "Common",
-        [2] = "Uncommon",
-        [3] = "Rare",
-        [4] = "Epic",
-        [5] = "Legendary",
-        [6] = "???",
-        [7] = "Secret"
-    },
-
     PHYSICAL_ATTRIBUTES
     = {
         SIZES

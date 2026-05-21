@@ -115,7 +115,7 @@ local function addPlayerTradingContainer
             HandledNotificationUI:hoverAndToggleSizing(1.15)
             HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
             
-            NotificationComponents().notificationText.Text = `Attempted to send a trade request to {plr.DisplayName}.<br /><br />If they are in a trade or already have a pending trade request, they will not be notified.`
+            NotificationComponents().notificationText.Text = `Attempted to send a trade request to {plr.DisplayName}.`
             
             HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                 function(pos1: number, pos2: number)

@@ -111,6 +111,12 @@ local function constructorCallback()
     local xpToNextLevelText = levelsDisplay:WaitForChild("XPToNextLevelText") :: TextLabel
     local levelsToRebirthText = rebirthsDisplay:WaitForChild("LevelsToRebirthText") :: TextLabel
 
+    local oldInvBtnPos = inventoryBtn.Position
+    inventoryBtn.Position = UDim2.new(0.5, 0, 0.5, 0)
+
+    local HideAndShowBarButtons = { tradingBtn, rebirthBtn, shopBtn, marketplaceBtn, settingsBtn }
+    for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do button.Visible = false end
+
     -- Opening animations.
     do
         local originalMenuSize, originalStatsSize, originalTeleportSize = menuContainer.Size, statsContainer.Size, teleportBtn.Size
@@ -120,11 +126,8 @@ local function constructorCallback()
 
         tweenInst(menuContainer, 0.25, "size", originalMenuSize)
         tweenInst(statsContainer, 0.25, "size", originalStatsSize)
-        tweenInst(teleportBtn, 0.25, "size", originalTeleportSize)
+        tweenInst(teleportBtn, 0.25, "size", originalTeleportSize):waitForCompletion()
     end
-
-    local HideAndShowBarButtons = { tradingBtn, rebirthBtn, shopBtn, marketplaceBtn, settingsBtn }
-    for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do button.Visible = false end
 
     local HideAndShowButtonPositions
     = {
@@ -147,9 +150,6 @@ local function constructorCallback()
 
     local HandledUi = UIUtilitiesLibrary("hud", clonedScreen)
     HandledUi:hoverAndToggleSizing(1.15)
-
-    local oldInvBtnPos = inventoryBtn.Position
-    inventoryBtn.Position = UDim2.new(0.5, 0, 0.5, 0)
 
     -- HUD button presses.
     do

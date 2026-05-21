@@ -11,7 +11,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 
-local TimeLib = require(ReplicatedStorage.Libraries.TimeLib)
+local TimeLib = require(ReplicatedStorage.Libraries.NumberLibs.TimeLib)
 --[[ @end_section Imports ]]
 
 

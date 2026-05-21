@@ -14,6 +14,8 @@ local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 local Components = require(script.Components)
 local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 
+local UtilsComponent = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.UtilsComponent)
+
 local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
 local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
 
@@ -114,9 +116,19 @@ local function addCratesToMachine(crateFrame: Frame, Crates: { CrateSchema }, Ha
             clonedDetailsContainer.Visible = true
             
             local ImageLabel = clonedDetailsContainer:WaitForChild("ImageLabel") :: ImageLabel
-            local TextLabel = clonedDetailsContainer:WaitForChild("TextLabel") :: TextLabel
+            ImageLabel.ImageColor3 = UtilsComponent.COLOR_RARITY_MAP[PetData.PetStats.rarity]
 
-            ImageLabel.Image = PetData.petImageId
+            local petInnerImage = Instance.new("ImageLabel")
+            petInnerImage.AnchorPoint = Vector2.new(0.5, 0.5)
+            petInnerImage.Position = UDim2.fromScale(0.5, 0.5)
+            petInnerImage.Parent = ImageLabel
+            petInnerImage.BackgroundTransparency = 1
+            petInnerImage.BorderSizePixel = 0
+            petInnerImage.ZIndex = 2
+            petInnerImage.Size = UDim2.fromScale(0.85, 0.85)
+            petInnerImage.Image = PetData.petImageId
+            
+            local TextLabel = clonedDetailsContainer:WaitForChild("TextLabel") :: TextLabel
             TextLabel.Text = `{chance}%`
         end
 

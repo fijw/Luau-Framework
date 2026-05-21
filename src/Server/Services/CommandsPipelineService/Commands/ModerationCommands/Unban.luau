@@ -11,7 +11,7 @@ local DataStoreService = game:GetService("DataStoreService")
 local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
-local RNG = require(ReplicatedStorage.Libraries.RNG)
+local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 

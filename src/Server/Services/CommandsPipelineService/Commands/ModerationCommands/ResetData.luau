@@ -13,7 +13,7 @@ local Players = game:GetService("Players")
 local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
 
 local Chronovisor = require(ReplicatedStorage.Libraries.Chronovisor)
-local RNG = require(ReplicatedStorage.Libraries.RNG)
+local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
 local Compression = require(ReplicatedStorage.Libraries.DataLibs.Compression)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)

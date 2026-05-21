@@ -20,12 +20,13 @@ local CrateSchema: CrateSchema
 
     Chances
     = {
-        [PetSchemas["Justin's Pet"]] = 20,
+        [PetSchemas["Justin's Pet"]] = 10,
         [PetSchemas["Nv's Pet"]] = 20,
         [PetSchemas["Cat"]] = 20,
         [PetSchemas["Dog"]] = 20,
         [PetSchemas["Rabbit"]] = 10,
-        [PetSchemas["Sad Cat"]] = 10
+        [PetSchemas["Sad Cat"]] = 10,
+        [PetSchemas["Test Pet"]] = 10
     },
 
     price = 100

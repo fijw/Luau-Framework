@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local RNG = require(ReplicatedStorage.Libraries.RNG)
+local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 
 local Data = require(ReplicatedStorage.Assets.Pets.Data)
 

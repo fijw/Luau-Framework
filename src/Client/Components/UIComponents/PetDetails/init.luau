@@ -14,7 +14,6 @@ type ComponentsMap
 = {
     mainFrame: ImageLabel,
     colorText: TextLabel,
-    rarityFrame: ImageLabel,
     rarityText: TextLabel,
     sizeText: TextLabel,
     healthText: TextLabel,
@@ -52,8 +51,6 @@ local function constructorCallback(): ComponentsMap
     local detailsContainer = innerContainer:WaitForChild("DetailsContainer") :: Frame
     local color = detailsContainer:WaitForChild("ColorContainer") :: ImageLabel
     local colorText = color:WaitForChild("TextLabel") :: TextLabel
-    local rarity = innerContainer:WaitForChild("RarityFrame") :: ImageLabel
-    local rarityText = rarity:WaitForChild("TextLabel") :: TextLabel
     local size = detailsContainer:WaitForChild("SizeContainer") :: ImageLabel
     local sizeText = size:WaitForChild("TextLabel") :: TextLabel
     local statsContainer = innerContainer:WaitForChild("StatsContainer") :: Frame
@@ -63,14 +60,15 @@ local function constructorCallback(): ComponentsMap
     local dmgText = dmgContainer:WaitForChild("TextLabel") :: TextLabel
     local healthText = healthContainer:WaitForChild("TextLabel") :: TextLabel
     local tradeableText = tradeableContainer:WaitForChild("TextLabel") :: TextLabel
-    local petName = innerContainer:WaitForChild("PetName") :: TextLabel
+    local titleContainer = innerContainer:WaitForChild("TitleContainer") :: Frame
+    local petName = titleContainer:WaitForChild("PetName") :: TextLabel
+    local petRarity = titleContainer:WaitForChild("PetRarity") :: TextLabel
 
     local ComponentsMap: ComponentsMap
     = {
         mainFrame = mainFrame,
-        rarityFrame = rarity,
         colorText = colorText,
-        rarityText = rarityText,
+        rarityText = petRarity,
         sizeText = sizeText,
         dmgText = dmgText,
         healthText = healthText,

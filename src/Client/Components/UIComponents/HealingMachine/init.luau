@@ -19,6 +19,8 @@ local SelectPetsComponents = require(StarterPlayer.StarterPlayerScripts.Componen
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 
+local UtilsComponent = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.UtilsComponent)
+
 local Data = require(ReplicatedStorage.Assets.Pets.Data)
 --[[ @end_section Imports ]]
 
@@ -42,53 +44,7 @@ local CachedHealingMachinePetButtons: { [string]: ImageLabel } = {}
 local CachedPetDatasForExpanding: { [string]: PetSchema } = {}
 
 local SelectingPets: { string } = {}
-
-local COLOR_RARITY_MAP
-= {
-    Common = Color3.fromRGB(150, 150, 150),
-    Uncommon = Color3.fromRGB(50, 50, 150),
-    Rare = Color3.fromRGB(50, 150, 50),
-    Epic = Color3.fromRGB(150, 150, 50),
-    Legendary = Color3.fromRGB(162, 0, 150),
-    Secret = Color3.fromRGB(0, 0, 0),
-    ["???"] = Color3.fromRGB(99, 0, 0)
-}
 --[[ @end_section Variables ]]
-
-
---[[ @usage Color Functions ]]
---[[
-    @usage Get radioactive color.
-
-    @param x number
-
-    @return Color3
-]]
-local function radioactiveColor(x: number): Color3
-    x = x % 1
-
-    if x < 0.25 then
-        return Color3.fromRGB(0, 0, 0):Lerp(Color3.fromRGB(0, 255, 0), x / 0.25)
-    elseif x < 0.5 then
-        return Color3.fromRGB(0, 255, 0):Lerp(Color3.fromRGB(0, 0, 0), (x - 0.25) / 0.25)
-    elseif x < 0.75 then
-        return Color3.fromRGB(0, 0, 0):Lerp(Color3.fromRGB(255, 255, 0), (x - 0.5) / 0.25)
-    else
-        return Color3.fromRGB(255, 255, 0):Lerp(Color3.fromRGB(0, 0, 0), (x - 0.75) / 0.25)
-    end
-end
-
---[[
-    @usage Get glitched color.
-
-    @param x number
-
-    @return Color3
-]]
-local function glitchedColor(x: number): Color3
-    return Color3.fromRGB(0, 0, 0):Lerp(Color3.fromRGB(128, 0, 255), math.sin(x * math.pi * 2) * 0.5 + 0.5)
-end
---[[ @end_section Color Functions ]]
 
 
 --[[ @section Utility Functions ]]
@@ -152,7 +108,7 @@ local function newColorConnection(PetSchema: PetSchema, i: string, colorOffset: 
                 
                 for i = 0, 17 do
                     local indexOffset = i * (1 / 17)
-                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, Color3.fromHSV((colorOffset + indexOffset) % 1, 1, 1)))
+                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, Color3.fromHSV((colorOffset + indexOffset) % 1, 0.75, 1)))
                 end
 
                 gradient.Color = ColorSequence.new(ColorSeqArray)
@@ -161,7 +117,7 @@ local function newColorConnection(PetSchema: PetSchema, i: string, colorOffset: 
                 
                 for i = 0, 17 do
                     local indexOffset = i * (1 / 17)
-                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, radioactiveColor((colorOffset + indexOffset) % 1)))
+                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, UtilsComponent.radioactiveColor((colorOffset + indexOffset) % 1)))
                 end
 
                 gradient.Color = ColorSequence.new(ColorSeqArray)
@@ -170,7 +126,7 @@ local function newColorConnection(PetSchema: PetSchema, i: string, colorOffset: 
                 
                 for i = 0, 17 do
                     local indexOffset = i * (1 / 17)
-                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, glitchedColor((colorOffset + indexOffset) % 1)))
+                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, UtilsComponent.glitchedColor((colorOffset + indexOffset) % 1)))
                 end
 
                 gradient.Color = ColorSequence.new(ColorSeqArray)
@@ -208,7 +164,7 @@ local function setHealingMachineData
         local newPetLabel = imageLabel:Clone()
         newPetLabel.Name = i
         newPetLabel.Visible = true
-        newPetLabel.ImageColor3 = COLOR_RARITY_MAP[PetSchema.PetStats.rarity]
+        newPetLabel.ImageColor3 = UtilsComponent.COLOR_RARITY_MAP[PetSchema.PetStats.rarity]
         newPetLabel.Parent = scrollingFrame
 
         local innerImgButton = Instance.new("ImageButton")
@@ -230,6 +186,7 @@ local function setHealingMachineData
             local t = 0
 
             local gradient = Instance.new("UIGradient")
+            gradient.Rotation = 40
             gradient.Parent = innerImgButton
 
             newColorConnection(PetSchema, i, t, gradient, "display")
@@ -250,13 +207,9 @@ local function setHealingMachineData
                 PetDetailsComponents().rarityText.Text = PetSchema.PetStats.rarity
 
                 if PetSchema.PetStats.rarity == "Common" then
-                    PetDetailsComponents().rarityFrame.ImageColor3 = Color3.fromRGB(255, 255, 255)
-                    PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(0, 0, 0)
-                elseif PetSchema.PetStats.rarity == "Epic" then
                     PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(0, 0, 0)
                 else
-                    PetDetailsComponents().rarityFrame.ImageColor3 = COLOR_RARITY_MAP[PetSchema.PetStats.rarity]
-                    PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    PetDetailsComponents().rarityText.TextColor3 = UtilsComponent.COLOR_RARITY_MAP[PetSchema.PetStats.rarity]
                 end
 
                 while true do
@@ -276,87 +229,6 @@ local function setHealingMachineData
 
     slotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} healing slots.`
     return numOfPets
-end
-
---[[
-    @usage Creates the selected tick for a pet.
-
-    @param petLabel ImageLabel
-
-    @return void
-]]
-local function createSelectedTick(petLabel: ImageLabel)
-    local newTick = Instance.new("ImageLabel")
-    newTick.Image = "rbxassetid://120401071933338"
-    newTick.BackgroundTransparency = 1
-    newTick.BorderSizePixel = 0
-    newTick.Position = UDim2.new(0.65, 0, 0, 0)
-    newTick.Size = UDim2.new(0.35, 0, 0.35, 0)
-    newTick.Name = "SelectedTick"
-    newTick.ZIndex = 3
-    newTick.Parent = petLabel
-end
-
---[[
-    @usage Expand items.
-
-    @param inst ImageLabel
-    @param ExpandingNums { [string]: number }
-
-    @return void
-]]
-local function expandItems(inst: ImageLabel, ExpandingNums: { [string]: number }, expanding: boolean)
-    if inst.Name == "Gigantic" then
-        if not expanding then
-            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
-            return
-        end
-
-        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
-        return
-    elseif inst.Name == "Huge" then
-        if not expanding then
-            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
-            return
-        end
-
-        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
-        return
-    elseif inst.Name == "Default" then
-        if not expanding then
-            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
-            return
-        end
-
-        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
-        return
-    end
-
-    local InstPetData = CachedPetDatasForExpanding[inst.Name]
-    if not InstPetData then return end
-
-    if InstPetData.PetStats.size == "Gigantic" then
-        if not expanding then
-            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)
-            return
-        end
-
-        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.gigantic, inst.Size.Y.Scale / ExpandingNums.gigantic)
-    elseif InstPetData.PetStats.size == "Huge" then
-        if not expanding then
-            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.huge, inst.Size.Y.Scale * ExpandingNums.huge)
-            return
-        end
-
-        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.huge, inst.Size.Y.Scale / ExpandingNums.huge)
-    else
-        if not expanding then
-            inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.default, inst.Size.Y.Scale * ExpandingNums.default)
-            return
-        end
-
-        inst.Size = UDim2.fromScale(inst.Size.X.Scale / ExpandingNums.default, inst.Size.Y.Scale / ExpandingNums.default)
-    end
 end
 --[[ @end_section Utility Functions ]]
 
@@ -416,6 +288,12 @@ local function constructorCallback()
                 function(pos1: number, pos2: number)
                     isExpanded = not isExpanded
 
+                    if isExpanded then
+                        SelectPetsComponents().expandBtn.Image = "rbxassetid://78262684079325"
+                    else
+                        SelectPetsComponents().expandBtn.Image = "rbxassetid://130599991371204"
+                    end
+
                     local ExpandingNums
                     = {
                         gigantic = 2.04,
@@ -426,12 +304,12 @@ local function constructorCallback()
                     if isExpanded then
                         for i: number, inst: Instance in ipairs(SelectPetsComponents().scrollingFrame:GetChildren()) do
                             if not inst:IsA("ImageLabel") then continue end
-                            expandItems(inst, ExpandingNums, true)
+                            UtilsComponent.expandItems(inst, ExpandingNums, true, CachedPetDatasForExpanding)
                         end
                     else
                         for i: number, inst: Instance in ipairs(SelectPetsComponents().scrollingFrame:GetChildren()) do
                             if not inst:IsA("ImageLabel") then continue end
-                            expandItems(inst, ExpandingNums, false)
+                            UtilsComponent.expandItems(inst, ExpandingNums, false, CachedPetDatasForExpanding)
                         end
                     end
                 end
@@ -461,7 +339,7 @@ local function constructorCallback()
 
                 newPetLabel.Name = i
                 newPetLabel.Visible = true
-                newPetLabel.ImageColor3 = COLOR_RARITY_MAP[Pet.PetStats.rarity]
+                newPetLabel.ImageColor3 = UtilsComponent.COLOR_RARITY_MAP[Pet.PetStats.rarity]
                 newPetLabel.Parent = SelectPetsComponents().scrollingFrame
 
                 local innerImgButton = Instance.new("ImageButton")
@@ -484,6 +362,7 @@ local function constructorCallback()
                     local t = 0
                     
                     local gradient = Instance.new("UIGradient")
+                    gradient.Rotation = 40
                     gradient.Parent = innerImgButton
 
                     newColorConnection(Pet, i, t, gradient, "select")
@@ -504,13 +383,9 @@ local function constructorCallback()
                         PetDetailsComponents().rarityText.Text = Pet.PetStats.rarity
 
                         if Pet.PetStats.rarity == "Common" then
-                            PetDetailsComponents().rarityFrame.ImageColor3 = Color3.fromRGB(255, 255, 255)
-                            PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(0, 0, 0)
-                        elseif Pet.PetStats.rarity == "Epic" then
                             PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(0, 0, 0)
                         else
-                            PetDetailsComponents().rarityFrame.ImageColor3 = COLOR_RARITY_MAP[Pet.PetStats.rarity]
-                            PetDetailsComponents().rarityText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                            PetDetailsComponents().rarityText.TextColor3 = UtilsComponent.COLOR_RARITY_MAP[Pet.PetStats.rarity]
                         end
 
                         while true do
@@ -538,7 +413,7 @@ local function constructorCallback()
                             if foundTick then foundTick:Destroy() end
                         else
                             table.insert(SelectingPets, i)
-                            createSelectedTick(newPetLabel)
+                            UtilsComponent.createTick(newPetLabel, "selected")
                         end
                     end
                 )

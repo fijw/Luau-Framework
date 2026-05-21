@@ -12,7 +12,7 @@ local SpawningSettings = require(ReplicatedStorage.SpawningSettings)
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
-local RNG = require(ReplicatedStorage.Libraries.RNG)
+local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 
 local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)

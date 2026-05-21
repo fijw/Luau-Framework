@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local RNG = require(ReplicatedStorage.Libraries.RNG)
+local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 
 local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 
@@ -29,7 +29,8 @@ local function constuctorCallback()
 
     TradingGroup.AcceptTradeRequest:onServerEvent(
         function(sender: Player, data: nil)
-            --if not sender or sender.Name == TradesMap.MappedTradeRequests[sender].Name then return end
+            if not Players:GetPlayerByUserId(TradesMap.MappedTradeRequests[sender].UserId) then return end
+            if TradesMap.MappedTradingPlayers[TradesMap.MappedTradeRequests[sender]] then return end
 
             -- Create a new trade between the two players.
             do
