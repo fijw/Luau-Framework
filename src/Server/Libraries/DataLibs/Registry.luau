@@ -127,7 +127,7 @@ export type DataClass = setmetatable
     {
         __index
         : {
-            saveClass: (self: DataClass, keepInUseStatus: true?) -> (),
+            saveClass: (self: DataClass, keepInUseStatus: true?) -> (true?),
             deleteClass: (self: DataClass) -> ()
         },
 
@@ -140,7 +140,7 @@ export type DataClass = setmetatable
 --[[ @section Variables ]]
 local SettingsDataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE_KEY)
 
-local CachedDataClasses = {}
+local CachedDataClasses: { [number]: DataClass } = {}
 
 local Registry = {}
 --[[ @end_section Variables ]]
@@ -150,24 +150,17 @@ local Registry = {}
 do
     game:BindToClose(
         function()
-            local numberOfPlayerDataClasses: number? = nil
+            local numOfDataClasses = 0
+            for i: number, Class: DataClass in pairs(CachedDataClasses) do numOfDataClasses += 1 end
+
+            if numOfDataClasses <= 0 then return end
 
             repeat
-                task.wait()
+                numOfDataClasses = 0
+                for i: number, Class: DataClass in pairs(CachedDataClasses) do numOfDataClasses += 1 end
 
-                for i: string, DataClass: DataClass in pairs(CachedDataClasses :: { [string]: DataClass }) do
-                    if not numberOfPlayerDataClasses then
-                        numberOfPlayerDataClasses = 1
-
-                        continue
-                    end
-                    
-                    numberOfPlayerDataClasses += 1
-                end
-
-                if not numberOfPlayerDataClasses then break end
-                numberOfPlayerDataClasses = nil
-            until numberOfPlayerDataClasses == 0
+                if numOfDataClasses <= 0 then break end; task.wait()
+            until true == false :: any
         end
     )
 end
@@ -268,9 +261,9 @@ end
     @param self DataClass
     @param keepInUseStatus true?
 
-    @return void
+    @return true?
 ]]
-local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
+local function saveClassCallback(self: DataClass, keepInUseStatus: true?): true?
     local SavingClassData = {}
 
     for i: string, v: StateEngine<any> in pairs(self()() :: { [string]: StateEngine<any> }) do
@@ -290,7 +283,7 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
     :onError(function(err: string?) print(`Failed to save {self.classKey}'s data class. Error: {err}`) end)
 
     local FetchedStoredData = Registry.forciblyFetchStoredPlayerData(tonumber(self.classKey) :: number)
-    if not FetchedStoredData then return end
+    if not FetchedStoredData then return nil end
 
     -- Prevent data mismatches by comparing the stored data and the saving data.
     do
@@ -307,12 +300,12 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
         end
 
         if TableUtils.deepCompare(DecompressedStoredData, DecompressedSavingData) == "match" then
-            if FetchedStoredData.inUse == if keepInUseStatus == true then true else false then return end
+            if FetchedStoredData.inUse == if keepInUseStatus == true then true else false then return true end
         end
 
         print(`Data mismatch when saving [{self.classKey}]'s data.`)
 
-        task.wait(1); self:saveClass(keepInUseStatus)
+        task.wait(1); return self:saveClass(keepInUseStatus)
     end
 end
 

@@ -34,7 +34,7 @@ local function constructorCallback()
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 
-        PlrDataClass:saveClass()
+        local _saveResult = PlrDataClass:saveClass()
         PlrDataClass:deleteClass()
 
         if not CmdsSettings.ServerUsersGivenFunCommands[player.UserId] then return end
