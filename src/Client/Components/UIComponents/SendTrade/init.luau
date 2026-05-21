@@ -102,6 +102,12 @@ local function addPlayerTradingContainer
     local PlrNameText = PlayerNamesContainer:WaitForChild("PlrNameText") :: TextLabel
     local SendTradeBtn = PlayerTradingContainer:WaitForChild("SendTradeBtn") :: ImageButton
 
+    local thumbType = Enum.ThumbnailType.HeadShot
+    local thumbSize = Enum.ThumbnailSize.Size420x420
+
+    local imageUrl, isReady = Players:GetUserThumbnailAsync(plr.UserId, thumbType, thumbSize)
+    if isReady then PlrIcon.Image = imageUrl end
+
     PlrDisplayText.Text = plr.DisplayName
     PlrNameText.Text = `@{plr.Name}`
 
