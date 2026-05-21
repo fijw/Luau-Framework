@@ -619,8 +619,6 @@ local function constructorCallback()
 
                 -- Clear old data.
                 do
-                    isExpanded = false
-
                     SelectedPetsCache = {}
                     CachedPetDatasForExpanding = {}
 

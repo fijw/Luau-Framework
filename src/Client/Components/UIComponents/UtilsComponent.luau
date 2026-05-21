@@ -17,7 +17,7 @@ local UtilsComponent
 = {
     COLOR_RARITY_MAP
     = {
-        Common = Color3.fromRGB(192, 192, 192),
+        Common = Color3.fromRGB(134, 134, 134),
         Rare = Color3.fromRGB(0, 175, 0),
         Legendary = Color3.fromRGB(154, 0, 201),
         Secret = Color3.fromRGB(0, 81, 173),
