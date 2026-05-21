@@ -214,7 +214,7 @@ end
 local function constructorCallback()
     PetsHandlingGroup.PetStartFollowingOwner:onClientEvent(
         function(data)
-            if not EquippedPetsCache[data.petId] then
+            if not GamePetsFolder:FindFirstChild(data.petId) then
                 local plr = Players:GetPlayerByUserId(data.ownerId)
                 if not plr then return end
 
@@ -223,7 +223,7 @@ local function constructorCallback()
                 
                 local plrRootPart = plrChar:WaitForChild("HumanoidRootPart") :: BasePart
                 addPetToWorkspace({ PetData = data.PetData, petId = data.petId }, plrRootPart)
-            elseif EquippedPetsCache[data.petId] then return end
+            elseif GamePetsFolder:FindFirstChild(data.petId) then return end
 
             -- Heartbeat loop while the pet is equipped.
             do
