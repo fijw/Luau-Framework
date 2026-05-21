@@ -43,7 +43,7 @@ local CachedEquippedPets: { [Player]: { [string]: PetSchema } } = {}
 
     @return void
 ]]
-local function equipPet(sender: Player, data: string, isJoining: boolean)
+local function equipPet(sender: Player, data: string, isJoining: boolean, receiver: Player?)
     local PlrDataClass = Registry(sender)
     if not PlrDataClass then return end
 
@@ -66,13 +66,25 @@ local function equipPet(sender: Player, data: string, isJoining: boolean)
 
     if not CachedEquippedPets[sender][data] then CachedEquippedPets[sender][data] = FoundStack.StackData end
 
-    PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
-        {
-            petId = data,
-            PetData = FoundStack.StackData,
-            ownerId = sender.UserId
-        }
-    )
+    if not receiver then
+        PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
+            {
+                petId = data,
+                PetData = FoundStack.StackData,
+                ownerId = sender.UserId
+            }
+        )
+    else
+        PetsHandlingGroup.PetStartFollowingOwner:fireClient(
+            receiver,
+
+            {
+                petId = data,
+                PetData = FoundStack.StackData,
+                ownerId = sender.UserId
+            }
+        )
+    end
 end
 
 --[[
@@ -160,7 +172,7 @@ local function constructorCallback()
         if not Inventory then return end
 
         for i: Player, PlrEquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
-            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do equipPet(i, petId, true) end
+            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do equipPet(i, petId, true, plr) end
         end
 
         for stackId: string, PetStack: StackClass<PetSchema> in pairs(Inventory.StacksDictionary) do

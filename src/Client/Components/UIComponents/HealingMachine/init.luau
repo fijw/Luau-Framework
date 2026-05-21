@@ -269,6 +269,8 @@ local function constructorCallback()
 
     local currentSelectPetsScreenGui: ScreenGui
 
+    local isExpanded = false
+
     HandledUI:handleButtonPress(healPetBtn,
         function(pos1: number, pos2: number)
             currentSelectPetsScreenGui = SelectPetsComponents().selectPets
@@ -280,8 +282,6 @@ local function constructorCallback()
                 CachedSelectPetsPetButtons[i] = nil
                 CachedPetDatasForExpanding[i] = nil
             end
-
-            local isExpanded = false
 
             local HandledSelectPetsUI = UIUtilitiesLibrary("select_pets", SelectPetsComponents().selectPets)
             HandledSelectPetsUI:hoverAndToggleSizing(1.15)
