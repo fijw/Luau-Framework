@@ -231,7 +231,7 @@ local function setHealingMachineData
         )
     end
 
-    slotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} Healing Slots.`
+    slotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} Healing Slots`
     return numOfPets
 end
 --[[ @end_section Utility Functions ]]
@@ -469,7 +469,7 @@ local function constructorCallback()
                     numOfPets -= 1
                 end
 
-                usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} Healing Slots.`
+                usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} Healing Slots`
             end
         )
 
@@ -517,7 +517,7 @@ local function constructorCallback()
                 end
 
                 numOfPets = setHealingMachineData(scrollingFrame, HealingMachineGroup.RequestHealingPets:invokeServer(), imageLabel, HandledUI, usedSlotsText)
-                usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} Healing Slots.`
+                usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} Healing Slots`
             end
         )
     end
@@ -549,7 +549,7 @@ local function constructorCallback()
                     end
 
                     local numOfPets = setHealingMachineData(scrollingFrame, HealingMachineGroup.RequestHealingPets:invokeServer(), imageLabel, HandledUI, usedSlotsText)
-                    usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} Healing Slots.`
+                    usedSlotsText.Text = `Using {numOfPets}/{HealingMachineGroup.RequestHealingSlots:invokeServer()} Healing Slots`
                 end
             end
         )
