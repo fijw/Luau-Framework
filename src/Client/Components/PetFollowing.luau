@@ -27,7 +27,7 @@ local GamePetsFolder = GameFolder:WaitForChild("Pets") :: Folder
 
 local PET_MUL_SPEED = 50
 local WOBBLE_TIME_MUL = 8
-local LOOK_AT_TIME_MUL = 8
+local LOOK_AT_TIME_MUL = 12
 local WOBBLE_ANGLE = math.rad(1.025)
 local BOBBLE_HEIGHT = 2.5
 
@@ -330,12 +330,12 @@ local function constructorCallback()
 
                                             gotoFloorConnection = RunService.Heartbeat:Connect(
                                                 function(deltaTime: number)
-                                                    local offset = targetPosition - petRootPart.Position
+                                                    local floorFeetOffset = CFrame.new(0, targetPosition.Y, 0).Position - CFrame.new(0, petRootPart.Position.Y, 0).Position
 
                                                     if not petModel or not petModel.Parent then gotoFloorConnection:Disconnect(); return end
-                                                    if offset.Magnitude < 0.25 then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
+                                                    if floorFeetOffset.Magnitude < 0.25 then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
 
-                                                    petRootPart.CFrame = CFrame.new(petRootPart.Position + offset.Unit * deltaTime * LOOK_AT_TIME_MUL) * smoothLookAtMoveDirRotation
+                                                    petRootPart.CFrame = CFrame.new(petRootPart.Position + floorFeetOffset.Unit * deltaTime * LOOK_AT_TIME_MUL) * smoothLookAtMoveDirRotation
                                                 end
                                             )
                                         end
