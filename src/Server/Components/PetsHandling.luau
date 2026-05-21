@@ -171,8 +171,8 @@ local function constructorCallback()
         local Inventory = PlrDataClass()().Inventory :: InventoryClass
         if not Inventory then return end
 
-        for i: Player, PlrEquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
-            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do equipPet(i, petId, true, plr) end
+        for owner: Player, PlrEquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
+            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do equipPet(owner, petId, true, plr) end
         end
 
         for stackId: string, PetStack: StackClass<PetSchema> in pairs(Inventory.StacksDictionary) do

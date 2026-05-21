@@ -27,7 +27,7 @@ local GamePetsFolder = GameFolder:WaitForChild("Pets") :: Folder
 
 local PET_MUL_SPEED = 50
 local WOBBLE_TIME_MUL = 8
-local LOOK_AT_TIME_MUL = 12
+local LOOK_AT_TIME_MUL = 10
 local WOBBLE_ANGLE = math.rad(1.025)
 local BOBBLE_HEIGHT = 2.5
 
@@ -262,13 +262,21 @@ local function constructorCallback()
 
                             local rayParams = RaycastParams.new()
                             rayParams.FilterType = Enum.RaycastFilterType.Exclude
-                            rayParams.FilterDescendantsInstances = { plrChar }
+                            rayParams.FilterDescendantsInstances = {}
 
                             for i: string, cachedModel: Model in pairs(EquippedPetsCache) do
                                 local cachedPetModel = GamePetsFolder:FindFirstChild(i) :: Model
                                 if not cachedPetModel then continue end
 
                                 local OldFilter = rayParams.FilterDescendantsInstances; table.insert(OldFilter, cachedPetModel)
+                                rayParams.FilterDescendantsInstances = OldFilter
+                            end
+
+                            for i: number, loopedPlr: Player in ipairs(Players:GetPlayers()) do
+                                local loopedPlrChar = loopedPlr.Character
+                                if not loopedPlrChar then continue end
+
+                                local OldFilter = rayParams.FilterDescendantsInstances; table.insert(OldFilter, loopedPlrChar)
                                 rayParams.FilterDescendantsInstances = OldFilter
                             end
 
