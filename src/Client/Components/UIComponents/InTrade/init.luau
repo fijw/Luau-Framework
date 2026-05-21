@@ -15,6 +15,7 @@ local UIComponents = require(script.Components)
 local PetDetailsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.PetDetails)
 local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 
+local NumberFormatLib = require(ReplicatedStorage.Libraries.NumberLibs.NumberFormatLib)
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 
@@ -218,10 +219,13 @@ local function addPetToTrade
             function()
                 isHovering = true
 
+                local health = NumberFormatLib(Pet.GameplayStats.petHealth, "thousands")
+                local maxHealth = NumberFormatLib(Pet.GameplayStats.maxHealth, "thousands")
+
                 PetDetailsComponents().mainFrame.Visible = true
                 PetDetailsComponents().petName.Text = Pet.petName
-                PetDetailsComponents().healthText.Text = `{Pet.GameplayStats.petHealth}/{Pet.GameplayStats.maxHealth}`
-                PetDetailsComponents().dmgText.Text = `{Pet.GameplayStats.attackDamage}`
+                PetDetailsComponents().healthText.Text = `{health}/{maxHealth}`
+                PetDetailsComponents().dmgText.Text = `{NumberFormatLib(Pet.GameplayStats.attackDamage, "thousands")}`
                 PetDetailsComponents().colorText.Text = Pet.PetStats.color
                 PetDetailsComponents().sizeText.Text = Pet.PetStats.size
                 PetDetailsComponents().rarityText.Text = Pet.PetStats.rarity
@@ -256,7 +260,7 @@ local function addPetToTrade
                     table.remove(SelectedPetsCache, foundIndex)
                     TradingGroup.RemovePetFromTradeOffer:fireServer(id)
 
-                    local foundSelectedTick = newPetLabel:FindFirstChild("SelectedTick")
+                    local foundSelectedTick = newPetLabel:FindFirstChild("SelectTick")
                     if foundSelectedTick then foundSelectedTick:Destroy() end
                 else
                     table.insert(SelectedPetsCache, id)
@@ -378,9 +382,16 @@ local function constructorCallback()
     local actionsContainer = containerFrame:WaitForChild("ActionsContainer") :: Frame
     local readyUpBtn = actionsContainer:WaitForChild("ReadyUpBtn") :: ImageButton
     local cancelBtn = actionsContainer:WaitForChild("CancelBtn") :: ImageButton
+    local timeContainer = mainFrame:WaitForChild("TimeContainer") :: Frame
+    local timeText = timeContainer:WaitForChild("TextLabel") :: TextLabel
 
     yourGemsTextBox.FocusLost:Connect(
-        function(enterPressed: boolean, Input: InputObject) TradingGroup.SetGemsInTradeOffer:fireServer(tonumber(yourGemsTextBox.Text) :: number) end
+        function(enterPressed: boolean, Input: InputObject)
+            if not enterPressed then return end
+
+            TradingGroup.SetGemsInTradeOffer:fireServer(tonumber(yourGemsTextBox.Text) :: number)
+            yourGemsTextBox.Text = NumberFormatLib(tonumber(yourGemsTextBox.Text) :: number, "quintillions")
+        end
     )
 
     local HandledUI = UIUtilitiesLibrary("in_trade", clonedInTrade)
@@ -430,9 +441,29 @@ local function constructorCallback()
     end
 
     local theyAreAccepting = false
+    local countdownDisplayed = false
 
     -- Networking connections.
     do
+        TradingGroup.DisplayCountdown:onClientEvent(
+            function(data)
+                timeContainer.Visible = true; innerContainer.Visible = false; countdownDisplayed = true
+
+                task.spawn(
+                    function()
+                        local timeLeft = 3
+
+                        while true do
+                            if timeLeft <= 0 or not countdownDisplayed then break end
+                            timeText.Text = `{timeLeft}`; timeLeft -= 1; task.wait(1)
+                        end
+
+                        timeText.Text = "Completing Trade..."
+                    end
+                )
+            end
+        )
+
         TradingGroup.AcceptTradeRequest:onClientEvent(
             function(data)
                 HandledUI:setFocus({ "AreYouSure", "Notification", "TradeRequest" })
@@ -465,16 +496,9 @@ local function constructorCallback()
             end
         )
 
-        TradingGroup.SetGemsInTradeOffer:onClientEvent(function(data) theirGemsText.Text = `{data}` end)
-
-        TradingGroup.TradeOfferUpdated:onClientEvent(
-            function(data)
-                if isReady then TradingGroup.AcceptTrade:fireServer() end
-                
-                isReady = false
-                yourSide.ImageColor3 = Color3.fromHex("#FFFFFF")
-            end
-        )
+        TradingGroup.HideCountdown:onClientEvent(function() timeContainer.Visible = false; innerContainer.Visible = true; countdownDisplayed = false end)
+        TradingGroup.SetGemsInTradeOffer:onClientEvent(function(data) theirGemsText.Text = `{NumberFormatLib(data, "quintillions")}` end)
+        TradingGroup.TradeOfferUpdated:onClientEvent(function(data) if isReady then TradingGroup.AcceptTrade:fireServer() end end)
 
         TradingGroup.TradeCompleted:onClientEvent(
             function(data)
@@ -512,6 +536,13 @@ local function constructorCallback()
 
         TradingGroup.AcceptTrade:onClientEvent(
             function(data)
+                if data == "yours" then
+                    isReady = not isReady
+                    if isReady then yourSide.ImageColor3 = Color3.fromHex("#64FF64") else yourSide.ImageColor3 = Color3.fromHex("#FFFFFF") end
+
+                    return
+                end
+
                 if not theyAreAccepting then theirSide.ImageColor3 = Color3.fromHex("#64FF64"); theyAreAccepting = true; return end
                 theirSide.ImageColor3 = Color3.fromHex("#FFFFFF"); theyAreAccepting = false
             end
@@ -525,6 +556,7 @@ local function constructorCallback()
         HandledUI:handleButtonPress(expandBtn,
             function(pos1: number, pos2: number)
                 isExpanded = not isExpanded
+                if isExpanded then expandBtn.Image = "rbxassetid://78262684079325" else expandBtn.Image = "rbxassetid://130599991371204" end
 
                 local ExpandingNums
                 = {
@@ -557,19 +589,7 @@ local function constructorCallback()
             end
         )
 
-        HandledUI:handleButtonPress(readyUpBtn,
-            function(pos1: number, pos2: number)
-                isReady = not isReady
-
-                if isReady then
-                    yourSide.ImageColor3 = Color3.fromHex("#64FF64")
-                else
-                    yourSide.ImageColor3 = Color3.fromHex("#FFFFFF")
-                end
-
-                TradingGroup.AcceptTrade:fireServer()
-            end
-        )
+        HandledUI:handleButtonPress(readyUpBtn, function(pos1: number, pos2: number) TradingGroup.AcceptTrade:fireServer() end)
 
         HandledUI:handleButtonPress(cancelBtn,
             function(pos1: number, pos2: number)

@@ -54,6 +54,8 @@ local function constuctorCallback()
 
             TradingGroup.CancelTrade:fireClient(Trade.player1, Trade.player2.DisplayName)
             TradingGroup.CancelTrade:fireClient(Trade.player2, Trade.player1.DisplayName)
+
+            TradingGroup.HideCountdown:fireClient(Trade.player1); TradingGroup.HideCountdown:fireClient(Trade.player2)
         end
     )
 

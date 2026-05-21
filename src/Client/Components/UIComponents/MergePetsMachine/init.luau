@@ -15,6 +15,7 @@ local UIComponents = require(script.Components)
 local PetDetailsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.PetDetails)
 local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.Notification)
 
+local NumberFormatLib = require(ReplicatedStorage.Libraries.NumberLibs.NumberFormatLib)
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 
@@ -250,10 +251,13 @@ local function constructorCallback()
                         function()
                             isHovering = true
 
+                            local health = NumberFormatLib(PetSchema.GameplayStats.petHealth, "thousands")
+                            local maxHealth = NumberFormatLib(PetSchema.GameplayStats.maxHealth, "thousands")
+
                             PetDetailsComponents().mainFrame.Visible = true
                             PetDetailsComponents().petName.Text = PetSchema.petName
-                            PetDetailsComponents().healthText.Text = `{PetSchema.GameplayStats.petHealth}/{PetSchema.GameplayStats.maxHealth}`
-                            PetDetailsComponents().dmgText.Text = `{PetSchema.GameplayStats.attackDamage}`
+                            PetDetailsComponents().healthText.Text = `{health}/{maxHealth}`
+                            PetDetailsComponents().dmgText.Text = `{NumberFormatLib(PetSchema.GameplayStats.attackDamage, "thousands")}`
                             PetDetailsComponents().colorText.Text = PetSchema.PetStats.color
                             PetDetailsComponents().sizeText.Text = PetSchema.PetStats.size
                             PetDetailsComponents().rarityText.Text = PetSchema.PetStats.rarity

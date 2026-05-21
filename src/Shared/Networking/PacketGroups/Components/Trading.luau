@@ -70,7 +70,7 @@ local Packets
 
     AcceptTrade = NetworkLib("td_accept_trade", "Event",
         {
-            clientType = nil,
+            clientType = "yours_or_theirs" :: "yours" | "theirs",
             serverType = nil
         }
     ),
@@ -99,6 +99,20 @@ local Packets
 
 
     TradeOfferUpdated = NetworkLib("td_trade_offer_updated", "Event",
+        {
+            clientType = nil,
+            serverType = nil
+        }
+    ),
+
+    DisplayCountdown = NetworkLib("td_display_countdown", "Event",
+        {
+            clientType = nil,
+            serverType = nil
+        }
+    ),
+
+    HideCountdown = NetworkLib("td_hide_countdown", "Event",
         {
             clientType = nil,
             serverType = nil

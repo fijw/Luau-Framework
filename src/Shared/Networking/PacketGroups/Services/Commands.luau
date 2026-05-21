@@ -12,7 +12,7 @@ local NetworkLib = require(ReplicatedStorage.Networking.NetworkLib)
 
 local Packets
 = {
-    HandleCommand = NetworkLib("handle_command", "Event",
+    HandleCommand = NetworkLib("cmcs_handle_command", "Event",
         {
             clientType = nil,
             serverType = { "command_argument" }
@@ -20,14 +20,14 @@ local Packets
     ),
 
 
-    FlyCharacter = NetworkLib("fly_character", "Event",
+    FlyCharacter = NetworkLib("cmcs_fly_character", "Event",
         {
             clientType = nil,
             serverType = nil
         }
     ),
 
-    UnflyCharacter = NetworkLib("unfly_character", "Event",
+    UnflyCharacter = NetworkLib("cmcs_unfly_character", "Event",
         {
             clientType = nil,
             serverType = nil
@@ -35,21 +35,21 @@ local Packets
     ),
 
 
-    DisplayConsoleMessage = NetworkLib("display_console_message", "Event",
+    DisplayConsoleMessage = NetworkLib("cmcs_display_console_message", "Event",
         {
             clientType = { message = "", color = "" },
             serverType = nil
         }
     ),
 
-    DisplayNewPermissions = NetworkLib("display_new_permissions", "Event",
+    DisplayNewPermissions = NetworkLib("cmcs_display_new_permissions", "Event",
         {
             clientType = nil,
             serverType = nil
         }
     ),
 
-    ChangeConsolePermissionsText = NetworkLib("change_console_permissions_text", "Event",
+    ChangeConsolePermissionsText = NetworkLib("cmcs_change_console_permissions_text", "Event",
         {
             clientType = "new_permissions_text",
             serverType = nil
@@ -57,7 +57,7 @@ local Packets
     ),
 
     
-    SpectateTarget = NetworkLib("spectate_target", "Event",
+    SpectateTarget = NetworkLib("cmcs_spectate_target", "Event",
         {
             clientType = 0,
             serverType = nil

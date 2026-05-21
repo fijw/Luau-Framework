@@ -48,6 +48,7 @@ local MergingComponent = ServerScriptService.Components.Merging
 local HealingMachineComponent = ServerScriptService.Components.HealingMachine
 local TradingComponent = ServerScriptService.Components.Trading
 local PetsHandlingComponent = ServerScriptService.Components.PetsHandling
+local ChatTagsService = ServerScriptService.Services.ChatTagsService
 
 
 local Initialization = script.Initialization
@@ -74,7 +75,8 @@ local ModulesToLoad
     [MergingComponent.Name] = MergingComponent,
     [HealingMachineComponent.Name] = HealingMachineComponent,
     [TradingComponent.Name] = TradingComponent,
-    [PetsHandlingComponent.Name] = PetsHandlingComponent
+    [PetsHandlingComponent.Name] = PetsHandlingComponent,
+    [ChatTagsService.Name] = ChatTagsService
 }
 
 local NUM_OF_RETRIES = 10

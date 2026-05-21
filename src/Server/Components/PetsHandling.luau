@@ -64,7 +64,7 @@ local function equipPet(sender: Player, data: string, isJoining: boolean)
         InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
     end
 
-    CachedEquippedPets[sender][data] = FoundStack.StackData
+    if not CachedEquippedPets[sender][data] then CachedEquippedPets[sender][data] = FoundStack.StackData end
 
     PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
         {
@@ -123,6 +123,31 @@ end
     @return void
 ]]
 local function constructorCallback()
+    task.spawn(
+        function()
+            while true do
+                for i: number, plr: Player in ipairs(Players:GetPlayers()) do
+                    if not Players:GetPlayerByUserId(plr.UserId) or not CachedEquippedPets[plr] then break end
+
+                    local PlrDataClass = Registry(plr)
+                    if not PlrDataClass then break end
+
+                    local Inventory = PlrDataClass()().Inventory :: InventoryClass
+                    if not Inventory then break end
+
+                    for petId: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
+                        local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(petId)
+                        if FoundStack then continue end
+
+                        unequipPetFunction(plr, { petId = petId, PetData = PetData }, false)
+                    end
+                end
+
+                task.wait()
+            end
+        end
+    )
+
     local function onPlrAdded(plr: Player)
         CachedEquippedPets[plr] = {}
 
@@ -148,30 +173,6 @@ local function constructorCallback()
         end
 
         InventoryGroup.UpdatePetsEquippedText:fireClient(plr, `{PlrDataClass()().currentNumOfPetsEquipped()}/{PlrDataClass()().maxPetsEquipped()}`)
-
-        task.spawn(
-            function()
-                while true do
-                    if not Players:GetPlayerByUserId(plr.UserId) or not CachedEquippedPets[plr] then break end
-
-                    local FreshPlrDataClass = Registry(plr)
-                    if not FreshPlrDataClass then break end
-
-                    local FreshInventory = FreshPlrDataClass()().Inventory :: InventoryClass
-                    if not FreshInventory then break end
-
-                    for i: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
-                        local FoundStack: StackClass<PetSchema>? = FreshInventory:fetchStackFromItemId(i)
-                        if FoundStack then continue end
-
-                        unequipPetFunction(plr, { petId = i, PetData = PetData }, false)
-                        InventoryGroup.UpdatePetsEquippedText:fireClient(plr, `{FreshPlrDataClass()().currentNumOfPetsEquipped()}/{FreshPlrDataClass()().maxPetsEquipped()}`)
-                    end
-
-                    task.wait()
-                end
-            end
-        )
     end
 
     -- Initialize the component's connections.

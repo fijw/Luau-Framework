@@ -16,6 +16,7 @@ local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Compon
 local PetDetailsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.PetDetails)
 local SelectPetsComponents = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.SelectPets)
 
+local NumberFormatLib = require(ReplicatedStorage.Libraries.NumberLibs.NumberFormatLib)
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 
@@ -198,10 +199,13 @@ local function setHealingMachineData
             function()
                 isHovering = true
 
+                local health = NumberFormatLib(PetSchema.GameplayStats.petHealth, "thousands")
+                local maxHealth = NumberFormatLib(PetSchema.GameplayStats.maxHealth, "thousands")
+
                 PetDetailsComponents().mainFrame.Visible = true
                 PetDetailsComponents().petName.Text = PetSchema.petName
-                PetDetailsComponents().healthText.Text = `{PetSchema.GameplayStats.petHealth}/{PetSchema.GameplayStats.maxHealth}`
-                PetDetailsComponents().dmgText.Text = `{PetSchema.GameplayStats.attackDamage}`
+                PetDetailsComponents().healthText.Text = `{health}/{maxHealth}`
+                PetDetailsComponents().dmgText.Text = `{NumberFormatLib(PetSchema.GameplayStats.attackDamage, "thousands")}`
                 PetDetailsComponents().colorText.Text = PetSchema.PetStats.color
                 PetDetailsComponents().sizeText.Text = PetSchema.PetStats.size
                 PetDetailsComponents().rarityText.Text = PetSchema.PetStats.rarity
@@ -374,10 +378,13 @@ local function constructorCallback()
                     function()
                         isHovering = true
 
+                        local health = NumberFormatLib(Pet.GameplayStats.petHealth, "thousands")
+                        local maxHealth = NumberFormatLib(Pet.GameplayStats.maxHealth, "thousands")
+
                         PetDetailsComponents().mainFrame.Visible = true
                         PetDetailsComponents().petName.Text = Pet.petName
-                        PetDetailsComponents().healthText.Text = `{Pet.GameplayStats.petHealth}/{Pet.GameplayStats.maxHealth}`
-                        PetDetailsComponents().dmgText.Text = `{Pet.GameplayStats.attackDamage}`
+                        PetDetailsComponents().healthText.Text = `{health}/{maxHealth}`
+                        PetDetailsComponents().dmgText.Text = `{NumberFormatLib(Pet.GameplayStats.attackDamage, "thousands")}`
                         PetDetailsComponents().colorText.Text = Pet.PetStats.color
                         PetDetailsComponents().sizeText.Text = Pet.PetStats.size
                         PetDetailsComponents().rarityText.Text = Pet.PetStats.rarity

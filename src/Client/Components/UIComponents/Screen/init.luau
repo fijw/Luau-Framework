@@ -12,6 +12,7 @@ local UIComponents = require(script.Components)
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
+local NumberFormatLib = require(ReplicatedStorage.Libraries.NumberLibs.NumberFormatLib)
 
 local StatsUpdatingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.StatsUpdating)
 --[[ @end_section Imports ]]
@@ -140,11 +141,11 @@ local function constructorCallback()
 
     StatsUpdatingGroup.UpdateStats:onClientEvent(
         function(data)
-            gemsText.Text = `{data.gems}`
-            rebirthsText.Text = `{data.rebirths}`
-            levelText.Text = `{data.levels}`
-            xpToNextLevelText.Text = `{data.xp}/{data.xpToNextLevel} XP`
-            levelsToRebirthText.Text = `{data.levels}/{data.levelsToRebirth} Levels`
+            gemsText.Text = `{NumberFormatLib(data.gems, "millions")}`
+            rebirthsText.Text = `{NumberFormatLib(data.rebirths, "millions")}`
+            levelText.Text = `{NumberFormatLib(data.levels, "millions")}`
+            xpToNextLevelText.Text = `{NumberFormatLib(data.xp, "thousands")}/{NumberFormatLib(data.xpToNextLevel, "thousands")} XP`
+            levelsToRebirthText.Text = `{NumberFormatLib(data.levels, "thousands")}/{NumberFormatLib(data.levelsToRebirth, "thousands")} Levels`
         end
     )
 

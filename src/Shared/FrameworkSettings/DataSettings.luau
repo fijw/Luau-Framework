@@ -122,7 +122,7 @@ local DataSettings
         currentNumOfPetsEquipped = 0 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "teststarloldata112"
+    PLAYER_DATA_STORAGE_KEY = "teststarloldata112345t"
 }
 
 

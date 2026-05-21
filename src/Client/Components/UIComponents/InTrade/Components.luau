@@ -7,7 +7,7 @@
 local InTrade = Instance.new("ScreenGui")
 local Container = Instance.new("Frame")
 local MainFrame = Instance.new("ImageLabel")
-local Container_2 = Instance.new("Frame")
+local InnerContainer = Instance.new("Frame")
 local UIListLayout = Instance.new("UIListLayout")
 local TitleBar = Instance.new("Frame")
 local ImageLabel = Instance.new("ImageLabel")
@@ -24,28 +24,30 @@ local TextLabel = Instance.new("TextLabel")
 local Separator = Instance.new("Frame")
 local ImageLabel_5 = Instance.new("ImageLabel")
 local ImageLabel_6 = Instance.new("ImageLabel")
+local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 local Separator_2 = Instance.new("Frame")
 local ImageLabel_7 = Instance.new("ImageLabel")
 local ImageLabel_8 = Instance.new("ImageLabel")
+local UIAspectRatioConstraint_2 = Instance.new("UIAspectRatioConstraint")
 local MainOfferContainer = Instance.new("Frame")
-local InnerContainer = Instance.new("Frame")
+local InnerContainer_2 = Instance.new("Frame")
 local YourSide = Instance.new("ImageLabel")
 local ScrollingFrame = Instance.new("ScrollingFrame")
-local UIListLayout_2 = Instance.new("UIListLayout")
 local Default = Instance.new("ImageLabel")
-local UIAspectRatioConstraint_1 = Instance.new("UIAspectRatioConstraint")
-local Gigantic = Instance.new("ImageLabel")
-local UIAspectRatioConstraint_2 = Instance.new("UIAspectRatioConstraint")
-local Huge = Instance.new("ImageLabel")
 local UIAspectRatioConstraint_3 = Instance.new("UIAspectRatioConstraint")
-local Default_2 = Instance.new("ImageLabel")
+local Gigantic = Instance.new("ImageLabel")
 local UIAspectRatioConstraint_4 = Instance.new("UIAspectRatioConstraint")
-local Gigantic_2 = Instance.new("ImageLabel")
+local Huge = Instance.new("ImageLabel")
 local UIAspectRatioConstraint_5 = Instance.new("UIAspectRatioConstraint")
-local Huge_2 = Instance.new("ImageLabel")
-local UIAspectRatioConstraint_6 = Instance.new("UIAspectRatioConstraint")
+local UIListLayout_2 = Instance.new("UIListLayout")
 local TheirSide = Instance.new("ImageLabel")
 local ScrollingFrame_2 = Instance.new("ScrollingFrame")
+local Default_2 = Instance.new("ImageLabel")
+local UIAspectRatioConstraint_6 = Instance.new("UIAspectRatioConstraint")
+local Gigantic_2 = Instance.new("ImageLabel")
+local UIAspectRatioConstraint_7 = Instance.new("UIAspectRatioConstraint")
+local Huge_2 = Instance.new("ImageLabel")
+local UIAspectRatioConstraint_8 = Instance.new("UIAspectRatioConstraint")
 local UIListLayout_3 = Instance.new("UIListLayout")
 local TextLabel_2 = Instance.new("TextLabel")
 local SearchBoxesContainer = Instance.new("Frame")
@@ -57,15 +59,15 @@ local TheirSearchBox = Instance.new("Frame")
 local ImageLabel_10 = Instance.new("ImageLabel")
 local SearchBoxFrame_2 = Instance.new("ImageLabel")
 local TextBox_3 = Instance.new("TextBox")
+local TimeContainer = Instance.new("Frame")
+local TextLabel_3 = Instance.new("TextLabel")
 local TitleImg = Instance.new("ImageLabel")
 local BackgroundImg = Instance.new("ImageLabel")
 local ExpandBtn = Instance.new("ImageButton")
-local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+local UIAspectRatioConstraint_9 = Instance.new("UIAspectRatioConstraint")
 local ActionsContainer = Instance.new("Frame")
 local ReadyUpBtn = Instance.new("ImageButton")
 local CancelBtn = Instance.new("ImageButton")
-local UIAspectRatioConstraint_7 = Instance.new("UIAspectRatioConstraint")
-local UIAspectRatioConstraint_8 = Instance.new("UIAspectRatioConstraint")
 
 local ComponentsMap = { InTrade = InTrade }
 --[[ @end_section Variables ]]
@@ -84,7 +86,7 @@ do
     Container.BackgroundTransparency = 1.000
     Container.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Container.BorderSizePixel = 0
-    Container.Position = UDim2.new(0.5, 0, 0.45, 0)
+    Container.Position = UDim2.new(0.5, 0, 0.449999988, 0)
     Container.Size = UDim2.new(0.601354897, 0, 0.824999988, 0)
 
     MainFrame.Name = "MainFrame"
@@ -99,120 +101,24 @@ do
     MainFrame.ZIndex = 2
     MainFrame.Image = "rbxassetid://76257393204558"
 
-    Default.Name = "Default"
-    Default.BackgroundTransparency = 1
-    Default.Parent = ScrollingFrame
-    Default.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
-    Default.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Default.BorderSizePixel = 0
-    Default.LayoutOrder = 3
-    Default.Position = UDim2.new(7.64851578e-08, 0, 0.582110822, 0)
-    Default.Size = UDim2.new(0.233999997, 0, 0.233999997, 0)
-    Default.ZIndex = 2
-    Default.Visible = false
-    Default.Image = "rbxassetid://111833470989816"
+    InnerContainer.Name = "InnerContainer"
+    InnerContainer.Parent = MainFrame
+    InnerContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+    InnerContainer.BackgroundColor3 = Color3.fromRGB(255, 30, 34)
+    InnerContainer.BackgroundTransparency = 1.000
+    InnerContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    InnerContainer.BorderSizePixel = 0
+    InnerContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
+    InnerContainer.Size = UDim2.new(0.908088207, 0, 0.874371886, 0)
+    InnerContainer.ZIndex = 2
 
-    UIAspectRatioConstraint_1.Parent = Default
-    UIAspectRatioConstraint_1.AspectRatio = 0.997
-
-    Gigantic.Name = "Gigantic"
-    Gigantic.BackgroundTransparency = 1
-    Gigantic.Parent = ScrollingFrame
-    Gigantic.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
-    Gigantic.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Gigantic.BorderSizePixel = 0
-    Gigantic.LayoutOrder = 1
-    Gigantic.Position = UDim2.new(-7.64851578e-08, 0, 0.528385162, 0)
-    Gigantic.Size = UDim2.new(0.998000026, 0, 1, 0)
-    Gigantic.ZIndex = 2
-    Gigantic.Visible = false
-    Gigantic.Image = "rbxassetid://111833470989816"
-
-    UIAspectRatioConstraint_2.Parent = Gigantic
-    UIAspectRatioConstraint_2.AspectRatio = 0.995
-
-    Huge.Name = "Huge"
-    Huge.BackgroundTransparency = 1
-    Huge.Parent = ScrollingFrame
-    Huge.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
-    Huge.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Huge.BorderSizePixel = 0
-    Huge.LayoutOrder = 2
-    Huge.Position = UDim2.new(-7.64851578e-08, 0, -0.103777729, 0)
-    Huge.Size = UDim2.new(0.486000001, 0, 0.486000001, 0)
-    Huge.ZIndex = 2
-    Huge.Visible = false
-    Huge.Image = "rbxassetid://111833470989816"
-
-    UIAspectRatioConstraint_3.Parent = Huge
-    UIAspectRatioConstraint_3.AspectRatio = 0.997
-
-    Default_2.Name = "Default"
-    Default_2.BackgroundTransparency = 1
-    Default_2.Parent = ScrollingFrame_2
-    Default_2.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
-    Default_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Default_2.BorderSizePixel = 0
-    Default_2.LayoutOrder = 3
-    Default_2.Position = UDim2.new(7.64851578e-08, 0, 0.582110822, 0)
-    Default_2.Size = UDim2.new(0.233999997, 0, 0.233999997, 0)
-    Default_2.ZIndex = 2
-    Default_2.Visible = false
-    Default_2.Image = "rbxassetid://111833470989816"
-
-    UIAspectRatioConstraint_4.Parent = Default_2
-    UIAspectRatioConstraint_4.AspectRatio = 0.997
-
-    Gigantic_2.Name = "Gigantic"
-    Gigantic_2.BackgroundTransparency = 1
-    Gigantic_2.Parent = ScrollingFrame_2
-    Gigantic_2.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
-    Gigantic_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Gigantic_2.BorderSizePixel = 0
-    Gigantic_2.LayoutOrder = 1
-    Gigantic_2.Position = UDim2.new(-7.64851578e-08, 0, 0.528385162, 0)
-    Gigantic_2.Size = UDim2.new(0.998000026, 0, 1, 0)
-    Gigantic_2.ZIndex = 2
-    Gigantic_2.Visible = false
-    Gigantic_2.Image = "rbxassetid://111833470989816"
-
-    UIAspectRatioConstraint_5.Parent = Gigantic_2
-    UIAspectRatioConstraint_5.AspectRatio = 0.995
-
-    Huge_2.Name = "Huge"
-    Huge_2.BackgroundTransparency = 1
-    Huge_2.Parent = ScrollingFrame_2
-    Huge_2.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
-    Huge_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Huge_2.BorderSizePixel = 0
-    Huge_2.LayoutOrder = 2
-    Huge_2.Position = UDim2.new(-7.64851578e-08, 0, -0.103777729, 0)
-    Huge_2.Size = UDim2.new(0.486000001, 0, 0.486000001, 0)
-    Huge_2.ZIndex = 2
-    Huge_2.Visible = false
-    Huge_2.Image = "rbxassetid://111833470989816"
-
-    UIAspectRatioConstraint_6.Parent = Huge_2
-    UIAspectRatioConstraint_6.AspectRatio = 0.997
-
-    Container_2.Name = "InnerContainer"
-    Container_2.Parent = MainFrame
-    Container_2.AnchorPoint = Vector2.new(0.5, 0.5)
-    Container_2.BackgroundColor3 = Color3.fromRGB(255, 30, 34)
-    Container_2.BackgroundTransparency = 1.000
-    Container_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Container_2.BorderSizePixel = 0
-    Container_2.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Container_2.Size = UDim2.new(0.908088207, 0, 0.874371886, 0)
-    Container_2.ZIndex = 2
-
-    UIListLayout.Parent = Container_2
+    UIListLayout.Parent = InnerContainer
     UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayout.Padding = UDim.new(0.0199999996, 0)
 
     TitleBar.Name = "TitleBar"
-    TitleBar.Parent = Container_2
+    TitleBar.Parent = InnerContainer
     TitleBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     TitleBar.BackgroundTransparency = 1.000
     TitleBar.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -243,7 +149,7 @@ do
     ImageLabel_2.Image = "rbxassetid://107801043865265"
 
     GemsOfferContainer.Name = "GemsOfferContainer"
-    GemsOfferContainer.Parent = Container_2
+    GemsOfferContainer.Parent = InnerContainer
     GemsOfferContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     GemsOfferContainer.BackgroundTransparency = 1.000
     GemsOfferContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -290,6 +196,7 @@ do
     TextBox.BorderSizePixel = 0
     TextBox.Position = UDim2.new(0.5, 0, 0.5, 0)
     TextBox.Size = UDim2.new(0.916999996, 0, 0.575999975, 0)
+    TextBox.ZIndex = 2
     TextBox.Font = Enum.Font.FredokaOne
     TextBox.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
     TextBox.PlaceholderText = "Your gems offer here..."
@@ -298,7 +205,6 @@ do
     TextBox.TextScaled = true
     TextBox.TextSize = 14.000
     TextBox.TextWrapped = true
-    TextBox.ZIndex = 2
 
     TheirGemsOffer.Name = "TheirGemsOffer"
     TheirGemsOffer.Parent = GemsOfferContainer
@@ -346,7 +252,7 @@ do
     TextLabel.TextWrapped = true
 
     Separator.Name = "Separator"
-    Separator.Parent = Container_2
+    Separator.Parent = InnerContainer
     Separator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Separator.BackgroundTransparency = 1.000
     Separator.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -374,8 +280,11 @@ do
     ImageLabel_6.ZIndex = 2
     ImageLabel_6.Image = "rbxassetid://103398483303506"
 
+    UIAspectRatioConstraint.Parent = Separator
+    UIAspectRatioConstraint.AspectRatio = 197.573
+
     Separator_2.Name = "Separator"
-    Separator_2.Parent = Container_2
+    Separator_2.Parent = InnerContainer
     Separator_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Separator_2.BackgroundTransparency = 1.000
     Separator_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -403,8 +312,11 @@ do
     ImageLabel_8.ZIndex = 2
     ImageLabel_8.Image = "rbxassetid://103398483303506"
 
+    UIAspectRatioConstraint_2.Parent = Separator_2
+    UIAspectRatioConstraint_2.AspectRatio = 197.573
+
     MainOfferContainer.Name = "MainOfferContainer"
-    MainOfferContainer.Parent = Container_2
+    MainOfferContainer.Parent = InnerContainer
     MainOfferContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     MainOfferContainer.BackgroundTransparency = 1.000
     MainOfferContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -414,17 +326,17 @@ do
     MainOfferContainer.Size = UDim2.new(0.998987854, 0, 0.709770143, 0)
     MainOfferContainer.ZIndex = 2
 
-    InnerContainer.Name = "InnerContainer"
-    InnerContainer.Parent = MainOfferContainer
-    InnerContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    InnerContainer.BackgroundTransparency = 1.000
-    InnerContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    InnerContainer.BorderSizePixel = 0
-    InnerContainer.Size = UDim2.new(1, 0, 0.91093111, 0)
-    InnerContainer.ZIndex = 2
+    InnerContainer_2.Name = "InnerContainer"
+    InnerContainer_2.Parent = MainOfferContainer
+    InnerContainer_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    InnerContainer_2.BackgroundTransparency = 1.000
+    InnerContainer_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    InnerContainer_2.BorderSizePixel = 0
+    InnerContainer_2.Size = UDim2.new(1, 0, 0.91093111, 0)
+    InnerContainer_2.ZIndex = 2
 
     YourSide.Name = "YourSide"
-    YourSide.Parent = InnerContainer
+    YourSide.Parent = InnerContainer_2
     YourSide.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     YourSide.BackgroundTransparency = 1.000
     YourSide.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -443,9 +355,57 @@ do
     ScrollingFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     ScrollingFrame.Size = UDim2.new(0.887565017, 0, 0.888888896, 0)
     ScrollingFrame.ZIndex = 2
-    ScrollingFrame.ScrollBarThickness = 0
-    ScrollingFrame.CanvasSize = UDim2.fromOffset(0, 0)
+    ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    ScrollingFrame.ScrollBarThickness = 0
+
+    Default.Name = "Default"
+    Default.Parent = ScrollingFrame
+    Default.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
+    Default.BackgroundTransparency = 1.000
+    Default.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Default.BorderSizePixel = 0
+    Default.LayoutOrder = 3
+    Default.Position = UDim2.new(7.64851578e-08, 0, 0.582110822, 0)
+    Default.Size = UDim2.new(0.233999997, 0, 0.233999997, 0)
+    Default.Visible = false
+    Default.ZIndex = 2
+    Default.Image = "rbxassetid://111833470989816"
+
+    UIAspectRatioConstraint_3.Parent = Default
+    UIAspectRatioConstraint_3.AspectRatio = 0.997
+
+    Gigantic.Name = "Gigantic"
+    Gigantic.Parent = ScrollingFrame
+    Gigantic.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
+    Gigantic.BackgroundTransparency = 1.000
+    Gigantic.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Gigantic.BorderSizePixel = 0
+    Gigantic.LayoutOrder = 1
+    Gigantic.Position = UDim2.new(-7.64851578e-08, 0, 0.528385162, 0)
+    Gigantic.Size = UDim2.new(0.998000026, 0, 1, 0)
+    Gigantic.Visible = false
+    Gigantic.ZIndex = 2
+    Gigantic.Image = "rbxassetid://111833470989816"
+
+    UIAspectRatioConstraint_4.Parent = Gigantic
+    UIAspectRatioConstraint_4.AspectRatio = 0.995
+
+    Huge.Name = "Huge"
+    Huge.Parent = ScrollingFrame
+    Huge.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
+    Huge.BackgroundTransparency = 1.000
+    Huge.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Huge.BorderSizePixel = 0
+    Huge.LayoutOrder = 2
+    Huge.Position = UDim2.new(-7.64851578e-08, 0, -0.103777729, 0)
+    Huge.Size = UDim2.new(0.486000001, 0, 0.486000001, 0)
+    Huge.Visible = false
+    Huge.ZIndex = 2
+    Huge.Image = "rbxassetid://111833470989816"
+
+    UIAspectRatioConstraint_5.Parent = Huge
+    UIAspectRatioConstraint_5.AspectRatio = 0.997
 
     UIListLayout_2.Parent = ScrollingFrame
     UIListLayout_2.FillDirection = Enum.FillDirection.Horizontal
@@ -454,7 +414,7 @@ do
     UIListLayout_2.Wraps = true
 
     TheirSide.Name = "TheirSide"
-    TheirSide.Parent = InnerContainer
+    TheirSide.Parent = InnerContainer_2
     TheirSide.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     TheirSide.BackgroundTransparency = 1.000
     TheirSide.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -474,9 +434,57 @@ do
     ScrollingFrame_2.Position = UDim2.new(0.5, 0, 0.5, 0)
     ScrollingFrame_2.Size = UDim2.new(0.887565017, 0, 0.888888896, 0)
     ScrollingFrame_2.ZIndex = 2
-    ScrollingFrame_2.ScrollBarThickness = 0
-    ScrollingFrame_2.CanvasSize = UDim2.fromOffset(0, 0)
+    ScrollingFrame_2.CanvasSize = UDim2.new(0, 0, 0, 0)
     ScrollingFrame_2.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    ScrollingFrame_2.ScrollBarThickness = 0
+
+    Default_2.Name = "Default"
+    Default_2.Parent = ScrollingFrame_2
+    Default_2.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
+    Default_2.BackgroundTransparency = 1.000
+    Default_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Default_2.BorderSizePixel = 0
+    Default_2.LayoutOrder = 3
+    Default_2.Position = UDim2.new(7.64851578e-08, 0, 0.582110822, 0)
+    Default_2.Size = UDim2.new(0.233999997, 0, 0.233999997, 0)
+    Default_2.Visible = false
+    Default_2.ZIndex = 2
+    Default_2.Image = "rbxassetid://111833470989816"
+
+    UIAspectRatioConstraint_6.Parent = Default_2
+    UIAspectRatioConstraint_6.AspectRatio = 0.997
+
+    Gigantic_2.Name = "Gigantic"
+    Gigantic_2.Parent = ScrollingFrame_2
+    Gigantic_2.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
+    Gigantic_2.BackgroundTransparency = 1.000
+    Gigantic_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Gigantic_2.BorderSizePixel = 0
+    Gigantic_2.LayoutOrder = 1
+    Gigantic_2.Position = UDim2.new(-7.64851578e-08, 0, 0.528385162, 0)
+    Gigantic_2.Size = UDim2.new(0.998000026, 0, 1, 0)
+    Gigantic_2.Visible = false
+    Gigantic_2.ZIndex = 2
+    Gigantic_2.Image = "rbxassetid://111833470989816"
+
+    UIAspectRatioConstraint_7.Parent = Gigantic_2
+    UIAspectRatioConstraint_7.AspectRatio = 0.995
+
+    Huge_2.Name = "Huge"
+    Huge_2.Parent = ScrollingFrame_2
+    Huge_2.BackgroundColor3 = Color3.fromRGB(255, 82, 85)
+    Huge_2.BackgroundTransparency = 1.000
+    Huge_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Huge_2.BorderSizePixel = 0
+    Huge_2.LayoutOrder = 2
+    Huge_2.Position = UDim2.new(-7.64851578e-08, 0, -0.103777729, 0)
+    Huge_2.Size = UDim2.new(0.486000001, 0, 0.486000001, 0)
+    Huge_2.Visible = false
+    Huge_2.ZIndex = 2
+    Huge_2.Image = "rbxassetid://111833470989816"
+
+    UIAspectRatioConstraint_8.Parent = Huge_2
+    UIAspectRatioConstraint_8.AspectRatio = 0.997
 
     UIListLayout_3.Parent = ScrollingFrame_2
     UIListLayout_3.FillDirection = Enum.FillDirection.Horizontal
@@ -484,7 +492,7 @@ do
     UIListLayout_3.Padding = UDim.new(0, 7)
     UIListLayout_3.Wraps = true
 
-    TextLabel_2.Parent = InnerContainer
+    TextLabel_2.Parent = InnerContainer_2
     TextLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     TextLabel_2.BackgroundTransparency = 1.000
     TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -606,6 +614,34 @@ do
     TextBox_3.TextSize = 14.000
     TextBox_3.TextWrapped = true
 
+    TimeContainer.Name = "TimeContainer"
+    TimeContainer.Parent = MainFrame
+    TimeContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+    TimeContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TimeContainer.BackgroundTransparency = 1.000
+    TimeContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TimeContainer.BorderSizePixel = 0
+    TimeContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
+    TimeContainer.Size = UDim2.new(0.907999992, 0, 0.874000013, 0)
+    TimeContainer.Visible = false
+    TimeContainer.ZIndex = 2
+
+    TextLabel_3.Parent = TimeContainer
+    TextLabel_3.AnchorPoint = Vector2.new(0.5, 0.5)
+    TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel_3.BackgroundTransparency = 1.000
+    TextLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_3.BorderSizePixel = 0
+    TextLabel_3.Position = UDim2.new(0.5, 0, 0.5, 0)
+    TextLabel_3.Size = UDim2.new(0.5, 0, 0.5, 0)
+    TextLabel_3.ZIndex = 2
+    TextLabel_3.Font = Enum.Font.FredokaOne
+    TextLabel_3.Text = "3"
+    TextLabel_3.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel_3.TextScaled = true
+    TextLabel_3.TextSize = 14.000
+    TextLabel_3.TextWrapped = true
+
     TitleImg.Name = "TitleImg"
     TitleImg.Parent = Container
     TitleImg.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -642,8 +678,8 @@ do
     ExpandBtn.ZIndex = 3
     ExpandBtn.Image = "rbxassetid://83228680858063"
 
-    UIAspectRatioConstraint.Parent = Container
-    UIAspectRatioConstraint.AspectRatio = 1.295
+    UIAspectRatioConstraint_9.Parent = Container
+    UIAspectRatioConstraint_9.AspectRatio = 1.295
 
     ActionsContainer.Name = "ActionsContainer"
     ActionsContainer.Parent = Container
@@ -654,7 +690,6 @@ do
     ActionsContainer.Position = UDim2.new(0.279896021, 0, 0.884399533, 0)
     ActionsContainer.Size = UDim2.new(0.439341426, 0, 0.106621772, 0)
     ActionsContainer.ZIndex = 3
-    ActionsContainer.ClipsDescendants = false
 
     ReadyUpBtn.Name = "ReadyUpBtn"
     ReadyUpBtn.Parent = ActionsContainer
@@ -663,10 +698,10 @@ do
     ReadyUpBtn.BackgroundTransparency = 1.000
     ReadyUpBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     ReadyUpBtn.BorderSizePixel = 0
-    ReadyUpBtn.Position = UDim2.new(0.255285999, 0, 0.5, 0)
+    ReadyUpBtn.Position = UDim2.new(0.255286008, 0, 0.5, 0)
     ReadyUpBtn.Size = UDim2.new(0.530571997, 0, 1, 0)
-    ReadyUpBtn.Image = "rbxassetid://114341575596821"
     ReadyUpBtn.ZIndex = 3
+    ReadyUpBtn.Image = "rbxassetid://114341575596821"
 
     CancelBtn.Name = "CancelBtn"
     CancelBtn.Parent = ActionsContainer
@@ -675,16 +710,10 @@ do
     CancelBtn.BackgroundTransparency = 1.000
     CancelBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
     CancelBtn.BorderSizePixel = 0
-    CancelBtn.Position = UDim2.new(0.790078888, 0, 0.5, 0)
+    CancelBtn.Position = UDim2.new(0.790078878, 0, 0.5, 0)
     CancelBtn.Size = UDim2.new(0.439842194, 0, 1, 0)
-    CancelBtn.Image = "rbxassetid://110571593143299"
     CancelBtn.ZIndex = 3
-
-    UIAspectRatioConstraint_7.Parent = Separator
-    UIAspectRatioConstraint_7.AspectRatio = 197.573
-
-    UIAspectRatioConstraint_8.Parent = Separator_2
-    UIAspectRatioConstraint_8.AspectRatio = 1.295
+    CancelBtn.Image = "rbxassetid://110571593143299"
 end
 
 

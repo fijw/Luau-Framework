@@ -153,6 +153,8 @@ local function constuctorCallback()
 
             TradesMap.ActiveTrades[tradeId] = nil
             TradesMap.MappedTradingPlayers[Trade.player1] = nil; TradesMap.MappedTradingPlayers[Trade.player2] = nil
+
+            TradingGroup.HideCountdown:fireClient(Trade.player1); TradingGroup.HideCountdown:fireClient(Trade.player2)
         end
     )
 
@@ -166,18 +168,57 @@ local function constuctorCallback()
             local Trade = TradesMap.ActiveTrades[tradeId]
             if not Trade then return end
 
+            local PlrDataClass = Registry(sender)
+            if not PlrDataClass then return end
+
             local isPlayer1 = Trade.player1 == sender
+
+            if isPlayer1 then
+                if Trade.player1Coins > PlrDataClass()().gems() then return end
+            else
+                if Trade.player2Coins > PlrDataClass()().gems() then return end
+            end
+
             if isPlayer1 then Trade.player1Ready = not Trade.player1Ready else Trade.player2Ready = not Trade.player2Ready end
 
-            TradingGroup.AcceptTrade:fireClient(if isPlayer1 then Trade.player2 else Trade.player1)
+            TradingGroup.AcceptTrade:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, "theirs")
+            TradingGroup.AcceptTrade:fireClient(sender, "yours")
 
-            if not Trade.player1Ready or not Trade.player2Ready then return end
-            task.wait(3); if not Trade.player1Ready or not Trade.player2Ready then return end
+            if not Trade.player1Ready or not Trade.player2Ready then
+                TradingGroup.HideCountdown:fireClient(Trade.player1); TradingGroup.HideCountdown:fireClient(Trade.player2)
+                return
+            end
 
-            commenceTrade(Trade.player1)
+            TradingGroup.DisplayCountdown:fireClient(Trade.player1); TradingGroup.DisplayCountdown:fireClient(Trade.player2)
 
-            TradingGroup.TradeCompleted:fireClient(if isPlayer1 then Trade.player1 else Trade.player2, if isPlayer1 then Trade.player2.DisplayName else Trade.player1.DisplayName)
-            TradingGroup.TradeCompleted:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, if isPlayer1 then Trade.player1.DisplayName else Trade.player2.DisplayName)
+            -- Commence trade after 3 seconds.
+            do
+                local isWaiting, bothReadyStill = true, true
+
+                task.spawn(
+                    function()
+                        while true do
+                            if not isWaiting or not TradesMap.ActiveTrades[tradeId] then break end
+
+                            if not TradesMap.ActiveTrades[tradeId].player1Ready or not TradesMap.ActiveTrades[tradeId].player2Ready then
+                                bothReadyStill = false; break
+                            else
+                                task.wait()
+                            end
+                        end
+                    end
+                )
+
+                task.wait(3); isWaiting = false
+
+                if not Trade.player1Ready or not Trade.player2Ready or not bothReadyStill then return end
+                commenceTrade(Trade.player1)
+
+                TradingGroup.TradeCompleted:fireClient(if isPlayer1 then Trade.player1 else Trade.player2, if isPlayer1 then Trade.player2.DisplayName else Trade.player1.DisplayName)
+                TradingGroup.TradeCompleted:fireClient(if isPlayer1 then Trade.player2 else Trade.player1, if isPlayer1 then Trade.player1.DisplayName else Trade.player2.DisplayName)
+
+                TradingGroup.HideCountdown:fireClient(Trade.player1); TradingGroup.HideCountdown:fireClient(Trade.player2)
+            end
         end
     )
 end
