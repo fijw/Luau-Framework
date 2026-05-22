@@ -202,6 +202,112 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
 
     petRootPart.Position = plrRootPart.Position
 end
+
+local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: BasePart, petRootPart: BasePart)
+    local isDoneAnimatingWalking = false
+
+    -- Walking connection handling.
+    do
+        local lookAtDirectionRotation: CFrame
+        local movementConnection: RBXScriptConnection
+        
+        movementConnection = RunService.Heartbeat:Connect(
+            function(deltaTime: number)
+                if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
+
+                local movingOffset = targetPosition - petRootPart.Position
+                local speedOffset = PET_MUL_SPEED * (movingOffset.Magnitude / math.max(Vector3.new(movingOffset.X, 0, movingOffset.Z).Magnitude, 0.001))
+                local step = (movingOffset.Unit * deltaTime) * speedOffset
+
+                if not lookAtDirectionRotation then
+                    lookAtDirectionRotation = CFrame.lookAt(Vector3.zero, Vector3.new(movingOffset.Unit.X, 0, movingOffset.Unit.Z).Unit).Rotation
+                end
+
+                local smoothLookAtMoveDirRotation = petRootPart.CFrame.Rotation:Lerp(
+                    lookAtDirectionRotation,
+                    deltaTime * LOOK_AT_TIME_MUL
+                )
+
+                -- this also starts at whatever time offset it is, but not as bad as a problem as height bobble is
+                local wobbleRotation = CFrame.Angles(
+                    math.sin(time() * WOBBLE_TIME_MUL) * WOBBLE_ANGLE,
+                    0,
+                    0
+                )
+
+                --[=[
+                    not smooth, gotta redo, doesn't start at the floor, just whatever the time offset is it goes to that height offset bc of sin.
+                    ;-; so hard to do shi like dis
+                ]=]
+                local bobbleOffset = math.abs(math.sin(time() * WOBBLE_TIME_MUL)) * BOBBLE_HEIGHT
+
+                petRootPart.CFrame = CFrame.new(
+                    petRootPart.Position.X + step.X,
+                    targetPosition.Y + bobbleOffset,
+                    petRootPart.Position.Z + step.Z
+                ) * smoothLookAtMoveDirRotation * wobbleRotation
+
+                -- Cleanup.
+                do
+                    local readingOffset = CFrame.new(targetPosition.X, 0, targetPosition.Z).Position - CFrame.new(petRootPart.Position.X, 0, petRootPart.Position.Z).Position
+                    if readingOffset.Magnitude > 1 then return end; movementConnection:Disconnect()
+                    
+                    local lookPos = plrRootPart.Position - targetPosition
+                    local flatFeetLookPosVec = Vector3.new(lookPos.X, 0, lookPos.Z)
+
+                    local isDoneGoingToFloor = false
+
+                    -- Floor finishing movement.
+                    do
+                        local gotoFloorConnection: RBXScriptConnection
+
+                        gotoFloorConnection = RunService.Heartbeat:Connect(
+                            function(deltaTime: number)
+                                local floorFeetOffset = CFrame.new(0, targetPosition.Y, 0).Position - CFrame.new(0, petRootPart.Position.Y, 0).Position
+
+                                if not petModel or not petModel.Parent then gotoFloorConnection:Disconnect(); return end
+                                if floorFeetOffset.Magnitude < 0.25 then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
+
+                                petRootPart.CFrame = CFrame.new(petRootPart.Position + floorFeetOffset.Unit * deltaTime * LOOK_AT_TIME_MUL) * smoothLookAtMoveDirRotation
+                            end
+                        )
+                    end
+
+                    -- Look at owner.
+                    do
+                        local lookAtConnection: RBXScriptConnection
+
+                        lookAtConnection = RunService.Heartbeat:Connect(
+                            function(deltaTime: number)
+                                if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
+
+                                if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then
+                                    repeat task.wait() until isDoneGoingToFloor
+                                    lookAtConnection:Disconnect(); isDoneAnimatingWalking = true
+                                    
+                                    return
+                                end
+
+                                local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
+                                    CFrame.lookAt(
+                                        Vector3.zero,
+                                        flatFeetLookPosVec.Unit
+                                    ).Rotation,
+
+                                    deltaTime * LOOK_AT_TIME_MUL
+                                )
+
+                                petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothLookAtPlrDirRotation
+                            end
+                        )
+                    end
+                end
+            end
+        )
+    end
+
+    repeat task.wait() until isDoneAnimatingWalking
+end
 --[[ @end_section Util Functions ]]
 
 
@@ -284,104 +390,7 @@ local function constructorCallback()
                             if not result then return end; targetPosition = result.Position + Vector3.new(0, petRootPart.Size.Y / 2, 0)
                         end
 
-                        local isDoneAnimatingWalking = false
-
-                        -- Walking connection handling.
-                        do
-                            local lookAtDirectionRotation: CFrame
-                            local movementConnection: RBXScriptConnection
-                            
-                            movementConnection = RunService.Heartbeat:Connect(
-                                function(deltaTime: number)
-                                    if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
-
-                                    local movingOffset = targetPosition - petRootPart.Position
-                                    local speedOffset = PET_MUL_SPEED * (movingOffset.Magnitude / math.max(Vector3.new(movingOffset.X, 0, movingOffset.Z).Magnitude, 0.001))
-                                    local step = (movingOffset.Unit * deltaTime) * speedOffset
-
-                                    if not lookAtDirectionRotation then
-                                        lookAtDirectionRotation = CFrame.lookAt(Vector3.zero, Vector3.new(movingOffset.Unit.X, 0, movingOffset.Unit.Z).Unit).Rotation
-                                    end
-
-                                    local smoothLookAtMoveDirRotation = petRootPart.CFrame.Rotation:Lerp(
-                                        lookAtDirectionRotation,
-                                        deltaTime * LOOK_AT_TIME_MUL
-                                    )
-
-                                    local wobbleRotation = CFrame.Angles(
-                                        math.sin(time() * WOBBLE_TIME_MUL) * WOBBLE_ANGLE,
-                                        0,
-                                        0
-                                    )
-
-                                    local bobbleOffset = math.abs(math.sin(time() * WOBBLE_TIME_MUL)) * BOBBLE_HEIGHT
-
-                                    petRootPart.CFrame = CFrame.new(
-                                        petRootPart.Position.X + step.X,
-                                        targetPosition.Y + bobbleOffset,
-                                        petRootPart.Position.Z + step.Z
-                                    ) * smoothLookAtMoveDirRotation * wobbleRotation
-
-                                    -- Cleanup.
-                                    do
-                                        local readingOffset = CFrame.new(targetPosition.X, 0, targetPosition.Z).Position - CFrame.new(petRootPart.Position.X, 0, petRootPart.Position.Z).Position
-                                        if readingOffset.Magnitude > 1 then return end; movementConnection:Disconnect()
-                                        
-                                        local lookPos = plrRootPart.Position - targetPosition
-                                        local flatFeetLookPosVec = Vector3.new(lookPos.X, 0, lookPos.Z)
-
-                                        local isDoneGoingToFloor = false
-
-                                        -- Floor finishing movement.
-                                        do
-                                            local gotoFloorConnection: RBXScriptConnection
-
-                                            gotoFloorConnection = RunService.Heartbeat:Connect(
-                                                function(deltaTime: number)
-                                                    local floorFeetOffset = CFrame.new(0, targetPosition.Y, 0).Position - CFrame.new(0, petRootPart.Position.Y, 0).Position
-
-                                                    if not petModel or not petModel.Parent then gotoFloorConnection:Disconnect(); return end
-                                                    if floorFeetOffset.Magnitude < 0.25 then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
-
-                                                    petRootPart.CFrame = CFrame.new(petRootPart.Position + floorFeetOffset.Unit * deltaTime * LOOK_AT_TIME_MUL) * smoothLookAtMoveDirRotation
-                                                end
-                                            )
-                                        end
-
-                                        -- Look at owner.
-                                        do
-                                            local lookAtConnection: RBXScriptConnection
-
-                                            lookAtConnection = RunService.Heartbeat:Connect(
-                                                function(deltaTime: number)
-                                                    if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
-
-                                                    if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then
-                                                        repeat task.wait() until isDoneGoingToFloor
-                                                        lookAtConnection:Disconnect(); isDoneAnimatingWalking = true
-                                                        
-                                                        return
-                                                    end
-
-                                                    local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
-                                                        CFrame.lookAt(
-                                                            Vector3.zero,
-                                                            flatFeetLookPosVec.Unit
-                                                        ).Rotation,
-
-                                                        deltaTime * LOOK_AT_TIME_MUL
-                                                    )
-
-                                                    petRootPart.CFrame = CFrame.new(petRootPart.Position) * smoothLookAtPlrDirRotation
-                                                end
-                                            )
-                                        end
-                                    end
-                                end
-                            )
-                        end
-
-                        repeat task.wait() until isDoneAnimatingWalking
+                        movePetTo(petModel, targetPosition, plrRootPart, petRootPart)
 
                         local randomWaitTime = RNG.betterRandomNumber(
                             {

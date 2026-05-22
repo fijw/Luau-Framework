@@ -127,7 +127,7 @@ export type DataClass = setmetatable
     {
         __index
         : {
-            saveClass: (self: DataClass, keepInUseStatus: true?) -> (true?),
+            saveClass: (self: DataClass, keepInUseStatus: true?) -> (),
             deleteClass: (self: DataClass) -> ()
         },
 
@@ -263,7 +263,7 @@ end
 
     @return true?
 ]]
-local function saveClassCallback(self: DataClass, keepInUseStatus: true?): true?
+local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
     local SavingClassData = {}
 
     for i: string, v: StateEngine<any> in pairs(self()() :: { [string]: StateEngine<any> }) do
@@ -283,7 +283,7 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?): true?
     :onError(function(err: string?) print(`Failed to save {self.classKey}'s data class. Error: {err}`) end)
 
     local FetchedStoredData = Registry.forciblyFetchStoredPlayerData(tonumber(self.classKey) :: number)
-    if not FetchedStoredData then return nil end
+    if not FetchedStoredData then self:saveClass(keepInUseStatus); return end
 
     -- Prevent data mismatches by comparing the stored data and the saving data.
     do
@@ -300,12 +300,12 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?): true?
         end
 
         if TableUtils.deepCompare(DecompressedStoredData, DecompressedSavingData) == "match" then
-            if FetchedStoredData.inUse == if keepInUseStatus == true then true else false then return true end
+            if FetchedStoredData.inUse == (if keepInUseStatus == true then true else false) then return end
         end
 
         print(`Data mismatch when saving [{self.classKey}]'s data.`)
 
-        task.wait(1); return self:saveClass(keepInUseStatus)
+        task.wait(1); self:saveClass(keepInUseStatus)
     end
 end
 
