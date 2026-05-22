@@ -103,9 +103,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
     clonedPetModel.Name = EquippingData.petId
     clonedPetModel.Parent = GamePetsFolder
 
-    EquippedPetsCache[EquippingData.petId] = clonedPetModel
-
-    local petRootPart = clonedPetModel.PrimaryPart :: BasePart
+    EquippedPetsCache[EquippingData.petId] = clonedPetModel; local petRootPart = clonedPetModel.PrimaryPart :: BasePart
 
     if EquippingData.PetData.PetStats.size == "Worldbreaker" then
         petRootPart.Size
