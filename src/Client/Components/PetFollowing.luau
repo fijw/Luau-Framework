@@ -129,82 +129,165 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             petRootPart.Size.Z * 4
         )
     end
-
-    local Textures: { Texture } = {}
-
-    if EquippingData.PetData.PetStats.color == "Glitched" or EquippingData.PetData.PetStats.color == "Radioactive" then
+    
+    if EquippingData.PetData.PetStats.color == "Glitched" then
         for i = 1, 6 do
-            local newTexture = Instance.new("Texture")
-            newTexture.Texture = "rbxasset://textures/water/normal_21.dds"
-            newTexture.Color3 = Color3.fromRGB(0, 0, 0)
-            newTexture.Parent = petRootPart
-
-            if i == 1 then newTexture.Face = Enum.NormalId.Top end
-            if i == 2 then newTexture.Face = Enum.NormalId.Bottom end
-            if i == 3 then newTexture.Face = Enum.NormalId.Left end
-            if i == 4 then newTexture.Face = Enum.NormalId.Right end
-            if i == 5 then newTexture.Face = Enum.NormalId.Front end
-            if i == 6 then newTexture.Face = Enum.NormalId.Back end
+            local newEffect = Instance.new("ParticleEmitter")
+            newEffect.Parent = petRootPart
+            newEffect.Color = ColorSequence.new(Color3.fromRGB(170, 0, 255), Color3.fromRGB(170, 0, 255))
+            newEffect.Lifetime = NumberRange.new(0.25, 0.5)
+            newEffect.Rate = 5
+            newEffect.Size = NumberSequence.new(0.25, 0.25)
+            newEffect.Brightness = 3
+            newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
 
             if EquippingData.PetData.PetStats.size == "Worldbreaker" then
-                newTexture.StudsPerTileU *= 16; newTexture.StudsPerTileV *= 16
+                newEffect.Size = NumberSequence.new(0.25 * 16, 0.25 * 16)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 16, newEffect.Speed.Max * 16)
             elseif EquippingData.PetData.PetStats.size == "Gigantic" then
-                newTexture.StudsPerTileU *= 8; newTexture.StudsPerTileV *= 8
+                newEffect.Size = NumberSequence.new(0.25 * 8, 0.25 * 8)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 8, newEffect.Speed.Max * 8)
             elseif EquippingData.PetData.PetStats.size == "Huge" then
-                newTexture.StudsPerTileU *= 4; newTexture.StudsPerTileV *= 4
+                newEffect.Size = NumberSequence.new(0.25 * 4, 0.25 * 4)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 4, newEffect.Speed.Max * 4)
             end
 
-            table.insert(Textures, newTexture)
+            if i == 1 then newEffect.EmissionDirection = Enum.NormalId.Top
+            elseif i == 2 then newEffect.EmissionDirection = Enum.NormalId.Bottom
+            elseif i == 3 then newEffect.EmissionDirection = Enum.NormalId.Left
+            elseif i == 4 then newEffect.EmissionDirection = Enum.NormalId.Right
+            elseif i == 5 then newEffect.EmissionDirection = Enum.NormalId.Front
+            elseif i == 6 then newEffect.EmissionDirection = Enum.NormalId.Back end
+
+            local clonedNewEffect = newEffect:Clone()
+            clonedNewEffect.Parent = petRootPart
+            clonedNewEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
+        end
+    elseif EquippingData.PetData.PetStats.color == "Radioactive" then
+        for i = 1, 6 do
+            local newEffect = Instance.new("ParticleEmitter")
+            newEffect.Parent = petRootPart
+            newEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
+            newEffect.Lifetime = NumberRange.new(0.25, 0.5)
+            newEffect.Rate = 5
+            newEffect.Size = NumberSequence.new(0.25, 0.25)
+            newEffect.Brightness = 3
+            newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
+
+            if EquippingData.PetData.PetStats.size == "Worldbreaker" then
+                newEffect.Size = NumberSequence.new(0.25 * 16, 0.25 * 16)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 16, newEffect.Speed.Max * 16)
+            elseif EquippingData.PetData.PetStats.size == "Gigantic" then
+                newEffect.Size = NumberSequence.new(0.25 * 8, 0.25 * 8)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 8, newEffect.Speed.Max * 8)
+            elseif EquippingData.PetData.PetStats.size == "Huge" then
+                newEffect.Size = NumberSequence.new(0.25 * 4, 0.25 * 4)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 4, newEffect.Speed.Max * 4)
+            end
+
+            if i == 1 then newEffect.EmissionDirection = Enum.NormalId.Top
+            elseif i == 2 then newEffect.EmissionDirection = Enum.NormalId.Bottom
+            elseif i == 3 then newEffect.EmissionDirection = Enum.NormalId.Left
+            elseif i == 4 then newEffect.EmissionDirection = Enum.NormalId.Right
+            elseif i == 5 then newEffect.EmissionDirection = Enum.NormalId.Front
+            elseif i == 6 then newEffect.EmissionDirection = Enum.NormalId.Back end
+
+            local clonedNewEffectOne = newEffect:Clone()
+            clonedNewEffectOne.Parent = petRootPart
+            clonedNewEffectOne.Color = ColorSequence.new(Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 255, 0))
+
+            local clonedNewEffectTwo = newEffect:Clone()
+            clonedNewEffectTwo.Parent = petRootPart
+            clonedNewEffectTwo.Color = ColorSequence.new(Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 255, 0))
         end
     end
 
-    if EquippingData.PetData.PetStats.color == "Glitched"
-        or EquippingData.PetData.PetStats.color == "Radioactive"
-        or EquippingData.PetData.PetStats.color == "Rainbow"
-    then
-        local textureOffset = 0
-        local colorOffset = 0
+    -- Handle ra/gl textures and the rb/gl/ra colors.
+    do
+        local Textures: { Texture } = {}
 
-        local whileEquippedConnection: RBXScriptConnection
+        if EquippingData.PetData.PetStats.color == "Glitched" or EquippingData.PetData.PetStats.color == "Radioactive" then
+            for i = 1, 6 do
+                local newTexture = Instance.new("Texture")
+                newTexture.Texture = "rbxasset://textures/water/normal_21.dds"
+                newTexture.Color3 = Color3.fromRGB(0, 0, 0)
+                newTexture.Parent = petRootPart
 
-        whileEquippedConnection = RunService.Heartbeat:Connect(
-            function(deltaTime: number)
-                if not EquippedPetsCache[EquippingData.petId] then whileEquippedConnection:Disconnect(); return end
+                if i == 1 then newTexture.Face = Enum.NormalId.Top end
+                if i == 2 then newTexture.Face = Enum.NormalId.Bottom end
+                if i == 3 then newTexture.Face = Enum.NormalId.Left end
+                if i == 4 then newTexture.Face = Enum.NormalId.Right end
+                if i == 5 then newTexture.Face = Enum.NormalId.Front end
+                if i == 6 then newTexture.Face = Enum.NormalId.Back end
 
                 if EquippingData.PetData.PetStats.size == "Worldbreaker" then
-                    textureOffset += deltaTime * 16
+                    newTexture.StudsPerTileU *= 16; newTexture.StudsPerTileV *= 16
                 elseif EquippingData.PetData.PetStats.size == "Gigantic" then
-                    textureOffset += deltaTime * 8
+                    newTexture.StudsPerTileU *= 8; newTexture.StudsPerTileV *= 8
                 elseif EquippingData.PetData.PetStats.size == "Huge" then
-                    textureOffset += deltaTime * 4
-                else textureOffset += deltaTime end
-                
-                colorOffset += deltaTime * 0.15; colorOffset %= 1
-
-                if EquippingData.PetData.PetStats.size == "Worldbreaker" then textureOffset %= 2 * 16
-                elseif EquippingData.PetData.PetStats.size == "Gigantic" then textureOffset %= 2 * 8
-                elseif EquippingData.PetData.PetStats.size == "Huge" then textureOffset %= 2 * 4
-                else textureOffset %= 2 end
-
-                if EquippingData.PetData.PetStats.color == "Glitched" then
-                    for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
-                    petRootPart.Color = glitchedColor(colorOffset)
-                elseif EquippingData.PetData.PetStats.color == "Radioactive" then
-                    for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
-                    petRootPart.Color = radioactiveColor(colorOffset)
-                elseif EquippingData.PetData.PetStats.color == "Rainbow" then
-                    for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
-                    petRootPart.Color = Color3.fromHSV(colorOffset, 0.75, 1)
+                    newTexture.StudsPerTileU *= 4; newTexture.StudsPerTileV *= 4
                 end
+
+                table.insert(Textures, newTexture)
             end
-        )
+        end
+
+        if EquippingData.PetData.PetStats.color == "Glitched"
+            or EquippingData.PetData.PetStats.color == "Radioactive"
+            or EquippingData.PetData.PetStats.color == "Rainbow"
+        then
+            local textureOffset = 0
+            local colorOffset = 0
+
+            local whileEquippedConnection: RBXScriptConnection
+
+            whileEquippedConnection = RunService.Heartbeat:Connect(
+                function(deltaTime: number)
+                    if not EquippedPetsCache[EquippingData.petId] then whileEquippedConnection:Disconnect(); return end
+
+                    if EquippingData.PetData.PetStats.size == "Worldbreaker" then
+                        textureOffset += deltaTime * 16
+                    elseif EquippingData.PetData.PetStats.size == "Gigantic" then
+                        textureOffset += deltaTime * 8
+                    elseif EquippingData.PetData.PetStats.size == "Huge" then
+                        textureOffset += deltaTime * 4
+                    else textureOffset += deltaTime end
+                    
+                    colorOffset += deltaTime * 0.15; colorOffset %= 1
+
+                    if EquippingData.PetData.PetStats.size == "Worldbreaker" then textureOffset %= 2 * 16
+                    elseif EquippingData.PetData.PetStats.size == "Gigantic" then textureOffset %= 2 * 8
+                    elseif EquippingData.PetData.PetStats.size == "Huge" then textureOffset %= 2 * 4
+                    else textureOffset %= 2 end
+
+                    if EquippingData.PetData.PetStats.color == "Glitched" then
+                        for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
+                        petRootPart.Color = glitchedColor(colorOffset)
+                    elseif EquippingData.PetData.PetStats.color == "Radioactive" then
+                        for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
+                        petRootPart.Color = radioactiveColor(colorOffset)
+                    elseif EquippingData.PetData.PetStats.color == "Rainbow" then petRootPart.Color = Color3.fromHSV(colorOffset, 0.75, 1) end
+                end
+            )
+        end
     end
 
     petRootPart.Position = plrRootPart.Position
 end
 
+--[[
+    @usage Move the pet to the target position.
+
+    @param petModel Model
+    @param targetPosition Vector3
+    @param plrRootPart BasePart
+    @param petRootPart BasePart
+
+    @return void
+]]
 local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: BasePart, petRootPart: BasePart)
     local isDoneAnimatingWalking = false
+    local timeSinceStartedWalking = 0
 
     -- Walking connection handling.
     do
@@ -214,6 +297,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
         movementConnection = RunService.Heartbeat:Connect(
             function(deltaTime: number)
                 if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
+                timeSinceStartedWalking += 0.005
 
                 local movingOffset = targetPosition - petRootPart.Position
                 local speedOffset = PET_MUL_SPEED * (movingOffset.Magnitude / math.max(Vector3.new(movingOffset.X, 0, movingOffset.Z).Magnitude, 0.001))
@@ -228,18 +312,13 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                     deltaTime * LOOK_AT_TIME_MUL
                 )
 
-                -- this also starts at whatever time offset it is, but not as bad as a problem as height bobble is
                 local wobbleRotation = CFrame.Angles(
-                    math.sin(time() * WOBBLE_TIME_MUL) * WOBBLE_ANGLE,
+                    math.sin(timeSinceStartedWalking * WOBBLE_TIME_MUL) * WOBBLE_ANGLE,
                     0,
                     0
                 )
 
-                --[=[
-                    not smooth, gotta redo, doesn't start at the floor, just whatever the time offset is it goes to that height offset bc of sin.
-                    ;-; so hard to do shi like dis
-                ]=]
-                local bobbleOffset = math.abs(math.sin(time() * WOBBLE_TIME_MUL)) * BOBBLE_HEIGHT
+                local bobbleOffset = math.abs(math.sin(timeSinceStartedWalking * WOBBLE_TIME_MUL)) * BOBBLE_HEIGHT
 
                 petRootPart.CFrame = CFrame.new(
                     petRootPart.Position.X + step.X,
