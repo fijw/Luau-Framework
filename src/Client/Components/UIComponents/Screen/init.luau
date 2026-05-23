@@ -35,12 +35,16 @@ local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") els
 
     @return void
 ]]
-local function setFocus(screen: ScreenGui, name: string, keepHudFocus: boolean)
+local function setFocus(screen: ScreenGui, name: string, IconsMap: { [ImageButton]: { enabled: string, disabled: string, isEnabled: boolean } })
     local CachedClass = UIUtilitiesLibrary.CachedUIClasses[name]
     if not CachedClass then return end
 
     if CachedClass.ScreenGui.Enabled then CachedClass:removeFocus(); return end
-    CachedClass:setFocus(if keepHudFocus then { screen.Name, "Notification", "AreYouSure", "TradeRequest" } else nil)
+    CachedClass:setFocus({ screen.Name, "Notification", "AreYouSure", "TradeRequest" })
+
+    for i: ImageButton, ButtonImages: { enabled: string, disabled: string, isEnabled: boolean } in pairs(IconsMap) do
+        i.Image = ButtonImages.disabled; ButtonImages.isEnabled = false
+    end
 end
 
 --[[
@@ -152,30 +156,129 @@ local function constructorCallback()
     local HandledUi = UIUtilitiesLibrary("hud", clonedScreen)
     HandledUi:hoverAndToggleSizing(1.15)
 
+    local IconsMap
+    = {
+        [inventoryBtn]
+        = {
+            enabled = "rbxassetid://100037931807896",
+            disabled = "rbxassetid://119870862470846",
+
+            isEnabled = false
+        },
+
+        [tradingBtn] 
+        = {
+            enabled = "rbxassetid://76990884660766",
+            disabled = "rbxassetid://96262129570992",
+
+            isEnabled = false
+        },
+        
+        [rebirthBtn]
+        = {
+            enabled = "rbxassetid://110915461713426",
+            disabled = "rbxassetid://133561204302109",
+
+            isEnabled = false
+        },
+
+        [shopBtn]
+        = {
+            enabled = "rbxassetid://100341378788871",
+            disabled = "rbxassetid://138187189416512",
+
+            isEnabled = false
+        },
+
+        [marketplaceBtn]
+        = {
+            enabled = "rbxassetid://105974130730597",
+            disabled = "rbxassetid://92171331943586",
+
+            isEnabled = false
+        },
+
+        [settingsBtn]
+        = {
+            enabled = "rbxassetid://78676120329471",
+            disabled = "rbxassetid://94060889590777",
+
+            isEnabled = false
+        }
+    }
+
     -- HUD button presses.
     do
         HandledUi:handleButtonPress(inventoryBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "inventory", true) end
+            function(pos1: number, pos2: number)
+                setFocus(clonedScreen, "inventory", IconsMap); IconsMap[inventoryBtn].isEnabled = not IconsMap[inventoryBtn].isEnabled
+
+                if IconsMap[inventoryBtn].isEnabled then
+                    inventoryBtn.Image = IconsMap[inventoryBtn].enabled
+                else
+                    inventoryBtn.Image = IconsMap[inventoryBtn].disabled
+                end
+            end
         )
 
         HandledUi:handleButtonPress(tradingBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "send_trade", true) end
+            function(pos1: number, pos2: number)
+                setFocus(clonedScreen, "send_trade", IconsMap); IconsMap[tradingBtn].isEnabled = not IconsMap[tradingBtn].isEnabled
+
+                if IconsMap[tradingBtn].isEnabled then
+                    tradingBtn.Image = IconsMap[tradingBtn].enabled
+                else
+                    tradingBtn.Image = IconsMap[tradingBtn].disabled
+                end
+            end
         )
 
         HandledUi:handleButtonPress(rebirthBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "rebirth", true) end
+            function(pos1: number, pos2: number)
+                setFocus(clonedScreen, "rebirth", IconsMap); IconsMap[rebirthBtn].isEnabled = not IconsMap[rebirthBtn].isEnabled
+
+                if IconsMap[rebirthBtn].isEnabled then
+                    rebirthBtn.Image = IconsMap[rebirthBtn].enabled
+                else
+                    rebirthBtn.Image = IconsMap[rebirthBtn].disabled
+                end
+            end
         )
 
         HandledUi:handleButtonPress(shopBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "shop", true) end
+            function(pos1: number, pos2: number)
+                setFocus(clonedScreen, "shop", IconsMap); IconsMap[shopBtn].isEnabled = not IconsMap[shopBtn].isEnabled
+
+                if IconsMap[shopBtn].isEnabled then
+                    shopBtn.Image = IconsMap[shopBtn].enabled
+                else
+                    shopBtn.Image = IconsMap[shopBtn].disabled
+                end
+            end
         )
 
         HandledUi:handleButtonPress(marketplaceBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "marketplace", true) end
+            function(pos1: number, pos2: number)
+                setFocus(clonedScreen, "marketplace", IconsMap); IconsMap[marketplaceBtn].isEnabled = not IconsMap[marketplaceBtn].isEnabled
+
+                if IconsMap[marketplaceBtn].isEnabled then
+                    marketplaceBtn.Image = IconsMap[marketplaceBtn].enabled
+                else
+                    marketplaceBtn.Image = IconsMap[marketplaceBtn].disabled
+                end
+            end
         )
 
         HandledUi:handleButtonPress(settingsBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "settings", true) end
+            function(pos1: number, pos2: number)
+                setFocus(clonedScreen, "settings", IconsMap); IconsMap[settingsBtn].isEnabled = not IconsMap[settingsBtn].isEnabled
+
+                if IconsMap[settingsBtn].isEnabled then
+                    settingsBtn.Image = IconsMap[settingsBtn].enabled
+                else
+                    settingsBtn.Image = IconsMap[settingsBtn].disabled
+                end
+            end
         )
     end
 
@@ -246,6 +349,10 @@ local function constructorCallback()
                             button.Visible = false
                         end
                     )
+                end
+
+                for i: ImageButton, ButtonImages: { enabled: string, disabled: string, isEnabled: boolean } in pairs(IconsMap) do
+                    i.Image = ButtonImages.disabled; ButtonImages.isEnabled = false
                 end
             end
         )
