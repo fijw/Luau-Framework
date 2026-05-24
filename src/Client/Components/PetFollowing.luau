@@ -298,8 +298,8 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
 
                 -- Floor detection.
                 do
-                    local rayOrigin = petRootPart.Position
-                    local rayDirection = Vector3.new(0, -1_000, 0)
+                    local rayOrigin = CFrame.new(petRootPart.Position.X, 500, petRootPart.Position.Z).Position
+                    local rayDirection = Vector3.new(0, -750, 0)
 
                     local rayParams = RaycastParams.new()
                     rayParams.FilterType = Enum.RaycastFilterType.Exclude
