@@ -167,7 +167,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             newEffect.Parent = petRootPart
             newEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
             newEffect.Lifetime = NumberRange.new(0.25, 0.5)
-            newEffect.Rate = 5 / 1.5
+            newEffect.Rate = 5
             newEffect.Size = NumberSequence.new(0.25, 0.25)
             newEffect.Brightness = 3
             newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
@@ -204,7 +204,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             newEffect.Parent = petRootPart
             newEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
             newEffect.Lifetime = NumberRange.new(0.25, 0.5)
-            newEffect.Rate = 5 / 2
+            newEffect.Rate = 5
             newEffect.Size = NumberSequence.new(0.25, 0.25)
             newEffect.Brightness = 3
             newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
@@ -518,6 +518,9 @@ local function constructorCallback()
                         local angle = math.rad(RNG.betterRandomNumber({ min = 0, max = 360 }))
                         local distance = RNG.betterRandomNumber({ min = RadiusData.min, max = RadiusData.max })
                         local targetPosition = plrRootPart.Position + Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
+
+                        local offset = targetPosition - petRootPart.Position
+                        if offset.Magnitude < 1 then return end
 
                         movePetTo(petModel, targetPosition, plrRootPart, petRootPart)
 
