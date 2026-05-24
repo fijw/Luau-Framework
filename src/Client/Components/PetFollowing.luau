@@ -436,6 +436,8 @@ local function constructorCallback()
                 if not plrChar then repeat task.wait() until plr.Character; plrChar = plr.Character :: Model end
                 
                 local plrRootPart = plrChar:WaitForChild("HumanoidRootPart") :: BasePart
+
+                if GamePetsFolder:FindFirstChild(data.petId) then return end
                 addPetToWorkspace({ PetData = data.PetData, petId = data.petId }, plrRootPart)
             elseif GamePetsFolder:FindFirstChild(data.petId) then return end
 
