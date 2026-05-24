@@ -131,6 +131,18 @@ local function newColorConnection(PetSchema: PetSchema, i: string, colorOffset: 
                 end
 
                 gradient.Color = ColorSequence.new(ColorSeqArray)
+            elseif PetSchema.PetStats.color == "broken_mix" then
+                colorOffset = colorOffset + (dt * 0.25) % 1; local ColorSeqArray = {}
+                
+                for i = 0, 17 do
+                    local indexOffset = i * (1 / 17)
+                    local radioactiveColor = UtilsComponent.radioactiveColor((colorOffset + indexOffset) % 1)
+                    local glitchedColor = UtilsComponent.glitchedColor((colorOffset + indexOffset) % 1)
+
+                    table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, radioactiveColor:Lerp(glitchedColor, 0.5)))
+                end
+
+                gradient.Color = ColorSequence.new(ColorSeqArray)
             end
         end
     )
@@ -183,6 +195,7 @@ local function setHealingMachineData
         if PetSchema.PetStats.color == "Rainbow"
             or PetSchema.PetStats.color == "Radioactive"
             or PetSchema.PetStats.color == "Glitched"
+            or PetSchema.PetStats.color == "broken_mix"
         then
             local t = 0
 
@@ -362,6 +375,7 @@ local function constructorCallback()
                 if Pet.PetStats.color == "Rainbow"
                     or Pet.PetStats.color == "Radioactive"
                     or Pet.PetStats.color == "Glitched"
+                    or Pet.PetStats.color == "broken_mix"
                 then
                     local t = 0
                     

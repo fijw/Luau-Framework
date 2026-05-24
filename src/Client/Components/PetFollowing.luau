@@ -167,7 +167,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             newEffect.Parent = petRootPart
             newEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
             newEffect.Lifetime = NumberRange.new(0.25, 0.5)
-            newEffect.Rate = 5
+            newEffect.Rate = 5 / 1.5
             newEffect.Size = NumberSequence.new(0.25, 0.25)
             newEffect.Brightness = 3
             newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
@@ -198,13 +198,57 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             clonedNewEffectTwo.Parent = petRootPart
             clonedNewEffectTwo.Color = ColorSequence.new(Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 255, 0))
         end
+    elseif EquippingData.PetData.PetStats.color == "broken_mix" then
+        for i = 1, 6 do
+            local newEffect = Instance.new("ParticleEmitter")
+            newEffect.Parent = petRootPart
+            newEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
+            newEffect.Lifetime = NumberRange.new(0.25, 0.5)
+            newEffect.Rate = 5 / 2
+            newEffect.Size = NumberSequence.new(0.25, 0.25)
+            newEffect.Brightness = 3
+            newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
+
+            if EquippingData.PetData.PetStats.size == "Worldbreaker" then
+                newEffect.Size = NumberSequence.new(0.25 * 16, 0.25 * 16)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 16, newEffect.Speed.Max * 16)
+            elseif EquippingData.PetData.PetStats.size == "Gigantic" then
+                newEffect.Size = NumberSequence.new(0.25 * 8, 0.25 * 8)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 8, newEffect.Speed.Max * 8)
+            elseif EquippingData.PetData.PetStats.size == "Huge" then
+                newEffect.Size = NumberSequence.new(0.25 * 4, 0.25 * 4)
+                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 4, newEffect.Speed.Max * 4)
+            end
+
+            if i == 1 then newEffect.EmissionDirection = Enum.NormalId.Top
+            elseif i == 2 then newEffect.EmissionDirection = Enum.NormalId.Bottom
+            elseif i == 3 then newEffect.EmissionDirection = Enum.NormalId.Left
+            elseif i == 4 then newEffect.EmissionDirection = Enum.NormalId.Right
+            elseif i == 5 then newEffect.EmissionDirection = Enum.NormalId.Front
+            elseif i == 6 then newEffect.EmissionDirection = Enum.NormalId.Back end
+
+            local clonedNewEffectOne = newEffect:Clone()
+            clonedNewEffectOne.Parent = petRootPart
+            clonedNewEffectOne.Color = ColorSequence.new(Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 255, 0))
+
+            local clonedNewEffectTwo = newEffect:Clone()
+            clonedNewEffectTwo.Parent = petRootPart
+            clonedNewEffectTwo.Color = ColorSequence.new(Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 255, 0))
+
+            local clonedNewEffect = newEffect:Clone()
+            clonedNewEffect.Parent = petRootPart
+            clonedNewEffect.Color = ColorSequence.new(Color3.fromRGB(170, 0, 255), Color3.fromRGB(170, 0, 255))
+        end
     end
 
     -- Handle ra/gl textures and the rb/gl/ra colors.
     do
         local Textures: { Texture } = {}
 
-        if EquippingData.PetData.PetStats.color == "Glitched" or EquippingData.PetData.PetStats.color == "Radioactive" then
+        if EquippingData.PetData.PetStats.color == "Glitched"
+            or EquippingData.PetData.PetStats.color == "Radioactive"
+            or EquippingData.PetData.PetStats.color == "broken_mix"
+        then
             for i = 1, 6 do
                 local newTexture = Instance.new("Texture")
                 newTexture.Texture = "rbxasset://textures/water/normal_21.dds"
@@ -233,6 +277,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
         if EquippingData.PetData.PetStats.color == "Glitched"
             or EquippingData.PetData.PetStats.color == "Radioactive"
             or EquippingData.PetData.PetStats.color == "Rainbow"
+            or EquippingData.PetData.PetStats.color == "broken_mix"
         then
             local textureOffset = 0
             local colorOffset = 0
@@ -258,6 +303,9 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
                     if EquippingData.PetData.PetStats.color == "Glitched" then
                         for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
                         petRootPart.Color = glitchedColor(colorOffset)
+                    elseif EquippingData.PetData.PetStats.color == "broken_mix" then
+                        for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
+                        petRootPart.Color = radioactiveColor(colorOffset):Lerp(glitchedColor(colorOffset), 0.5)
                     elseif EquippingData.PetData.PetStats.color == "Radioactive" then
                         for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
                         petRootPart.Color = radioactiveColor(colorOffset)
