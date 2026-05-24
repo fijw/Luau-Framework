@@ -294,7 +294,41 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                 if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
                 timeSinceStartedWalking += 0.005
 
-                local movingOffset = targetPosition - petRootPart.Position
+                local copiedTargetPos = targetPosition
+
+                -- Floor detection.
+                do
+                    local rayOrigin = petRootPart.Position
+                    local rayDirection = Vector3.new(0, -1_000, 0)
+
+                    local rayParams = RaycastParams.new()
+                    rayParams.FilterType = Enum.RaycastFilterType.Exclude
+                    rayParams.FilterDescendantsInstances = {}
+
+                    for i: string, cachedModel: Model in pairs(EquippedPetsCache) do
+                        local cachedPetModel = GamePetsFolder:FindFirstChild(i) :: Model
+                        if not cachedPetModel then continue end
+
+                        local OldFilter = rayParams.FilterDescendantsInstances; table.insert(OldFilter, cachedPetModel)
+                        rayParams.FilterDescendantsInstances = OldFilter
+                    end
+
+                    for i: number, loopedPlr: Player in ipairs(Players:GetPlayers()) do
+                        local loopedPlrChar = loopedPlr.Character
+                        if not loopedPlrChar then continue end
+
+                        local OldFilter = rayParams.FilterDescendantsInstances; table.insert(OldFilter, loopedPlrChar)
+                        rayParams.FilterDescendantsInstances = OldFilter
+                    end
+
+                    local result = workspace:Raycast(rayOrigin, rayDirection, rayParams)
+                    if not result then return end
+                    
+                    local resultPos = result.Position + Vector3.new(0, petRootPart.Size.Y / 2, 0)
+                    copiedTargetPos = CFrame.new(copiedTargetPos.X, resultPos.Y, copiedTargetPos.Z).Position
+                end
+
+                local movingOffset = copiedTargetPos - petRootPart.Position
                 local speedOffset = PET_MUL_SPEED * (movingOffset.Magnitude / math.max(Vector3.new(movingOffset.X, 0, movingOffset.Z).Magnitude, 0.001))
                 local step = (movingOffset.Unit * deltaTime) * speedOffset
 
@@ -317,16 +351,16 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
 
                 petRootPart.CFrame = CFrame.new(
                     petRootPart.Position.X + step.X,
-                    targetPosition.Y + bobbleOffset,
+                    copiedTargetPos.Y + bobbleOffset,
                     petRootPart.Position.Z + step.Z
                 ) * smoothLookAtMoveDirRotation * wobbleRotation
 
                 -- Cleanup.
                 do
-                    local readingOffset = CFrame.new(targetPosition.X, 0, targetPosition.Z).Position - CFrame.new(petRootPart.Position.X, 0, petRootPart.Position.Z).Position
+                    local readingOffset = CFrame.new(copiedTargetPos.X, 0, copiedTargetPos.Z).Position - CFrame.new(petRootPart.Position.X, 0, petRootPart.Position.Z).Position
                     if readingOffset.Magnitude > 1 then return end; movementConnection:Disconnect()
                     
-                    local lookPos = plrRootPart.Position - targetPosition
+                    local lookPos = plrRootPart.Position - copiedTargetPos
                     local flatFeetLookPosVec = Vector3.new(lookPos.X, 0, lookPos.Z)
 
                     local isDoneGoingToFloor = false
@@ -337,7 +371,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
 
                         gotoFloorConnection = RunService.Heartbeat:Connect(
                             function(deltaTime: number)
-                                local floorFeetOffset = CFrame.new(0, targetPosition.Y, 0).Position - CFrame.new(0, petRootPart.Position.Y, 0).Position
+                                local floorFeetOffset = CFrame.new(0, copiedTargetPos.Y, 0).Position - CFrame.new(0, petRootPart.Position.Y, 0).Position
 
                                 if not petModel or not petModel.Parent then gotoFloorConnection:Disconnect(); return end
                                 if floorFeetOffset.Magnitude < 0.25 then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
@@ -434,35 +468,6 @@ local function constructorCallback()
                         local angle = math.rad(RNG.betterRandomNumber({ min = 0, max = 360 }))
                         local distance = RNG.betterRandomNumber({ min = RadiusData.min, max = RadiusData.max })
                         local targetPosition = plrRootPart.Position + Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
-
-                        -- Floor detection.
-                        do
-                            local rayOrigin = targetPosition
-                            local rayDirection = Vector3.new(0, -1_000, 0)
-
-                            local rayParams = RaycastParams.new()
-                            rayParams.FilterType = Enum.RaycastFilterType.Exclude
-                            rayParams.FilterDescendantsInstances = {}
-
-                            for i: string, cachedModel: Model in pairs(EquippedPetsCache) do
-                                local cachedPetModel = GamePetsFolder:FindFirstChild(i) :: Model
-                                if not cachedPetModel then continue end
-
-                                local OldFilter = rayParams.FilterDescendantsInstances; table.insert(OldFilter, cachedPetModel)
-                                rayParams.FilterDescendantsInstances = OldFilter
-                            end
-
-                            for i: number, loopedPlr: Player in ipairs(Players:GetPlayers()) do
-                                local loopedPlrChar = loopedPlr.Character
-                                if not loopedPlrChar then continue end
-
-                                local OldFilter = rayParams.FilterDescendantsInstances; table.insert(OldFilter, loopedPlrChar)
-                                rayParams.FilterDescendantsInstances = OldFilter
-                            end
-
-                            local result = workspace:Raycast(rayOrigin, rayDirection, rayParams)
-                            if not result then return end; targetPosition = result.Position + Vector3.new(0, petRootPart.Size.Y / 2, 0)
-                        end
 
                         movePetTo(petModel, targetPosition, plrRootPart, petRootPart)
 
