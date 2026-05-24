@@ -243,12 +243,9 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
                 function(deltaTime: number)
                     if not EquippedPetsCache[EquippingData.petId] then whileEquippedConnection:Disconnect(); return end
 
-                    if EquippingData.PetData.PetStats.size == "Worldbreaker" then
-                        textureOffset += deltaTime * 16
-                    elseif EquippingData.PetData.PetStats.size == "Gigantic" then
-                        textureOffset += deltaTime * 8
-                    elseif EquippingData.PetData.PetStats.size == "Huge" then
-                        textureOffset += deltaTime * 4
+                    if EquippingData.PetData.PetStats.size == "Worldbreaker" then textureOffset += deltaTime * 16
+                    elseif EquippingData.PetData.PetStats.size == "Gigantic" then textureOffset += deltaTime * 8
+                    elseif EquippingData.PetData.PetStats.size == "Huge" then textureOffset += deltaTime * 4
                     else textureOffset += deltaTime end
                     
                     colorOffset += deltaTime * 0.15; colorOffset %= 1
