@@ -139,23 +139,36 @@ local function constructorCallback()
         [settingsBtn] = settingsBtn.Position
     }
 
-    StatsUpdatingGroup.UpdateStats:onClientEvent(
-        function(data)
-            if data.key == "rebirths" then
-                rebirthsText.Text = `{NumberFormatLib(data.data, "millions")}`
-            elseif data.key == "levels" then
-                levelText.Text = `{NumberFormatLib(data.data, "millions")}`
-            elseif data.key == "xp" then
-                xpToNextLevelText.Text = `{NumberFormatLib(data.data, "thousands")}/{NumberFormatLib(data.data, "thousands")} XP`
-            elseif data.key == "xpToNextLevel" then
-                xpToNextLevelText.Text = `{NumberFormatLib(data.data, "thousands")}/{NumberFormatLib(data.data, "thousands")} XP`
-            elseif data.key == "levelsNeededToRebirth" then
-                levelsToRebirthText.Text = `{NumberFormatLib(data.data, "thousands")}/{NumberFormatLib(data.data, "thousands")} Levels`
-            elseif not data.key then
-                gemsText.Text = `{NumberFormatLib(data.data, "millions")}`
+    -- Stats networking connections.
+    do
+        StatsUpdatingGroup.UpdateStats:onClientEvent(
+            function(data)
+                if data.key == "rebirths" then
+                    rebirthsText.Text = `{NumberFormatLib(data.data, "millions")}`
+                elseif data.key == "levels" then
+                    levelText.Text = `{NumberFormatLib(data.data, "millions")}`
+                elseif data.key == "xp" then
+                    xpToNextLevelText.Text = `{NumberFormatLib(data.data.min, "thousands")}/{NumberFormatLib(data.data.max, "thousands")} XP`
+                elseif data.key == "xpToNextLevel" then
+                    xpToNextLevelText.Text = `{NumberFormatLib(data.data.min, "thousands")}/{NumberFormatLib(data.data.max, "thousands")} XP`
+                elseif data.key == "levelsNeededToRebirth" then
+                    levelsToRebirthText.Text = `{NumberFormatLib(data.data.min, "thousands")}/{NumberFormatLib(data.data.max, "thousands")} Levels`
+                elseif not data.key then
+                    gemsText.Text = `{NumberFormatLib(data.data, "millions")}`
+                end
             end
-        end
-    )
+        )
+
+        StatsUpdatingGroup.ShowJoiningStats:onClientEvent(
+            function(data)
+                rebirthsText.Text = `{NumberFormatLib(data.rebirths, "millions")}`
+                levelText.Text = `{NumberFormatLib(data.level, "millions")}`
+                xpToNextLevelText.Text = `{NumberFormatLib(data.xp, "thousands")}/{NumberFormatLib(data.xpToNextLevel, "thousands")} XP`
+                levelsToRebirthText.Text = `{NumberFormatLib(data.level, "thousands")}/{NumberFormatLib(data.levelsNeededToRebirth, "thousands")} Levels`
+                gemsText.Text = `{NumberFormatLib(data.gems, "millions")}`
+            end
+        )
+    end
 
     local HandledUi = UIUtilitiesLibrary("hud", clonedScreen)
     HandledUi:hoverAndToggleSizing(1.15)

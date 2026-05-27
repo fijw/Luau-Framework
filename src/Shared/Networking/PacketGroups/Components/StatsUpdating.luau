@@ -22,6 +22,22 @@ local Packets
 
             serverType = nil
         }
+    ),
+
+    ShowJoiningStats = NetworkLib("su_show_joining_stats", "Event",
+        {
+            clientType
+            = {
+                gems = 0,
+                xp = 0,
+                xpToNextLevel = 0,
+                levelsNeededToRebirth = 0,
+                level = 0,
+                rebirths = 0
+            },
+
+            serverType = nil
+        }
     )
 }
 
