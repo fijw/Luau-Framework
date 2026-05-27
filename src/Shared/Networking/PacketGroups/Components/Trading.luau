@@ -83,13 +83,6 @@ local Packets
     ),
 
 
-    RequestOwnedPetsForTrade = NetworkLib("td_request_owned_pets_for_trade", "Function",
-        {
-            clientType = { ["pet_id" :: string] = {} :: PetSchema },
-            serverType = nil
-        }
-    ),
-
     SearchForTradingPets = NetworkLib("td_search_for_trading_pets", "Function",
         {
             clientType = { ["pet_id" :: string] = {} :: PetSchema },

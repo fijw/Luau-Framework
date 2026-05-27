@@ -173,14 +173,14 @@ end
 
     @return void
 ]]
-local function autoSaveDataClass(DataClass: DataClass)
+--[[local function autoSaveDataClass(DataClass: DataClass)
     while true do
         task.wait(60)
 
         if not CachedDataClasses[tonumber(DataClass.classKey) :: number] then break end
         DataClass:saveClass(true)
     end
-end
+end]]
 
 
 --[[
@@ -408,7 +408,7 @@ function constructorCallback(self: typeof(Registry), player: Player, create: tru
     );
 
     ((NewDataClass :: any) :: DataClass):saveClass(true)
-    task.spawn(function() autoSaveDataClass((NewDataClass :: any) :: DataClass) end)
+    --task.spawn(function() autoSaveDataClass((NewDataClass :: any) :: DataClass) end)
 
     CachedDataClasses[player.UserId] = (NewDataClass :: any) :: DataClass
 

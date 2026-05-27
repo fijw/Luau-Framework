@@ -53,6 +53,8 @@ local function constuctorCallback()
                 local PlrDataClass = Registry(sender)
                 if not PlrDataClass then return end
 
+                if PlrDataClass()().HealingData().HealingPets[data] then return end
+
                 local Inventory = PlrDataClass()().Inventory :: InventoryClass
                 if not Inventory then return end
 

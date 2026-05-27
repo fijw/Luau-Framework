@@ -16,12 +16,8 @@ local Packets
         {
             clientType
             = {
-                gems = 0,
-                rebirths = 0,
-                levelsToRebirth = 0,
-                levels = 0,
-                xpToNextLevel = 0,
-                xp = 0
+                key = "" or nil,
+                data = nil :: any
             },
 
             serverType = nil

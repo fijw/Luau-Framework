@@ -141,11 +141,19 @@ local function constructorCallback()
 
     StatsUpdatingGroup.UpdateStats:onClientEvent(
         function(data)
-            gemsText.Text = `{NumberFormatLib(data.gems, "millions")}`
-            rebirthsText.Text = `{NumberFormatLib(data.rebirths, "millions")}`
-            levelText.Text = `{NumberFormatLib(data.levels, "millions")}`
-            xpToNextLevelText.Text = `{NumberFormatLib(data.xp, "thousands")}/{NumberFormatLib(data.xpToNextLevel, "thousands")} XP`
-            levelsToRebirthText.Text = `{NumberFormatLib(data.levels, "thousands")}/{NumberFormatLib(data.levelsToRebirth, "thousands")} Levels`
+            if data.key == "rebirths" then
+                rebirthsText.Text = `{NumberFormatLib(data.data, "millions")}`
+            elseif data.key == "levels" then
+                levelText.Text = `{NumberFormatLib(data.data, "millions")}`
+            elseif data.key == "xp" then
+                xpToNextLevelText.Text = `{NumberFormatLib(data.data, "thousands")}/{NumberFormatLib(data.data, "thousands")} XP`
+            elseif data.key == "xpToNextLevel" then
+                xpToNextLevelText.Text = `{NumberFormatLib(data.data, "thousands")}/{NumberFormatLib(data.data, "thousands")} XP`
+            elseif data.key == "levelsNeededToRebirth" then
+                levelsToRebirthText.Text = `{NumberFormatLib(data.data, "thousands")}/{NumberFormatLib(data.data, "thousands")} Levels`
+            elseif not data.key then
+                gemsText.Text = `{NumberFormatLib(data.data, "millions")}`
+            end
         end
     )
 

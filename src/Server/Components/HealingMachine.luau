@@ -116,7 +116,6 @@ local function constructorCallback()
                 PlrDataClass()().HealingData(duration, petId, "HealingPets")
 
                 InventoryGroup.RemovePetsFromInventory:fireClient(sender, { petId })
-                PetsHandlingGroup.RemovePetFromClient:fireAllClients(petId)
 
                 task.spawn(
                     function()

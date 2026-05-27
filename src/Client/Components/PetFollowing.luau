@@ -93,9 +93,6 @@ end
 local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: string }, plrRootPart: BasePart)
     if EquippedPetsCache[EquippingData.petId] then return end
 
-    local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, EquippingData.petId)
-    if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
-
     local petModel = AssetsPetsFolder:WaitForChild(EquippingData.PetData.petName) :: Model
     if not petModel.PrimaryPart then repeat task.wait() until petModel.PrimaryPart end
     
@@ -397,7 +394,8 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
 
                 local bobbleOffset = math.abs(math.sin(timeSinceStartedWalking * WOBBLE_TIME_MUL)) * BOBBLE_HEIGHT
 
-                petRootPart.CFrame = CFrame.new(
+                petRootPart.CFrame
+                = CFrame.new(
                     petRootPart.Position.X + step.X,
                     copiedTargetPos.Y + bobbleOffset,
                     petRootPart.Position.Z + step.Z
@@ -463,6 +461,9 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
     end
 
     repeat task.wait() until isDoneAnimatingWalking
+
+    local foundWalkingIndex = table.find(CurrentlyWalkingCache, petModel.Name)
+    if foundWalkingIndex then table.remove(CurrentlyWalkingCache, foundWalkingIndex) end
 end
 --[[ @end_section Util Functions ]]
 
@@ -491,50 +492,43 @@ local function constructorCallback()
 
             -- Heartbeat loop while the pet is equipped.
             do
-                local heartbeatConnection: RBXScriptConnection
+                task.spawn(
+                    function()
+                        while true do
+                            table.insert(CurrentlyWalkingCache, data.petId)
 
-                heartbeatConnection = RunService.Heartbeat:Connect(
-                    function(deltaTime: number)
-                        if not EquippedPetsCache[data.petId] then heartbeatConnection:Disconnect(); return end
-                        if table.find(CurrentlyWalkingCache, data.petId) then return else table.insert(CurrentlyWalkingCache, data.petId) end
+                            local plr = Players:GetPlayerByUserId(data.ownerId)
+                            if not plr then return end
 
-                        local plr = Players:GetPlayerByUserId(data.ownerId)
-                        if not plr then return end
+                            local plrChar: Model = plr.Character :: Model
+                            if not plrChar then repeat task.wait() until plr.Character; plrChar = plr.Character :: Model end
+                            
+                            local plrRootPart = plrChar:WaitForChild("HumanoidRootPart") :: BasePart
 
-                        local plrChar: Model = plr.Character :: Model
-                        if not plrChar then repeat task.wait() until plr.Character; plrChar = plr.Character :: Model end
-                        
-                        local plrRootPart = plrChar:WaitForChild("HumanoidRootPart") :: BasePart
+                            local petModel = GamePetsFolder:FindFirstChild(data.petId) :: Model
+                            if not petModel then break end
 
-                        local petModel = GamePetsFolder:FindFirstChild(data.petId) :: Model
-                        if not petModel then heartbeatConnection:Disconnect(); return end
+                            local petRootPart = petModel.PrimaryPart
+                            if not petRootPart then return end
 
-                        local petRootPart = petModel.PrimaryPart
-                        if not petRootPart then return end
+                            local RadiusData = RADIUS_MAP[data.PetData.PetStats.size]
+                            if not RadiusData then return end
 
-                        local RadiusData = RADIUS_MAP[data.PetData.PetStats.size]
-                        if not RadiusData then return end
+                            local angle = math.rad(RNG.betterRandomNumber({ min = 0, max = 360 }))
+                            local distance = RNG.betterRandomNumber({ min = RadiusData.min, max = RadiusData.max })
+                            local targetPosition = plrRootPart.Position + Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
 
-                        local angle = math.rad(RNG.betterRandomNumber({ min = 0, max = 360 }))
-                        local distance = RNG.betterRandomNumber({ min = RadiusData.min, max = RadiusData.max })
-                        local targetPosition = plrRootPart.Position + Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
+                            movePetTo(petModel, targetPosition, plrRootPart, petRootPart)
 
-                        local offset = targetPosition - petRootPart.Position
-                        if offset.Magnitude < 1 then return end
+                            local randomWaitTime = RNG.betterRandomNumber(
+                                {
+                                    min = RNG.betterRandomNumber({ min = 1, max = 3 }),
+                                    max = RNG.betterRandomNumber({ min = 3, max = 10 })
+                                }
+                            )
 
-                        movePetTo(petModel, targetPosition, plrRootPart, petRootPart)
-
-                        local randomWaitTime = RNG.betterRandomNumber(
-                            {
-                                min = RNG.betterRandomNumber({ min = 1, max = 3 }),
-                                max = RNG.betterRandomNumber({ min = 3, max = 10 })
-                            }
-                        )
-
-                        task.wait(randomWaitTime)
-
-                        local foundPetIndex = table.find(CurrentlyWalkingCache, data.petId)
-                        if foundPetIndex then table.remove(CurrentlyWalkingCache, foundPetIndex) end
+                            repeat task.wait() until not table.find(CurrentlyWalkingCache, data.petId); task.wait(randomWaitTime)
+                        end
                     end
                 )
             end
@@ -543,9 +537,6 @@ local function constructorCallback()
 
     PetsHandlingGroup.RemovePetFromClient:onClientEvent(
         function(data)
-            local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data)
-            if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
-
             -- Remove from equipped pets cache.
             do
                 if not EquippedPetsCache[data] then return end
@@ -554,6 +545,9 @@ local function constructorCallback()
                 EquippedPetsCache[data].Parent = nil
                 EquippedPetsCache[data] = nil
             end
+
+            local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data)
+            if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
         end
     )
 end

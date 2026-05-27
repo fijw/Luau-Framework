@@ -59,26 +59,6 @@ local function constuctorCallback()
         end
     )
 
-    TradingGroup.RequestOwnedPetsForTrade:onServerInvoke(
-        function(sender, data)
-            if not sender then return nil :: any end
-
-            local PlrDataClass = Registry(sender)
-            if not PlrDataClass then return nil :: any end
-
-            local Inventory = PlrDataClass()().Inventory :: InventoryClass
-            if not Inventory then return nil :: any end
-
-            local ReturningPets: { [string]: PetSchema } = {}
-
-            for i: string, Stack: SavingStackSchema<PetSchema> in pairs(Inventory().StacksDictionary) do
-                for i: number, id: string in ipairs(Stack.StackArray) do ReturningPets[id] = Stack.StackData end
-            end
-
-            return ReturningPets
-        end
-    )
-
     TradingGroup.SearchForTradingPets:onServerInvoke(
         function(sender, data)
             if not sender then return nil :: any end

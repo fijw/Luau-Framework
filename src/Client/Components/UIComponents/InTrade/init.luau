@@ -665,7 +665,7 @@ local function constructorCallback()
                 end
 
                 -- Add new data.
-                for i: string, Pet: PetSchema in pairs(TradingGroup.RequestOwnedPetsForTrade:invokeServer()) do
+                for i: string, Pet: PetSchema in pairs(TradingGroup.SearchForTradingPets:invokeServer({ side = "yours", text = "" })) do
                     addPetToTrade(
                         "yours",
                         Pet,

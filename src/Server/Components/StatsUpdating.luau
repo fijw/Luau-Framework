@@ -26,35 +26,38 @@ type DataClass = Registry.DataClass
 
     @return void
 ]]
-local function fireStatsToClient(player: Player, PlrDataClass: DataClass)
-    StatsUpdatingGroup.UpdateStats:fireClient(player,
-        {
-            gems = PlrDataClass()().gems(),
-            levels = PlrDataClass()().StatsData().level,
-            xp = PlrDataClass()().StatsData().xp,
-            xpToNextLevel = PlrDataClass()().StatsData().xpToNextLevel,
-            levelsToRebirth = PlrDataClass()().StatsData().levelsNeededToRebirth,
-            rebirths = PlrDataClass()().StatsData().rebirths
-        }
-    )
+local function fireStatsToClient(player: Player, data: any, key: string?)
+    local PlrDataClass = Registry(player)
+    if not PlrDataClass then return end
+
+    StatsUpdatingGroup.UpdateStats:fireClient(player, { data = data, key = key })
 end
 
 --[[
     @usage Subscribe to the player's stats.
 
     @param player Player
-    @param PlrDataClass DataClass
 
     @return void
 ]]
-local function subscribeToStats(player: Player, PlrDataClass: DataClass)
+local function subscribeToStats(player: Player)
+    local PlrDataClass = Registry(player)
+    if not PlrDataClass then return end
+
     PlrDataClass()().gems:subscribe(
-        function(self, data, key, ...) fireStatsToClient(player, PlrDataClass) end,
+        function(self, data, key, ...)
+            print(PlrDataClass()().gems())
+            fireStatsToClient(player, data)
+        end,
+
         "gems_update_client_subscription"
     )
 
     PlrDataClass()().StatsData:subscribe(
-        function(self, data, key, ...) fireStatsToClient(player, PlrDataClass) end,
+        function(self, data, key, ...)
+            fireStatsToClient(player, data, key)
+        end,
+
         "stats_data_update_client_subscription"
     )
 end
@@ -69,11 +72,8 @@ end
 ]]
 local function constuctorCallback()
     local function onPlayerAdded(player: Player)
-        local PlrDataClass = Registry(player)
-        if not PlrDataClass then return end
-
-        fireStatsToClient(player, PlrDataClass)
-        subscribeToStats(player, PlrDataClass)
+        fireStatsToClient(player, nil, nil)
+        subscribeToStats(player)
     end
 
     for i: number, player: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(player) end

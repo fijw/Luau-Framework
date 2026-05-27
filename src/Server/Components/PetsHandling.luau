@@ -37,51 +37,51 @@ local CachedEquippedPets: { [Player]: { [string]: PetSchema } } = {}
 --[[
     @usage Equip a pet to a player.
 
-    @param sender Player
-    @param data string
-    @param isJoining boolean
+    @param petId string
+    @param owner Player
+    @param onlySendToOneClient Player?
+    @param swapEquipStatus boolean
 
     @return void
 ]]
-local function equipPet(sender: Player, data: string, isJoining: boolean, receiver: Player?)
-    local PlrDataClass = Registry(sender)
+local function equipPet(petId: string, owner: Player, onlySendToOneClient: Player?, swapEquipStatus: boolean)
+    local PlrDataClass = Registry(owner)
     if not PlrDataClass then return end
 
     local Inventory = PlrDataClass()().Inventory :: InventoryClass
     if not Inventory then return end
 
-    local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(data)
+    local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(petId)
     if not FoundStack then return end
 
-    if table.find(FoundStack.StackData.Equipped or {}, data) and not isJoining then return end
-
-    if not isJoining then
-        table.insert(FoundStack.StackData.Equipped or {}, data)
+    if swapEquipStatus then
+        if table.find(FoundStack.StackData.Equipped or {}, petId) then return end
+        table.insert(FoundStack.StackData.Equipped or {}, petId)
 
         local newEquippedNum = PlrDataClass()().currentNumOfPetsEquipped() + 1
         PlrDataClass()().currentNumOfPetsEquipped(newEquippedNum)
 
-        InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
+        InventoryGroup.UpdatePetsEquippedText:fireClient(owner, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
     end
 
-    if not CachedEquippedPets[sender][data] then CachedEquippedPets[sender][data] = FoundStack.StackData end
+    if not onlySendToOneClient then CachedEquippedPets[owner][petId] = FoundStack.StackData end
 
-    if not receiver then
+    if not onlySendToOneClient then
         PetsHandlingGroup.PetStartFollowingOwner:fireAllClients(
             {
-                petId = data,
                 PetData = FoundStack.StackData,
-                ownerId = sender.UserId
+                ownerId = owner.UserId,
+                petId = petId
             }
         )
     else
         PetsHandlingGroup.PetStartFollowingOwner:fireClient(
-            receiver,
+            onlySendToOneClient,
 
             {
-                petId = data,
                 PetData = FoundStack.StackData,
-                ownerId = sender.UserId
+                ownerId = owner.UserId,
+                petId = petId
             }
         )
     end
@@ -90,28 +90,29 @@ end
 --[[
     @usage Unequip a pet from a player.
 
-    @param sender Player
-    @param data { PetData: PetSchema, petId: string }
+    @param owner Player
+    @param PetData { PetData: PetSchema, petId: string }
+    @param swapEquipStatus boolean
 
     @return void
 ]]
-local function unequipPetFunction(sender: Player, data: { PetData: PetSchema, petId: string }, isLeaving: boolean)
-    if not sender or not CachedEquippedPets[sender][data.petId] then return end
-    CachedEquippedPets[sender][data.petId] = nil
+local function unequipPetFunction(owner: Player, PetData: { PetData: PetSchema, petId: string }, swapEquipStatus: boolean)
+    if not CachedEquippedPets[owner][PetData.petId] then return end
+    CachedEquippedPets[owner][PetData.petId] = nil
 
     -- Remove the pet from the stack's equipped pets data if the player isn't leaving.
-    if not isLeaving then
-        local PlrDataClass = Registry(sender)
+    if swapEquipStatus then
+        local PlrDataClass = Registry(owner)
         if not PlrDataClass then return end
 
         local Inventory = PlrDataClass()().Inventory :: InventoryClass
         if not Inventory then return end
 
-        local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(data.petId)
-        if not FoundStack then FoundStack = Inventory:fetchStackFromItemData(data.PetData) end
+        local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(PetData.petId)
+        if not FoundStack then FoundStack = Inventory:fetchStackFromItemData(PetData.PetData) end
 
         if FoundStack then
-            local foundEquippedIndex = table.find(FoundStack.StackData.Equipped or {}, data.petId)
+            local foundEquippedIndex = table.find(FoundStack.StackData.Equipped or {}, PetData.petId)
             if not foundEquippedIndex then return end
 
             table.remove(FoundStack.StackData.Equipped or {}, foundEquippedIndex)
@@ -120,10 +121,10 @@ local function unequipPetFunction(sender: Player, data: { PetData: PetSchema, pe
         local newEquippedNum = PlrDataClass()().currentNumOfPetsEquipped() - 1
         PlrDataClass()().currentNumOfPetsEquipped(newEquippedNum)
 
-        InventoryGroup.UpdatePetsEquippedText:fireClient(sender, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
+        InventoryGroup.UpdatePetsEquippedText:fireClient(owner, `{newEquippedNum}/{PlrDataClass()().maxPetsEquipped()}`)
     end
 
-    PetsHandlingGroup.RemovePetFromClient:fireAllClients(data.petId)
+    PetsHandlingGroup.RemovePetFromClient:fireAllClients(PetData.petId)
 end
 --[[ @end_section Utility Functions ]]
 
@@ -139,19 +140,19 @@ local function constructorCallback()
         function()
             while true do
                 for i: number, plr: Player in ipairs(Players:GetPlayers()) do
-                    if not Players:GetPlayerByUserId(plr.UserId) or not CachedEquippedPets[plr] then break end
+                    if not CachedEquippedPets[plr] then continue end
 
                     local PlrDataClass = Registry(plr)
-                    if not PlrDataClass then break end
+                    if not PlrDataClass then continue end
 
                     local Inventory = PlrDataClass()().Inventory :: InventoryClass
-                    if not Inventory then break end
+                    if not Inventory then continue end
 
                     for petId: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
                         local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(petId)
-                        if FoundStack then continue end
+                        if FoundStack and not PlrDataClass()().HealingData().HealingPets[petId] then continue end
 
-                        unequipPetFunction(plr, { petId = petId, PetData = PetData }, false)
+                        unequipPetFunction(plr, { petId = petId, PetData = PetData }, true)
                     end
                 end
 
@@ -160,41 +161,44 @@ local function constructorCallback()
         end
     )
 
-    local function onPlrAdded(plr: Player)
-        CachedEquippedPets[plr] = {}
-
-        local PlrDataClass = Registry(plr)
-        if not PlrDataClass then return end
-
-        repeat task.wait() until (PlrDataClass()().Inventory :: InventoryClass).fetchStackFromItemId
-
-        local Inventory = PlrDataClass()().Inventory :: InventoryClass
-        if not Inventory then return end
-
-        for owner: Player, PlrEquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
-            for petId: string, PetData: PetSchema in pairs(PlrEquipData) do equipPet(owner, petId, true, plr) end
-        end
-
-        for stackId: string, PetStack: StackClass<PetSchema> in pairs(Inventory.StacksDictionary) do
-            for idIndex: number, id: string in ipairs(PetStack.StackArray()) do
-                if PlrDataClass()().HealingData().HealingPets[id] then continue end
-                if not table.find(PetStack.StackData.Equipped or {}, id) then continue end
-
-                equipPet(plr, id, true)
-            end
-        end
-
-        InventoryGroup.UpdatePetsEquippedText:fireClient(plr, `{PlrDataClass()().currentNumOfPetsEquipped()}/{PlrDataClass()().maxPetsEquipped()}`)
-    end
-
-    -- Initialize the component's connections.
+    -- Equip and unequip pets on join & leave.
     do
-        for i: number, plr: Player in ipairs(Players:GetPlayers()) do onPlrAdded(plr) end
-        Players.PlayerAdded:Connect(onPlrAdded)
+        local function onPlayerAdded(plr: Player)
+            CachedEquippedPets[plr] = {}
+
+            local PlrDataClass = Registry(plr)
+            if not PlrDataClass then return end
+
+            for owner: Player, EquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
+                for petId: string, PetData: PetSchema in pairs(EquipData) do equipPet(petId, owner, plr, false) end
+            end
+
+            repeat task.wait() until (PlrDataClass()().Inventory :: InventoryClass).fetchStackFromItemId
+
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
+            if not Inventory then return end
+
+            for i: string, Stack: StackClass<PetSchema> in pairs(Inventory.StacksDictionary) do
+                for petIndex: number, petId: string in ipairs(Stack.StackArray()) do
+                    if not table.find(Stack.StackData.Equipped or {}, petId) then continue end
+                    if PlrDataClass()().HealingData().HealingPets[petId] then continue end
+
+                    equipPet(petId, plr, nil, false)
+                end
+            end
+
+            InventoryGroup.UpdatePetsEquippedText:fireClient(plr, `{PlrDataClass()().currentNumOfPetsEquipped()}/{PlrDataClass()().maxPetsEquipped()}`)
+        end
+
+        for i: number, plr: Player in ipairs(Players:GetPlayers()) do onPlayerAdded(plr) end
+        Players.PlayerAdded:Connect(onPlayerAdded)
 
         Players.PlayerRemoving:Connect(
             function(plr: Player)
-                for i: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do unequipPetFunction(plr, { petId = i, PetData = PetData }, true) end
+                for petId: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
+                    unequipPetFunction(plr, { PetData = PetData, petId = petId }, false)
+                end
+
                 CachedEquippedPets[plr] = nil
             end
         )
@@ -208,7 +212,7 @@ local function constructorCallback()
             if not PlrDataClass then return false end
 
             if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
-            equipPet(sender, data, false)
+            equipPet(data, sender, nil, true)
 
             return true
         end
@@ -217,7 +221,7 @@ local function constructorCallback()
     PetsHandlingGroup.UnequipPet:onServerInvoke(
         function(sender, data)
             if not sender or not CachedEquippedPets[sender][data] then return false end
-            unequipPetFunction(sender, { petId = data, PetData = CachedEquippedPets[sender][data] }, false)
+            unequipPetFunction(sender, { petId = data, PetData = CachedEquippedPets[sender][data] }, true)
 
             return true
         end
