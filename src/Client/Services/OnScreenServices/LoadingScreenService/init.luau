@@ -121,7 +121,7 @@ end
     @return void
 ]]
 local function constructorCallback()
-    local isActive = true
+    local isLoading = true
 
     -- Hide the default loading screen, set all core guis to disabled, and set the teleport gui.
     do
@@ -142,7 +142,7 @@ local function constructorCallback()
     local newUILib = UILib("loading_screen", newScreenClone)
 
     newUILib:hoverAndToggleSizing(1.15)
-    newUILib:handleButtonPress(newSkipBtn, function(pos1: number, pos2: number) isActive = false end)
+    newUILib:handleButtonPress(newSkipBtn, function(pos1: number, pos2: number) isLoading = false end)
 
     newSkipBtn.Visible = true
 
@@ -151,7 +151,7 @@ local function constructorCallback()
             local lastSpinStatus = 1
 
             while true do
-                if not isActive then break end
+                if not isLoading then break end
 
                 if lastSpinStatus == 1 then lastSpinStatus = 2 elseif lastSpinStatus == 2 then lastSpinStatus = 1 end
                 spinInst(newLogoImg, if lastSpinStatus == 1 then 0 else 360, spinTime):waitForCompletion()
@@ -192,6 +192,8 @@ local function constructorCallback()
         local numOfDescendants = #experienceDescendants
 
         for i: number, child: Instance in ipairs(experienceDescendants) do
+            if not isLoading then break end
+
             newStatusTxt.Text = `Loading asset {child.Name}. ({i}/{numOfDescendants})`
             ContentProvider:PreloadAsync({ child })
 
@@ -199,9 +201,7 @@ local function constructorCallback()
         end
     end
 
-    newStatusTxt.Text = "Loading assets complete."
-
-    isActive = false
+    newStatusTxt.Text = "Loading assets complete."; isLoading = false
 end
 
 return constructorCallback
