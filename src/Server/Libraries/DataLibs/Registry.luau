@@ -75,8 +75,8 @@
             local PlrDataClass = Registry(player)
             if not PlrDataClass then return end
 
-            PlrDataClass:deleteClass()
             PlrDataClass:saveClass()
+            PlrDataClass:deleteClass()
         end
 
         Players.PlayerAdded:Connect(onPlayerAdded)
@@ -166,23 +166,7 @@ do
 end
 
 
---[[
-    @usage Continuously saves the player data class to the data store.
-
-    @param PlayerDataClass PlayerDataClass
-
-    @return void
-]]
-local function autoSaveDataClass(DataClass: DataClass)
-    while true do
-        task.wait(60)
-
-        if not CachedDataClasses[tonumber(DataClass.classKey) :: number] then break end
-        DataClass:saveClass(true)
-    end
-end
-
-
+--[[ @section Registry Functions ]]
 --[[
     @usage Fetches the player's stored data from the data store.
 
@@ -252,6 +236,7 @@ function Registry.atomicTransaction
 
     return true
 end
+--[[ @end_section Registry Functions ]]
 
 
 --[[ @section Inheritance Functions ]]
@@ -408,8 +393,6 @@ function constructorCallback(self: typeof(Registry), player: Player, create: tru
     );
 
     ((NewDataClass :: any) :: DataClass):saveClass(true)
-    task.spawn(function() autoSaveDataClass((NewDataClass :: any) :: DataClass) end)
-
     CachedDataClasses[player.UserId] = (NewDataClass :: any) :: DataClass
 
     return (NewDataClass :: any) :: DataClass
