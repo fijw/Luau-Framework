@@ -265,7 +265,7 @@ local function addPetToTrade
 
         HandledUI:handleButtonPress(innerImgButton,
             function(pos1: number, pos2: number)
-                if side == "theirs" or isReady or table.find(Pet.Locked :: { string }, id) then return end
+                if side == "theirs" or table.find(Pet.Locked :: { string }, id) then return end
 
                 local foundIndex = table.find(SelectedPetsCache, id)
                 
@@ -400,7 +400,12 @@ local function constructorCallback()
 
     yourGemsTextBox.FocusLost:Connect(
         function(enterPressed: boolean, Input: InputObject)
-            if not enterPressed then return end
+            if not tonumber(yourGemsTextBox.Text) then
+                TradingGroup.SetGemsInTradeOffer:fireServer(0)
+                yourGemsTextBox.Text = ""
+
+                return
+            end
 
             TradingGroup.SetGemsInTradeOffer:fireServer(tonumber(yourGemsTextBox.Text) :: number)
             yourGemsTextBox.Text = NumberFormatLib(tonumber(yourGemsTextBox.Text) :: number, "quintillions")
@@ -511,7 +516,12 @@ local function constructorCallback()
 
         TradingGroup.HideCountdown:onClientEvent(function() timeContainer.Visible = false; innerContainer.Visible = true; countdownDisplayed = false end)
         TradingGroup.SetGemsInTradeOffer:onClientEvent(function(data) theirGemsText.Text = `{NumberFormatLib(data, "quintillions")}` end)
-        TradingGroup.TradeOfferUpdated:onClientEvent(function(data) if isReady then TradingGroup.AcceptTrade:fireServer() end end)
+
+        TradingGroup.TradeOfferUpdated:onClientEvent(
+            function(data)
+                if isReady then TradingGroup.AcceptTrade:fireServer() end
+            end
+        )
 
         TradingGroup.TradeCompleted:onClientEvent(
             function(data)

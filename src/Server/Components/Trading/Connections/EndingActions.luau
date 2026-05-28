@@ -171,11 +171,16 @@ local function constuctorCallback()
             local PlrDataClass = Registry(sender)
             if not PlrDataClass then return end
 
+            local Inventory = PlrDataClass()().Inventory :: InventoryClass
+            if not Inventory then return end
+
             local isPlayer1 = Trade.player1 == sender
 
             if isPlayer1 then
                 if Trade.player1Coins > PlrDataClass()().gems() then return end
+                if (Inventory.usedItemSlots + #Trade.Player2Pets - #Trade.Player1Pets) > Inventory.maxItems then return end
             else
+                if (Inventory.usedItemSlots + #Trade.Player1Pets - #Trade.Player2Pets) > Inventory.maxItems then return end
                 if Trade.player2Coins > PlrDataClass()().gems() then return end
             end
 

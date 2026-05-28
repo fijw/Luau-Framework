@@ -125,7 +125,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
         )
     end
     
-    if EquippingData.PetData.PetStats.color == "Glitched" then
+    --[[if EquippingData.PetData.PetStats.color == "Glitched" then
         for i = 1, 6 do
             local newEffect = Instance.new("ParticleEmitter")
             newEffect.Parent = petRootPart
@@ -236,7 +236,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             clonedNewEffect.Parent = petRootPart
             clonedNewEffect.Color = ColorSequence.new(Color3.fromRGB(170, 0, 255), Color3.fromRGB(170, 0, 255))
         end
-    end
+    end]]
 
     -- Handle ra/gl textures and the rb/gl/ra colors.
     do
@@ -328,6 +328,7 @@ end
 local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: BasePart, petRootPart: BasePart)
     local isDoneAnimatingWalking = false
     local timeSinceStartedWalking = 0
+    local direction = 0
 
     -- Walking connection handling.
     do
@@ -337,7 +338,14 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
         movementConnection = RunService.Heartbeat:Connect(
             function(deltaTime: number)
                 if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
-                timeSinceStartedWalking += 0.005
+                
+                if direction == 0 then
+                    if timeSinceStartedWalking >= 1 then direction = 1 end
+                    timeSinceStartedWalking += deltaTime
+                elseif direction == 1 then
+                    if timeSinceStartedWalking <= -1 then direction = 0 end
+                    timeSinceStartedWalking -= deltaTime
+                end
 
                 local copiedTargetPos = targetPosition
 
