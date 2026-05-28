@@ -438,10 +438,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                         lookAtConnection = RunService.Heartbeat:Connect(
                             function(deltaTime: number)
                                 if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
-
-                                if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then
-                                    lookAtConnection:Disconnect(); return
-                                end
+                                if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then lookAtConnection:Disconnect(); return end
 
                                 local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
                                     CFrame.lookAt(
