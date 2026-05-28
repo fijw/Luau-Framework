@@ -92,12 +92,15 @@ local function constructorCallback()
                             end
 
                             if PetSchema.PetStats.color == "Glitched" then
+                                PetSchema.GameplayStats.attackDamage *= 5
+                                PetSchema.GameplayStats.maxHealth *= 5
+                            elseif PetSchema.PetStats.color == "Rainbow" then
                                 PetSchema.GameplayStats.attackDamage *= 4
                                 PetSchema.GameplayStats.maxHealth *= 4
-                            elseif PetSchema.PetStats.color == "Radioactive" then
+                            elseif PetSchema.PetStats.color == "Diamond" then
                                 PetSchema.GameplayStats.attackDamage *= 3
                                 PetSchema.GameplayStats.maxHealth *= 3
-                            elseif PetSchema.PetStats.color == "Rainbow" then
+                            elseif PetSchema.PetStats.color == "Gold" then
                                 PetSchema.GameplayStats.attackDamage *= 2
                                 PetSchema.GameplayStats.maxHealth *= 2
                             end

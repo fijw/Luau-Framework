@@ -97,17 +97,17 @@ local DataSettings
         
         StatsData
         = {
-            level = 100,
+            level = 1,
             xp = 0,
             xpToNextLevel = 1_000,
-            levelsNeededToRebirth = 10,
+            levelsNeededToRebirth = 25,
             rebirths = 0
         } :: any,
 
         DungeonsData
         = {
-            allTimeMaxDungeonLevelReached = 1,
-            currentMaxDungeonLevelReached = 1
+            allTimeMaxDungeonLevelReached = 0,
+            currentMaxDungeonLevelReached = 0
         } :: any,
 
         HealingData
@@ -118,11 +118,11 @@ local DataSettings
             maxHealingSlots = 10
         } :: any,
 
-        maxPetsEquipped = 8 :: any,
+        maxPetsEquipped = 16 :: any,
         currentNumOfPetsEquipped = 0 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "no_changing_lol"
+    PLAYER_DATA_STORAGE_KEY = "no_changing_lol_lied"
 }
 
 

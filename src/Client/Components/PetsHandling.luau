@@ -52,15 +52,11 @@ local CurrentlyWalkingCache: { string } = {}
 
     @return Color3
 ]]
-local function radioactiveColor(t: number): Color3
-	if t < 0.25 then
-		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(0, 255, 0), t / 0.25)
-	elseif t < 0.5 then
-		return Color3.fromRGB(0, 255, 0):Lerp(Color3.new(0, 0, 0), (t - 0.25) / 0.25)
-	elseif t < 0.75 then
-		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(255, 255, 0), (t - 0.5) / 0.25)
+local function glitchedColor(t: number): Color3
+	if t < 0.5 then
+		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(170, 0, 255), t / 0.5)
 	else
-		return Color3.fromRGB(255, 255, 0):Lerp(Color3.new(0, 0, 0), (t - 0.75) / 0.25)
+		return Color3.fromRGB(170, 0, 255):Lerp(Color3.new(0, 0, 0), (t - 0.5) / 0.5)
 	end
 end
 
@@ -71,11 +67,15 @@ end
 
     @return Color3
 ]]
-local function glitchedColor(t: number): Color3
-	if t < 0.5 then
-		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(170, 0, 255), t / 0.5)
+local function mixedUnobtainableColor(t: number): Color3
+	if t < 0.25 then
+		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(0, 255, 0), t / 0.25)
+	elseif t < 0.5 then
+		return Color3.fromRGB(0, 255, 0):Lerp(Color3.new(0, 0, 0), (t - 0.25) / 0.25)
+	elseif t < 0.75 then
+		return Color3.new(0, 0, 0):Lerp(Color3.fromRGB(255, 255, 0), (t - 0.5) / 0.25)
 	else
-		return Color3.fromRGB(170, 0, 255):Lerp(Color3.new(0, 0, 0), (t - 0.5) / 0.5)
+		return Color3.fromRGB(255, 255, 0):Lerp(Color3.new(0, 0, 0), (t - 0.75) / 0.25)
 	end
 end
 --[[ @end_section Color Functions ]]
@@ -123,6 +123,12 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             petRootPart.Size.Y * 4,
             petRootPart.Size.Z * 4
         )
+    end
+
+    if EquippingData.PetData.PetStats.color == "Diamond" then
+        petRootPart.Color = Color3.fromRGB(0, 225, 255)
+    elseif EquippingData.PetData.PetStats.color == "Gold" then
+        petRootPart.Color = Color3.fromRGB(255, 208, 0)
     end
     
     --[[if EquippingData.PetData.PetStats.color == "Glitched" then
@@ -242,10 +248,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
     do
         local Textures: { Texture } = {}
 
-        if EquippingData.PetData.PetStats.color == "Glitched"
-            or EquippingData.PetData.PetStats.color == "Radioactive"
-            or EquippingData.PetData.PetStats.color == "broken_mix"
-        then
+        if EquippingData.PetData.PetStats.color == "Glitched" or EquippingData.PetData.PetStats.color == "Rainbow" then
             for i = 1, 6 do
                 local newTexture = Instance.new("Texture")
                 newTexture.Texture = "rbxasset://textures/water/normal_21.dds"
@@ -271,11 +274,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             end
         end
 
-        if EquippingData.PetData.PetStats.color == "Glitched"
-            or EquippingData.PetData.PetStats.color == "Radioactive"
-            or EquippingData.PetData.PetStats.color == "Rainbow"
-            or EquippingData.PetData.PetStats.color == "broken_mix"
-        then
+        if EquippingData.PetData.PetStats.color == "Glitched" or EquippingData.PetData.PetStats.color == "Rainbow" then
             local textureOffset = 0
             local colorOffset = 0
 
@@ -300,13 +299,10 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
                     if EquippingData.PetData.PetStats.color == "Glitched" then
                         for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
                         petRootPart.Color = glitchedColor(colorOffset)
-                    elseif EquippingData.PetData.PetStats.color == "broken_mix" then
+                    elseif EquippingData.PetData.PetStats.color == "Rainbow" then
                         for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
-                        petRootPart.Color = radioactiveColor(colorOffset):Lerp(glitchedColor(colorOffset), 0.5)
-                    elseif EquippingData.PetData.PetStats.color == "Radioactive" then
-                        for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
-                        petRootPart.Color = radioactiveColor(colorOffset)
-                    elseif EquippingData.PetData.PetStats.color == "Rainbow" then petRootPart.Color = Color3.fromHSV(colorOffset, 0.75, 1) end
+                        petRootPart.Color = Color3.fromHSV(colorOffset, 0.75, 1)
+                    end
                 end
             )
         end
@@ -412,7 +408,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                 -- Cleanup.
                 do
                     local readingOffset = CFrame.new(copiedTargetPos.X, 0, copiedTargetPos.Z).Position - CFrame.new(petRootPart.Position.X, 0, petRootPart.Position.Z).Position
-                    if readingOffset.Magnitude > 1 then return end; movementConnection:Disconnect()
+                    print(readingOffset.Magnitude); if readingOffset.Magnitude > 1 then return end; movementConnection:Disconnect()
                     
                     local lookPos = plrRootPart.Position - copiedTargetPos
                     local flatFeetLookPosVec = Vector3.new(lookPos.X, 0, lookPos.Z)
@@ -503,6 +499,7 @@ local function constructorCallback()
                 task.spawn(
                     function()
                         while true do
+                            if table.find(CurrentlyWalkingCache, data.petId) then continue end
                             table.insert(CurrentlyWalkingCache, data.petId)
 
                             local plr = Players:GetPlayerByUserId(data.ownerId)

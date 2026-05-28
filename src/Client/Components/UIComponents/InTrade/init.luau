@@ -35,18 +35,18 @@ type HandledUI = UIUtilitiesLibrary.HandledUI
 
 
 --[[ @section Variables ]]
+local COLOR_OFFSET_PER_KEYPOINT = 0.05
+
+local isReady = false
+
 local localPlayer = Players.LocalPlayer :: Player
 local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") else nil) :: PlayerGui
 local PlrMouse = (if localPlayer then localPlayer:GetMouse() else nil) :: Mouse
 
 local CachedPetDatasForExpanding: { [string]: PetSchema } = {}
-
 local YourCachedPetButtons: { [string]: ImageLabel } = {}
 local TheirCachedPetButtons: { [string]: ImageLabel } = {}
-
 local SelectedPetsCache: { string } = {}
-
-local isReady = false
 --[[ @end_section Variables ]]
 
 
@@ -163,9 +163,7 @@ local function addPetToTrade
     if side == "yours" then YourCachedPetButtons[id] = newPetLabel else TheirCachedPetButtons[id] = newPetLabel end
 
     if Pet.PetStats.color == "Rainbow"
-        or Pet.PetStats.color == "Radioactive"
         or Pet.PetStats.color == "Glitched"
-        or Pet.PetStats.color == "broken_mix"
     then
         local colorOffset = 0
 
@@ -183,44 +181,57 @@ local function addPetToTrade
                 if Pet.PetStats.color == "Rainbow" then
                     colorOffset = colorOffset + (dt * 0.1) % 1; local ColorSeqArray = {}
                     
-                    for i = 0, 17 do
-                        local indexOffset = i * (1 / 17)
-                        table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, Color3.fromHSV((colorOffset + indexOffset) % 1, 0.75, 1)))
-                    end
+                    for i = 0, 12 do
+                        local indexOffset = i * (1 / 12)
 
-                    gradient.Color = ColorSequence.new(ColorSeqArray)
-                elseif Pet.PetStats.color == "Radioactive" then
-                    colorOffset = colorOffset + (dt * 0.1) % 1; local ColorSeqArray = {}
-                    
-                    for i = 0, 17 do
-                        local indexOffset = i * (1 / 17)
-                        table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, UtilsComponent.radioactiveColor((colorOffset + indexOffset) % 1)))
+                        table.insert(ColorSeqArray,
+                            ColorSequenceKeypoint.new(
+                                if i == 0 then 0 else indexOffset,
+                                Color3.fromHSV((colorOffset + (i * COLOR_OFFSET_PER_KEYPOINT)) % 1, 0.75, 1)
+                            )
+                        )
                     end
 
                     gradient.Color = ColorSequence.new(ColorSeqArray)
                 elseif Pet.PetStats.color == "Glitched" then
                     colorOffset = colorOffset + (dt * 0.25) % 1; local ColorSeqArray = {}
                     
-                    for i = 0, 17 do
-                        local indexOffset = i * (1 / 17)
-                        table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, UtilsComponent.glitchedColor((colorOffset + indexOffset) % 1)))
-                    end
+                    for i = 0, 12 do
+                        local indexOffset = i * (1 / 12)
 
-                    gradient.Color = ColorSequence.new(ColorSeqArray)
-                elseif Pet.PetStats.color == "broken_mix" then
-                    colorOffset = colorOffset + (dt * 0.25) % 1; local ColorSeqArray = {}
-                    
-                    for i = 0, 17 do
-                        local indexOffset = i * (1 / 17)
-                        local radioactiveColor = UtilsComponent.radioactiveColor((colorOffset + indexOffset) % 1)
-                        local glitchedColor = UtilsComponent.glitchedColor((colorOffset + indexOffset) % 1)
-
-                        table.insert(ColorSeqArray, ColorSequenceKeypoint.new(if i == 0 then 0 else indexOffset, radioactiveColor:Lerp(glitchedColor, 0.5)))
+                        table.insert(ColorSeqArray,
+                            ColorSequenceKeypoint.new(
+                                if i == 0 then 0 else indexOffset,
+                                UtilsComponent.glitchedColor((colorOffset + (i * COLOR_OFFSET_PER_KEYPOINT)) % 1)
+                            )
+                        )
                     end
 
                     gradient.Color = ColorSequence.new(ColorSeqArray)
                 end
             end
+        )
+    elseif Pet.PetStats.color == "Diamond" then
+        local gradient = Instance.new("UIGradient")
+        gradient.Rotation = 40
+        gradient.Parent = innerImgButton
+
+        gradient.Color = ColorSequence.new(
+            {
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 183, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 225, 255))
+            }
+        )
+    elseif Pet.PetStats.color == "Gold" then
+        local gradient = Instance.new("UIGradient")
+        gradient.Rotation = 40
+        gradient.Parent = innerImgButton
+
+        gradient.Color = ColorSequence.new(
+            {
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 187, 0)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 238, 0))
+            }
         )
     end
 

@@ -19,7 +19,7 @@ export type PetSchema
     : {
         rarity: "Common" | "Rare" | "Legendary" | "Secret" | "Unobtainable",
         size: "Default" | "Huge" | "Gigantic" | "Worldbreaker",
-        color: "Default" | "Rainbow" | "Radioactive" | "Glitched" | "broken_mix"
+        color: "Default" | "Gold" | "Diamond" | "Rainbow" | "Glitched"
     },
     
     Locked: { string }?,
@@ -42,10 +42,10 @@ local Data
         COLORS
         = {
             [1] = "Default",
-            [2] = "Rainbow",
-            [3] = "Radioactive",
-            [4] = "Glitched",
-            [5] = "broken_mix"
+            [2] = "Gold",
+            [3] = "Diamond",
+            [4] = "Rainbow",
+            [5] = "Glitched"
         }
     },
 
@@ -61,10 +61,11 @@ local Data
 
         COLOR
         = {
-            [1] = 100 - (1 / 25 * 100) - (1 / 75 * 100) - 1,
+            [1] = 100 - (1 / 500 * 100) - (1 / 25 * 100) - (1 / 50 * 100) - 1,
             [2] = 1 / 25 * 100,
-            [3] = 1 / 75 * 100,
-            [4] = 1
+            [3] = 1 / 50 * 100,
+            [4] = 1,
+            [5] = 1 / 500 * 100
         }
     }
 }

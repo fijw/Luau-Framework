@@ -29,7 +29,7 @@ local MergePetsMachineComponent = StarterPlayer.StarterPlayerScripts.Components.
 local HealingMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.HealingMachine
 local SendTradeComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.SendTrade
 local InTradeComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.InTrade
-local PetFollowingComponent = StarterPlayer.StarterPlayerScripts.Components.PetFollowing
+local PetsHandlingComponent = StarterPlayer.StarterPlayerScripts.Components.PetsHandling
 
 
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
@@ -56,7 +56,7 @@ local ModulesToLoad
     [HealingMachineComponent.Name] = HealingMachineComponent,
     [SendTradeComponent.Name] = SendTradeComponent,
     [InTradeComponent.Name] = InTradeComponent,
-    [PetFollowingComponent.Name] = PetFollowingComponent,
+    [PetsHandlingComponent.Name] = PetsHandlingComponent,
     [ScreenComponent.Name] = ScreenComponent
 }
 

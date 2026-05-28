@@ -44,7 +44,7 @@ local CrateMachineComponent = ServerScriptService.Components.CrateMachine
 local StatsUpdatingComponent = ServerScriptService.Components.StatsUpdating
 local DeveloperSpawningComponent = ServerScriptService.Components.DeveloperSpawning
 local RebirthingComponent = ServerScriptService.Components.Rebirthing
-local MergingComponent = ServerScriptService.Components.Merging
+local MergingMachineComponent = ServerScriptService.Components.MergingMachine
 local HealingMachineComponent = ServerScriptService.Components.HealingMachine
 local TradingComponent = ServerScriptService.Components.Trading
 local PetsHandlingComponent = ServerScriptService.Components.PetsHandling
@@ -72,7 +72,7 @@ local ModulesToLoad
     [StatsUpdatingComponent.Name] = StatsUpdatingComponent,
     [DeveloperSpawningComponent.Name] = DeveloperSpawningComponent,
     [RebirthingComponent.Name] = RebirthingComponent,
-    [MergingComponent.Name] = MergingComponent,
+    [MergingMachineComponent.Name] = MergingMachineComponent,
     [HealingMachineComponent.Name] = HealingMachineComponent,
     [TradingComponent.Name] = TradingComponent,
     [PetsHandlingComponent.Name] = PetsHandlingComponent,

@@ -145,7 +145,20 @@ local function constructorCallback()
                     local MergingPetSchema: PetSchema? = IdentifyingPet.StackData
                     if not MergingPetSchema then return false end
 
-                    -- Verify all the merging pets have the same schema.
+                    -- Update the new pet's color and verify it can be updated.
+                    for i: number, color: string in ipairs(PetsData.PHYSICAL_ATTRIBUTES.COLORS) do
+                        if color ~= MergingPetSchema.PetStats.color then continue end
+
+                        local index = i
+                        if index + 1 > #PetsData.PHYSICAL_ATTRIBUTES.COLORS - 1 then return false else index += 1 end
+
+                        local newColor = PetsData.PHYSICAL_ATTRIBUTES.COLORS[index]
+                        MergingPetSchema.PetStats.color = newColor :: any
+                        
+                        break
+                    end
+
+                    -- Verify all the merging pets have the same schema and remove them.
                     for i: number, petId: string in ipairs(data :: { string }) do
                         local PetStack = (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(petId)
                         if not PetStack then return false end
@@ -159,32 +172,7 @@ local function constructorCallback()
                         if (PlayerState.Inventory :: InventoryClass):fetchStackFromItemId(petId) then return false end
                     end
 
-                    -- Upgrade the merged pet.
-                    do
-                        local doSizeUpgrade = RNG.randomFromTableOfChances({ [true] = 0.0004, [false] = 99.9996 })
-
-                        if doSizeUpgrade then
-                            for i: number, size: string in ipairs(PetsData.PHYSICAL_ATTRIBUTES.SIZES) do
-                                if size ~= MergingPetSchema.PetStats.size then continue end
-
-                                local newSize = PetsData.PHYSICAL_ATTRIBUTES.SIZES[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.SIZES then i else i + 1]
-                                MergingPetSchema.PetStats.size = newSize :: any
-
-                                break
-                            end
-                        end
-
-                        for i: number, color: string in ipairs(PetsData.PHYSICAL_ATTRIBUTES.COLORS) do
-                            if color ~= MergingPetSchema.PetStats.color then continue end
-
-                            local newColor = PetsData.PHYSICAL_ATTRIBUTES.COLORS[if i + 1 > #PetsData.PHYSICAL_ATTRIBUTES.COLORS then i else i + 1]
-                            MergingPetSchema.PetStats.color = newColor :: any
-                            
-                            break
-                        end
-                    end
-
-                    -- Give the player the merged pet.
+                    -- Give the player the new merged pet.
                     do
                         local randomizedPetId = RNG.randomString(16)
 
