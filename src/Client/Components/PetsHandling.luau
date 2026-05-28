@@ -440,10 +440,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                                 if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
 
                                 if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then
-                                    repeat task.wait() until isDoneGoingToFloor
-                                    lookAtConnection:Disconnect(); isDoneAnimatingWalking = true
-                                    
-                                    return
+                                    lookAtConnection:Disconnect(); return
                                 end
 
                                 local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
@@ -459,6 +456,8 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                             end
                         )
                     end
+
+                    repeat task.wait() until isDoneGoingToFloor; isDoneAnimatingWalking = true
                 end
             end
         )
