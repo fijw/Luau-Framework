@@ -16,7 +16,7 @@ local RebirthingGroup = require(ReplicatedStorage.Networking.PacketGroups.Compon
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
+local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 --[[ @end_section Imports ]]
 
 

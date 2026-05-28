@@ -16,10 +16,10 @@ local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Compon
 
 local UtilsComponent = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.UtilsComponent)
 
-local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
-local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
+local CratesData = require(ReplicatedStorage.DataAssets.Crates.Data)
+local PetsData = require(ReplicatedStorage.DataAssets.Pets.Data)
 
-local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
+local PetSchemas = require(ReplicatedStorage.DataAssets.Pets.PetSchemas)
 
 local CrateMachineGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.CrateMachine)
 --[[ @end_section Imports ]]

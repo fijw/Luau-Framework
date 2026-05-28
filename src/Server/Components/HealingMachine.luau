@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
+local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)

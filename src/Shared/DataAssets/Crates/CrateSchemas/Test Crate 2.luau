@@ -6,8 +6,8 @@
 --[[ @section Imports ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Data = require(ReplicatedStorage.Assets.Crates.Data)
-local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
+local Data = require(ReplicatedStorage.DataAssets.Crates.Data)
+local PetSchemas = require(ReplicatedStorage.DataAssets.Pets.PetSchemas)
 --[[ @end_section Imports ]]
 
 

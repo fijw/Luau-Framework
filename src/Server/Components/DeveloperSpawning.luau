@@ -15,8 +15,8 @@ local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 
-local PetSchemas = require(ReplicatedStorage.Assets.Pets.PetSchemas)
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
+local PetSchemas = require(ReplicatedStorage.DataAssets.Pets.PetSchemas)
+local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 
 local DeveloperSpawningGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.DeveloperSpawning)
 --[[ @end_section Imports ]]

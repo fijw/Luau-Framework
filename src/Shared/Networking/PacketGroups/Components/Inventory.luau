@@ -8,7 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local NetworkLib = require(ReplicatedStorage.Networking.NetworkLib)
 
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
+local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 --[[ @end_section Imports ]]
 
 

@@ -19,7 +19,7 @@ local EndingActions = require(script.Connections.EndingActions)
 
 local TradesMap = require(script.TradesMap)
 
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
+local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 
 local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Trading)
 --[[ @end_section Imports ]]

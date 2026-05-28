@@ -16,17 +16,11 @@ local NotificationComponents = require(StarterPlayer.StarterPlayerScripts.Compon
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
-
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
 --[[ @end_section Imports ]]
 
 
---[[ @section Types ]]
-type PetSchema = Data.PetSchema
-
 type HandledUI = UIUtilitiesLibrary.HandledUI
 type HandledTween = TweensLib.HandledTween
---[[ @end_section Types ]]
 
 
 --[[ @section Variables ]]

@@ -6,7 +6,7 @@
 --[[ @section Imports ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
+local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 --[[ @end_section Imports ]]
 
 
