@@ -10,7 +10,7 @@ local RunService = game:GetService("RunService")
 
 local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
+local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 
 local PetsHandlingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.PetsHandling)
 --[[ @end_section Imports ]]

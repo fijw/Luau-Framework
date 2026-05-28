@@ -22,7 +22,7 @@ local NumberFormatLib = require(ReplicatedStorage.Libraries.NumberLibs.NumberFor
 
 local UtilsComponent = require(StarterPlayer.StarterPlayerScripts.Components.UIComponents.UtilsComponent)
 
-local Data = require(ReplicatedStorage.Assets.Pets.Data)
+local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 --[[ @end_section Imports ]]
 
 

@@ -15,8 +15,8 @@ local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.S
 local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 
-local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
-local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
+local PetsData = require(ReplicatedStorage.DataAssets.Pets.Data)
+local CratesData = require(ReplicatedStorage.DataAssets.Crates.Data)
 --[[ @end_section Imports ]]
 
 

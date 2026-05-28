@@ -7,10 +7,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local CrateSchemas = require(ReplicatedStorage.Assets.Crates.CrateSchemas)
+local CrateSchemas = require(ReplicatedStorage.DataAssets.Crates.CrateSchemas)
 
-local PetsData = require(ReplicatedStorage.Assets.Pets.Data)
-local CratesData = require(ReplicatedStorage.Assets.Crates.Data)
+local PetsData = require(ReplicatedStorage.DataAssets.Pets.Data)
+local CratesData = require(ReplicatedStorage.DataAssets.Crates.Data)
 
 local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
