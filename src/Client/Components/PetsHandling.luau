@@ -428,12 +428,12 @@ local function constructorCallback(): ()
             if not targetInst or not raycastResult then return end
 
             for i: string, CachedData: { petModel: Model, field: BasePart } in pairs(CachedFieldPets) do
-                if targetInst.Name ~= CachedData.petModel.Name and (targetInst.Parent :: Instance).Name ~= CachedData.petModel.Name then continue end
+                if targetInst.Name ~= i and (targetInst.Parent :: Instance).Name ~= i then continue end
 
-                table.insert(AttackingPetsCache, CachedData.petModel.Name)
+                table.insert(AttackingPetsCache, i)
 
-                if table.find(CurrentlyWalkingCache, CachedData.petModel.Name) then
-                    repeat task.wait() until not table.find(CurrentlyWalkingCache, CachedData.petModel.Name)
+                if table.find(CurrentlyWalkingCache, i) then
+                    repeat task.wait() until not table.find(CurrentlyWalkingCache, i)
                 end
 
                 local petRootPart = CachedData.petModel.PrimaryPart :: BasePart
@@ -441,7 +441,7 @@ local function constructorCallback(): ()
 
                 movePetTo(CachedData.petModel, plrRootPart.Position, petRootPart, petRootPart)
                 
-                local foundAttackingCacheIndex = table.find(AttackingPetsCache, CachedData.petModel.Name)
+                local foundAttackingCacheIndex = table.find(AttackingPetsCache, i)
                 if foundAttackingCacheIndex then table.remove(AttackingPetsCache, foundAttackingCacheIndex) end
 
                 break
@@ -471,6 +471,8 @@ local function constructorCallback(): ()
                     function(): ()
                         while true do
                             if table.find(AttackingPetsCache, data.petId) then repeat task.wait() until not table.find(AttackingPetsCache, data.petId) end
+
+                            if table.find(CurrentlyWalkingCache, data.petId) then repeat task.wait() until not table.find(CurrentlyWalkingCache, data.petId) end
                             table.insert(CurrentlyWalkingCache, data.petId)
 
                             local plr = Players:GetPlayerByUserId(data.ownerId)
@@ -528,7 +530,7 @@ local function constructorCallback(): ()
 
         PetsHandlingGroup.AddPetToClientField:onClientEvent(
             function(data): ()
-                if CachedFieldPets[data.generatedId] then return end
+                if CachedFieldPets[data.generatedId] then return end; repeat task.wait() until localPlayer.Character;
 
                 local field = FieldsFolder:FindFirstChild(data.fieldName) :: BasePart
                 if not field then return end
@@ -539,6 +541,8 @@ local function constructorCallback(): ()
                     function(): ()
                         while true do
                             if table.find(AttackingPetsCache, data.generatedId) then repeat task.wait() until not table.find(AttackingPetsCache, data.generatedId) end
+
+                            if table.find(CurrentlyWalkingCache, data.generatedId) then repeat task.wait() until not table.find(CurrentlyWalkingCache, data.generatedId) end
                             table.insert(CurrentlyWalkingCache, data.generatedId)
 
                             local petModel = GamePetsFolder:FindFirstChild(data.generatedId) :: Model
@@ -551,7 +555,7 @@ local function constructorCallback(): ()
                             local randomZ = RNG.betterRandomNumber({ min = -field.Size.Z / 2, max = field.Size.Z / 2 })
 
                             local targetPos = field.CFrame * CFrame.new(randomX, 0, randomZ).Position
-                            movePetTo(petModel, targetPos, petRootPart, petRootPart)
+                            movePetTo(petModel, targetPos, field, petRootPart)
 
                             local randomWaitTime = RNG.betterRandomNumber(
                                 {
