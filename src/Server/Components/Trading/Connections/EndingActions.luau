@@ -64,7 +64,7 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                     local foundIndex = table.find(FoundPetStack.StackData.Equipped or {}, id)
                     if not foundIndex then continue end
 
-                    Player2State.currentNumOfPetsEquipped(Player2State.currentNumOfPetsEquipped() - 1)
+                    Player1State.currentNumOfPetsEquipped(Player1State.currentNumOfPetsEquipped() - 1)
                     table.remove(FoundPetStack.StackData.Equipped or {}, foundIndex)
                 end
 
