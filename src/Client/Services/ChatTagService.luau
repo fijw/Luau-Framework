@@ -97,12 +97,12 @@ end
 
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     local chatColorOffset = 255
     local waveTextColorOffset = 0
 
     RunService.Heartbeat:Connect(
-        function(dt: number)
+        function(dt: number): ()
             waveTextColorOffset += dt / 2; waveTextColorOffset %= 1
 
             for i: number, ChatData: HandledChatSchema in ipairs(HandledChatsArray) do

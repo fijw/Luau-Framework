@@ -32,9 +32,9 @@ type PetSchema = Data.PetSchema
 
     @return void
 ]]
-local function constuctorCallback()
+local function constuctorCallback(): ()
     DeveloperSpawningGroup.SpawnPet:onServerEvent(
-        function(sender, data)
+        function(sender, data): ()
             if not sender then return end
             if not table.find(SpawningSettings, sender:GetRankInGroupAsync(game.CreatorId)) then return end
 

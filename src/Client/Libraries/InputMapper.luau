@@ -99,7 +99,7 @@ local function onInputBegan
     keybind: Enum.KeyCode,
     func: (T...) -> (...any),
     ...: T...
-)
+): ()
     if (gameProcessed and not useEvenIfProcessed) or input.KeyCode ~= keybind then return end
 
     func(...)

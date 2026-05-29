@@ -21,7 +21,7 @@ local CmdsSettings = require(ReplicatedStorage.FrameworkSettings.CmdsSettings)
 
     @return void
 ]]
-local function constructorCallback(sender: Player, args: { string })
+local function constructorCallback(sender: Player, args: { string }): ()
     table.remove(CmdsSettings.serverIsLocked, table.find(CmdsSettings.serverIsLocked, true))
     table.insert(CmdsSettings.serverIsLocked, false)
 

@@ -30,25 +30,25 @@ local function initializeModule(module: any, i: string, LoadedModules: { [string
 
     -- Attempt to initialize the module inputted until it succeeds or exceeds the maximum amount of attempts.
     Chronovisor(
-        function()
+        function(): ()
             local finishedLoading = false
 
             task.spawn(
-                function()
-                    pcall(function() module() end)
+                function(): ()
+                    pcall(function(): () module() end)
                     finishedLoading = true
                 end
             )
 
             task.defer(
-                function()
+                function(): ()
                     if not finishedLoading then print(`[-] [Framework] Module {i} yielded when initializing, side: {runningFrom}`) end
                 end
             )
         end
     )
     :onError(
-        function(err: string?)
+        function(err: string?): ()
             if attempts > maxRetryAttempts then returningStatus = "failure"; return else attempts += 1; task.wait(1) end
 
             print(`[!] [Framework] Failed to initialize module {i}, attempt {attempts} out of {maxRetryAttempts}, error: {err}, side: {runningFrom}`)
@@ -76,7 +76,7 @@ local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): "
 
     -- Attempt to require all modules and store them in a table.
     Chronovisor(
-        function()
+        function(): ()
             for i: string, module: any in pairs(ModulesToLoad) do
                 local RequiredModule = require(module) :: any; lastRequiredModuleIndex = i
 
@@ -95,7 +95,7 @@ local function constructorCallback(ModulesToLoad: { [string]: ModuleScript }): "
             end
         end
     )
-    :onError(function(err: string?) print(`[!] [Framework] Failed to require module {lastRequiredModuleIndex}, error: {err}, side: {runningFrom}`) end)
+    :onError(function(err: string?): () print(`[!] [Framework] Failed to require module {lastRequiredModuleIndex}, error: {err}, side: {runningFrom}`) end)
 
     local requiredCount = 0
     local loadedCount = 0

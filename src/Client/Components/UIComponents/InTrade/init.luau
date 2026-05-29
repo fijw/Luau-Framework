@@ -118,7 +118,7 @@ local function addPetToTrade
     yourHugePet: ImageLabel,
     yourGiganticPet: ImageLabel,
     HandledUI: HandledUI
-)
+): ()
     local newPetLabel: ImageLabel
 
     if side == "yours" then
@@ -174,7 +174,7 @@ local function addPetToTrade
         local colorConnection: RBXScriptConnection
 
         colorConnection = RunService.Heartbeat:Connect(
-            function(dt: number)
+            function(dt: number): ()
                 if side == "yours" then if not YourCachedPetButtons[id] then colorConnection:Disconnect(); return end end
                 if side == "theirs" then if not TheirCachedPetButtons[id] then colorConnection:Disconnect(); return end end
 
@@ -240,7 +240,7 @@ local function addPetToTrade
         local isHovering = false
 
         HandledUI:handleGuiObjectInput(innerImgButton.MouseEnter,
-            function()
+            function(): ()
                 isHovering = true
 
                 local health = NumberFormatLib(Pet.GameplayStats.petHealth, "thousands")
@@ -268,14 +268,14 @@ local function addPetToTrade
         )
 
         HandledUI:handleGuiObjectInput(innerImgButton.MouseLeave,
-            function()
+            function(): ()
                 isHovering = false
                 PetDetailsComponents().mainFrame.Visible = false
             end
         )
 
         HandledUI:handleButtonPress(innerImgButton,
-            function(pos1: number, pos2: number)
+            function(pos1: number, pos2: number): ()
                 if side == "theirs" or table.find(Pet.Locked :: { string }, id) then return end
 
                 local foundIndex = table.find(SelectedPetsCache, id)
@@ -326,7 +326,7 @@ local function handleSearch
     yourHugePet: ImageLabel,
     yourGiganticPet: ImageLabel,
     HandledUI: HandledUI
-)
+): ()
     if side == "yours" then
         for i: string, petImageLabel: ImageLabel in pairs(YourCachedPetButtons) do
             petImageLabel:Destroy()
@@ -410,7 +410,7 @@ local function constructorCallback()
     local timeText = timeContainer:WaitForChild("TextLabel") :: TextLabel
 
     yourGemsTextBox.FocusLost:Connect(
-        function(enterPressed: boolean, Input: InputObject)
+        function(enterPressed: boolean, Input: InputObject): ()
             if not tonumber(yourGemsTextBox.Text) then
                 TradingGroup.SetGemsInTradeOffer:fireServer(0)
                 yourGemsTextBox.Text = ""
@@ -429,7 +429,7 @@ local function constructorCallback()
     -- Search box connections.
     do
         yourSearchTextBox:GetPropertyChangedSignal("Text"):Connect(
-            function()
+            function(): ()
                 local Pets = TradingGroup.SearchForTradingPets:invokeServer({ side = "yours", text = yourSearchTextBox.Text })
 
                 handleSearch(
@@ -449,7 +449,7 @@ local function constructorCallback()
         )
 
         theirSearchTextBox:GetPropertyChangedSignal("Text"):Connect(
-            function()
+            function(): ()
                 local Pets = TradingGroup.SearchForTradingPets:invokeServer({ side = "theirs", text = theirSearchTextBox.Text })
 
                 handleSearch(
@@ -475,11 +475,11 @@ local function constructorCallback()
     -- Networking connections.
     do
         TradingGroup.DisplayCountdown:onClientEvent(
-            function(data)
+            function(data): ()
                 timeContainer.Visible = true; innerContainer.Visible = false; countdownDisplayed = true
 
                 task.spawn(
-                    function()
+                    function(): ()
                         local timeLeft = 3
 
                         while true do
@@ -494,13 +494,13 @@ local function constructorCallback()
         )
 
         TradingGroup.AcceptTradeRequest:onClientEvent(
-            function(data)
+            function(data): ()
                 HandledUI:setFocus({ "AreYouSure", "Notification", "TradeRequest" })
             end
         )
 
         TradingGroup.AddPetToTradeOffer:onClientEvent(
-            function(data)
+            function(data): ()
                 addPetToTrade(
                     "theirs",
                     data.PetData,
@@ -519,23 +519,23 @@ local function constructorCallback()
         )
 
         TradingGroup.RemovePetFromTradeOffer:onClientEvent(
-            function(data)
+            function(data): ()
                 TheirCachedPetButtons[data]:Destroy()
                 TheirCachedPetButtons[data] = nil
             end
         )
 
-        TradingGroup.HideCountdown:onClientEvent(function() timeContainer.Visible = false; innerContainer.Visible = true; countdownDisplayed = false end)
-        TradingGroup.SetGemsInTradeOffer:onClientEvent(function(data) theirGemsText.Text = `{NumberFormatLib(data, "quintillions")}` end)
+        TradingGroup.HideCountdown:onClientEvent(function(): () timeContainer.Visible = false; innerContainer.Visible = true; countdownDisplayed = false end)
+        TradingGroup.SetGemsInTradeOffer:onClientEvent(function(data): () theirGemsText.Text = `{NumberFormatLib(data, "quintillions")}` end)
 
         TradingGroup.TradeOfferUpdated:onClientEvent(
-            function(data)
+            function(data): ()
                 if isReady then TradingGroup.AcceptTrade:fireServer() end
             end
         )
 
         TradingGroup.TradeCompleted:onClientEvent(
-            function(data)
+            function(data): ()
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
@@ -543,7 +543,7 @@ local function constructorCallback()
                 NotificationComponents().notificationText.Text = `Your trade with {data} has been completed.`
 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                    function(pos1: number, pos2: number)
+                    function(pos1: number, pos2: number): ()
                         HandledNotificationUI:removeFocus({ "Screen" })
                         HandledNotificationUI:destroy()
                     end
@@ -552,7 +552,7 @@ local function constructorCallback()
         )
 
         TradingGroup.CancelTrade:onClientEvent(
-            function(data)
+            function(data): ()
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
@@ -560,7 +560,7 @@ local function constructorCallback()
                 NotificationComponents().notificationText.Text = `Your trade with {data} has been cancelled.`
 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                    function(pos1: number, pos2: number)
+                    function(pos1: number, pos2: number): ()
                         HandledNotificationUI:removeFocus({ "Screen" })
                         HandledNotificationUI:destroy()
                     end
@@ -569,7 +569,7 @@ local function constructorCallback()
         )
 
         TradingGroup.AcceptTrade:onClientEvent(
-            function(data)
+            function(data): ()
                 if data == "yours" then
                     isReady = not isReady
                     if isReady then yourSide.ImageColor3 = Color3.fromHex("#64FF64") else yourSide.ImageColor3 = Color3.fromHex("#FFFFFF") end
@@ -588,7 +588,7 @@ local function constructorCallback()
     -- Buttons handling.
     do
         HandledUI:handleButtonPress(expandBtn,
-            function(pos1: number, pos2: number)
+            function(pos1: number, pos2: number): ()
                 isExpanded = not isExpanded
                 if isExpanded then expandBtn.Image = "rbxassetid://78262684079325" else expandBtn.Image = "rbxassetid://130599991371204" end
 
@@ -623,10 +623,10 @@ local function constructorCallback()
             end
         )
 
-        HandledUI:handleButtonPress(readyUpBtn, function(pos1: number, pos2: number) TradingGroup.AcceptTrade:fireServer() end)
+        HandledUI:handleButtonPress(readyUpBtn, function(pos1: number, pos2: number): () TradingGroup.AcceptTrade:fireServer() end)
 
         HandledUI:handleButtonPress(cancelBtn,
-            function(pos1: number, pos2: number)
+            function(pos1: number, pos2: number): ()
                 TradingGroup.CancelTrade:fireServer()
             end,
 
@@ -639,7 +639,7 @@ local function constructorCallback()
         local originalContainerSize = containerFrame.Size
 
         HandledUI:subscribeToSetFocus("opening_subscription",
-            function(self, NamesKeepingFocus)
+            function(self, NamesKeepingFocus): ()
                 containerFrame.Size = UDim2.new(0, 0, 0, 0)
 
                 tweenInst(
@@ -706,7 +706,7 @@ local function constructorCallback()
         )
 
         HandledUI:subscribeToRemoveFocus("closing_subscription",
-            function(self, NamesToBringBackToFocus)
+            function(self, NamesToBringBackToFocus): ()
                 tweenInst(
                     containerFrame,
                     

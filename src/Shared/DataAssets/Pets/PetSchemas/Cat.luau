@@ -16,7 +16,7 @@ type PetSchema = Data.PetSchema
 local PetSchema: PetSchema
 = {
     petName = script.Name,
-    petImageId = "rbxassetid://133541764178841",
+    petImageId = "rbxassetid://94193290338597",
 
     GameplayStats
     = {

@@ -35,7 +35,7 @@ local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") els
 
     @return void
 ]]
-local function setFocus(screen: ScreenGui, name: string)
+local function setFocus(screen: ScreenGui, name: string): ()
     local CachedClass = UIUtilitiesLibrary.CachedUIClasses[name]
     if not CachedClass then return end
 
@@ -87,7 +87,7 @@ end
     
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     repeat task.wait() until not UIUtilitiesLibrary.CachedUIClasses.loading_screen
 
     local clonedScreen = UIComponents.Screen:Clone()
@@ -142,7 +142,7 @@ local function constructorCallback()
     -- Stats networking connections.
     do
         StatsUpdatingGroup.UpdateStats:onClientEvent(
-            function(data)
+            function(data): ()
                 if data.key == "rebirths" then
                     rebirthsText.Text = `{NumberFormatLib(data.data, "millions")}`
                 elseif data.key == "levels" then
@@ -160,7 +160,7 @@ local function constructorCallback()
         )
 
         StatsUpdatingGroup.ShowJoiningStats:onClientEvent(
-            function(data)
+            function(data): ()
                 rebirthsText.Text = `{NumberFormatLib(data.rebirths, "millions")}`
                 levelText.Text = `{NumberFormatLib(data.level, "millions")}`
                 xpToNextLevelText.Text = `{NumberFormatLib(data.xp, "thousands")}/{NumberFormatLib(data.xpToNextLevel, "thousands")} XP`
@@ -227,27 +227,27 @@ local function constructorCallback()
     -- HUD button presses.
     do
         HandledUi:handleButtonPress(inventoryBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "inventory") end
+            function(pos1: number, pos2: number): () setFocus(clonedScreen, "inventory") end
         )
 
         HandledUi:handleButtonPress(tradingBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "send_trade") end
+            function(pos1: number, pos2: number): () setFocus(clonedScreen, "send_trade") end
         )
 
         HandledUi:handleButtonPress(rebirthBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "rebirth") end
+            function(pos1: number, pos2: number): () setFocus(clonedScreen, "rebirth") end
         )
 
         HandledUi:handleButtonPress(shopBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "shop") end
+            function(pos1: number, pos2: number): () setFocus(clonedScreen, "shop") end
         )
 
         HandledUi:handleButtonPress(marketplaceBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "marketplace") end
+            function(pos1: number, pos2: number): () setFocus(clonedScreen, "marketplace") end
         )
 
         HandledUi:handleButtonPress(settingsBtn,
-            function(pos1: number, pos2: number) setFocus(clonedScreen, "settings") end
+            function(pos1: number, pos2: number): () setFocus(clonedScreen, "settings") end
         )
     end
 
@@ -262,7 +262,7 @@ local function constructorCallback()
         end
 
         CachedClass:subscribeToRemoveFocus("screen_subscription",
-            function(self, NamesToBringBackToFocus)
+            function(self, NamesToBringBackToFocus): ()
                 if NamesToBringBackToFocus then return end
 
                 -- Update button image.
@@ -275,7 +275,7 @@ local function constructorCallback()
 
                 for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do
                     task.spawn(
-                        function()
+                        function(): ()
                             tweenInst(button, 0.25, "trans", 1)
                             tweenInst(button, 0.25, "pos", UDim2.new(0.5, 0, 0.5, 0)):waitForCompletion()
 
@@ -287,7 +287,7 @@ local function constructorCallback()
         )
 
         CachedClass:subscribeToSetFocus("screen_subscription",
-            function(self, NamesKeepingFocus)
+            function(self, NamesKeepingFocus): ()
                 for i: string, Data: { enabled: string, disabled: string, button: ImageButton } in pairs(IconsMap) do
                     Data.button.Image = Data.disabled
                 end
@@ -323,7 +323,7 @@ local function constructorCallback()
         if table.find(SubscribingUINames, i) then continue end
 
         CachedClass:subscribeToSetFocus("screen_subscription",
-            function(self, NamesKeepingFocus)
+            function(self, NamesKeepingFocus): ()
                 for i: string, Data: { enabled: string, disabled: string, button: ImageButton } in pairs(IconsMap) do
                     Data.button.Image = Data.disabled
                 end
@@ -332,7 +332,7 @@ local function constructorCallback()
 
                 for i: number, button: ImageButton in ipairs(HideAndShowBarButtons) do
                     task.spawn(
-                        function()
+                        function(): ()
                             tweenInst(button, 0.25, "trans", 1)
                             tweenInst(button, 0.25, "pos", UDim2.new(0.5, 0, 0.5, 0)):waitForCompletion()
 

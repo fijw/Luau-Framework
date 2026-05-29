@@ -50,6 +50,20 @@ local Packets
             clientType = "pet_id",
             serverType = nil
         }
+    ),
+
+
+    AddPetToClientField = NetworkLib("ph_add_pet_to_client_field", "Event",
+        {
+            clientType
+            = {
+                generatedId = "",
+                PetData = {} :: PetSchema,
+                fieldName = ""
+            },
+
+            serverType = nil
+        }
     )
 }
 

@@ -120,7 +120,7 @@ end
     
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     local isLoading = true
 
     -- Hide the default loading screen, set all core guis to disabled, and set the teleport gui.
@@ -142,12 +142,12 @@ local function constructorCallback()
     local newUILib = UILib("loading_screen", newScreenClone)
 
     newUILib:hoverAndToggleSizing(1.15)
-    newUILib:handleButtonPress(newSkipBtn, function(pos1: number, pos2: number) isLoading = false end)
+    newUILib:handleButtonPress(newSkipBtn, function(pos1: number, pos2: number): () isLoading = false end)
 
     newSkipBtn.Visible = true
 
     task.spawn(
-        function()
+        function(): ()
             local lastSpinStatus = 1
 
             while true do

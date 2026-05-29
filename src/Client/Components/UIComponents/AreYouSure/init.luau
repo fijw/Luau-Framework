@@ -29,7 +29,7 @@ local PlayerGui = (if localPlayer then localPlayer:WaitForChild("PlayerGui") els
 --[[
     @usage Initialize the component.
     
-    @return void
+    @return ComponentsMap
 ]]
 local function constructorCallback(): ComponentsMap
     local areYouSure: ScreenGui

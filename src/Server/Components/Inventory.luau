@@ -37,10 +37,10 @@ type SavingStackSchema<D> = StackingLib.SavingStackSchema<D>
 
     @return void
 ]]
-local function constuctorCallback()
+local function constuctorCallback(): ()
     -- Subscribe to the player's inventory.
     do
-        local function onPlayerAdded(player: Player)
+        local function onPlayerAdded(player: Player): ()
             local PlrDataClass = Registry(player)
             if not PlrDataClass then return end
 
@@ -53,13 +53,13 @@ local function constuctorCallback()
             -- Subscribe to the player's inventory.
             do
                 Inventory:subscribeToItemsAdded(
-                    function(ItemData: PetSchema, itemId: string)
+                    function(ItemData: PetSchema, itemId: string): ()
                         InventoryGroup.AddPetsToInventory:fireClient(player, { [itemId] = ItemData })
                     end
                 )
 
                 Inventory:subscribeToItemsRemoved(
-                    function(itemId: string)
+                    function(itemId: string): ()
                         InventoryGroup.RemovePetsFromInventory:fireClient(player, { itemId })
                     end
                 )
@@ -71,7 +71,7 @@ local function constuctorCallback()
     end
 
     InventoryGroup.DeletePets:onServerEvent(
-        function(sender, data)
+        function(sender, data): ()
             if not sender then return end
 
             local PlrDataClass = Registry(sender)
@@ -86,7 +86,7 @@ local function constuctorCallback()
     )
 
     InventoryGroup.LockPet:onServerEvent(
-        function(sender, data)
+        function(sender, data): ()
             if not sender then return end
 
             local PlrDataClass = Registry(sender)
@@ -121,7 +121,7 @@ local function constuctorCallback()
     )
 
     InventoryGroup.SearchForPets:onServerEvent(
-        function(sender, data)
+        function(sender, data): ()
             if not sender then return end
             
             local PlrDataClass = Registry(sender)

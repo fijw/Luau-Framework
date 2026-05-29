@@ -22,7 +22,7 @@ local CmdsSettings = require(ReplicatedStorage.FrameworkSettings.CmdsSettings)
 
     @return void
 ]]
-local function constructorCallback(sender: Player, args: { string })
+local function constructorCallback(sender: Player, args: { string }): ()
     table.remove(CmdsSettings.serverIsLocked, table.find(CmdsSettings.serverIsLocked, false))
     table.insert(CmdsSettings.serverIsLocked, true)
 
@@ -30,7 +30,7 @@ local function constructorCallback(sender: Player, args: { string })
     do
         local connection: RBXScriptConnection
 
-        local function onPlayerAdded(player: Player)
+        local function onPlayerAdded(player: Player): ()
             if not table.find(CmdsSettings.serverIsLocked, true) then connection:Disconnect(); return end
 
             player:Kick("\n\nThis server is locked.\n\n\n")

@@ -17,9 +17,9 @@ local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services
     
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     CommandsGroup.SpectateTarget:onClientEvent(
-        function(data: number)
+        function(data: number): ()
             local targetPlayer = Players:GetPlayerByUserId(tonumber(data) :: number)
             if not targetPlayer then return end
 

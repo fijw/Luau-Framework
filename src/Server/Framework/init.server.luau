@@ -95,7 +95,7 @@ end
 -- Initialize server modules then signal clients to initialize their modules.
 do
     local initResult: "success" | "failure"
-    task.spawn(function() initResult = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
+    task.spawn(function(): () initResult = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
 
     -- Handle initialization failures.s
     do
@@ -117,7 +117,7 @@ do
 
     -- Handle new players.
     do
-        local function onPlayerAdded(player: Player)
+        local function onPlayerAdded(player: Player): ()
             if initResult == "success" then FrameworkGroup.LoadClientModules:fireClient(player); return end
             task.wait(5); if initResult == "success" then FrameworkGroup.LoadClientModules:fireClient(player); return end
 

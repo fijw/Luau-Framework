@@ -136,11 +136,11 @@ local PermissionsMap: { [PermissionTypes]: { string } }
 
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     GlobalCommandsHandler()
 
     CommandsGroup.HandleCommand:onServerEvent(
-        function(sender: Player, data: { string })
+        function(sender: Player, data: { string }): ()
             if not sender then return end
 
             local playerRank = sender:GetRankInGroupAsync(game.CreatorId)

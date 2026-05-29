@@ -84,7 +84,7 @@ local function addPlayerTradingContainer
     scrollingFrame: ScrollingFrame,
     defaultPlayerTradingContainer: Frame,
     HandledUI: HandledUI
-)
+): ()
     local PlayerTradingContainer = defaultPlayerTradingContainer:Clone()
     PlayerTradingContainer.Name = plr.Name
     PlayerTradingContainer.Parent = scrollingFrame
@@ -108,7 +108,7 @@ local function addPlayerTradingContainer
     CachedPlayerTradingContainers[plr] = PlayerTradingContainer
 
     HandledUI:handleButtonPress(SendTradeBtn,
-        function(pos1: number, pos2: number)
+        function(pos1: number, pos2: number): ()
             TradingGroup.SendTradeRequest:fireServer(plr.UserId)
 
             local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
@@ -118,7 +118,7 @@ local function addPlayerTradingContainer
             NotificationComponents().notificationText.Text = `Attempted to send a trade request to {plr.DisplayName}.`
             
             HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                function(pos1: number, pos2: number)
+                function(pos1: number, pos2: number): ()
                     HandledNotificationUI:removeFocus({ HandledUI.ScreenGui.Name })
                     HandledNotificationUI:destroy()
                 end
@@ -135,7 +135,7 @@ end
     
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     local clonedSendTrade = UIComponents.SendTrade:Clone()
     clonedSendTrade.Parent = PlayerGui
 
@@ -151,10 +151,10 @@ local function constructorCallback()
 
     local HandledUI = UIUtilitiesLibrary("send_trade", clonedSendTrade)
     HandledUI:hoverAndToggleSizing(1.15)
-    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
+    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number): () end, true)
 
     TradingGroup.SendTradeRequest:onClientEvent(
-        function(data)
+        function(data): ()
             local TradeRequestHandledUI = UIUtilitiesLibrary("trade_request", TradeRequestComponents().tradeRequest)
             TradeRequestHandledUI:hoverAndToggleSizing(1.15)
             TradeRequestHandledUI:setFocus( { "Screen", "Notification", "AreYouSure", "TradeRequest" } )
@@ -162,7 +162,7 @@ local function constructorCallback()
             TradeRequestComponents().tradeRequestText.Text = `You received a trade request from {data}.<br /><br />Would you like to accept?`
 
             TradeRequestHandledUI:handleButtonPress(TradeRequestComponents().acceptBtn,
-                function(pos1: number, pos2: number)
+                function(pos1: number, pos2: number): ()
                     TradingGroup.AcceptTradeRequest:fireServer()
 
                     TradeRequestHandledUI:removeFocus({ clonedSendTrade.Name })
@@ -171,7 +171,7 @@ local function constructorCallback()
             )
 
             TradeRequestHandledUI:handleButtonPress(TradeRequestComponents().declineBtn,
-                function(pos1: number, pos2: number)
+                function(pos1: number, pos2: number): ()
                     TradingGroup.DeclineTradeRequest:fireServer()
 
                     TradeRequestHandledUI:removeFocus({ clonedSendTrade.Name })
@@ -186,7 +186,7 @@ local function constructorCallback()
         local originalContainerSize = containerFrame.Size
 
         HandledUI:subscribeToSetFocus("opening_subscription",
-            function(self, NamesKeepingFocus)
+            function(self, NamesKeepingFocus): ()
                 containerFrame.Size = UDim2.new(0, 0, 0, 0)
 
                 tweenInst(
@@ -213,7 +213,7 @@ local function constructorCallback()
         )
 
         HandledUI:subscribeToRemoveFocus("closing_subscription",
-            function(self, NamesToBringBackToFocus)
+            function(self, NamesToBringBackToFocus): ()
                 tweenInst(
                     containerFrame,
                     
@@ -229,7 +229,7 @@ local function constructorCallback()
     end
 
     task.spawn(
-        function()
+        function(): ()
             while true do
                 repeat task.wait() until clonedSendTrade.Enabled; task.wait()
                 scrollingFrame.CanvasSize = UDim2.fromOffset(0, uiListLayout.AbsoluteContentSize.Y)

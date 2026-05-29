@@ -132,9 +132,9 @@ end
     
     @return void
 ]]
-local function constuctorCallback()
+local function constuctorCallback(): ()
     TradingGroup.CancelTrade:onServerEvent(
-        function(sender: Player, data: nil)
+        function(sender: Player, data: nil): ()
             if not sender then return end
 
             local tradeId = TradesMap.MappedTradingPlayers[sender]
@@ -159,7 +159,7 @@ local function constuctorCallback()
     )
 
     TradingGroup.AcceptTrade:onServerEvent(
-        function(sender: Player, data: nil)
+        function(sender: Player, data: nil): ()
             if not sender then return end
 
             local tradeId = TradesMap.MappedTradingPlayers[sender]
@@ -201,7 +201,7 @@ local function constuctorCallback()
                 local isWaiting, bothReadyStill = true, true
 
                 task.spawn(
-                    function()
+                    function(): ()
                         while true do
                             if not isWaiting or not TradesMap.ActiveTrades[tradeId] then break end
 

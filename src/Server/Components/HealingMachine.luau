@@ -39,10 +39,10 @@ type PetSchema = Data.PetSchema
 
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     -- Handle joining players' healing pets.
     do
-        local function onPlayerAdded(player: Player)
+        local function onPlayerAdded(player: Player): ()
             local PlrDataClass = Registry(player)
             if not PlrDataClass then return end
 
@@ -50,7 +50,7 @@ local function constructorCallback()
             if not Inventory then return end
 
             task.spawn(
-                function()
+                function(): ()
                     local countOfPets = 0
                     for i: string, durationLeft: number in pairs(PlrDataClass()().HealingData().HealingPets) do countOfPets += 1 end
 
@@ -94,7 +94,7 @@ local function constructorCallback()
     )
 
     HealingMachineGroup.HealPets:onServerEvent(
-        function(sender, data)
+        function(sender, data): ()
             if not sender then return end
 
             local PlrDataClass = Registry(sender)
@@ -118,7 +118,7 @@ local function constructorCallback()
                 InventoryGroup.RemovePetsFromInventory:fireClient(sender, { petId })
 
                 task.spawn(
-                    function()
+                    function(): ()
                         duration -= 1
 
                         while true do

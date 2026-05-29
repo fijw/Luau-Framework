@@ -14,9 +14,12 @@ local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.Stacking)
+local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 
 local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
 local PetsHandlingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.PetsHandling)
+
+local PetSchemas = require(ReplicatedStorage.DataAssets.Pets.PetSchemas)
 --[[ @end_section Imports ]]
 
 
@@ -31,6 +34,7 @@ type StackClass<D> = StackingLib.StackClass<D>
 
 
 local CachedEquippedPets: { [Player]: { [string]: PetSchema } } = {}
+local CachedFieldPets: { [BasePart]: { [string]: PetSchema } } = {}
 
 
 --[[ @section Utility Functions ]]
@@ -44,7 +48,7 @@ local CachedEquippedPets: { [Player]: { [string]: PetSchema } } = {}
 
     @return void
 ]]
-local function equipPet(petId: string, owner: Player, onlySendToOneClient: Player?, swapEquipStatus: boolean)
+local function equipPet(petId: string, owner: Player, onlySendToOneClient: Player?, swapEquipStatus: boolean): ()
     local PlrDataClass = Registry(owner)
     if not PlrDataClass then return end
 
@@ -96,7 +100,7 @@ end
 
     @return void
 ]]
-local function unequipPetFunction(owner: Player, PetData: { PetData: PetSchema, petId: string }, swapEquipStatus: boolean)
+local function unequipPetFunction(owner: Player, PetData: { PetData: PetSchema, petId: string }, swapEquipStatus: boolean): ()
     if not CachedEquippedPets[owner][PetData.petId] then return end
     CachedEquippedPets[owner][PetData.petId] = nil
 
@@ -135,9 +139,9 @@ end
     
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     task.spawn(
-        function()
+        function(): ()
             while true do
                 for i: number, plr: Player in ipairs(Players:GetPlayers()) do
                     if not CachedEquippedPets[plr] then continue end
@@ -163,11 +167,25 @@ local function constructorCallback()
 
     -- Equip and unequip pets on join & leave.
     do
-        local function onPlayerAdded(plr: Player)
+        local function onPlayerAdded(plr: Player): ()
             CachedEquippedPets[plr] = {}
 
             local PlrDataClass = Registry(plr)
             if not PlrDataClass then return end
+
+            for field: BasePart, FieldPetData: { [string]: PetSchema } in pairs(CachedFieldPets) do
+                for fieldPetId: string, PetData: PetSchema in pairs(FieldPetData) do
+                    PetsHandlingGroup.AddPetToClientField:fireClient(
+                        plr,
+
+                        {
+                            PetData = PetData,
+                            generatedId = fieldPetId,
+                            fieldName = field.Name
+                        }
+                    )
+                end
+            end
 
             for owner: Player, EquipData: { [string]: PetSchema } in pairs(CachedEquippedPets) do
                 for petId: string, PetData: PetSchema in pairs(EquipData) do equipPet(petId, owner, plr, false) end
@@ -194,7 +212,7 @@ local function constructorCallback()
         Players.PlayerAdded:Connect(onPlayerAdded)
 
         Players.PlayerRemoving:Connect(
-            function(plr: Player)
+            function(plr: Player): ()
                 for petId: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
                     unequipPetFunction(plr, { PetData = PetData, petId = petId }, false)
                 end
@@ -204,28 +222,79 @@ local function constructorCallback()
         )
     end
 
-    PetsHandlingGroup.EquipPet:onServerInvoke(
-        function(sender, data)
-            if not sender then return false end
+    -- Networking connections.
+    do
+        PetsHandlingGroup.EquipPet:onServerInvoke(
+            function(sender, data)
+                if not sender then return false end
 
-            local PlrDataClass = Registry(sender)
-            if not PlrDataClass then return false end
+                local PlrDataClass = Registry(sender)
+                if not PlrDataClass then return false end
 
-            if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
-            equipPet(data, sender, nil, true)
+                if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
+                equipPet(data, sender, nil, true)
 
-            return true
+                return true
+            end
+        )
+
+        PetsHandlingGroup.UnequipPet:onServerInvoke(
+            function(sender, data)
+                if not sender or not CachedEquippedPets[sender][data] then return false end
+                unequipPetFunction(sender, { petId = data, PetData = CachedEquippedPets[sender][data] }, true)
+
+                return true
+            end
+        )
+    end
+
+    -- Pet fields.
+    do
+        local GameFolder = workspace:WaitForChild("Game") :: Folder
+        local FieldsFolder = GameFolder:WaitForChild("Fields") :: Folder
+
+        local PetArray: { PetSchema } = {}
+        for i: string, Pet: PetSchema in pairs(PetSchemas) do table.insert(PetArray, Pet) end
+
+        for i: number, fieldPart: BasePart in ipairs(FieldsFolder:GetChildren() :: { BasePart }) do
+            CachedFieldPets[fieldPart] = {}
+
+            task.spawn(
+                function(): ()
+                    while true do
+                        if not CachedFieldPets[fieldPart] then break end; task.wait()
+
+                        local Pet = PetArray[RNG.betterRandomNumber({ max = #PetArray, min = 1 })]
+                        if not Pet then continue end
+
+                        local generatedId = RNG.randomString(8)
+
+                        PetsHandlingGroup.AddPetToClientField:fireAllClients(
+                            {
+                                PetData = Pet,
+                                generatedId = generatedId,
+                                fieldName = fieldPart.Name
+                            }
+                        )
+
+                        CachedFieldPets[fieldPart][generatedId] = Pet
+
+                        local amtOfPetsInField = 0
+
+                        repeat
+                            if not CachedFieldPets[fieldPart] then break end; task.wait()
+
+                            for i: string, Pet: PetSchema in pairs(CachedFieldPets[fieldPart]) do
+                                amtOfPetsInField += 1
+                            end
+
+                            if amtOfPetsInField < 10 then break end; amtOfPetsInField = 0
+                        until true ~= true
+                    end
+                end
+            )
         end
-    )
-
-    PetsHandlingGroup.UnequipPet:onServerInvoke(
-        function(sender, data)
-            if not sender or not CachedEquippedPets[sender][data] then return false end
-            unequipPetFunction(sender, { petId = data, PetData = CachedEquippedPets[sender][data] }, true)
-
-            return true
-        end
-    )
+    end
 end
 
 return constructorCallback

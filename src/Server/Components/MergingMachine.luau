@@ -41,9 +41,9 @@ local PETS_NEEDED_TO_MERGE = 9
 
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     MergingGroup.SearchForPetsByData:onServerEvent(
-        function(sender, data)
+        function(sender, data): ()
             if not sender then return end
 
             local PlrDataClass = Registry(sender)
@@ -68,7 +68,7 @@ local function constructorCallback()
     )
 
     MergingGroup.SearchForPetsByString:onServerEvent(
-        function(sender, data)
+        function(sender, data): ()
             if not sender then return end
 
             local PlrDataClass = Registry(sender)
@@ -94,7 +94,7 @@ local function constructorCallback()
     )
 
     MergingGroup.RequestMergingData:onServerEvent(
-        function(sender)
+        function(sender): ()
             if not sender then return end
 
             local PlrDataClass = Registry(sender)
@@ -119,7 +119,7 @@ local function constructorCallback()
     )
 
     MergingGroup.MergePets:onServerEvent(
-        function(sender, data)
+        function(sender, data): ()
             if not sender then return end
             if #data < PETS_NEEDED_TO_MERGE then MergingGroup.NotEnoughPetsToMerge:fireClient(sender, #data); return end
 

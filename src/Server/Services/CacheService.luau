@@ -24,13 +24,13 @@ type SavingInventoryClassSchema = Stackentory.SavingInventoryClassSchema
     
     @return void
 ]]
-local function constructorCallback()
-    local function onPlayerAdded(player: Player)
+local function constructorCallback(): ()
+    local function onPlayerAdded(player: Player): ()
         local PlrDataClass = Registry(player, true)
         if not PlrDataClass then return end
     end
 
-    local function onPlayerRemoving(player: Player)
+    local function onPlayerRemoving(player: Player): ()
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 

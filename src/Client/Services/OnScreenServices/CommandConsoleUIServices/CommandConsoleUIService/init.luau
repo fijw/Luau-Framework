@@ -38,13 +38,13 @@ local CachedResponses = {}
     
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     local currentInputBoxConnection: RBXScriptConnection?
     local currentCommandsBar: ScreenGui?
     local currentInputBox: TextBox?
 
     InputMapper(true, Enum.KeyCode.F2,
-        function()
+        function(): ()
             if PlayerGui:FindFirstChild(Components.CommandsBar.Name) then
                 if currentCommandsBar then
                     currentCommandsBar.Enabled = not currentCommandsBar.Enabled
@@ -84,7 +84,7 @@ local function constructorCallback()
             do
                 currentInputBoxConnection = currentInputBox.FocusLost
                 :Connect(
-                    function(enterPressed: boolean, Input: InputObject)
+                    function(enterPressed: boolean, Input: InputObject): ()
                         if not enterPressed then
                             if currentCommandsBar then currentCommandsBar.Enabled = false end
                             return
@@ -116,7 +116,7 @@ local function constructorCallback()
                             message: string,
                             color: string
                         }
-                    )
+                    ): ()
                         if #CachedResponses >= MAX_DISPLAY_MESSAGES then
                             CachedResponses[1]:Destroy()
                             table.remove(CachedResponses, 1)
@@ -152,7 +152,7 @@ local function constructorCallback()
                 )
 
                 CommandsGroup.ChangeConsolePermissionsText:onClientEvent(
-                    function(data: string)
+                    function(data: string): ()
                         if rankPermissions or idPermissions then return end
                         clonedPermissionsTitle.Text = `{data}@{CONSOLE_TAG}`
                     end

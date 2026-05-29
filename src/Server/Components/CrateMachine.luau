@@ -35,7 +35,7 @@ type PetSchema = PetsData.PetSchema
 
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     CrateMachineGroup.OpenCrate:onServerEvent(
         function(sender, data)
             if not sender then return end

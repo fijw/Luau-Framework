@@ -20,7 +20,7 @@ local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services
 
     @return void
 ]]
-local function failedToExecute(targetId: number, sender: Player, inputText: string)
+local function failedToExecute(targetId: number, sender: Player, inputText: string): ()
     CommandsGroup.DisplayConsoleMessage:fireClient(sender,
         {
             message = `Failed to make [{targetId}] fly. {inputText}.`,
@@ -39,7 +39,7 @@ end
 
     @return void
 ]]
-local function constructorCallback(sender: Player, args: { string })
+local function constructorCallback(sender: Player, args: { string }): ()
     local targetId = tonumber(args[1]) :: number
     if not targetId then return end
 

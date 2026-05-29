@@ -71,7 +71,7 @@ end
     
     @return void
 ]]
-local function constructorCallback()
+local function constructorCallback(): ()
     if not table.find(SpawningSettings, localPlayer:GetRankInGroupAsync(game.CreatorId)) then return end
 
     local clonedDevPetSpawning = Components.DevPetSpawning:Clone()

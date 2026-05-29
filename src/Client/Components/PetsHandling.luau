@@ -24,6 +24,10 @@ local AssetsFolder = workspace:WaitForChild("Assets") :: Folder
 local AssetsPetsFolder = AssetsFolder:WaitForChild("Pets") :: Folder
 local GameFolder = workspace:WaitForChild("Game") :: Folder
 local GamePetsFolder = GameFolder:WaitForChild("Pets") :: Folder
+local FieldsFolder = GameFolder:WaitForChild("Fields") :: Folder
+
+local localPlayer = Players.LocalPlayer :: Player
+local localPlrMouse = localPlayer:GetMouse()
 
 local PET_MUL_SPEED = 50
 local WOBBLE_TIME_MUL = 8
@@ -39,8 +43,21 @@ local RADIUS_MAP
     Default = { min = 5, max = 20 }
 }
 
+local ENUM_LIST
+= {
+    Enum.NormalId.Top,
+    Enum.NormalId.Bottom,
+    Enum.NormalId.Left,
+    Enum.NormalId.Right,
+    Enum.NormalId.Front,
+    Enum.NormalId.Back
+}
+
 local EquippedPetsCache: { [string]: Model } = {}
 local CurrentlyWalkingCache: { string } = {}
+
+local CachedFieldPets: { [string]: { petModel: Model, field: BasePart } } = {}
+local AttackingPetsCache: { string } = {}
 --[[ @end_section Variables ]]
 
 
@@ -86,12 +103,14 @@ end
     @usage Add pet to the game world.
     
     @param EquippingData { PetData: PetSchema, petId: string }
-    @param plrRootPart BasePart
+    @param spawnPoint BasePart
+    @param field BasePart?
 
     @return void
 ]]
-local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: string }, plrRootPart: BasePart)
-    if EquippedPetsCache[EquippingData.petId] then return end
+local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: string }, spawnPoint: BasePart, field: BasePart?): ()
+    if field then if CachedFieldPets[EquippingData.petId] then return end
+    else if EquippedPetsCache[EquippingData.petId] then return end end
 
     local petModel = AssetsPetsFolder:WaitForChild(EquippingData.PetData.petName) :: Model
     if not petModel.PrimaryPart then repeat task.wait() until petModel.PrimaryPart end
@@ -100,167 +119,56 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
     clonedPetModel.Name = EquippingData.petId
     clonedPetModel.Parent = GamePetsFolder
 
-    EquippedPetsCache[EquippingData.petId] = clonedPetModel; local petRootPart = clonedPetModel.PrimaryPart :: BasePart
+    if field then CachedFieldPets[EquippingData.petId] = { petModel = clonedPetModel, field = field }
+    else EquippedPetsCache[EquippingData.petId] = clonedPetModel end
+    
+    local petRootPart = clonedPetModel.PrimaryPart :: MeshPart
+    petRootPart.CanCollide = false
+    petRootPart.Anchored = true
+    petRootPart.CastShadow = false
 
     if EquippingData.PetData.PetStats.size == "Worldbreaker" then
-        petRootPart.Size
-        = Vector3.new(
-            petRootPart.Size.X * 16,
-            petRootPart.Size.Y * 16,
-            petRootPart.Size.Z * 16
-        )
+        clonedPetModel:ScaleTo(16)
     elseif EquippingData.PetData.PetStats.size == "Gigantic" then
-        petRootPart.Size
-        = Vector3.new(
-            petRootPart.Size.X * 8,
-            petRootPart.Size.Y * 8,
-            petRootPart.Size.Z * 8
-        )
+        clonedPetModel:ScaleTo(8)
     elseif EquippingData.PetData.PetStats.size == "Huge" then
-        petRootPart.Size
-        = Vector3.new(
-            petRootPart.Size.X * 4,
-            petRootPart.Size.Y * 4,
-            petRootPart.Size.Z * 4
-        )
+        clonedPetModel:ScaleTo(4)
     end
 
     if EquippingData.PetData.PetStats.color == "Diamond" then
-        petRootPart.Color = Color3.fromRGB(0, 225, 255)
+        local petHighlight = Instance.new("Highlight")
+        petHighlight.Parent = petRootPart
+        petHighlight.OutlineTransparency = 1
+        petHighlight.FillTransparency = 0.4
+        petHighlight.FillColor = Color3.fromRGB(0, 225, 255)
+        petHighlight.DepthMode = Enum.HighlightDepthMode.Occluded
     elseif EquippingData.PetData.PetStats.color == "Gold" then
-        petRootPart.Color = Color3.fromRGB(255, 208, 0)
+        local petHighlight = Instance.new("Highlight")
+        petHighlight.Parent = petRootPart
+        petHighlight.OutlineTransparency = 1
+        petHighlight.FillTransparency = 0.4
+        petHighlight.FillColor = Color3.fromRGB(255, 208, 0)
+        petHighlight.DepthMode = Enum.HighlightDepthMode.Occluded
     end
-    
-    --[[if EquippingData.PetData.PetStats.color == "Glitched" then
-        for i = 1, 6 do
-            local newEffect = Instance.new("ParticleEmitter")
-            newEffect.Parent = petRootPart
-            newEffect.Color = ColorSequence.new(Color3.fromRGB(170, 0, 255), Color3.fromRGB(170, 0, 255))
-            newEffect.Lifetime = NumberRange.new(0.25, 0.5)
-            newEffect.Rate = 5
-            newEffect.Size = NumberSequence.new(0.25, 0.25)
-            newEffect.Brightness = 3
-            newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
-
-            if EquippingData.PetData.PetStats.size == "Worldbreaker" then
-                newEffect.Size = NumberSequence.new(0.25 * 16, 0.25 * 16)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 16, newEffect.Speed.Max * 16)
-            elseif EquippingData.PetData.PetStats.size == "Gigantic" then
-                newEffect.Size = NumberSequence.new(0.25 * 8, 0.25 * 8)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 8, newEffect.Speed.Max * 8)
-            elseif EquippingData.PetData.PetStats.size == "Huge" then
-                newEffect.Size = NumberSequence.new(0.25 * 4, 0.25 * 4)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 4, newEffect.Speed.Max * 4)
-            end
-
-            if i == 1 then newEffect.EmissionDirection = Enum.NormalId.Top
-            elseif i == 2 then newEffect.EmissionDirection = Enum.NormalId.Bottom
-            elseif i == 3 then newEffect.EmissionDirection = Enum.NormalId.Left
-            elseif i == 4 then newEffect.EmissionDirection = Enum.NormalId.Right
-            elseif i == 5 then newEffect.EmissionDirection = Enum.NormalId.Front
-            elseif i == 6 then newEffect.EmissionDirection = Enum.NormalId.Back end
-
-            local clonedNewEffect = newEffect:Clone()
-            clonedNewEffect.Parent = petRootPart
-            clonedNewEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
-        end
-    elseif EquippingData.PetData.PetStats.color == "Radioactive" then
-        for i = 1, 6 do
-            local newEffect = Instance.new("ParticleEmitter")
-            newEffect.Parent = petRootPart
-            newEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
-            newEffect.Lifetime = NumberRange.new(0.25, 0.5)
-            newEffect.Rate = 5
-            newEffect.Size = NumberSequence.new(0.25, 0.25)
-            newEffect.Brightness = 3
-            newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
-
-            if EquippingData.PetData.PetStats.size == "Worldbreaker" then
-                newEffect.Size = NumberSequence.new(0.25 * 16, 0.25 * 16)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 16, newEffect.Speed.Max * 16)
-            elseif EquippingData.PetData.PetStats.size == "Gigantic" then
-                newEffect.Size = NumberSequence.new(0.25 * 8, 0.25 * 8)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 8, newEffect.Speed.Max * 8)
-            elseif EquippingData.PetData.PetStats.size == "Huge" then
-                newEffect.Size = NumberSequence.new(0.25 * 4, 0.25 * 4)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 4, newEffect.Speed.Max * 4)
-            end
-
-            if i == 1 then newEffect.EmissionDirection = Enum.NormalId.Top
-            elseif i == 2 then newEffect.EmissionDirection = Enum.NormalId.Bottom
-            elseif i == 3 then newEffect.EmissionDirection = Enum.NormalId.Left
-            elseif i == 4 then newEffect.EmissionDirection = Enum.NormalId.Right
-            elseif i == 5 then newEffect.EmissionDirection = Enum.NormalId.Front
-            elseif i == 6 then newEffect.EmissionDirection = Enum.NormalId.Back end
-
-            local clonedNewEffectOne = newEffect:Clone()
-            clonedNewEffectOne.Parent = petRootPart
-            clonedNewEffectOne.Color = ColorSequence.new(Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 255, 0))
-
-            local clonedNewEffectTwo = newEffect:Clone()
-            clonedNewEffectTwo.Parent = petRootPart
-            clonedNewEffectTwo.Color = ColorSequence.new(Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 255, 0))
-        end
-    elseif EquippingData.PetData.PetStats.color == "broken_mix" then
-        for i = 1, 6 do
-            local newEffect = Instance.new("ParticleEmitter")
-            newEffect.Parent = petRootPart
-            newEffect.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0))
-            newEffect.Lifetime = NumberRange.new(0.25, 0.5)
-            newEffect.Rate = 5
-            newEffect.Size = NumberSequence.new(0.25, 0.25)
-            newEffect.Brightness = 3
-            newEffect.Texture = "http://www.roblox.com/asset/?id=6347925"
-
-            if EquippingData.PetData.PetStats.size == "Worldbreaker" then
-                newEffect.Size = NumberSequence.new(0.25 * 16, 0.25 * 16)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 16, newEffect.Speed.Max * 16)
-            elseif EquippingData.PetData.PetStats.size == "Gigantic" then
-                newEffect.Size = NumberSequence.new(0.25 * 8, 0.25 * 8)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 8, newEffect.Speed.Max * 8)
-            elseif EquippingData.PetData.PetStats.size == "Huge" then
-                newEffect.Size = NumberSequence.new(0.25 * 4, 0.25 * 4)
-                newEffect.Speed = NumberRange.new(newEffect.Speed.Min * 4, newEffect.Speed.Max * 4)
-            end
-
-            if i == 1 then newEffect.EmissionDirection = Enum.NormalId.Top
-            elseif i == 2 then newEffect.EmissionDirection = Enum.NormalId.Bottom
-            elseif i == 3 then newEffect.EmissionDirection = Enum.NormalId.Left
-            elseif i == 4 then newEffect.EmissionDirection = Enum.NormalId.Right
-            elseif i == 5 then newEffect.EmissionDirection = Enum.NormalId.Front
-            elseif i == 6 then newEffect.EmissionDirection = Enum.NormalId.Back end
-
-            local clonedNewEffectOne = newEffect:Clone()
-            clonedNewEffectOne.Parent = petRootPart
-            clonedNewEffectOne.Color = ColorSequence.new(Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 255, 0))
-
-            local clonedNewEffectTwo = newEffect:Clone()
-            clonedNewEffectTwo.Parent = petRootPart
-            clonedNewEffectTwo.Color = ColorSequence.new(Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 255, 0))
-
-            local clonedNewEffect = newEffect:Clone()
-            clonedNewEffect.Parent = petRootPart
-            clonedNewEffect.Color = ColorSequence.new(Color3.fromRGB(170, 0, 255), Color3.fromRGB(170, 0, 255))
-        end
-    end]]
 
     -- Handle ra/gl textures and the rb/gl/ra colors.
     do
         local Textures: { Texture } = {}
+        local petHighlight: Highlight?
 
         if EquippingData.PetData.PetStats.color == "Glitched" or EquippingData.PetData.PetStats.color == "Rainbow" then
+            petHighlight = Instance.new("Highlight")
+            petHighlight.Parent = petRootPart
+            petHighlight.OutlineTransparency = 1
+            petHighlight.FillTransparency = 0.4
+            petHighlight.DepthMode = Enum.HighlightDepthMode.Occluded
+
             for i = 1, 6 do
                 local newTexture = Instance.new("Texture")
                 newTexture.Texture = "rbxasset://textures/water/normal_21.dds"
                 newTexture.Color3 = Color3.fromRGB(0, 0, 0)
                 newTexture.Parent = petRootPart
-
-                if i == 1 then newTexture.Face = Enum.NormalId.Top end
-                if i == 2 then newTexture.Face = Enum.NormalId.Bottom end
-                if i == 3 then newTexture.Face = Enum.NormalId.Left end
-                if i == 4 then newTexture.Face = Enum.NormalId.Right end
-                if i == 5 then newTexture.Face = Enum.NormalId.Front end
-                if i == 6 then newTexture.Face = Enum.NormalId.Back end
+                newTexture.Face = ENUM_LIST[i]
 
                 if EquippingData.PetData.PetStats.size == "Worldbreaker" then
                     newTexture.StudsPerTileU *= 16; newTexture.StudsPerTileV *= 16
@@ -281,7 +189,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             local whileEquippedConnection: RBXScriptConnection
 
             whileEquippedConnection = RunService.Heartbeat:Connect(
-                function(deltaTime: number)
+                function(deltaTime: number): ()
                     if not EquippedPetsCache[EquippingData.petId] then whileEquippedConnection:Disconnect(); return end
 
                     if EquippingData.PetData.PetStats.size == "Worldbreaker" then textureOffset += deltaTime * 16
@@ -298,17 +206,17 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
 
                     if EquippingData.PetData.PetStats.color == "Glitched" then
                         for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
-                        petRootPart.Color = glitchedColor(colorOffset)
+                        if petHighlight then petHighlight.FillColor = glitchedColor(colorOffset) end
                     elseif EquippingData.PetData.PetStats.color == "Rainbow" then
                         for i: number, texture: Texture in pairs(Textures) do texture.OffsetStudsU = textureOffset; texture.OffsetStudsV = textureOffset end
-                        petRootPart.Color = Color3.fromHSV(colorOffset, 0.75, 1)
+                        if petHighlight then petHighlight.FillColor = Color3.fromHSV(colorOffset, 0.75, 1) end
                     end
                 end
             )
         end
     end
 
-    petRootPart.Position = plrRootPart.Position
+    petRootPart.Position = spawnPoint.Position
 end
 
 --[[
@@ -321,7 +229,7 @@ end
 
     @return void
 ]]
-local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: BasePart, petRootPart: BasePart)
+local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: BasePart, petRootPart: BasePart): ()
     local isDoneAnimatingWalking = false
     local timeSinceStartedWalking = 0
     local direction = 0
@@ -332,7 +240,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
         local movementConnection: RBXScriptConnection
         
         movementConnection = RunService.Heartbeat:Connect(
-            function(deltaTime: number)
+            function(deltaTime: number): ()
                 if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
                 
                 if direction == 0 then
@@ -355,6 +263,14 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                     rayParams.FilterDescendantsInstances = {}
 
                     for i: string, cachedModel: Model in pairs(EquippedPetsCache) do
+                        local cachedPetModel = GamePetsFolder:FindFirstChild(i) :: Model
+                        if not cachedPetModel then continue end
+
+                        local OldFilter = rayParams.FilterDescendantsInstances; table.insert(OldFilter, cachedPetModel)
+                        rayParams.FilterDescendantsInstances = OldFilter
+                    end
+
+                    for i: string, CachedData: { petModel: Model, field: BasePart } in pairs(CachedFieldPets) do
                         local cachedPetModel = GamePetsFolder:FindFirstChild(i) :: Model
                         if not cachedPetModel then continue end
 
@@ -408,7 +324,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                 -- Cleanup.
                 do
                     local readingOffset = CFrame.new(copiedTargetPos.X, 0, copiedTargetPos.Z).Position - CFrame.new(petRootPart.Position.X, 0, petRootPart.Position.Z).Position
-                    print(readingOffset.Magnitude); if readingOffset.Magnitude > 1 then return end; movementConnection:Disconnect()
+                    if readingOffset.Magnitude > 1 then return end; movementConnection:Disconnect()
                     
                     local lookPos = plrRootPart.Position - copiedTargetPos
                     local flatFeetLookPosVec = Vector3.new(lookPos.X, 0, lookPos.Z)
@@ -420,7 +336,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                         local gotoFloorConnection: RBXScriptConnection
 
                         gotoFloorConnection = RunService.Heartbeat:Connect(
-                            function(deltaTime: number)
+                            function(deltaTime: number): ()
                                 local floorFeetOffset = CFrame.new(0, copiedTargetPos.Y, 0).Position - CFrame.new(0, petRootPart.Position.Y, 0).Position
 
                                 if not petModel or not petModel.Parent then gotoFloorConnection:Disconnect(); return end
@@ -436,7 +352,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                         local lookAtConnection: RBXScriptConnection
 
                         lookAtConnection = RunService.Heartbeat:Connect(
-                            function(deltaTime: number)
+                            function(deltaTime: number): ()
                                 if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
                                 if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then lookAtConnection:Disconnect(); return end
 
@@ -454,7 +370,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                         )
                     end
 
-                    repeat task.wait() until isDoneGoingToFloor; isDoneAnimatingWalking = true
+                    repeat task.wait() until isDoneGoingToFloor or not petModel or not petModel.Parent; isDoneAnimatingWalking = true
                 end
             end
         )
@@ -465,6 +381,30 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
     local foundWalkingIndex = table.find(CurrentlyWalkingCache, petModel.Name)
     if foundWalkingIndex then table.remove(CurrentlyWalkingCache, foundWalkingIndex) end
 end
+
+--[[
+    @usage Raycast from the mouse position.
+    
+    @param plrChar Model
+
+    @return (Instance?, RaycastResult<BasePart>?)
+]]
+local function raycastFromMouse(plrChar: Model): (Instance?, RaycastResult<BasePart>?)
+    local mousePosition = Vector2.new(localPlrMouse.X, localPlrMouse.Y)
+    local ray = workspace.CurrentCamera:ViewportPointToRay(mousePosition.X, mousePosition.Y)
+
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+    raycastParams.FilterDescendantsInstances = { plrChar }
+
+    local result = workspace:Raycast(
+        ray.Origin,
+        ray.Direction * 1000,
+        raycastParams
+    )
+
+    if result then return result.Instance, result else return nil :: any end
+end
 --[[ @end_section Util Functions ]]
 
 
@@ -474,28 +414,61 @@ end
     
     @return void
 ]]
-local function constructorCallback()
-    PetsHandlingGroup.PetStartFollowingOwner:onClientEvent(
-        function(data)
-            if not GamePetsFolder:FindFirstChild(data.petId) then
-                local plr = Players:GetPlayerByUserId(data.ownerId)
-                if not plr then return end
+local function constructorCallback(): ()
+    local localPlrChar = localPlayer.Character :: Model
+    if not localPlrChar then repeat task.wait() until localPlayer.Character; localPlrChar = localPlayer.Character :: Model end
 
-                local plrChar: Model = plr.Character :: Model
-                if not plrChar then repeat task.wait() until plr.Character; plrChar = plr.Character :: Model end
+    local plrRootPart = localPlrChar:WaitForChild("HumanoidRootPart") :: BasePart
+
+    localPlrMouse.Button1Up:Connect(
+        function()
+            local targetInst, raycastResult = raycastFromMouse(localPlrChar)
+            if not targetInst or not raycastResult then return end
+
+            for i: string, CachedData: { petModel: Model, field: BasePart } in pairs(CachedFieldPets) do
+                if targetInst.Name ~= CachedData.petModel.Name and (targetInst.Parent :: Instance).Name ~= CachedData.petModel.Name then continue end
+
+                table.insert(AttackingPetsCache, CachedData.petModel.Name)
+
+                if table.find(CurrentlyWalkingCache, CachedData.petModel.Name) then
+                    repeat task.wait() until not table.find(CurrentlyWalkingCache, CachedData.petModel.Name)
+                end
+
+                local petRootPart = CachedData.petModel.PrimaryPart :: BasePart
+                if not petRootPart then return end
+
+                movePetTo(CachedData.petModel, plrRootPart.Position, petRootPart, petRootPart)
                 
-                local plrRootPart = plrChar:WaitForChild("HumanoidRootPart") :: BasePart
+                local foundAttackingCacheIndex = table.find(AttackingPetsCache, CachedData.petModel.Name)
+                if foundAttackingCacheIndex then table.remove(AttackingPetsCache, foundAttackingCacheIndex) end
 
-                if GamePetsFolder:FindFirstChild(data.petId) then return end
-                addPetToWorkspace({ PetData = data.PetData, petId = data.petId }, plrRootPart)
-            elseif GamePetsFolder:FindFirstChild(data.petId) then return end
+                break
+            end
+        end
+    )
 
-            -- Heartbeat loop while the pet is equipped.
-            do
+    -- Networking connections.
+    do
+        PetsHandlingGroup.PetStartFollowingOwner:onClientEvent(
+            function(data): ()
+                if not GamePetsFolder:FindFirstChild(data.petId) then
+                    local plr = Players:GetPlayerByUserId(data.ownerId)
+                    if not plr then return end
+
+                    local plrChar: Model = plr.Character :: Model
+                    if not plrChar then repeat task.wait() until plr.Character; plrChar = plr.Character :: Model end
+                    
+                    local plrRootPart = plrChar:WaitForChild("HumanoidRootPart") :: BasePart
+
+                    if GamePetsFolder:FindFirstChild(data.petId) then return end
+                    addPetToWorkspace({ PetData = data.PetData, petId = data.petId }, plrRootPart)
+                elseif GamePetsFolder:FindFirstChild(data.petId) then return end
+
+                -- Loop while the pet is equipped to move it around it's owner.
                 task.spawn(
-                    function()
+                    function(): ()
                         while true do
-                            if table.find(CurrentlyWalkingCache, data.petId) then continue end
+                            if table.find(AttackingPetsCache, data.petId) then repeat task.wait() until not table.find(AttackingPetsCache, data.petId) end
                             table.insert(CurrentlyWalkingCache, data.petId)
 
                             local plr = Players:GetPlayerByUserId(data.ownerId)
@@ -509,7 +482,7 @@ local function constructorCallback()
                             local petModel = GamePetsFolder:FindFirstChild(data.petId) :: Model
                             if not petModel then break end
 
-                            local petRootPart = petModel.PrimaryPart
+                            local petRootPart = petModel.PrimaryPart :: BasePart
                             if not petRootPart then return end
 
                             local RadiusData = RADIUS_MAP[data.PetData.PetStats.size]
@@ -528,29 +501,70 @@ local function constructorCallback()
                                 }
                             )
 
-                            repeat task.wait() until not table.find(CurrentlyWalkingCache, data.petId); task.wait(randomWaitTime)
+                            repeat task.wait() until not table.find(CurrentlyWalkingCache, data.petId) or not petModel; task.wait(randomWaitTime)
                         end
                     end
                 )
             end
-        end
-    )
+        )
 
-    PetsHandlingGroup.RemovePetFromClient:onClientEvent(
-        function(data)
-            -- Remove from equipped pets cache.
-            do
-                if not EquippedPetsCache[data] then return end
+        PetsHandlingGroup.RemovePetFromClient:onClientEvent(
+            function(data): ()
+                -- Remove from equipped pets cache.
+                do
+                    if not EquippedPetsCache[data] then return end
 
-                EquippedPetsCache[data]:Destroy()
-                EquippedPetsCache[data].Parent = nil
-                EquippedPetsCache[data] = nil
+                    EquippedPetsCache[data]:Destroy()
+                    EquippedPetsCache[data].Parent = nil
+                    EquippedPetsCache[data] = nil
+                end
+
+                local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data)
+                if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
             end
+        )
 
-            local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data)
-            if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
-        end
-    )
+        PetsHandlingGroup.AddPetToClientField:onClientEvent(
+            function(data): ()
+                if CachedFieldPets[data.generatedId] then return end
+
+                local field = FieldsFolder:FindFirstChild(data.fieldName) :: BasePart
+                if not field then return end
+
+                addPetToWorkspace({ PetData = data.PetData, petId = data.generatedId }, field, field)
+
+                task.spawn(
+                    function(): ()
+                        while true do
+                            if table.find(AttackingPetsCache, data.generatedId) then repeat task.wait() until not table.find(AttackingPetsCache, data.generatedId) end
+                            table.insert(CurrentlyWalkingCache, data.generatedId)
+
+                            local petModel = GamePetsFolder:FindFirstChild(data.generatedId) :: Model
+                            if not petModel then break end
+
+                            local petRootPart = petModel.PrimaryPart :: BasePart
+                            if not petRootPart then return end
+
+                            local randomX = RNG.betterRandomNumber({ min = -field.Size.X / 2, max = field.Size.X / 2 })
+                            local randomZ = RNG.betterRandomNumber({ min = -field.Size.Z / 2, max = field.Size.Z / 2 })
+
+                            local targetPos = field.CFrame * CFrame.new(randomX, 0, randomZ).Position
+                            movePetTo(petModel, targetPos, petRootPart, petRootPart)
+
+                            local randomWaitTime = RNG.betterRandomNumber(
+                                {
+                                    min = RNG.betterRandomNumber({ min = 1, max = 3 }),
+                                    max = RNG.betterRandomNumber({ min = 3, max = 10 })
+                                }
+                            )
+
+                            repeat task.wait() until not table.find(CurrentlyWalkingCache, data.generatedId) or not petModel; task.wait(randomWaitTime)
+                        end
+                    end
+                )
+            end
+        )
+    end
 end
 
 return constructorCallback
