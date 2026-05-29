@@ -508,6 +508,7 @@ local function constructorCallback(): ()
         PetsHandlingGroup.RemovePetFromClient:onClientEvent(
             function(data): ()
                 if EquippedPetsCache[data] then EquippedPetsCache[data]:Destroy(); EquippedPetsCache[data] = nil end
+                if CachedFieldPets[data] then CachedFieldPets[data].petModel:Destroy(); CachedFieldPets[data] = nil end
 
                 local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data)
                 if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
