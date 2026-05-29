@@ -224,12 +224,12 @@ end
 
     @param petModel Model
     @param targetPosition Vector3
-    @param plrRootPart BasePart
+    @param lookAtPart BasePart
     @param petRootPart BasePart
 
     @return void
 ]]
-local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: BasePart, petRootPart: BasePart): ()
+local function movePetTo(petModel: Model, targetPosition: Vector3, lookAtPart: BasePart, petRootPart: BasePart): ()
     local isDoneAnimatingWalking = false
     local timeSinceStartedWalking = 0
     local direction = 0
@@ -324,11 +324,12 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                 -- Cleanup.
                 do
                     local readingOffset = CFrame.new(copiedTargetPos.X, 0, copiedTargetPos.Z).Position - CFrame.new(petRootPart.Position.X, 0, petRootPart.Position.Z).Position
-                    if readingOffset.Magnitude > 1 then return end; movementConnection:Disconnect()
+                    if readingOffset.Magnitude > 0.5 then return end; movementConnection:Disconnect()
                     
-                    local lookPos = plrRootPart.Position - copiedTargetPos
+                    local lookPos = lookAtPart.Position - copiedTargetPos
                     local flatFeetLookPosVec = Vector3.new(lookPos.X, 0, lookPos.Z)
 
+                    local isDoneLookingAtLookAtPart = false
                     local isDoneGoingToFloor = false
 
                     -- Floor finishing movement.
@@ -339,8 +340,8 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                             function(deltaTime: number): ()
                                 local floorFeetOffset = CFrame.new(0, copiedTargetPos.Y, 0).Position - CFrame.new(0, petRootPart.Position.Y, 0).Position
 
-                                if not petModel or not petModel.Parent then gotoFloorConnection:Disconnect(); return end
-                                if floorFeetOffset.Magnitude < 0.25 then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
+                                if not petModel or not petModel.Parent then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
+                                if floorFeetOffset.Magnitude < 0.15 then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
 
                                 petRootPart.CFrame = CFrame.new(petRootPart.Position + floorFeetOffset.Unit * deltaTime * LOOK_AT_TIME_MUL) * smoothLookAtMoveDirRotation
                             end
@@ -353,8 +354,11 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
 
                         lookAtConnection = RunService.Heartbeat:Connect(
                             function(deltaTime: number): ()
-                                if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); return end
-                                if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then lookAtConnection:Disconnect(); return end
+                                if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); isDoneLookingAtLookAtPart = true; return end
+
+                                if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then
+                                    lookAtConnection:Disconnect(); isDoneLookingAtLookAtPart = true; return
+                                end
 
                                 local smoothLookAtPlrDirRotation = petRootPart.CFrame.Rotation:Lerp(
                                     CFrame.lookAt(
@@ -370,7 +374,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, plrRootPart: 
                         )
                     end
 
-                    repeat task.wait() until isDoneGoingToFloor or not petModel or not petModel.Parent; isDoneAnimatingWalking = true
+                    repeat task.wait() until (isDoneGoingToFloor and isDoneLookingAtLookAtPart) or not petModel or not petModel.Parent; isDoneAnimatingWalking = true
                 end
             end
         )
@@ -471,8 +475,6 @@ local function constructorCallback(): ()
                     function(): ()
                         while true do
                             if table.find(AttackingPetsCache, data.petId) then repeat task.wait() until not table.find(AttackingPetsCache, data.petId) end
-
-                            if table.find(CurrentlyWalkingCache, data.petId) then repeat task.wait() until not table.find(CurrentlyWalkingCache, data.petId) end
                             table.insert(CurrentlyWalkingCache, data.petId)
 
                             local plr = Players:GetPlayerByUserId(data.ownerId)
@@ -530,7 +532,7 @@ local function constructorCallback(): ()
 
         PetsHandlingGroup.AddPetToClientField:onClientEvent(
             function(data): ()
-                if CachedFieldPets[data.generatedId] then return end; repeat task.wait() until localPlayer.Character;
+                if CachedFieldPets[data.generatedId] then return end
 
                 local field = FieldsFolder:FindFirstChild(data.fieldName) :: BasePart
                 if not field then return end
@@ -541,8 +543,6 @@ local function constructorCallback(): ()
                     function(): ()
                         while true do
                             if table.find(AttackingPetsCache, data.generatedId) then repeat task.wait() until not table.find(AttackingPetsCache, data.generatedId) end
-
-                            if table.find(CurrentlyWalkingCache, data.generatedId) then repeat task.wait() until not table.find(CurrentlyWalkingCache, data.generatedId) end
                             table.insert(CurrentlyWalkingCache, data.generatedId)
 
                             local petModel = GamePetsFolder:FindFirstChild(data.generatedId) :: Model
@@ -555,7 +555,7 @@ local function constructorCallback(): ()
                             local randomZ = RNG.betterRandomNumber({ min = -field.Size.Z / 2, max = field.Size.Z / 2 })
 
                             local targetPos = field.CFrame * CFrame.new(randomX, 0, randomZ).Position
-                            movePetTo(petModel, targetPos, field, petRootPart)
+                            movePetTo(petModel, targetPos, petRootPart, petRootPart)
 
                             local randomWaitTime = RNG.betterRandomNumber(
                                 {
