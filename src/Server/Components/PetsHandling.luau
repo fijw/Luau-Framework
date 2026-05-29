@@ -55,6 +55,8 @@ local CachedAttackingPets: { string } = {}
     @return void
 ]]
 local function equipPet(petId: string, owner: Player, onlySendToOneClient: Player?, swapEquipStatus: boolean): ()
+    if CachedEquippedPets[owner][petId] and not onlySendToOneClient then return end
+
     local PlrDataClass = Registry(owner)
     if not PlrDataClass then return end
 

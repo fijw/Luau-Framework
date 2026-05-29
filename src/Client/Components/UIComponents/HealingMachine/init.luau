@@ -463,7 +463,7 @@ local function constructorCallback(): ()
                         if foundIdIndex then
                             table.remove(SelectingPets, foundIdIndex)
 
-                            local foundTick = newPetLabel:FindFirstChild("SelectedTick")
+                            local foundTick = newPetLabel:FindFirstChild("SelectTick")
                             if foundTick then foundTick:Destroy() end
                         else
                             table.insert(SelectingPets, i)

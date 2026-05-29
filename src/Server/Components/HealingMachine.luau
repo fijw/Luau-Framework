@@ -46,6 +46,8 @@ local function constructorCallback(): ()
             local PlrDataClass = Registry(player)
             if not PlrDataClass then return end
 
+            repeat task.wait() until (PlrDataClass()().Inventory :: InventoryClass).fetchStackFromItemId
+
             local Inventory = (PlrDataClass()().Inventory :: InventoryClass)
             if not Inventory then return end
 
