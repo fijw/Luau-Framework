@@ -111,10 +111,10 @@ end
     @return void
 ]]
 local function unequipPetFunction(owner: Player?, PetData: { PetData: PetSchema, petId: string }, swapEquipStatus: boolean, field: BasePart?): ()
-    if owner and not field then
+    if owner then
         if not CachedEquippedPets[owner][PetData.petId] then return end
         CachedEquippedPets[owner][PetData.petId] = nil
-    elseif field and not owner then
+    elseif field then
         if not CachedFieldPets[field][PetData.petId] then return end
         CachedFieldPets[field][PetData.petId] = nil
     end
@@ -128,7 +128,7 @@ local function unequipPetFunction(owner: Player?, PetData: { PetData: PetSchema,
         if not Inventory then return end
 
         local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(PetData.petId)
-        if not FoundStack then FoundStack = Inventory:fetchStackFromItemData(PetData.PetData) end
+        if not FoundStack then FoundStack = Inventory:fetchStackFromItemData(PetData.PetData, { "Equipped", "HealthDictionary", "Locked" }) end
 
         if FoundStack then
             local foundEquippedIndex = table.find(FoundStack.StackData.Equipped or {}, PetData.petId)
@@ -169,7 +169,11 @@ local function constructorCallback(): ()
 
                     for petId: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
                         local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(petId)
-                        if FoundStack and not PlrDataClass()().HealingData().HealingPets[petId] then continue end
+                        
+                        if FoundStack
+                            and not PlrDataClass()().HealingData().HealingPets[petId]
+                            and table.find(FoundStack.StackData.Equipped or {}, petId)
+                        then continue end
 
                         unequipPetFunction(plr, { petId = petId, PetData = PetData }, true)
                     end

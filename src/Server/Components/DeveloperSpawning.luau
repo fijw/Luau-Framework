@@ -74,6 +74,7 @@ local function constuctorCallback(): ()
             FoundPetSchema.PetStats.size = foundSize :: any
             FoundPetSchema.Locked = {}
             FoundPetSchema.Equipped = {}
+            FoundPetSchema.HealthDictionary = {}
 
             local randomId = `{RNG.randomString(16)}`
 

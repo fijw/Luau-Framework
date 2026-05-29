@@ -441,6 +441,12 @@ local function constructorCallback(): ()
         PetsHandlingGroup.PetStartFollowingOwner:onClientEvent(
             function(data): ()
                 if not GamePetsFolder:FindFirstChild(data.petId) then
+                    local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data.petId)
+                    if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
+
+                    local foundAttackingCacheIndex = table.find(AttackingPetsCache, data.petId)
+                    if foundAttackingCacheIndex then table.remove(AttackingPetsCache, foundAttackingCacheIndex) end
+
                     local plr = Players:GetPlayerByUserId(data.ownerId)
                     if not plr then return end
 
@@ -501,16 +507,13 @@ local function constructorCallback(): ()
 
         PetsHandlingGroup.RemovePetFromClient:onClientEvent(
             function(data): ()
+                if EquippedPetsCache[data] then EquippedPetsCache[data]:Destroy(); EquippedPetsCache[data] = nil end
+
                 local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data)
                 if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
 
                 local foundAttackingCacheIndex = table.find(AttackingPetsCache, data)
                 if foundAttackingCacheIndex then table.remove(AttackingPetsCache, foundAttackingCacheIndex) end
-
-                local foundPetModel = GamePetsFolder:FindFirstChild(data)
-                if foundPetModel then foundPetModel:Destroy() end
-
-                if EquippedPetsCache[data] then EquippedPetsCache[data] = nil end
             end
         )
 
