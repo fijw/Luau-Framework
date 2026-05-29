@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Trading)
+local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
 
 local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 
@@ -63,6 +64,7 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                     local foundIndex = table.find(FoundPetStack.StackData.Equipped or {}, id)
                     if not foundIndex then continue end
 
+                    Player2State.currentNumOfPetsEquipped(Player2State.currentNumOfPetsEquipped() - 1)
                     table.remove(FoundPetStack.StackData.Equipped or {}, foundIndex)
                 end
 
@@ -75,6 +77,7 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                     local foundIndex = table.find(FoundPetStack.StackData.Equipped or {}, id)
                     if not foundIndex then continue end
 
+                    Player2State.currentNumOfPetsEquipped(Player2State.currentNumOfPetsEquipped() - 1)
                     table.remove(FoundPetStack.StackData.Equipped or {}, foundIndex)
                 end
 
@@ -116,6 +119,9 @@ local function commenceTrade(tradeIdentifyingPlayer: Player)
                 if Player1State.gems() ~= oldPlr1Coins + Trade.player2Coins - Trade.player1Coins then return false end
                 if Player2State.gems() ~= oldPlr2Coins + Trade.player1Coins - Trade.player2Coins then return false end
             end
+
+            InventoryGroup.UpdatePetsEquippedText:fireClient(Trade.player1, `{Player1State.currentNumOfPetsEquipped()}/{Player1State.maxPetsEquipped()}`)
+            InventoryGroup.UpdatePetsEquippedText:fireClient(Trade.player2, `{Player2State.currentNumOfPetsEquipped()}/{Player2State.maxPetsEquipped()}`)
 
             return true
         end

@@ -15,12 +15,12 @@ local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
 local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.Stacking)
 local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
+local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 
 local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.Inventory)
 local PetsHandlingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.PetsHandling)
 
 local PetSchemas = require(ReplicatedStorage.DataAssets.Pets.PetSchemas)
-local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 --[[ @end_section Imports ]]
 
 
@@ -169,13 +169,9 @@ local function constructorCallback(): ()
 
                     for petId: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
                         local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(petId)
-                        
-                        if FoundStack
-                            and not PlrDataClass()().HealingData().HealingPets[petId]
-                            and table.find(FoundStack.StackData.Equipped or {}, petId)
-                        then continue end
+                        if FoundStack and not PlrDataClass()().HealingData().HealingPets[petId] then continue end
 
-                        unequipPetFunction(plr, { petId = petId, PetData = PetData }, true)
+                        unequipPetFunction(plr, { petId = petId, PetData = PetData }, false)
                     end
                 end
 
@@ -220,8 +216,6 @@ local function constructorCallback(): ()
             for i: string, Stack: StackClass<PetSchema> in pairs(Inventory.StacksDictionary) do
                 for petIndex: number, petId: string in ipairs(Stack.StackArray()) do
                     if not table.find(Stack.StackData.Equipped or {}, petId) then continue end
-                    if PlrDataClass()().HealingData().HealingPets[petId] then continue end
-
                     equipPet(petId, plr, nil, false)
                 end
             end
