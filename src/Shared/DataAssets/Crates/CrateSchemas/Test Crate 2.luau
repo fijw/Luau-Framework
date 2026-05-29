@@ -24,7 +24,7 @@ local CrateSchema: CrateSchema
         [PetSchemas["Nv's Pet"]] = 20,
         [PetSchemas["Cat"]] = 20,
         [PetSchemas["Dog"]] = 20,
-        [PetSchemas["Rabbit"]] = 10,
+        [PetSchemas["Bunny"]] = 10,
         [PetSchemas["Sad Cat"]] = 10,
         [PetSchemas["Test Pet"]] = 10
     },

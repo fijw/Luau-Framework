@@ -19,14 +19,14 @@ local Packets
 = {
     EquipPet = NetworkLib("ph_equip_pet", "Function",
         {
-            clientType = true or false,
+            clientType = (true or false) :: boolean,
             serverType = "pet_id"
         }
     ),
 
     UnequipPet = NetworkLib("ph_unequip_pet", "Function",
         {
-            clientType = true or false,
+            clientType = (true or false) :: boolean,
             serverType = "pet_id"
         }
     ),
@@ -52,7 +52,6 @@ local Packets
         }
     ),
 
-
     AddPetToClientField = NetworkLib("ph_add_pet_to_client_field", "Event",
         {
             clientType
@@ -62,6 +61,28 @@ local Packets
                 fieldName = ""
             },
 
+            serverType = nil
+        }
+    ),
+
+
+    StartAttackingPet = NetworkLib("ph_start_attacking_pet", "Event",
+        {
+            clientType = { attackingPetId = "", targetPetId = "", fieldName = "" },
+            serverType = { petIdToAttack = "", fieldName = "" }
+        }
+    ),
+
+    ServerStartDealingDamage = NetworkLib("ph_server_start_dealing_damage", "Event",
+        {
+            clientType = nil,
+            serverType = { targetPetId = "", attackingPetId = "", fieldName = "" }
+        }
+    ),
+
+    RemovePetFromClientAttackingCache = NetworkLib("ph_remove_pet_from_client_attacking_cache", "Event",
+        {
+            clientType = "pet_id",
             serverType = nil
         }
     )

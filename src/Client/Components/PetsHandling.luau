@@ -422,8 +422,6 @@ local function constructorCallback(): ()
     local localPlrChar = localPlayer.Character :: Model
     if not localPlrChar then repeat task.wait() until localPlayer.Character; localPlrChar = localPlayer.Character :: Model end
 
-    local plrRootPart = localPlrChar:WaitForChild("HumanoidRootPart") :: BasePart
-
     UserInputService.InputEnded:Connect(
         function(input: InputObject, gameProcessed: boolean): ()
             if gameProcessed then return end; if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
@@ -433,22 +431,7 @@ local function constructorCallback(): ()
 
             for i: string, CachedData: { petModel: Model, field: BasePart } in pairs(CachedFieldPets) do
                 if targetInst.Name ~= i and (targetInst.Parent :: Instance).Name ~= i then continue end
-
-                table.insert(AttackingPetsCache, i)
-
-                if table.find(CurrentlyWalkingCache, i) then
-                    repeat task.wait() until not table.find(CurrentlyWalkingCache, i)
-                end
-
-                local petRootPart = CachedData.petModel.PrimaryPart :: BasePart
-                if not petRootPart then return end
-
-                movePetTo(CachedData.petModel, plrRootPart.Position, petRootPart, petRootPart)
-                
-                local foundAttackingCacheIndex = table.find(AttackingPetsCache, i)
-                if foundAttackingCacheIndex then table.remove(AttackingPetsCache, foundAttackingCacheIndex) end
-
-                break
+                PetsHandlingGroup.StartAttackingPet:fireServer({ fieldName = CachedData.field.Name, petIdToAttack = i }); break
             end
         end
     )
@@ -475,6 +458,8 @@ local function constructorCallback(): ()
                     function(): ()
                         while true do
                             if table.find(AttackingPetsCache, data.petId) then repeat task.wait() until not table.find(AttackingPetsCache, data.petId) end
+
+                            if table.find(CurrentlyWalkingCache, data.petId) then repeat task.wait() until not table.find(CurrentlyWalkingCache, data.petId) end
                             table.insert(CurrentlyWalkingCache, data.petId)
 
                             local plr = Players:GetPlayerByUserId(data.ownerId)
@@ -516,26 +501,23 @@ local function constructorCallback(): ()
 
         PetsHandlingGroup.RemovePetFromClient:onClientEvent(
             function(data): ()
-                -- Remove from equipped pets cache.
-                do
-                    if not EquippedPetsCache[data] then return end
-
-                    EquippedPetsCache[data]:Destroy()
-                    EquippedPetsCache[data].Parent = nil
-                    EquippedPetsCache[data] = nil
-                end
-
                 local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data)
                 if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
+
+                local foundAttackingCacheIndex = table.find(AttackingPetsCache, data)
+                if foundAttackingCacheIndex then table.remove(AttackingPetsCache, foundAttackingCacheIndex) end
+
+                local foundPetModel = GamePetsFolder:FindFirstChild(data)
+                if foundPetModel then foundPetModel:Destroy() end
+
+                if EquippedPetsCache[data] then EquippedPetsCache[data] = nil end
             end
         )
 
         PetsHandlingGroup.AddPetToClientField:onClientEvent(
             function(data): ()
-                if CachedFieldPets[data.generatedId] then return end
-
-                local field = FieldsFolder:FindFirstChild(data.fieldName) :: BasePart
-                if not field then return end
+                if GamePetsFolder:FindFirstChild(data.generatedId) then return end
+                local field = FieldsFolder:WaitForChild(data.fieldName) :: BasePart
 
                 addPetToWorkspace({ PetData = data.PetData, petId = data.generatedId }, field, field)
 
@@ -543,6 +525,8 @@ local function constructorCallback(): ()
                     function(): ()
                         while true do
                             if table.find(AttackingPetsCache, data.generatedId) then repeat task.wait() until not table.find(AttackingPetsCache, data.generatedId) end
+
+                            if table.find(CurrentlyWalkingCache, data.generatedId) then repeat task.wait() until not table.find(CurrentlyWalkingCache, data.generatedId) end
                             table.insert(CurrentlyWalkingCache, data.generatedId)
 
                             local petModel = GamePetsFolder:FindFirstChild(data.generatedId) :: Model
@@ -568,6 +552,48 @@ local function constructorCallback(): ()
                         end
                     end
                 )
+            end
+        )
+
+        PetsHandlingGroup.StartAttackingPet:onClientEvent(
+            function(data): ()
+                if table.find(AttackingPetsCache, data.attackingPetId) or table.find(AttackingPetsCache, data.targetPetId) then return end
+
+                local attackingPetModel = GamePetsFolder:WaitForChild(data.attackingPetId) :: Model
+                local targetPetModel = GamePetsFolder:WaitForChild(data.targetPetId) :: Model
+
+                local attackingPetRootPart = attackingPetModel.PrimaryPart :: BasePart
+                local targetPetRootPart = targetPetModel.PrimaryPart :: BasePart
+
+                table.insert(AttackingPetsCache, data.attackingPetId)
+                table.insert(AttackingPetsCache, data.targetPetId)
+
+                repeat task.wait() until not table.find(CurrentlyWalkingCache, data.attackingPetId) or not attackingPetModel
+                repeat task.wait() until not table.find(CurrentlyWalkingCache, data.targetPetId) or not targetPetModel
+
+                -- Move the attacking pets to each other.
+                do
+                    local direction = (attackingPetRootPart.Position - targetPetRootPart.Position).Unit
+                    local midpoint = (targetPetRootPart.Position + attackingPetRootPart.Position) / 2
+
+                    movePetTo(attackingPetModel, midpoint + direction * (targetPetRootPart.Size.Z / 2 + 1), targetPetRootPart, attackingPetRootPart)
+                    movePetTo(targetPetModel, midpoint - direction * (attackingPetRootPart.Size.Z / 2 + 1), attackingPetRootPart, targetPetRootPart)
+                end
+
+                PetsHandlingGroup.ServerStartDealingDamage:fireServer(
+                    {
+                        attackingPetId = data.attackingPetId,
+                        targetPetId = data.targetPetId,
+                        fieldName = data.fieldName
+                    }
+                )
+            end
+        )
+
+        PetsHandlingGroup.RemovePetFromClientAttackingCache:onClientEvent(
+            function(data): ()
+                local foundAttackingCacheIndex = table.find(AttackingPetsCache, data)
+                if foundAttackingCacheIndex then table.remove(AttackingPetsCache, foundAttackingCacheIndex) end
             end
         )
     end

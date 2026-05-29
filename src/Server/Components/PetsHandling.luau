@@ -33,8 +33,14 @@ type StackClass<D> = StackingLib.StackClass<D>
 --[[ @end_section Types ]]
 
 
+--[[ @section Variables ]]
+local GameFolder = workspace:WaitForChild("Game") :: Folder
+local FieldsFolder = GameFolder:WaitForChild("Fields") :: Folder
+
 local CachedEquippedPets: { [Player]: { [string]: PetSchema } } = {}
 local CachedFieldPets: { [BasePart]: { [string]: PetSchema } } = {}
+local CachedAttackingPets: { string } = {}
+--[[ @end_section Variables ]]
 
 
 --[[ @section Utility Functions ]]
@@ -94,18 +100,24 @@ end
 --[[
     @usage Unequip a pet from a player.
 
-    @param owner Player
+    @param owner Player?
     @param PetData { PetData: PetSchema, petId: string }
     @param swapEquipStatus boolean
+    @param field BasePart?
 
     @return void
 ]]
-local function unequipPetFunction(owner: Player, PetData: { PetData: PetSchema, petId: string }, swapEquipStatus: boolean): ()
-    if not CachedEquippedPets[owner][PetData.petId] then return end
-    CachedEquippedPets[owner][PetData.petId] = nil
+local function unequipPetFunction(owner: Player?, PetData: { PetData: PetSchema, petId: string }, swapEquipStatus: boolean, field: BasePart?): ()
+    if owner and not field then
+        if not CachedEquippedPets[owner][PetData.petId] then return end
+        CachedEquippedPets[owner][PetData.petId] = nil
+    elseif field and not owner then
+        if not CachedFieldPets[field][PetData.petId] then return end
+        CachedFieldPets[field][PetData.petId] = nil
+    end
 
     -- Remove the pet from the stack's equipped pets data if the player isn't leaving.
-    if swapEquipStatus then
+    if swapEquipStatus and owner then
         local PlrDataClass = Registry(owner)
         if not PlrDataClass then return end
 
@@ -168,6 +180,8 @@ local function constructorCallback(): ()
     -- Equip and unequip pets on join & leave.
     do
         local function onPlayerAdded(plr: Player): ()
+            repeat task.wait() until plr.Character
+
             CachedEquippedPets[plr] = {}
 
             local PlrDataClass = Registry(plr)
@@ -231,10 +245,17 @@ local function constructorCallback(): ()
                 local PlrDataClass = Registry(sender)
                 if not PlrDataClass then return false end
 
-                if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
-                equipPet(data, sender, nil, true)
+                local Inventory = PlrDataClass()().Inventory :: InventoryClass
+                if not Inventory then return false end
 
-                return true
+                local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(data)
+                if not FoundStack then return false end
+
+                if FoundStack.StackData.GameplayStats.petHealth <= 0 then return false end
+                if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
+                if PlrDataClass()().HealingData().HealingPets[data] then return false end
+
+                equipPet(data, sender, nil, true); return true
             end
         )
 
@@ -244,6 +265,91 @@ local function constructorCallback(): ()
                 unequipPetFunction(sender, { petId = data, PetData = CachedEquippedPets[sender][data] }, true)
 
                 return true
+            end
+        )
+
+        PetsHandlingGroup.StartAttackingPet:onServerEvent(
+            function(sender, data)
+                if not sender or table.find(CachedAttackingPets, data.petIdToAttack) then return end
+
+                local field = FieldsFolder:WaitForChild(data.fieldName) :: BasePart
+                if not CachedFieldPets[field][data.petIdToAttack] then return end
+
+                local PlrDataClass = Registry(sender)
+                if not PlrDataClass then return end
+
+                local Inventory = PlrDataClass()().Inventory :: InventoryClass
+                if not Inventory then return end
+
+                local EquippedPets: { { petId: string, PetData: PetSchema } } = {}
+
+                for i: string, PetData: PetSchema in pairs(CachedEquippedPets[sender]) do
+                    if table.find(CachedAttackingPets, i) then continue end
+                    table.insert(EquippedPets, { petId = i, PetData = PetData })
+                end
+
+                if #EquippedPets <= 0 then return end; local randomIndex = RNG.betterRandomNumber({ max = #EquippedPets, min = 1 })
+
+                local PetToAttackWith = EquippedPets[randomIndex]
+                if not PetToAttackWith then return end
+
+                local TargetPet = CachedFieldPets[field][data.petIdToAttack]
+                if not TargetPet then return end
+
+                table.insert(CachedAttackingPets, data.petIdToAttack); table.insert(CachedAttackingPets, PetToAttackWith.petId)
+
+                PetsHandlingGroup.StartAttackingPet:fireAllClients(
+                    {
+                        attackingPetId = PetToAttackWith.petId,
+                        targetPetId = data.petIdToAttack,
+                        fieldName = data.fieldName
+                    }
+                )
+            end
+        )
+
+        PetsHandlingGroup.ServerStartDealingDamage:onServerEvent(
+            function(sender, data): ()
+                local PetToAttackWith = CachedEquippedPets[sender][data.attackingPetId]
+                if not PetToAttackWith then return end
+
+                local field = FieldsFolder:WaitForChild(data.fieldName) :: BasePart
+
+                local TargetPet = CachedFieldPets[field][data.targetPetId]
+                if not TargetPet then return end
+
+                while true do
+                    task.wait(1)
+
+                    PetToAttackWith.GameplayStats.petHealth -= TargetPet.GameplayStats.attackDamage
+                    TargetPet.GameplayStats.petHealth -= PetToAttackWith.GameplayStats.attackDamage
+
+                    if PetToAttackWith.GameplayStats.petHealth <= 0 or TargetPet.GameplayStats.petHealth <= 0 then break end
+                end
+
+                -- Check if pets are dead.
+                do
+                    if PetToAttackWith.GameplayStats.petHealth <= 0 then
+                        PetToAttackWith.GameplayStats.petHealth = 0
+                        unequipPetFunction(sender, { petId = data.attackingPetId, PetData = PetToAttackWith }, true)
+                    end
+
+                    if TargetPet.GameplayStats.petHealth <= 0 then
+                        unequipPetFunction(nil, { petId = data.targetPetId, PetData = TargetPet }, true, field)
+                    end
+                end
+
+                -- Clear attacking cache.
+                do
+                    local foundAttackPetIndex = table.find(CachedAttackingPets, data.attackingPetId)
+                    local foundTargetPetIndex = table.find(CachedAttackingPets, data.targetPetId)
+
+                    if foundAttackPetIndex then table.remove(CachedAttackingPets, foundAttackPetIndex) end
+                    if foundTargetPetIndex then table.remove(CachedAttackingPets, foundTargetPetIndex) end
+
+                    PetsHandlingGroup.RemovePetFromClientAttackingCache:fireAllClients(data.attackingPetId)
+                    PetsHandlingGroup.RemovePetFromClientAttackingCache:fireAllClients(data.targetPetId)
+                end
             end
         )
     end
@@ -267,6 +373,10 @@ local function constructorCallback(): ()
                         local Pet = PetArray[RNG.betterRandomNumber({ max = #PetArray, min = 1 })]
                         if not Pet then continue end
 
+                        Pet.GameplayStats.petHealth = Pet.GameplayStats.maxHealth
+                        Pet.PetStats.size = "Default"
+                        Pet.PetStats.color = "Default"
+
                         local generatedId = RNG.randomString(8)
 
                         PetsHandlingGroup.AddPetToClientField:fireAllClients(
@@ -288,7 +398,7 @@ local function constructorCallback(): ()
                                 amtOfPetsInField += 1
                             end
 
-                            if amtOfPetsInField < 10 then break end; amtOfPetsInField = 0
+                            if amtOfPetsInField < 2 then break end; amtOfPetsInField = 0
                         until true ~= true
                     end
                 end
