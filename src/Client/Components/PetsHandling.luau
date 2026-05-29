@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 
@@ -27,7 +28,6 @@ local GamePetsFolder = GameFolder:WaitForChild("Pets") :: Folder
 local FieldsFolder = GameFolder:WaitForChild("Fields") :: Folder
 
 local localPlayer = Players.LocalPlayer :: Player
-local localPlrMouse = localPlayer:GetMouse()
 
 local PET_MUL_SPEED = 50
 local WOBBLE_TIME_MUL = 8
@@ -390,8 +390,8 @@ end
     @return (Instance?, RaycastResult<BasePart>?)
 ]]
 local function raycastFromMouse(plrChar: Model): (Instance?, RaycastResult<BasePart>?)
-    local mousePosition = Vector2.new(localPlrMouse.X, localPlrMouse.Y)
-    local ray = workspace.CurrentCamera:ViewportPointToRay(mousePosition.X, mousePosition.Y)
+    local mouseLoc = UserInputService:GetMouseLocation()
+    local ray = workspace.CurrentCamera:ViewportPointToRay(mouseLoc.X, mouseLoc.Y)
 
     local raycastParams = RaycastParams.new()
     raycastParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -420,8 +420,10 @@ local function constructorCallback(): ()
 
     local plrRootPart = localPlrChar:WaitForChild("HumanoidRootPart") :: BasePart
 
-    localPlrMouse.Button1Up:Connect(
-        function()
+    UserInputService.InputEnded:Connect(
+        function(input: InputObject, gameProcessed: boolean): ()
+            if gameProcessed then return end; if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+
             local targetInst, raycastResult = raycastFromMouse(localPlrChar)
             if not targetInst or not raycastResult then return end
 
