@@ -16,6 +16,7 @@ local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
+local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.Stacking)
 
 local CrateMachineGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.CrateMachine)
 --[[ @end_section Imports ]]
@@ -23,6 +24,9 @@ local CrateMachineGroup = require(ReplicatedStorage.Networking.PacketGroups.Comp
 
 --[[ @section Types ]]
 type InventoryClass = Stackentory.InventoryClass
+
+--[[ @generic D Data type. ]]
+type StackClass<D> = StackingLib.StackClass<D>
 
 type CrateSchema = CratesData.CrateSchema
 type PetSchema = PetsData.PetSchema
@@ -77,6 +81,7 @@ local function constructorCallback(): ()
                         PetSchema.PetStats.size = RandomizedStats.size :: any
                         PetSchema.Locked = {}
                         PetSchema.Equipped = {}
+                        PetSchema.HealthDictionary = {}
 
                         -- Size and color stat modifications.
                         do
@@ -106,8 +111,6 @@ local function constructorCallback(): ()
                             end
                         end
 
-                        PetSchema.GameplayStats.petHealth = PetSchema.GameplayStats.maxHealth
-
                         -- Attempt to give the player the pet.
                         do
                             local Inventory = PlayerState.Inventory :: InventoryClass
@@ -115,8 +118,12 @@ local function constructorCallback(): ()
                             local maxItems = Inventory.maxItems
                             if Inventory.usedItemSlots >= maxItems then CrateMachineGroup.SendMaxPetsNotification:fireClient(sender, maxItems); return false end
 
-                            Inventory += { itemData = PetSchema, itemId = randomId }
-                            if not Inventory:fetchStackFromItemId(randomId) then return false end
+                            Inventory += { itemData = PetSchema, itemId = randomId, ExclusionKeys = { "Locked", "Equipped", "HealthDictionary" } }
+
+                            local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(randomId)
+                            if not FoundStack then return false end
+
+                            if FoundStack.StackData.HealthDictionary then FoundStack.StackData.HealthDictionary[randomId] = PetSchema.GameplayStats.maxHealth end
                         end
                     end
 

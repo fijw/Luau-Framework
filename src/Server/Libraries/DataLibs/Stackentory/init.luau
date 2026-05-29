@@ -132,13 +132,13 @@ export type InventoryClass = setmetatable
         __index
         : {
             fetchStackFromItemId: (self: InventoryClass, id: string) -> (StackClass<any>?),
-            fetchStackFromItemData: <D>(self: InventoryClass, data: D) -> (StackClass<D>?),
+            fetchStackFromItemData: <D>(self: InventoryClass, data: D, ExclusionKeys: { any }?) -> (StackClass<D>?),
 
             subscribeToItemsAdded: (self: InventoryClass, callback: ItemAddedSubscriptionType) -> (),
             subscribeToItemsRemoved: (self: InventoryClass, callback: ItemRemovedSubscriptionType) -> (),
         },
 
-        __add: (self: InventoryClass, AddingSchema: { itemData: any, itemId: string, forceAdd: true? }) -> (InventoryClass),
+        __add: (self: InventoryClass, AddingSchema: { itemData: any, itemId: string, forceAdd: true?, ExclusionKeys: { any }? }) -> (InventoryClass),
         __sub: (self: InventoryClass, itemId: string) -> (InventoryClass),
 
         __call: (self: InventoryClass) -> (SavingInventoryClassSchema)
@@ -177,10 +177,11 @@ end
 
     @param self InventoryClass
     @param data D
+    @param ExclusionKeys { any }?
 
     @return StackClass<D>?
 ]]
-local function fetchStackFromItemDataCallback<D>(self: InventoryClass, data: D): StackClass<D>?
+local function fetchStackFromItemDataCallback<D>(self: InventoryClass, data: D, ExclusionKeys: { any }?): StackClass<D>?
     local FoundStack: StackClass<D>?
 
     for stackIndex: string, Stack: StackClass<D> in pairs(self.StacksDictionary) do
@@ -189,7 +190,7 @@ local function fetchStackFromItemDataCallback<D>(self: InventoryClass, data: D):
         elseif typeof(data) ~= "table" and typeof(Stack.StackData) == "table" then continue
         elseif typeof(Stack.StackData) ~= "table" and typeof(data) == "table" then continue end
 
-        local isMatch = TableUtils.deepCompare(data, Stack.StackData)
+        local isMatch = TableUtils.deepCompare(data, Stack.StackData, ExclusionKeys)
         if isMatch ~= "mismatch" then FoundStack = Stack; break end
     end
 
@@ -219,11 +220,11 @@ end
 
     @return InventoryClass
 ]]
-local function addCallback(self: InventoryClass, AddingSchema: { itemData: any, itemId: string, forceAdd: true? }): InventoryClass
+local function addCallback(self: InventoryClass, AddingSchema: { itemData: any, itemId: string, forceAdd: true?, ExclusionKeys: { any }? }): InventoryClass
     if self.usedItemSlots >= self.maxItems and not AddingSchema.forceAdd then return self end
     self.usedItemSlots += 1
 
-    local FetchedStack = self:fetchStackFromItemData(AddingSchema.itemData)
+    local FetchedStack = self:fetchStackFromItemData(AddingSchema.itemData, AddingSchema.ExclusionKeys)
 
     if not FetchedStack then
         local stackId = HttpService:GenerateGUID(false)

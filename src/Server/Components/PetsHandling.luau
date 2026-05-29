@@ -20,6 +20,7 @@ local InventoryGroup = require(ReplicatedStorage.Networking.PacketGroups.Compone
 local PetsHandlingGroup = require(ReplicatedStorage.Networking.PacketGroups.Components.PetsHandling)
 
 local PetSchemas = require(ReplicatedStorage.DataAssets.Pets.PetSchemas)
+local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 --[[ @end_section Imports ]]
 
 
@@ -253,7 +254,9 @@ local function constructorCallback(): ()
                 local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(data)
                 if not FoundStack then return false end
 
-                if FoundStack.StackData.GameplayStats.petHealth <= 0 then return false end
+                if not FoundStack.StackData.HealthDictionary then return false end
+                if FoundStack.StackData.HealthDictionary[data] <= 0 then return false end
+
                 if PlrDataClass()().currentNumOfPetsEquipped() >= PlrDataClass()().maxPetsEquipped() then return false end
                 if PlrDataClass()().HealingData().HealingPets[data] then return false end
 
@@ -320,23 +323,25 @@ local function constructorCallback(): ()
                 local TargetPet = CachedFieldPets[field][data.targetPetId]
                 if not TargetPet then return end
 
+                if not TargetPet.HealthDictionary then return end; if not PetToAttackWith.HealthDictionary then return end
+
                 while true do
                     task.wait(1)
 
-                    PetToAttackWith.GameplayStats.petHealth -= TargetPet.GameplayStats.attackDamage
-                    TargetPet.GameplayStats.petHealth -= PetToAttackWith.GameplayStats.attackDamage
+                    TargetPet.HealthDictionary[data.targetPetId] -= PetToAttackWith.GameplayStats.attackDamage
+                    PetToAttackWith.HealthDictionary[data.attackingPetId] -= TargetPet.GameplayStats.attackDamage
 
-                    if PetToAttackWith.GameplayStats.petHealth <= 0 or TargetPet.GameplayStats.petHealth <= 0 then break end
+                    if TargetPet.HealthDictionary[data.targetPetId] <= 0 or PetToAttackWith.HealthDictionary[data.attackingPetId] <= 0 then break end
                 end
 
                 -- Check if pets are dead.
                 do
-                    if PetToAttackWith.GameplayStats.petHealth <= 0 then
-                        PetToAttackWith.GameplayStats.petHealth = 0
+                    if PetToAttackWith.HealthDictionary[data.attackingPetId] <= 0 then
+                        PetToAttackWith.HealthDictionary[data.attackingPetId] = 0
                         unequipPetFunction(sender, { petId = data.attackingPetId, PetData = PetToAttackWith }, true)
                     end
 
-                    if TargetPet.GameplayStats.petHealth <= 0 then
+                    if TargetPet.HealthDictionary[data.targetPetId] <= 0 then
                         unequipPetFunction(nil, { petId = data.targetPetId, PetData = TargetPet }, true, field)
                     end
                 end
@@ -372,14 +377,14 @@ local function constructorCallback(): ()
                     while true do
                         if not CachedFieldPets[fieldPart] then break end; task.wait()
 
-                        local Pet = PetArray[RNG.betterRandomNumber({ max = #PetArray, min = 1 })]
+                        local Pet = TableUtils.deepClone(PetArray[RNG.betterRandomNumber({ max = #PetArray, min = 1 })])
                         if not Pet then continue end
 
-                        Pet.GameplayStats.petHealth = Pet.GameplayStats.maxHealth
+                        local generatedId = RNG.randomString(8)
+
+                        Pet.HealthDictionary = { [generatedId] = Pet.GameplayStats.maxHealth }
                         Pet.PetStats.size = "Default"
                         Pet.PetStats.color = "Default"
-
-                        local generatedId = RNG.randomString(8)
 
                         PetsHandlingGroup.AddPetToClientField:fireAllClients(
                             {

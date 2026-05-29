@@ -56,18 +56,23 @@ local function constructorCallback(): ()
                     local countOfPets = 0
                     for i: string, durationLeft: number in pairs(PlrDataClass()().HealingData().HealingPets) do countOfPets += 1 end
 
+                    if countOfPets <= 0 then return end
+
                     while true do
-                        if countOfPets <= 0 then break end
+                        if not Players:GetPlayerByUserId(player.UserId) then break end; if countOfPets <= 0 then break end
 
                         for i: string, durationLeft: number in pairs(PlrDataClass()().HealingData().HealingPets) do
                             durationLeft -= 1
 
                             if durationLeft > 0 then PlrDataClass()().HealingData(durationLeft, i, "HealingPets")
                             else
-                                PlrDataClass()().HealingData(nil, i, "HealingPets"); countOfPets -= 1
-
                                 local PetStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(i)
                                 if not PetStack then continue end
+
+                                if not PetStack.StackData.HealthDictionary then continue end
+                                PetStack.StackData.HealthDictionary[i] = PetStack.StackData.GameplayStats.maxHealth
+
+                                PlrDataClass()().HealingData(nil, i, "HealingPets"); countOfPets -= 1
 
                                 InventoryGroup.AddPetsToInventory:fireClient(player, { [i] = PetStack.StackData })
                                 HealingMachineGroup.RemovePetsFromHealingMachine:fireClient(player, { i })
@@ -111,6 +116,8 @@ local function constructorCallback(): ()
                 local PetStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(petId)
                 if not PetStack then return end
 
+                if not PetStack.StackData.HealthDictionary then return end
+
                 numOfPets += 1
                 local duration = 60 * 5
 
@@ -124,11 +131,16 @@ local function constructorCallback(): ()
                         duration -= 1
 
                         while true do
+                            if not Players:GetPlayerByUserId(sender.UserId) then break end
+
                             duration -= 1; if duration <= 0 then break end
                             task.wait(1)
                         end
 
+                        if not Players:GetPlayerByUserId(sender.UserId) then return end
+
                         PlrDataClass()().HealingData(nil, petId, "HealingPets")
+                        PetStack.StackData.HealthDictionary[petId] = PetStack.StackData.GameplayStats.maxHealth
 
                         InventoryGroup.AddPetsToInventory:fireClient(sender, { [petId] = PetStack.StackData })
                         HealingMachineGroup.RemovePetsFromHealingMachine:fireClient(sender, { petId })

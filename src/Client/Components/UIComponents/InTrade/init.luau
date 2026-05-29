@@ -119,6 +119,8 @@ local function addPetToTrade
     yourGiganticPet: ImageLabel,
     HandledUI: HandledUI
 ): ()
+    if not Pet.HealthDictionary then return end
+
     local newPetLabel: ImageLabel
 
     if side == "yours" then
@@ -243,7 +245,7 @@ local function addPetToTrade
             function(): ()
                 isHovering = true
 
-                local health = NumberFormatLib(Pet.GameplayStats.petHealth, "thousands")
+                local health = NumberFormatLib(Pet.HealthDictionary[id], "thousands")
                 local maxHealth = NumberFormatLib(Pet.GameplayStats.maxHealth, "thousands")
 
                 PetDetailsComponents().mainFrame.Visible = true

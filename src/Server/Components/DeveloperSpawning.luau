@@ -14,6 +14,7 @@ local Registry = require(ServerScriptService.Libraries.DataLibs.Registry)
 local TableUtils = require(ReplicatedStorage.Libraries.TableUtils)
 local RNG = require(ReplicatedStorage.Libraries.NumberLibs.RNG)
 local Stackentory = require(ServerScriptService.Libraries.DataLibs.Stackentory)
+local StackingLib = require(ServerScriptService.Libraries.DataLibs.Stackentory.Stacking)
 
 local PetSchemas = require(ReplicatedStorage.DataAssets.Pets.PetSchemas)
 local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
@@ -22,8 +23,14 @@ local DeveloperSpawningGroup = require(ReplicatedStorage.Networking.PacketGroups
 --[[ @end_section Imports ]]
 
 
+--[[ @section Types ]]
 type InventoryClass = Stackentory.InventoryClass
+
+--[[ @generic D Data type. ]]
+type StackClass<D> = StackingLib.StackClass<D>
+
 type PetSchema = Data.PetSchema
+--[[ @end_section Types ]]
 
 
 --[[ @section Constructor ]]
@@ -65,9 +72,10 @@ local function constuctorCallback(): ()
 
             FoundPetSchema.PetStats.color = foundColor :: any
             FoundPetSchema.PetStats.size = foundSize :: any
-            FoundPetSchema.GameplayStats.petHealth = FoundPetSchema.GameplayStats.maxHealth
             FoundPetSchema.Locked = {}
             FoundPetSchema.Equipped = {}
+
+            local randomId = `{RNG.randomString(16)}`
 
             -- Size and color stat modifications.
             do
@@ -92,8 +100,6 @@ local function constuctorCallback(): ()
                     FoundPetSchema.GameplayStats.attackDamage *= 2
                     FoundPetSchema.GameplayStats.maxHealth *= 2
                 end
-
-                FoundPetSchema.GameplayStats.petHealth = FoundPetSchema.GameplayStats.maxHealth
             end
 
             local foundPlayer = Players:GetPlayerByUserId(data.receiverId)
@@ -107,11 +113,21 @@ local function constuctorCallback(): ()
 
                     -- Attempt to give the player the pet.
                     do
-                        local randomId = `{RNG.randomString(16)}`
                         local Inventory = PlayerState.Inventory :: InventoryClass
 
-                        Inventory += { itemData = FoundPetSchema, itemId = randomId, forceAdd = true }
-                        if not Inventory:fetchStackFromItemId(randomId) then return false end
+                        Inventory
+                        += {
+                            itemData = FoundPetSchema,
+                            itemId = randomId,
+                            forceAdd = true,
+                            ExclusionKeys = { "Locked", "Equipped", "HealthDictionary" }
+                        }
+                        
+                        local FoundStack: StackClass<PetSchema>? = Inventory:fetchStackFromItemId(randomId)
+                        if not FoundStack then return false end
+
+                        if not FoundPetSchema then return false end
+                        if FoundStack.StackData.HealthDictionary then FoundStack.StackData.HealthDictionary[randomId] = FoundPetSchema.GameplayStats.maxHealth end
                     end
 
                     DeveloperSpawningGroup.SendResults:fireClient(sender, `Successfully gave {data.petName} to {foundPlayer.Name}.`)

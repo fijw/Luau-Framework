@@ -11,8 +11,7 @@ export type PetSchema
     GameplayStats
     : {
         maxHealth: number,
-        attackDamage: number,
-        petHealth: number
+        attackDamage: number
     },
 
     PetStats
@@ -23,7 +22,8 @@ export type PetSchema
     },
     
     Locked: { string }?,
-    Equipped: { string }?
+    Equipped: { string }?,
+    HealthDictionary: { [string]: number }?
 }
 
 

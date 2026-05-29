@@ -66,11 +66,15 @@ end
 function TableUtils.deepCompare
 (
     TableComparison1: { [any]: any },
-    TableComparison2: { [any]: any }
+    TableComparison2: { [any]: any },
+
+    ExclusionsKeys: { any }?
 ): "match" | "mismatch"
     for i: any, v: any in pairs(TableComparison1) do
+        if table.find(ExclusionsKeys or {}, i) then continue end
+
         if typeof(v) == "table" and typeof(TableComparison2[i]) == "table" then
-            if TableUtils.deepCompare(v, TableComparison2[i]) == "mismatch" then
+            if TableUtils.deepCompare(v, TableComparison2[i], ExclusionsKeys) == "mismatch" then
                 return "mismatch"
             else
                 continue

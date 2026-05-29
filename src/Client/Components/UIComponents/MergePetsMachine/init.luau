@@ -167,6 +167,8 @@ local function constructorCallback(): ()
         MergingGroup.AddPetsToMergingSlots:onClientEvent(
             function(data): ()
                 for i: string, PetSchema: PetSchema in pairs(data) do
+                    if not PetSchema.HealthDictionary then continue end
+
                     local newPetLabel: ImageLabel
 
                     if PetSchema.PetStats.size == "Gigantic" then
@@ -276,7 +278,7 @@ local function constructorCallback(): ()
                         function(): ()
                             isHovering = true
 
-                            local health = NumberFormatLib(PetSchema.GameplayStats.petHealth, "thousands")
+                            local health = NumberFormatLib(PetSchema.HealthDictionary[i], "thousands")
                             local maxHealth = NumberFormatLib(PetSchema.GameplayStats.maxHealth, "thousands")
 
                             PetDetailsComponents().mainFrame.Visible = true

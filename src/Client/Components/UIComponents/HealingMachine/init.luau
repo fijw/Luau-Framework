@@ -165,6 +165,8 @@ local function setHealingMachineData
     local numOfPets = 0
 
     for i: string, PetSchema: PetSchema in pairs(Pets) do
+        if not PetSchema.HealthDictionary then continue end
+
         numOfPets += 1
 
         local newPetLabel = imageLabel:Clone()
@@ -225,7 +227,7 @@ local function setHealingMachineData
             function(): ()
                 isHovering = true
 
-                local health = NumberFormatLib(PetSchema.GameplayStats.petHealth, "thousands")
+                local health = NumberFormatLib(PetSchema.HealthDictionary[i], "thousands")
                 local maxHealth = NumberFormatLib(PetSchema.GameplayStats.maxHealth, "thousands")
 
                 PetDetailsComponents().mainFrame.Visible = true
@@ -357,6 +359,8 @@ local function constructorCallback(): ()
             )
 
             for i: string, Pet: PetSchema in pairs(HealingMachineGroup.RequestPetsForHealingSelection:invokeServer()) do
+                if not Pet.HealthDictionary then continue end
+
                 local newPetLabel: ImageLabel
 
                 if Pet.PetStats.size == "Gigantic" then
@@ -425,7 +429,7 @@ local function constructorCallback(): ()
                     function(): ()
                         isHovering = true
 
-                        local health = NumberFormatLib(Pet.GameplayStats.petHealth, "thousands")
+                        local health = NumberFormatLib(Pet.HealthDictionary[i], "thousands")
                         local maxHealth = NumberFormatLib(Pet.GameplayStats.maxHealth, "thousands")
 
                         PetDetailsComponents().mainFrame.Visible = true

@@ -21,8 +21,7 @@ local PetSchema: PetSchema
     GameplayStats
     = {
         maxHealth = 10,
-        attackDamage = 10,
-        petHealth = nil :: any
+        attackDamage = 10
     },
 
     PetStats
