@@ -15,6 +15,7 @@ local RebirthingGroup = require(ReplicatedStorage.Networking.PacketGroups.Compon
 
 local UIUtilitiesLibrary = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
 local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
+local NumberFormatLib = require(ReplicatedStorage.Libraries.NumberLibs.NumberFormatLib)
 
 local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 --[[ @end_section Imports ]]
@@ -82,8 +83,8 @@ local function updateRebirthStats(priceText: TextLabel, levelsTxt: TextLabel, mu
     local RebirthStats = RebirthingGroup.GetRebirthStats:invokeServer()
     if not RebirthStats then return end
 
-    priceText.Text = `Rebirth Price: {RebirthStats.price} Gems`
-    levelsTxt.Text = `Levels Needed: {RebirthStats.neededLevels}`
+    priceText.Text = `Rebirth Price: {NumberFormatLib(RebirthStats.price, "quintillions")} Gems`
+    levelsTxt.Text = `Levels Needed: {NumberFormatLib(RebirthStats.neededLevels, "quintillions")}`
     multiplierText.Text = `Current Gems Multiplier: {if RebirthStats.coinsMultiplier == 0 then 1 else RebirthStats.coinsMultiplier}x`
 end
 --[[ @end_section Utility Functions ]]
@@ -121,7 +122,7 @@ local function constructorCallback(): ()
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
                 
-                NotificationComponents().notificationText.Text = `Not enough gems to rebirth.<br /><br />You need {data} more gems to be able to rebirth.`
+                NotificationComponents().notificationText.Text = `Not enough gems to rebirth.<br /><br />You need {NumberFormatLib(data, "quintillions")} more gems to be able to rebirth.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                     function(pos1: number, pos2: number): ()
@@ -138,7 +139,7 @@ local function constructorCallback(): ()
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
 
-                NotificationComponents().notificationText.Text = `Not enough levels to rebirth.<br /><br />You need {data} more levels to be able to rebirth.`
+                NotificationComponents().notificationText.Text = `Not enough levels to rebirth.<br /><br />You need {NumberFormatLib(data, "quintillions")} more levels to be able to rebirth.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
                     function(pos1: number, pos2: number): ()
