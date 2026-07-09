@@ -30,7 +30,7 @@ local NEEDED_LEVELS_MULTIPLER_PER_REBIRTH = 2
 
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     RebirthingGroup.GetRebirthStats:onServerInvoke(
         function(sender, data)
             if not sender then return nil :: any end
@@ -53,7 +53,7 @@ local function constructorCallback(): ()
     )
 
     RebirthingGroup.Rebirth:onServerEvent(
-        function(sender, data): ()
+        function(sender, data)
             if not sender or data ~= nil then return end
 
             -- Atomic transaction to update the player's rebirths.

@@ -22,13 +22,13 @@ local TradingGroup = require(ReplicatedStorage.Networking.PacketGroups.Component
 
     @return void
 ]]
-local function constuctorCallback(): ()
+local function constuctorCallback()
     TradingGroup.DeclineTradeRequest:onServerEvent(
-        function(sender, data): () TradesMap.MappedTradeRequests[sender] = nil :: any end
+        function(sender, data) TradesMap.MappedTradeRequests[sender] = nil :: any end
     )
 
     TradingGroup.AcceptTradeRequest:onServerEvent(
-        function(sender: Player, data: nil): ()
+        function(sender: Player, data: nil)
             if not Players:GetPlayerByUserId(TradesMap.MappedTradeRequests[sender].UserId) then return end
             if TradesMap.MappedTradingPlayers[TradesMap.MappedTradeRequests[sender]] then return end
 
@@ -63,7 +63,7 @@ local function constuctorCallback(): ()
     )
 
     TradingGroup.SendTradeRequest:onServerEvent(
-        function(sender: Player, data: number): ()
+        function(sender: Player, data: number)
             if not sender then return end
 
             local targetPlayer = Players:GetPlayerByUserId(data)

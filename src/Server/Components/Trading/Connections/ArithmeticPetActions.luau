@@ -34,9 +34,9 @@ type PetSchema = Data.PetSchema
     
     @return void
 ]]
-local function constuctorCallback(): ()
+local function constuctorCallback()
     TradingGroup.AddPetToTradeOffer:onServerEvent(
-        function(sender: Player, data: string): ()
+        function(sender: Player, data: string)
             if not sender then return end
 
             local tradeId = TradesMap.MappedTradingPlayers[sender]
@@ -70,7 +70,7 @@ local function constuctorCallback(): ()
     )
 
     TradingGroup.RemovePetFromTradeOffer:onServerEvent(
-        function(sender: Player, data: string): ()
+        function(sender: Player, data: string)
             if not sender then return end
 
             local tradeId = TradesMap.MappedTradingPlayers[sender]

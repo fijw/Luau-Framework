@@ -220,7 +220,7 @@ local CachedPackets = {}
 
     @return void
 ]]
-local function fireClientCallback<C>(self: Packet<any, any>, player: Player, data: C): ()
+local function fireClientCallback<C>(self: Packet<any, any>, player: Player, data: C)
     if isClient or self.isEventOrRemote ~= "Event" then return end
 
     local CompressedData = {}
@@ -254,7 +254,7 @@ end
 
     @return void
 ]]
-local function fireAllClientsCallback<C>(self: Packet<any, any>, data: C): ()
+local function fireAllClientsCallback<C>(self: Packet<any, any>, data: C)
     if isClient or self.isEventOrRemote ~= "Event" then return end
 
     local CompressedData = {}
@@ -288,7 +288,7 @@ end
 
     @return void
 ]]
-local function fireServerCallback<S>(self: Packet<any, any>, data: S): ()
+local function fireServerCallback<S>(self: Packet<any, any>, data: S)
     if not isClient or self.isEventOrRemote ~= "Event" then return end
 
     local player = Players.LocalPlayer :: Player
@@ -386,12 +386,12 @@ end
 
     @return void
 ]]
-local function onClientEventCallback<C>(self: Packet<any, any>, callback: ClientRemoteEventCallbackType<C>): ()
+local function onClientEventCallback<C>(self: Packet<any, any>, callback: ClientRemoteEventCallbackType<C>)
     if not isClient or self.isEventOrRemote ~= "Event" then return end
 
     self.clientConnection
     = (self.clientRemote :: RemoteEvent).OnClientEvent:Connect(
-        function(data: buffer, securityTag: buffer): ()
+        function(data: buffer, securityTag: buffer)
             if typeof(data) ~= "buffer" then return end
             if not securityTag or typeof(securityTag) ~= "buffer" or Compression(securityTag, "decompress") ~= self.securityTag then return end
 
@@ -416,7 +416,7 @@ end
 
     @return void
 ]]
-local function onServerEventCallback<S>(self: Packet<any, any>, callback: ServerRemoteEventCallbackType<S>): ()
+local function onServerEventCallback<S>(self: Packet<any, any>, callback: ServerRemoteEventCallbackType<S>)
     if isClient or self.isEventOrRemote ~= "Event" then return end
 
     local remoteEvent = script:FindFirstChild(self.packetId) :: RemoteEvent
@@ -424,7 +424,7 @@ local function onServerEventCallback<S>(self: Packet<any, any>, callback: Server
 
     self.serverConnection
     = remoteEvent.OnServerEvent:Connect(
-        function(player: Player, data: buffer, securityTag: buffer): ()
+        function(player: Player, data: buffer, securityTag: buffer)
             if typeof(data) ~= "buffer" then return end
             if not securityTag or typeof(securityTag) ~= "buffer" or Compression(securityTag, "decompress") ~= self.securityTag then return end
 
@@ -449,7 +449,7 @@ end
 
     @return void
 ]]
-local function onClientInvokeCallback<C, S>(self: Packet<any, any>, callback: ClientRemoteFunctionCallbackType<C, S>): ()
+local function onClientInvokeCallback<C, S>(self: Packet<any, any>, callback: ClientRemoteFunctionCallbackType<C, S>)
     if not isClient or self.isEventOrRemote ~= "Function" then return end
 
     (self.clientRemote :: RemoteFunction).OnClientInvoke
@@ -480,7 +480,7 @@ end
 
     @return void
 ]]
-local function onServerInvokeCallback<C, S>(self: Packet<any, any>, callback: ServerRemoteFunctionCallbackType<C, S>): ()
+local function onServerInvokeCallback<C, S>(self: Packet<any, any>, callback: ServerRemoteFunctionCallbackType<C, S>)
     if isClient or self.isEventOrRemote ~= "Function" then return end
 
     local remoteFunction = script:FindFirstChild(self.packetId) :: RemoteFunction
@@ -515,7 +515,7 @@ end
 
     @return void
 ]]
-local function disconnectAllFromSideCallback(self: Packet<any, any>): ()
+local function disconnectAllFromSideCallback(self: Packet<any, any>)
     if self.serverConnection then self.serverConnection:Disconnect(); self.serverConnection = nil end
     if self.clientConnection then self.clientConnection:Disconnect(); self.clientConnection = nil end
 
@@ -593,7 +593,7 @@ local function constructorCallback<C, S>
     local remote: RemoteEvent | RemoteFunction = if isClient then foundRemote :: any else if foundRemote then foundRemote :: any else typeRemote
 
     task.spawn(
-        function(): ()
+        function()
             if not isClient then return end
 
             while true do

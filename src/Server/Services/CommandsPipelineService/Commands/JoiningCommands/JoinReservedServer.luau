@@ -20,7 +20,7 @@ local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services
 
     @return void
 ]]
-local function constructorCallback(sender: Player, args: { string }): ()
+local function constructorCallback(sender: Player, args: { string })
     local code = TeleportService:ReserveServerAsync(game.PlaceId)
     TeleportService:TeleportToPrivateServer(game.PlaceId, code, { sender })
 

@@ -55,7 +55,7 @@ local CachedAttackingPets: { string } = {}
 
     @return void
 ]]
-local function equipPet(petId: string, owner: Player, onlySendToOneClient: Player?, swapEquipStatus: boolean): ()
+local function equipPet(petId: string, owner: Player, onlySendToOneClient: Player?, swapEquipStatus: boolean)
     if CachedEquippedPets[owner][petId] and not onlySendToOneClient then return end
 
     local PlrDataClass = Registry(owner)
@@ -110,7 +110,7 @@ end
 
     @return void
 ]]
-local function unequipPetFunction(owner: Player?, PetData: { PetData: PetSchema, petId: string }, swapEquipStatus: boolean, field: BasePart?): ()
+local function unequipPetFunction(owner: Player?, PetData: { PetData: PetSchema, petId: string }, swapEquipStatus: boolean, field: BasePart?)
     if owner then
         if not CachedEquippedPets[owner][PetData.petId] then return end
         CachedEquippedPets[owner][PetData.petId] = nil
@@ -154,9 +154,9 @@ end
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     task.spawn(
-        function(): ()
+        function()
             while true do
                 for i: number, plr: Player in ipairs(Players:GetPlayers()) do
                     if not CachedEquippedPets[plr] then continue end
@@ -182,7 +182,7 @@ local function constructorCallback(): ()
 
     -- Equip and unequip pets on join & leave.
     do
-        local function onPlayerAdded(plr: Player): ()
+        local function onPlayerAdded(plr: Player)
             repeat task.wait() until plr.Character
 
             CachedEquippedPets[plr] = {}
@@ -227,7 +227,7 @@ local function constructorCallback(): ()
         Players.PlayerAdded:Connect(onPlayerAdded)
 
         Players.PlayerRemoving:Connect(
-            function(plr: Player): ()
+            function(plr: Player)
                 for petId: string, PetData: PetSchema in pairs(CachedEquippedPets[plr]) do
                     unequipPetFunction(plr, { PetData = PetData, petId = petId }, false)
                 end
@@ -312,7 +312,7 @@ local function constructorCallback(): ()
         )
 
         PetsHandlingGroup.ServerStartDealingDamage:onServerEvent(
-            function(sender, data): ()
+            function(sender, data)
                 local PetToAttackWith = CachedEquippedPets[sender][data.attackingPetId]
                 if not PetToAttackWith then return end
 
@@ -371,7 +371,7 @@ local function constructorCallback(): ()
             CachedFieldPets[fieldPart] = {}
 
             task.spawn(
-                function(): ()
+                function()
                     while true do
                         if not CachedFieldPets[fieldPart] then break end; task.wait()
 

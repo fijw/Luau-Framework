@@ -17,7 +17,7 @@ local ChatTagsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services
 
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     ChatTagsGroup.CheckIfUserOwnsGamepass:onServerInvoke(function(sender, data): boolean return MarketplaceService:UserOwnsGamePassAsync(sender.UserId, data) end)
 end
 

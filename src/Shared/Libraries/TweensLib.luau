@@ -77,7 +77,7 @@ export type HandledTween = setmetatable
 
     @return
 ]]
-local function waitForCompletionCallback(self: HandledTween): ()
+local function waitForCompletionCallback(self: HandledTween)
     if self.storedTween.PlaybackState ~= Enum.PlaybackState.Playing then return end
     self.storedTween.Completed:Wait()
 end

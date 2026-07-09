@@ -149,7 +149,7 @@ local Registry = {}
 -- Prevent data loss from a crash by waiting for all data classes to be saved before shutting down.
 do
     game:BindToClose(
-        function(): ()
+        function()
             local numOfDataClasses = 0
             for i: number, Class: DataClass in pairs(CachedDataClasses) do numOfDataClasses += 1 end
 
@@ -178,14 +178,14 @@ function Registry.forciblyFetchStoredPlayerData(playerId: number): StoredDataCla
     local ExistingData: StoredDataClassSchema?
 
     Chronovisor(
-        function(): ()
+        function()
             local AsyncData: StoredDataClassSchema? = SettingsDataStore:GetAsync(`{playerId}`)
             if not AsyncData then return end
 
             ExistingData = AsyncData
         end
     )
-    :onError(function(err: string?): () print(`Failed to forcibly fetch stored player data. Error: {err}`) end)
+    :onError(function(err: string?) print(`Failed to forcibly fetch stored player data. Error: {err}`) end)
 
     return ExistingData
 end
@@ -218,8 +218,8 @@ function Registry.atomicTransaction
     do
         local successResult = false
 
-        Chronovisor(function(): () if transformFunction(StateClones) then successResult = true end end)
-        :onError(function(err: string?): () print(`Failed to commence an atomic transaction. Error: {err}`); successResult = false end)
+        Chronovisor(function() if transformFunction(StateClones) then successResult = true end end)
+        :onError(function(err: string?) print(`Failed to commence an atomic transaction. Error: {err}`); successResult = false end)
 
         if not successResult then return false end
     end
@@ -248,7 +248,7 @@ end
 
     @return true?
 ]]
-local function saveClassCallback(self: DataClass, keepInUseStatus: true?): ()
+local function saveClassCallback(self: DataClass, keepInUseStatus: true?)
     local SavingClassData = {}
 
     for i: string, v: StateEngine<any> in pairs(self()() :: { [string]: StateEngine<any> }) do
@@ -256,7 +256,7 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?): ()
     end
 
     Chronovisor(
-        function(): ()
+        function()
             self.ClassDataStore:SetAsync(self.classKey,
                 {
                     Data = Compression(SavingClassData),
@@ -265,7 +265,7 @@ local function saveClassCallback(self: DataClass, keepInUseStatus: true?): ()
             )
         end
     )
-    :onError(function(err: string?): () print(`Failed to save {self.classKey}'s data class. Error: {err}`) end)
+    :onError(function(err: string?) print(`Failed to save {self.classKey}'s data class. Error: {err}`) end)
 
     local FetchedStoredData = Registry.forciblyFetchStoredPlayerData(tonumber(self.classKey) :: number)
     if not FetchedStoredData then self:saveClass(keepInUseStatus); return end
@@ -302,7 +302,7 @@ end
 
     @return void
 ]]
-local function deleteClassCallback(self: DataClass): () CachedDataClasses[tonumber(self.classKey) :: number] = nil end
+local function deleteClassCallback(self: DataClass) CachedDataClasses[tonumber(self.classKey) :: number] = nil end
 --[[ @end_section Inheritance Functions ]]
 
 

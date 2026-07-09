@@ -20,7 +20,7 @@ local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services
 
     @return void
 ]]
-local function constructorCallback(sender: Player, args: { string }): ()
+local function constructorCallback(sender: Player, args: { string })
     local reason = table.concat(args, " ")
 
     CommandsGroup.DisplayConsoleMessage:fireClient(sender,

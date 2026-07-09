@@ -163,7 +163,7 @@ local UILibrary = { CachedUIClasses = {} :: { [string]: HandledUI } }
 
     @return void
 ]]
-local function scaleInstance(inst: GuiObject, scaledInstanceSize: UDim2): ()
+local function scaleInstance(inst: GuiObject, scaledInstanceSize: UDim2)
     TweensLibrary(
         inst,
 
@@ -202,7 +202,7 @@ local function onInputBegan
     draggingObject: GuiObject,
     side: SideType,
     HandledUICalledFrom: HandledUI
-): ()
+)
     local DraggableData = HandledUICalledFrom.DraggableObjects[draggingObject.Name]
 
     if gameProcessed or not DraggableData.isHovering then return end
@@ -275,7 +275,7 @@ local function onInputEnded
     gameProcessed: boolean,
     draggingObjectName: string,
     HandledUICalledFrom: HandledUI
-): ()
+)
     if gameProcessed or not HandledUICalledFrom.DraggableObjects[draggingObjectName].isHovering then return end
     if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
 
@@ -293,7 +293,7 @@ end
 
     @return void
 ]]
-local function setFocusCallback(self: HandledUI, NamesKeepingFocus: { string }?): ()
+local function setFocusCallback(self: HandledUI, NamesKeepingFocus: { string }?)
     for i: string, callback: SetFocusCallbackType in pairs(self.SetFocusSubscriptionCallbacks) do
         callback(self, NamesKeepingFocus)
     end
@@ -314,7 +314,7 @@ end
 
     @return void
 ]]
-local function removeFocusCallback(self: HandledUI, NamesToBringBackToFocus: { string }?): ()
+local function removeFocusCallback(self: HandledUI, NamesToBringBackToFocus: { string }?)
     for i: string, callback: RemoveFocusCallbackType in pairs(self.RemoveFocusSubscriptionCallbacks) do
         callback(self, NamesToBringBackToFocus)
     end
@@ -340,7 +340,7 @@ end
 
     @return void
 ]]
-local function subscribeToSetFocusCallback(self: HandledUI, id: string, callback: SetFocusCallbackType): ()
+local function subscribeToSetFocusCallback(self: HandledUI, id: string, callback: SetFocusCallbackType)
     self.SetFocusSubscriptionCallbacks[id] = callback
 end
 
@@ -352,7 +352,7 @@ end
 
     @return void
 ]]
-local function subscribeToRemoveFocusCallback(self: HandledUI, id: string, callback: RemoveFocusCallbackType): ()
+local function subscribeToRemoveFocusCallback(self: HandledUI, id: string, callback: RemoveFocusCallbackType)
     self.RemoveFocusSubscriptionCallbacks[id] = callback
 end
 --[[ @end_section Subscribing Functions ]]
@@ -367,7 +367,7 @@ end
 
     @return void
 ]]
-local function unsubscribeFromSetFocusCallback(self: HandledUI, id: string): ()
+local function unsubscribeFromSetFocusCallback(self: HandledUI, id: string)
     self.SetFocusSubscriptionCallbacks[id] = nil
 end
 
@@ -379,7 +379,7 @@ end
 
     @return void
 ]]
-local function unsubscribeFromRemoveFocusCallback(self: HandledUI, id: string): ()
+local function unsubscribeFromRemoveFocusCallback(self: HandledUI, id: string)
     self.RemoveFocusSubscriptionCallbacks[id] = nil
 end
 --[[ @end_section Unsubscribing Functions ]]
@@ -394,20 +394,20 @@ end
 
     @return void
 ]]
-local function hoverAndToggleSizingCallback(self: HandledUI, sizeIncrease: number): ()
+local function hoverAndToggleSizingCallback(self: HandledUI, sizeIncrease: number)
     local Descendants = self.ScreenGui:GetDescendants()
 
-    local function setUpConnections(inst: GuiButton): ()
+    local function setUpConnections(inst: GuiButton)
         local defaultInstanceSize = inst.Size
 
         local newX, newY = defaultInstanceSize.X.Scale * sizeIncrease, defaultInstanceSize.Y.Scale * sizeIncrease
         local upscaledInstanceSize = UDim2.new(newX, 0, newY, 0)
 
-        local UpsizeConnection = inst.MouseEnter:Connect(function(): () scaleInstance(inst, upscaledInstanceSize) end)
-        local DownsizeConnection = inst.MouseLeave:Connect(function(): () scaleInstance(inst, defaultInstanceSize) end)
+        local UpsizeConnection = inst.MouseEnter:Connect(function() scaleInstance(inst, upscaledInstanceSize) end)
+        local DownsizeConnection = inst.MouseLeave:Connect(function() scaleInstance(inst, defaultInstanceSize) end)
 
-        local UpsizeClickConnection = inst.MouseButton1Up:Connect(function(): () scaleInstance(inst, upscaledInstanceSize) end)
-        local DownsizeClickConnection = inst.MouseButton1Down:Connect(function(): () scaleInstance(inst, defaultInstanceSize) end)
+        local UpsizeClickConnection = inst.MouseButton1Up:Connect(function() scaleInstance(inst, upscaledInstanceSize) end)
+        local DownsizeClickConnection = inst.MouseButton1Down:Connect(function() scaleInstance(inst, defaultInstanceSize) end)
 
         -- Store sizing Connections.
         do
@@ -425,7 +425,7 @@ local function hoverAndToggleSizingCallback(self: HandledUI, sizeIncrease: numbe
     end
 
     self.ScreenGui.DescendantAdded:Connect(
-        function(child: Instance): ()
+        function(child: Instance)
             if not child:IsA("GuiButton") then return end
             setUpConnections(child)
         end
@@ -446,7 +446,7 @@ local function handleGuiObjectInputCallback
     self: HandledUI,
     action: RBXScriptSignal,
     callback: (...any) -> ()
-): ()
+)
     local InputConnection = action:Connect(callback)
     table.insert(self.OtherConnections, InputConnection)
 end
@@ -468,12 +468,12 @@ local function handleButtonPressCallback
     callback: (pos1: number, pos2: number) -> (),
     isClosingButton: true?,
     keepingFocusNames: { string }?
-): ()
+)
     local originalSize = button.Size
 
     local PressConnection = button.MouseButton1Up
     :Connect(
-        function(pos1: number, pos2: number): ()
+        function(pos1: number, pos2: number)
             callback(pos1, pos2)
 
             if not isClosingButton then return end
@@ -496,7 +496,7 @@ end
 
     @return void
 ]]
-local function makeGuiObjectDraggableCallback(self: HandledUI, guiObjectToDrag: GuiObject, side: SideType): ()
+local function makeGuiObjectDraggableCallback(self: HandledUI, guiObjectToDrag: GuiObject, side: SideType)
     local draggingObjectName = guiObjectToDrag.Name
 
     self.DraggableObjects[draggingObjectName]
@@ -511,14 +511,14 @@ local function makeGuiObjectDraggableCallback(self: HandledUI, guiObjectToDrag: 
     do
         local InputBeganConnection = UserInputService.InputBegan
         :Connect(
-            function(input: InputObject, gameProcessed: boolean): ()
+            function(input: InputObject, gameProcessed: boolean)
                 onInputBegan(input, gameProcessed, guiObjectToDrag, side, self)
             end
         )
 
         local InputEndedConnection = UserInputService.InputEnded
         :Connect(
-            function(input: InputObject, gameProcessed: boolean): ()
+            function(input: InputObject, gameProcessed: boolean)
                 onInputEnded(input, gameProcessed, guiObjectToDrag.Name, self)
             end
         )
@@ -527,8 +527,8 @@ local function makeGuiObjectDraggableCallback(self: HandledUI, guiObjectToDrag: 
         table.insert(self.OtherConnections, InputEndedConnection)
     end
 
-    self:handleGuiObjectInput(guiObjectToDrag.MouseEnter, function(): () self.DraggableObjects[draggingObjectName].isHovering = true end)
-    self:handleGuiObjectInput(guiObjectToDrag.MouseLeave, function(): () self.DraggableObjects[draggingObjectName].isHovering = false end)
+    self:handleGuiObjectInput(guiObjectToDrag.MouseEnter, function() self.DraggableObjects[draggingObjectName].isHovering = true end)
+    self:handleGuiObjectInput(guiObjectToDrag.MouseLeave, function() self.DraggableObjects[draggingObjectName].isHovering = false end)
 end
 --[[ @section Connection Inheritance ]]
 
@@ -540,7 +540,7 @@ end
 
     @return void
 ]]
-local function destroyCallback(self: HandledUI): ()
+local function destroyCallback(self: HandledUI)
     UILibrary.CachedUIClasses[self.id] = nil
 
     for i: number, Connection: RBXScriptConnection in ipairs(self.SizingConnections) do

@@ -99,7 +99,7 @@ local function onInputBegan
     keybind: Enum.KeyCode,
     func: (T...) -> (...any),
     ...: T...
-): ()
+)
     if (gameProcessed and not useEvenIfProcessed) or input.KeyCode ~= keybind then return end
 
     func(...)
@@ -148,7 +148,7 @@ end
 
     @return void
 ]]
-local function wipeConnectionsCallback(self: InputMapper): ()
+local function wipeConnectionsCallback(self: InputMapper)
     for i: number, Connection: RBXScriptConnection in ipairs(self.Connections) do Connection:Disconnect() end
 end
 

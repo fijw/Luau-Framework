@@ -224,7 +224,7 @@ local function setHealingMachineData
         local isHovering = false
 
         HandledUI:handleGuiObjectInput(innerImgButton.MouseEnter,
-            function(): ()
+            function()
                 isHovering = true
 
                 local health = NumberFormatLib(PetSchema.HealthDictionary[i], "thousands")
@@ -252,7 +252,7 @@ local function setHealingMachineData
         )
 
         HandledUI:handleGuiObjectInput(innerImgButton.MouseLeave,
-            function(): ()
+            function()
                 isHovering = false
                 PetDetailsComponents().mainFrame.Visible = false
             end
@@ -271,7 +271,7 @@ end
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     local clonedHealingMachine = UIComponents.HealingPetsMachine:Clone()
     clonedHealingMachine.Parent = PlayerGui
 
@@ -287,20 +287,20 @@ local function constructorCallback(): ()
 
     local HandledUI = UIUtilitiesLibrary("healing_machine", clonedHealingMachine)
     HandledUI:hoverAndToggleSizing(1.15)
-    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number): () end, true)
+    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
     local GameFolder = workspace:WaitForChild("Game") :: Folder
     local MachinesFolder = GameFolder:WaitForChild("Machines") :: Folder
     local healingMachine = MachinesFolder:WaitForChild("HealingMachine") :: Part
     local proximityPrompt = healingMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
-    proximityPrompt.Triggered:Connect(function(): () HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
+    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
 
     local currentSelectPetsScreenGui: ScreenGui
 
     local isExpanded = false
 
     HandledUI:handleButtonPress(healPetBtn,
-        function(pos1: number, pos2: number): ()
+        function(pos1: number, pos2: number)
             currentSelectPetsScreenGui = SelectPetsComponents().selectPets
 
             for i: string, petButton: ImageLabel in pairs(CachedSelectPetsPetButtons) do
@@ -313,11 +313,11 @@ local function constructorCallback(): ()
 
             local HandledSelectPetsUI = UIUtilitiesLibrary("select_pets", SelectPetsComponents().selectPets)
             HandledSelectPetsUI:hoverAndToggleSizing(1.15)
-            HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().closeBtn, function(pos1: number, pos2: number): () end, true)
+            HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().closeBtn, function(pos1: number, pos2: number) end, true)
             HandledSelectPetsUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
 
             HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().expandBtn,
-                function(pos1: number, pos2: number): ()
+                function(pos1: number, pos2: number)
                     isExpanded = not isExpanded
 
                     if isExpanded then
@@ -348,7 +348,7 @@ local function constructorCallback(): ()
             )
 
             task.spawn(
-                function(): ()
+                function()
                     while true do
                         if not currentSelectPetsScreenGui then break else task.wait() end
 
@@ -426,7 +426,7 @@ local function constructorCallback(): ()
                 local isHovering = false
 
                 HandledUI:handleGuiObjectInput(innerImgButton.MouseEnter,
-                    function(): ()
+                    function()
                         isHovering = true
 
                         local health = NumberFormatLib(Pet.HealthDictionary[i], "thousands")
@@ -454,14 +454,14 @@ local function constructorCallback(): ()
                 )
 
                 HandledUI:handleGuiObjectInput(innerImgButton.MouseLeave,
-                    function(): ()
+                    function()
                         isHovering = false
                         PetDetailsComponents().mainFrame.Visible = false
                     end
                 )
 
                 HandledUI:handleButtonPress(innerImgButton,
-                    function(pos1: number, pos2: number): ()
+                    function(pos1: number, pos2: number)
                         local foundIdIndex = table.find(SelectingPets, i)
 
                         if foundIdIndex then
@@ -478,7 +478,7 @@ local function constructorCallback(): ()
             end
 
             HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().continueBtn,
-                function(pos1: number, pos2: number): ()
+                function(pos1: number, pos2: number)
                     if #SelectingPets > 0 then HealingMachineGroup.HealPets:fireServer(SelectingPets) end
                     SelectingPets = {}
 
@@ -490,7 +490,7 @@ local function constructorCallback(): ()
             )
 
             HandledSelectPetsUI:handleButtonPress(SelectPetsComponents().closeBtn,
-                function(pos1: number, pos2: number): ()
+                function(pos1: number, pos2: number)
                     SelectingPets = {}
 
                     HandledSelectPetsUI:removeFocus({ clonedHealingMachine.Name })
@@ -507,7 +507,7 @@ local function constructorCallback(): ()
         local numOfPets = setHealingMachineData(scrollingFrame, HealingMachineGroup.RequestHealingPets:invokeServer(), imageLabel, HandledUI, usedSlotsText)
 
         HealingMachineGroup.RemovePetsFromHealingMachine:onClientEvent(
-            function(data): ()
+            function(data)
                 for i: number, petId: string in ipairs(data) do
                     local petButton = CachedHealingMachinePetButtons[petId]
                     if not petButton then return end
@@ -525,7 +525,7 @@ local function constructorCallback(): ()
         )
 
         HealingMachineGroup.PetFinishedHealing:onClientEvent(
-            function(data): ()
+            function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
@@ -534,7 +534,7 @@ local function constructorCallback(): ()
                 NotificationComponents().notificationText.Text = `Your {data} has finished healing.<br /><br />You now have {healingSlots} healing slots.`
 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                    function(pos1: number, pos2: number): ()
+                    function(pos1: number, pos2: number)
                         HandledNotificationUI:removeFocus({ clonedHealingMachine.Name })
                         HandledNotificationUI:destroy()
                     end
@@ -543,7 +543,7 @@ local function constructorCallback(): ()
         )
 
         HealingMachineGroup.SuccessfullyStartedHealing:onClientEvent(
-            function(data): ()
+            function(data)
                 -- Create a notification UI.
                 do
                     local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
@@ -553,7 +553,7 @@ local function constructorCallback(): ()
                     NotificationComponents().notificationText.Text = `You have started healing {data} pets.<br /><br />Please wait 5 minutes for healing to complete.`
 
                     HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                        function(pos1: number, pos2: number): ()
+                        function(pos1: number, pos2: number)
                             HandledNotificationUI:removeFocus({ clonedHealingMachine.Name })
                             HandledNotificationUI:destroy()
                         end
@@ -578,7 +578,7 @@ local function constructorCallback(): ()
         local originalContainerSize = containerFrame.Size
 
         HandledUI:subscribeToSetFocus("opening_subscription",
-            function(self, NamesKeepingFocus): ()
+            function(self, NamesKeepingFocus)
                 containerFrame.Size = UDim2.new(0, 0, 0, 0)
 
                 tweenInst(
@@ -606,7 +606,7 @@ local function constructorCallback(): ()
         )
 
         HandledUI:subscribeToRemoveFocus("closing_subscription",
-            function(self, NamesToBringBackToFocus): ()
+            function(self, NamesToBringBackToFocus)
                 tweenInst(
                     containerFrame,
                     
@@ -620,7 +620,7 @@ local function constructorCallback(): ()
     end
 
     task.spawn(
-        function(): ()
+        function()
             while true do
                 repeat task.wait() until clonedHealingMachine.Enabled; task.wait()
                 scrollingFrame.CanvasSize = UDim2.fromOffset(0, uiListLayout.AbsoluteContentSize.Y)

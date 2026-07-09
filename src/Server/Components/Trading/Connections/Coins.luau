@@ -21,7 +21,7 @@ local TradesMap = require(ServerScriptService.Components.Trading.TradesMap)
 ]]
 local function constuctorCallback()
     TradingGroup.SetGemsInTradeOffer:onServerEvent(
-        function(sender: Player, data: number): ()
+        function(sender: Player, data: number)
             if not sender then return end
 
             local tradeId = TradesMap.MappedTradingPlayers[sender]

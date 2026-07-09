@@ -31,7 +31,7 @@ local DataStore = DataStoreService:GetDataStore(DataSettings.PLAYER_DATA_STORAGE
 
     @return void
 ]]
-local function constructorCallback(sender: Player, args: { string }): ()
+local function constructorCallback(sender: Player, args: { string })
     local targetId = tonumber(args[1]) :: number
     if not targetId then return end
 
@@ -97,7 +97,7 @@ local function constructorCallback(sender: Player, args: { string }): ()
         end
 
         Chronovisor(
-            function(): ()
+            function()
                 DataStore:SetAsync(`{targetId}`,
                     {
                         Data = Compression(SavingData),
@@ -106,7 +106,7 @@ local function constructorCallback(sender: Player, args: { string }): ()
                 )
             end
         )
-        :onError(function(err: string?): () print(`Failed to save moderation data changes. Error: {err}`) end)
+        :onError(function(err: string?) print(`Failed to save moderation data changes. Error: {err}`) end)
 
         CommandsGroup.DisplayConsoleMessage:fireClient(sender,
             {

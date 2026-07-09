@@ -33,7 +33,7 @@ local AsyncFunctionsMap
 
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     MessagingService:SubscribeAsync("commands",
         function
         (
@@ -42,7 +42,7 @@ local function constructorCallback(): ()
                 Data: buffer,
                 Sent: number
             }
-        ): ()
+        )
             local DecompressedData = Compression(MessageData.Data, "decompress")
 
             local AsyncFunction = AsyncFunctionsMap[DecompressedData.commandType]

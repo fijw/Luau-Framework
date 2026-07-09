@@ -87,7 +87,7 @@ end
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     local clonedInventory = UIComponents.Inventory:Clone()
     clonedInventory.Parent = PlayerGui
 
@@ -110,11 +110,11 @@ local function constructorCallback(): ()
     local hugePetButton = scrollingFrame:WaitForChild("Huge") :: ImageLabel
     local giganticPetButton = scrollingFrame:WaitForChild("Gigantic") :: ImageLabel
 
-    textBox:GetPropertyChangedSignal("Text"):Connect(function(): () InventoryGroup.SearchForPets:fireServer(textBox.Text) end)
+    textBox:GetPropertyChangedSignal("Text"):Connect(function() InventoryGroup.SearchForPets:fireServer(textBox.Text) end)
 
     local HandledUI = UIUtilitiesLibrary("inventory", clonedInventory)
     HandledUI:hoverAndToggleSizing(1.15)
-    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number): () end, true)
+    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
     local isLocking = false
     local isDeleting = false
@@ -122,10 +122,10 @@ local function constructorCallback(): ()
 
     -- Networking connections.
     do
-        InventoryGroup.UpdatePetsEquippedText:onClientEvent(function(data): () equippedText.Text = `{data} Pets Equipped` end)
+        InventoryGroup.UpdatePetsEquippedText:onClientEvent(function(data) equippedText.Text = `{data} Pets Equipped` end)
 
         InventoryGroup.AddPetsToInventory:onClientEvent(
-            function(data: { [string]: PetSchema }): ()
+            function(data: { [string]: PetSchema })
                 for i: string, PetSchema: PetSchema in pairs(data) do
                     if not PetSchema.HealthDictionary then continue end
 
@@ -172,7 +172,7 @@ local function constructorCallback(): ()
                         local colorConnection: RBXScriptConnection
 
                         colorConnection = RunService.Heartbeat:Connect(
-                            function(dt: number): ()
+                            function(dt: number)
                                 if not CachedPetButtons[i] then colorConnection:Disconnect(); return end
 
                                 if PetSchema.PetStats.color == "Rainbow" then
@@ -235,7 +235,7 @@ local function constructorCallback(): ()
                     local isHovering = false
 
                     HandledUI:handleGuiObjectInput(innerImgButton.MouseEnter,
-                        function(): ()
+                        function()
                             isHovering = true
 
                             local health = NumberFormatLib(PetSchema.HealthDictionary[i], "thousands")
@@ -263,14 +263,14 @@ local function constructorCallback(): ()
                     )
 
                     HandledUI:handleGuiObjectInput(innerImgButton.MouseLeave,
-                        function(): ()
+                        function()
                             isHovering = false
                             PetDetailsComponents().mainFrame.Visible = false
                         end
                     )
 
                     HandledUI:handleButtonPress(innerImgButton,
-                        function(pos1: number, pos2: number): ()
+                        function(pos1: number, pos2: number)
                             if isLocking then
                                 local foundIdIndex = if PetSchema.Locked then table.find(PetSchema.Locked, i) else nil
 
@@ -337,7 +337,7 @@ local function constructorCallback(): ()
         )
 
         InventoryGroup.RemovePetsFromInventory:onClientEvent(
-            function(data: { string }): ()
+            function(data: { string })
                 for i: number, petId: string in ipairs(data :: { string }) do
                     local PetButton = CachedPetButtons[petId]
                     if not PetButton then continue end
@@ -354,7 +354,7 @@ local function constructorCallback(): ()
         )
 
         InventoryGroup.RemoveAllPetsFromInventory:onClientEvent(
-            function(data): ()
+            function(data)
                 for i: string, PetButton: ImageLabel in pairs(CachedPetButtons) do
                     PetButton:Destroy()
                     PetButton.Parent = nil
@@ -371,14 +371,14 @@ local function constructorCallback(): ()
     -- Toggle buttons.
     do
         HandledUI:handleButtonPress(lockBtn,
-            function(pos1: number, pos2: number): ()
+            function(pos1: number, pos2: number)
                 if isDeleting then return end; isLocking = not isLocking
                 if isLocking then lockBtn.Image = "rbxassetid://119241853582837" else lockBtn.Image = "rbxassetid://140011010850814" end
             end
         )
 
         HandledUI:handleButtonPress(deleteBtn,
-            function(pos1: number, pos2: number): ()
+            function(pos1: number, pos2: number)
                 if not isLocking then isDeleting = not isDeleting else return end
                 if isDeleting then deleteBtn.Image = "rbxassetid://140574364354890" else deleteBtn.Image = "rbxassetid://98776091371051" end
 
@@ -391,7 +391,7 @@ local function constructorCallback(): ()
                 AreYouSureComponents().notificationText.Text = "Are you sure you want to delete the selected pets?<br /><br />This action cannot be undone."
 
                 AreYouSureHandledUI:handleButtonPress(AreYouSureComponents().continueBtn,
-                    function(pos1: number, pos2: number): ()
+                    function(pos1: number, pos2: number)
                         InventoryGroup.DeletePets:fireServer(SelectedDeletingPets)
 
                         AreYouSureHandledUI:removeFocus({ clonedInventory.Name })
@@ -402,7 +402,7 @@ local function constructorCallback(): ()
                 )
 
                 AreYouSureHandledUI:handleButtonPress(AreYouSureComponents().cancelBtn,
-                    function(pos1: number, pos2: number): ()
+                    function(pos1: number, pos2: number)
                         for i: number, petId: string in ipairs(SelectedDeletingPets) do
                             local PetButton = CachedPetButtons[petId]
                             if not PetButton then continue end
@@ -421,7 +421,7 @@ local function constructorCallback(): ()
         )
 
         HandledUI:handleButtonPress(expandBtn,
-            function(pos1: number, pos2: number): ()
+            function(pos1: number, pos2: number)
                 isExpanded = not isExpanded
                 if isExpanded then expandBtn.Image = "rbxassetid://72784621797430" else expandBtn.Image = "rbxassetid://87459423933578" end
 
@@ -452,7 +452,7 @@ local function constructorCallback(): ()
         local originalContainerSize = containerFrame.Size
 
         HandledUI:subscribeToSetFocus("opening_subscription",
-            function(self, NamesKeepingFocus): ()
+            function(self, NamesKeepingFocus)
                 containerFrame.Size = UDim2.new(0, 0, 0, 0)
 
                 tweenInst(
@@ -470,7 +470,7 @@ local function constructorCallback(): ()
         )
 
         HandledUI:subscribeToRemoveFocus("closing_subscription",
-            function(self, NamesToBringBackToFocus): ()
+            function(self, NamesToBringBackToFocus)
                 tweenInst(
                     containerFrame,
                     
@@ -486,7 +486,7 @@ local function constructorCallback(): ()
     end
 
     task.spawn(
-        function(): ()
+        function()
             while true do
                 repeat task.wait() until clonedInventory.Enabled; task.wait()
                 scrollingFrame.CanvasSize = UDim2.fromOffset(0, uiListLayout.AbsoluteContentSize.Y)

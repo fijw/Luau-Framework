@@ -138,9 +138,9 @@ end
     
     @return void
 ]]
-local function constuctorCallback(): ()
+local function constuctorCallback()
     TradingGroup.CancelTrade:onServerEvent(
-        function(sender: Player, data: nil): ()
+        function(sender: Player, data: nil)
             if not sender then return end
 
             local tradeId = TradesMap.MappedTradingPlayers[sender]
@@ -165,7 +165,7 @@ local function constuctorCallback(): ()
     )
 
     TradingGroup.AcceptTrade:onServerEvent(
-        function(sender: Player, data: nil): ()
+        function(sender: Player, data: nil)
             if not sender then return end
 
             local tradeId = TradesMap.MappedTradingPlayers[sender]
@@ -183,11 +183,11 @@ local function constuctorCallback(): ()
             local isPlayer1 = Trade.player1 == sender
 
             if isPlayer1 then
-                if Trade.player1Coins > PlrDataClass()().gems() then return end
+                if Trade.player1Coins > PlrDataClass()().gems() then return end; if #Trade.Player1Pets <= 0 and Trade.player1Coins <= 0 then return end
                 if (Inventory.usedItemSlots + #Trade.Player2Pets - #Trade.Player1Pets) > Inventory.maxItems then return end
             else
                 if (Inventory.usedItemSlots + #Trade.Player1Pets - #Trade.Player2Pets) > Inventory.maxItems then return end
-                if Trade.player2Coins > PlrDataClass()().gems() then return end
+                if Trade.player2Coins > PlrDataClass()().gems() then return end; if #Trade.Player2Pets <= 0 and Trade.player2Coins <= 0 then return end
             end
 
             if isPlayer1 then Trade.player1Ready = not Trade.player1Ready else Trade.player2Ready = not Trade.player2Ready end
@@ -207,7 +207,7 @@ local function constuctorCallback(): ()
                 local isWaiting, bothReadyStill = true, true
 
                 task.spawn(
-                    function(): ()
+                    function()
                         while true do
                             if not isWaiting or not TradesMap.ActiveTrades[tradeId] then break end
 

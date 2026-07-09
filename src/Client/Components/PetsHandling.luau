@@ -108,7 +108,7 @@ end
 
     @return void
 ]]
-local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: string }, spawnPoint: BasePart, field: BasePart?): ()
+local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: string }, spawnPoint: BasePart, field: BasePart?)
     if field then if CachedFieldPets[EquippingData.petId] then return end
     else if EquippedPetsCache[EquippingData.petId] then return end end
 
@@ -189,7 +189,7 @@ local function addPetToWorkspace(EquippingData: { PetData: PetSchema, petId: str
             local whileEquippedConnection: RBXScriptConnection
 
             whileEquippedConnection = RunService.Heartbeat:Connect(
-                function(deltaTime: number): ()
+                function(deltaTime: number)
                     if not EquippedPetsCache[EquippingData.petId] then whileEquippedConnection:Disconnect(); return end
 
                     if EquippingData.PetData.PetStats.size == "Worldbreaker" then textureOffset += deltaTime * 16
@@ -229,10 +229,8 @@ end
 
     @return void
 ]]
-local function movePetTo(petModel: Model, targetPosition: Vector3, lookAtPart: BasePart, petRootPart: BasePart): ()
-    local isDoneAnimatingWalking = false
-    local timeSinceStartedWalking = 0
-    local direction = 0
+local function movePetTo(petModel: Model, targetPosition: Vector3, lookAtPart: BasePart, petRootPart: BasePart)
+    local isDoneAnimatingWalking, timeSinceStartedWalking, direction = false, 0, 0
 
     -- Walking connection handling.
     do
@@ -240,7 +238,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, lookAtPart: B
         local movementConnection: RBXScriptConnection
         
         movementConnection = RunService.Heartbeat:Connect(
-            function(deltaTime: number): ()
+            function(deltaTime: number)
                 if not petModel or not petModel.Parent then movementConnection:Disconnect(); return end
                 
                 if direction == 0 then
@@ -297,9 +295,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, lookAtPart: B
                 local speedOffset = PET_MUL_SPEED * (movingOffset.Magnitude / math.max(Vector3.new(movingOffset.X, 0, movingOffset.Z).Magnitude, 0.001))
                 local step = (movingOffset.Unit * deltaTime) * speedOffset
 
-                if not lookAtDirectionRotation then
-                    lookAtDirectionRotation = CFrame.lookAt(Vector3.zero, Vector3.new(movingOffset.Unit.X, 0, movingOffset.Unit.Z).Unit).Rotation
-                end
+                lookAtDirectionRotation = CFrame.lookAt(Vector3.zero, Vector3.new(movingOffset.Unit.X, 0, movingOffset.Unit.Z).Unit).Rotation
 
                 local smoothLookAtMoveDirRotation = petRootPart.CFrame.Rotation:Lerp(
                     lookAtDirectionRotation,
@@ -337,7 +333,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, lookAtPart: B
                         local gotoFloorConnection: RBXScriptConnection
 
                         gotoFloorConnection = RunService.Heartbeat:Connect(
-                            function(deltaTime: number): ()
+                            function(deltaTime: number)
                                 local floorFeetOffset = CFrame.new(0, copiedTargetPos.Y, 0).Position - CFrame.new(0, petRootPart.Position.Y, 0).Position
 
                                 if not petModel or not petModel.Parent then gotoFloorConnection:Disconnect(); isDoneGoingToFloor = true; return end
@@ -353,7 +349,7 @@ local function movePetTo(petModel: Model, targetPosition: Vector3, lookAtPart: B
                         local lookAtConnection: RBXScriptConnection
 
                         lookAtConnection = RunService.Heartbeat:Connect(
-                            function(deltaTime: number): ()
+                            function(deltaTime: number)
                                 if not petModel or not petModel.Parent then lookAtConnection:Disconnect(); isDoneLookingAtLookAtPart = true; return end
 
                                 if petRootPart.CFrame.LookVector:Dot(flatFeetLookPosVec.Unit) > 0.999 then
@@ -418,12 +414,12 @@ end
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     local localPlrChar = localPlayer.Character :: Model
     if not localPlrChar then repeat task.wait() until localPlayer.Character; localPlrChar = localPlayer.Character :: Model end
 
     UserInputService.InputEnded:Connect(
-        function(input: InputObject, gameProcessed: boolean): ()
+        function(input: InputObject, gameProcessed: boolean)
             if gameProcessed then return end; if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
 
             local targetInst, raycastResult = raycastFromMouse(localPlrChar)
@@ -439,7 +435,7 @@ local function constructorCallback(): ()
     -- Networking connections.
     do
         PetsHandlingGroup.PetStartFollowingOwner:onClientEvent(
-            function(data): ()
+            function(data)
                 if not GamePetsFolder:FindFirstChild(data.petId) then
                     local foundWalkingCacheIndex = table.find(CurrentlyWalkingCache, data.petId)
                     if foundWalkingCacheIndex then table.remove(CurrentlyWalkingCache, foundWalkingCacheIndex) end
@@ -461,7 +457,7 @@ local function constructorCallback(): ()
 
                 -- Loop while the pet is equipped to move it around it's owner.
                 task.spawn(
-                    function(): ()
+                    function()
                         while true do
                             if table.find(AttackingPetsCache, data.petId) then repeat task.wait() until not table.find(AttackingPetsCache, data.petId) end
 
@@ -506,7 +502,7 @@ local function constructorCallback(): ()
         )
 
         PetsHandlingGroup.RemovePetFromClient:onClientEvent(
-            function(data): ()
+            function(data)
                 if EquippedPetsCache[data] then EquippedPetsCache[data]:Destroy(); EquippedPetsCache[data] = nil end
                 if CachedFieldPets[data] then CachedFieldPets[data].petModel:Destroy(); CachedFieldPets[data] = nil end
 
@@ -519,14 +515,14 @@ local function constructorCallback(): ()
         )
 
         PetsHandlingGroup.AddPetToClientField:onClientEvent(
-            function(data): ()
+            function(data)
                 if GamePetsFolder:FindFirstChild(data.generatedId) then return end
                 local field = FieldsFolder:WaitForChild(data.fieldName) :: BasePart
 
                 addPetToWorkspace({ PetData = data.PetData, petId = data.generatedId }, field, field)
 
                 task.spawn(
-                    function(): ()
+                    function()
                         while true do
                             if table.find(AttackingPetsCache, data.generatedId) then repeat task.wait() until not table.find(AttackingPetsCache, data.generatedId) end
 
@@ -560,7 +556,7 @@ local function constructorCallback(): ()
         )
 
         PetsHandlingGroup.StartAttackingPet:onClientEvent(
-            function(data): ()
+            function(data)
                 if table.find(AttackingPetsCache, data.attackingPetId) or table.find(AttackingPetsCache, data.targetPetId) then return end
 
                 local attackingPetModel = GamePetsFolder:WaitForChild(data.attackingPetId) :: Model
@@ -580,8 +576,61 @@ local function constructorCallback(): ()
                     local direction = (attackingPetRootPart.Position - targetPetRootPart.Position).Unit
                     local midpoint = (targetPetRootPart.Position + attackingPetRootPart.Position) / 2
 
-                    movePetTo(attackingPetModel, midpoint + direction * (targetPetRootPart.Size.Z / 2 + 1), targetPetRootPart, attackingPetRootPart)
-                    movePetTo(targetPetModel, midpoint - direction * (attackingPetRootPart.Size.Z / 2 + 1), attackingPetRootPart, targetPetRootPart)
+                    movePetTo(attackingPetModel, midpoint + direction * (targetPetRootPart.Size.Z / 2), targetPetRootPart, attackingPetRootPart)
+                    movePetTo(targetPetModel, midpoint - direction * (attackingPetRootPart.Size.Z / 2), attackingPetRootPart, targetPetRootPart)
+                end
+
+                local timeSinceStartedWalking, direction, wobble, doneAttacking = 0, 0, math.rad(-1.0005), false
+                local originalTargetPetY, originalAttackingPetY = targetPetRootPart.Position.Y, attackingPetRootPart.Position.Y
+                local originalTargetPetCFrame, originalAttackingPetCFrame = targetPetRootPart.CFrame, attackingPetRootPart.CFrame
+
+                -- Attacking movement handling.
+                do
+                    local attackingMovementConnection: RBXScriptConnection
+
+                    attackingMovementConnection = RunService.Heartbeat:Connect(
+                        function(dt: number)
+                            if not table.find(AttackingPetsCache, data.attackingPetId) or not table.find(AttackingPetsCache, data.targetPetId) then
+                                attackingMovementConnection:Disconnect(); doneAttacking = true; return
+                            end
+                            
+                            if direction == 0 then
+                                if timeSinceStartedWalking >= 1 then direction = 1 end
+                                timeSinceStartedWalking += dt
+                            elseif direction == 1 then
+                                if timeSinceStartedWalking <= -1 then direction = 0 end
+                                timeSinceStartedWalking -= dt
+                            end
+
+                            local wobbleRotationTargetPet = CFrame.Angles(
+                                math.sin(timeSinceStartedWalking * WOBBLE_TIME_MUL) * wobble,
+                                0,
+                                0
+                            )
+
+                            local wobbleRotationAttackingPet = CFrame.Angles(
+                                math.sin(timeSinceStartedWalking * WOBBLE_TIME_MUL) * wobble,
+                                0,
+                                0
+                            )
+
+                            local bobbleOffset = math.abs(math.sin(timeSinceStartedWalking * WOBBLE_TIME_MUL)) * 1.75
+
+                            targetPetRootPart.CFrame
+                            = (CFrame.new(
+                                targetPetRootPart.Position.X,
+                                originalTargetPetY + bobbleOffset,
+                                targetPetRootPart.Position.Z
+                            ) * targetPetRootPart.CFrame.Rotation) * wobbleRotationTargetPet
+
+                            attackingPetRootPart.CFrame
+                            = (CFrame.new(
+                                attackingPetRootPart.Position.X,
+                                originalAttackingPetY + bobbleOffset,
+                                attackingPetRootPart.Position.Z
+                            ) * attackingPetRootPart.CFrame.Rotation) * wobbleRotationAttackingPet
+                        end
+                    )
                 end
 
                 PetsHandlingGroup.ServerStartDealingDamage:fireServer(
@@ -591,11 +640,64 @@ local function constructorCallback(): ()
                         fieldName = data.fieldName
                     }
                 )
+
+                -- Wait for the attacking to be finished then insert the pets to the walking cache to prevent them from moving on cleanup.
+                do
+                    repeat task.wait() until doneAttacking
+                        or not attackingPetModel
+                        or not targetPetModel
+                        or not table.find(AttackingPetsCache, data.attackingPetId)
+                        or not table.find(AttackingPetsCache, data.targetPetId)
+
+                    table.insert(CurrentlyWalkingCache, data.attackingPetId); table.insert(CurrentlyWalkingCache, data.targetPetId)
+                end
+
+                local isDoneGoingToFloor = false
+
+                -- Floor finishing movement.
+                do
+                    local gotoFloorConnectionTargetPet: RBXScriptConnection, gotoFloorConnectionAttackingPet: RBXScriptConnection
+
+                    gotoFloorConnectionTargetPet = RunService.Heartbeat:Connect(
+                        function(deltaTime: number)
+                            if targetPetModel then
+                                local floorFeetOffsetTargetPet = CFrame.new(0, originalTargetPetY, 0).Position - CFrame.new(0, targetPetRootPart.Position.Y, 0).Position
+                                if floorFeetOffsetTargetPet.Magnitude < 0.15 then gotoFloorConnectionTargetPet:Disconnect(); isDoneGoingToFloor = true; return end
+
+                                targetPetRootPart.CFrame = CFrame.new(targetPetRootPart.Position + floorFeetOffsetTargetPet.Unit * deltaTime * LOOK_AT_TIME_MUL) * targetPetRootPart.CFrame.Rotation
+                            else gotoFloorConnectionTargetPet:Disconnect(); isDoneGoingToFloor = true; return end
+                        end
+                    )
+
+                    gotoFloorConnectionAttackingPet = RunService.Heartbeat:Connect(
+                        function(deltaTime: number)
+                            if attackingPetModel then
+                                local floorFeetOffsetAttackingPet = CFrame.new(0, originalAttackingPetY, 0).Position - CFrame.new(0, attackingPetRootPart.Position.Y, 0).Position
+                                if floorFeetOffsetAttackingPet.Magnitude < 0.15 then gotoFloorConnectionAttackingPet:Disconnect(); isDoneGoingToFloor = true; return end
+
+                                attackingPetRootPart.CFrame = CFrame.new(attackingPetRootPart.Position + floorFeetOffsetAttackingPet.Unit * deltaTime * LOOK_AT_TIME_MUL) * attackingPetRootPart.CFrame.Rotation
+                            else gotoFloorConnectionAttackingPet:Disconnect(); isDoneGoingToFloor = true; return end
+                        end
+                    )
+                end
+
+                --[[ @TODO: add a look at loop for the original pet(s) looking rotation(s) ]]
+
+                repeat task.wait() until isDoneGoingToFloor
+
+                -- Clean walking cache.
+                do
+                    local foundAttackingCacheIndex = table.find(CurrentlyWalkingCache, data.attackingPetId)
+                    if foundAttackingCacheIndex then table.remove(CurrentlyWalkingCache, foundAttackingCacheIndex) end
+
+                    local foundTargetCacheIndex = table.find(CurrentlyWalkingCache, data.targetPetId)
+                    if foundTargetCacheIndex then table.remove(CurrentlyWalkingCache, foundTargetCacheIndex) end
+                end
             end
         )
 
         PetsHandlingGroup.RemovePetFromClientAttackingCache:onClientEvent(
-            function(data): ()
+            function(data)
                 local foundAttackingCacheIndex = table.find(AttackingPetsCache, data)
                 if foundAttackingCacheIndex then table.remove(AttackingPetsCache, foundAttackingCacheIndex) end
             end

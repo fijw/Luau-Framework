@@ -24,9 +24,9 @@ type DataClass = Registry.DataClass
 
     @return void
 ]]
-local function subscribeToStats(player: Player, PlrDataClass: DataClass): ()
+local function subscribeToStats(player: Player, PlrDataClass: DataClass)
     PlrDataClass()().gems:subscribe(
-        function(self, data, key, ...): ()
+        function(self, data, key, ...)
             StatsUpdatingGroup.UpdateStats:fireClient(player, { data = data, key = key })
         end,
 
@@ -34,7 +34,7 @@ local function subscribeToStats(player: Player, PlrDataClass: DataClass): ()
     )
 
     PlrDataClass()().StatsData:subscribe(
-        function(self, data, key, ...): ()
+        function(self, data, key, ...)
             if key == "xp" then
                 data = { min = data, max = PlrDataClass()().StatsData().xpToNextLevel }
             elseif key == "xpToNextLevel" then
@@ -57,8 +57,8 @@ end
 
     @return void
 ]]
-local function constuctorCallback(): ()
-    local function onPlayerAdded(player: Player): ()
+local function constuctorCallback()
+    local function onPlayerAdded(player: Player)
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 

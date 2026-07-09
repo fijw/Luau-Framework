@@ -82,7 +82,7 @@ end
 
     @return void
 ]]
-local function addCratesToMachine(crateFrame: Frame, Crates: { CrateSchema }, HandledUI: HandledUI): ()
+local function addCratesToMachine(crateFrame: Frame, Crates: { CrateSchema }, HandledUI: HandledUI)
     for i: number, Crate: CrateSchema in ipairs(Crates :: { CrateSchema }) do
         local clonedCrateFrame = crateFrame:Clone()
         clonedCrateFrame.Parent = crateFrame.Parent
@@ -144,7 +144,7 @@ end
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     local clonedCrateMachine = Components.CrateMachine:Clone()
     clonedCrateMachine.Parent = PlayerGui
 

@@ -22,7 +22,7 @@ local CmdsSettings = require(ReplicatedStorage.FrameworkSettings.CmdsSettings)
 
     @return void
 ]]
-local function constructorCallback(sender: Player, args: { string }): ()
+local function constructorCallback(sender: Player, args: { string })
     local targetId = tonumber(args[1]) :: number
     if not targetId then return end
 

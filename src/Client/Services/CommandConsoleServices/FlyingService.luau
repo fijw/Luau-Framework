@@ -50,7 +50,7 @@ local isAllowedToFly = false
 
     @return void
 ]]
-local function onRenderStepped(deltaTime: number, rootPart: BasePart): ()
+local function onRenderStepped(deltaTime: number, rootPart: BasePart)
     if not bodyGyro or not bodyVelocity then return end
 
     local cam = workspace.CurrentCamera
@@ -100,7 +100,7 @@ end
 
     @return void
 ]]
-local function enableFlying(humanoid: Humanoid, rootPart: BasePart): ()
+local function enableFlying(humanoid: Humanoid, rootPart: BasePart)
     isFlying = true
 
     bodyVelocity = Instance.new("BodyVelocity")
@@ -117,7 +117,7 @@ local function enableFlying(humanoid: Humanoid, rootPart: BasePart): ()
     humanoid.PlatformStand = true
 
     _renderSteppedConnection = RunService.RenderStepped
-    :Connect(function(deltaTime: number): () onRenderStepped(deltaTime, rootPart) end)
+    :Connect(function(deltaTime: number) onRenderStepped(deltaTime, rootPart) end)
 end
 
 --[[
@@ -127,7 +127,7 @@ end
 
     @return void
 ]]
-local function disableFlying(humanoid: Humanoid): ()
+local function disableFlying(humanoid: Humanoid)
     isFlying = false
 
     bodyVelocity:Destroy()
@@ -158,7 +158,7 @@ local function onInputBegan
     gameProcessed: boolean,
     humanoid: Humanoid,
     rootPart: BasePart
-): ()
+)
     if gameProcessed or input.KeyCode ~= Enum.KeyCode.F or isAllowedToFly == false then return end
 
     if isFlying == true then disableFlying(humanoid)
@@ -195,9 +195,9 @@ end
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     CommandsGroup.FlyCharacter:onClientEvent(
-        function(data: nil): ()
+        function(data: nil)
             isAllowedToFly = true
 
             local CharacterStuff = getCharacterSchema()
@@ -215,7 +215,7 @@ local function constructorCallback(): ()
     )
 
     CommandsGroup.UnflyCharacter:onClientEvent(
-        function(data: nil): ()
+        function(data: nil)
             isAllowedToFly = false
 
             local CharacterStuff = getCharacterSchema()
@@ -225,7 +225,7 @@ local function constructorCallback(): ()
 
     UserInputService.InputBegan
     :Connect(
-        function(input: InputObject, gameProcessed: boolean): ()
+        function(input: InputObject, gameProcessed: boolean)
             local CharacterStuff = getCharacterSchema()
             onInputBegan(input, gameProcessed, CharacterStuff.Humanoid, CharacterStuff.rootPart)
         end

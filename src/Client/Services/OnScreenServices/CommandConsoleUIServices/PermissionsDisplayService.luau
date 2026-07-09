@@ -27,7 +27,7 @@ local localPlayer = Players.LocalPlayer :: Player
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     local playerRank = localPlayer:GetRankInGroupAsync(CREATOR_ID)
 
     local rankPermissions = CmdsSettings.RanksWithCommandPermissions[playerRank]
@@ -35,7 +35,7 @@ local function constructorCallback(): ()
 
     if not rankPermissions and not idPermissions then
         CommandsGroup.DisplayNewPermissions:onClientEvent(
-            function(data: nil): ()
+            function(data: nil)
                 StarterGui:SetCore("SendNotification",
                     {
                         Title = "You have permissions for commands.",

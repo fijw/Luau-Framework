@@ -66,7 +66,7 @@ function Marketplace.fetchMarketplaceState(): MarketplaceSchema?
     local State: MarketplaceSchema?
 
     Chronovisor(
-        function(): ()
+        function()
             State = MarketplaceDataStore:GetAsync(MARKETPLACE_DATA_KEY) :: MarketplaceSchema?
             if not State or State.lastRefreshed + 60 * 60 * 24 > os.time() then return end
 
@@ -84,7 +84,7 @@ function Marketplace.fetchMarketplaceState(): MarketplaceSchema?
             State.lastRefreshed = os.time()
         end
     )
-    :onError(function(err: string?): () print(`Error fetching marketplace state. Error: {err}`) end)
+    :onError(function(err: string?) print(`Error fetching marketplace state. Error: {err}`) end)
 
     return State
 end
@@ -126,7 +126,7 @@ function Marketplace.addPetToMarketplace(player: Player, petId: string, price: n
 
             -- Add the pet to the marketplace.
             Chronovisor(
-                function(): ()
+                function()
                     MarketplaceDataStore:UpdateAsync(MARKETPLACE_DATA_KEY,
                         function(State: MarketplaceSchema): MarketplaceSchema
                             if not State then
@@ -158,7 +158,7 @@ function Marketplace.addPetToMarketplace(player: Player, petId: string, price: n
                     )
                 end
             )
-            :onError(function(err: string?): () print(`Error adding pet to marketplace. Error: {err}`) end)
+            :onError(function(err: string?) print(`Error adding pet to marketplace. Error: {err}`) end)
 
             -- Verify the pet was added to the marketplace.
             do
@@ -182,7 +182,7 @@ end
 
     @return void
 ]]
-function Marketplace.removePetFromMarketplace(player: Player, petId: string): ()
+function Marketplace.removePetFromMarketplace(player: Player, petId: string)
     local PlrDataClass = Registry(player)
     if not PlrDataClass then return end
 
@@ -204,7 +204,7 @@ function Marketplace.removePetFromMarketplace(player: Player, petId: string): ()
 
             -- Attempt to remove the pet from the marketplace.
             Chronovisor(
-                function(): ()
+                function()
                     MarketplaceDataStore:UpdateAsync(MARKETPLACE_DATA_KEY,
                         function(State: MarketplaceSchema): MarketplaceSchema
                             if not State then
@@ -224,7 +224,7 @@ function Marketplace.removePetFromMarketplace(player: Player, petId: string): ()
                     )
                 end
             )
-            :onError(function(err: string?): () print(`Error removing pet from marketplace. Error: {err}`) end)
+            :onError(function(err: string?) print(`Error removing pet from marketplace. Error: {err}`) end)
 
             MarketplaceState.numberOfPetsInMarketplace -= 1
 
@@ -265,7 +265,7 @@ end
 
     @return void
 ]]
-function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string): ()
+function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string)
     local MarketplaceState = Marketplace.fetchMarketplaceState()
     if not MarketplaceState then return end
 
@@ -296,7 +296,7 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string): (
 
             -- Attempt to remove the pet from the marketplace.
             Chronovisor(
-                function(): ()
+                function()
                     MarketplaceDataStore:UpdateAsync(MARKETPLACE_DATA_KEY,
                         function(State: MarketplaceSchema): MarketplaceSchema
                             if not State then
@@ -319,7 +319,7 @@ function Marketplace.purchasePetFromMarketplace(buyer: Player, petId: string): (
                     )
                 end
             )
-            :onError(function(err: string?): () print(`Error removing pet from marketplace while purchasing. Error: {err}`) end)
+            :onError(function(err: string?) print(`Error removing pet from marketplace while purchasing. Error: {err}`) end)
 
             -- Verify the pet was removed from the marketplace and the pending purchase was added.
             do

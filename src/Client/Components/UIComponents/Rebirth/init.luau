@@ -79,7 +79,7 @@ end
 
     @return void
 ]]
-local function updateRebirthStats(priceText: TextLabel, levelsTxt: TextLabel, multiplierText: TextLabel): ()
+local function updateRebirthStats(priceText: TextLabel, levelsTxt: TextLabel, multiplierText: TextLabel)
     local RebirthStats = RebirthingGroup.GetRebirthStats:invokeServer()
     if not RebirthStats then return end
 
@@ -96,7 +96,7 @@ end
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     local clonedRebirth = Components.Rebirth
     clonedRebirth.Parent = PlayerGui
 
@@ -111,13 +111,13 @@ local function constructorCallback(): ()
 
     local HandledUI = UIUtilitiesLibrary("rebirth", clonedRebirth)
     HandledUI:hoverAndToggleSizing(1.15)
-    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number): () end, true)
-    HandledUI:handleButtonPress(rebirthBtn, function(pos1: number, pos2: number): () RebirthingGroup.Rebirth:fireServer() end)
+    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
+    HandledUI:handleButtonPress(rebirthBtn, function(pos1: number, pos2: number) RebirthingGroup.Rebirth:fireServer() end)
 
     -- Networking connections.
     do
         RebirthingGroup.NotEnoughGemsToRebirth:onClientEvent(
-            function(data): ()
+            function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
@@ -125,7 +125,7 @@ local function constructorCallback(): ()
                 NotificationComponents().notificationText.Text = `Not enough gems to rebirth.<br /><br />You need {NumberFormatLib(data, "quintillions")} more gems to be able to rebirth.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                    function(pos1: number, pos2: number): ()
+                    function(pos1: number, pos2: number)
                         HandledNotificationUI:removeFocus({ clonedRebirth.Name })
                         HandledNotificationUI:destroy()
                     end
@@ -134,7 +134,7 @@ local function constructorCallback(): ()
         )
 
         RebirthingGroup.NotEnoughLevelsToRebirth:onClientEvent(
-            function(data): ()
+            function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
@@ -142,7 +142,7 @@ local function constructorCallback(): ()
                 NotificationComponents().notificationText.Text = `Not enough levels to rebirth.<br /><br />You need {NumberFormatLib(data, "quintillions")} more levels to be able to rebirth.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                    function(pos1: number, pos2: number): ()
+                    function(pos1: number, pos2: number)
                         HandledNotificationUI:removeFocus({ clonedRebirth.Name })
                         HandledNotificationUI:destroy()
                     end
@@ -151,7 +151,7 @@ local function constructorCallback(): ()
         )
 
         RebirthingGroup.MaxRebirthsReached:onClientEvent(
-            function(data): ()
+            function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
@@ -159,7 +159,7 @@ local function constructorCallback(): ()
                 NotificationComponents().notificationText.Text = `You have reached the maximum amount of rebirths.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                    function(pos1: number, pos2: number): ()
+                    function(pos1: number, pos2: number)
                         HandledNotificationUI:removeFocus({ clonedRebirth.Name })
                         HandledNotificationUI:destroy()
                     end
@@ -168,7 +168,7 @@ local function constructorCallback(): ()
         )
 
         RebirthingGroup.SuccessfullyRebirthed:onClientEvent(
-            function(data): ()
+            function(data)
                 local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
                 HandledNotificationUI:hoverAndToggleSizing(1.15)
                 HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
@@ -176,7 +176,7 @@ local function constructorCallback(): ()
                 NotificationComponents().notificationText.Text = `You have successfully rebirthed.<br /><br />You now have {data} rebirths.`
                 
                 HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-                    function(pos1: number, pos2: number): ()
+                    function(pos1: number, pos2: number)
                         HandledNotificationUI:removeFocus({ clonedRebirth.Name })
                         HandledNotificationUI:destroy()
                     end
@@ -192,7 +192,7 @@ local function constructorCallback(): ()
         local originalContainerSize = containerFrame.Size
 
         HandledUI:subscribeToSetFocus("opening_subscription",
-            function(self, NamesKeepingFocus): ()
+            function(self, NamesKeepingFocus)
                 containerFrame.Size = UDim2.new(0, 0, 0, 0)
 
                 tweenInst(
@@ -209,7 +209,7 @@ local function constructorCallback(): ()
         )
 
         HandledUI:subscribeToRemoveFocus("closing_subscription",
-            function(self, NamesToBringBackToFocus): ()
+            function(self, NamesToBringBackToFocus)
                 tweenInst(
                     containerFrame,
                     

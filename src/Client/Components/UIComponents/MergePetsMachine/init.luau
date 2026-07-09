@@ -94,7 +94,7 @@ end
 
     @return void
 ]]
-local function createNotification(data: number?, type: "not_enough_pets" | "not_enough_gems" | "success", machineName: string): ()
+local function createNotification(data: number?, type: "not_enough_pets" | "not_enough_gems" | "success", machineName: string)
     local HandledNotificationUI = UIUtilitiesLibrary("notification", NotificationComponents().notification)
     HandledNotificationUI:hoverAndToggleSizing(1.15)
     HandledNotificationUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" })
@@ -108,7 +108,7 @@ local function createNotification(data: number?, type: "not_enough_pets" | "not_
     end
 
     HandledNotificationUI:handleButtonPress(NotificationComponents().okayBtn,
-        function(pos1: number, pos2: number): ()
+        function(pos1: number, pos2: number)
             HandledNotificationUI:removeFocus({ machineName })
             HandledNotificationUI:destroy()
         end
@@ -123,7 +123,7 @@ end
     
     @return void
 ]]
-local function constructorCallback(): ()
+local function constructorCallback()
     local clonedMachine = UIComponents.MergePetsMachine:Clone()
     clonedMachine.Parent = PlayerGui
 
@@ -142,7 +142,7 @@ local function constructorCallback(): ()
     local expandBtn = containerFrame:WaitForChild("ExpandBtn") :: ImageButton
 
     textBox:GetPropertyChangedSignal("Text"):Connect(
-        function(): ()
+        function()
             if CurrentPetSchema then
                 MergingGroup.SearchForPetsByData:fireServer(CurrentPetSchema)
                 return
@@ -154,18 +154,18 @@ local function constructorCallback(): ()
 
     local HandledUI = UIUtilitiesLibrary("merging_machine", clonedMachine)
     HandledUI:hoverAndToggleSizing(1.15)
-    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number): () end, true)
+    HandledUI:handleButtonPress(closeBtn, function(pos1: number, pos2: number) end, true)
 
     local GameFolder = workspace:WaitForChild("Game") :: Folder
     local MachinesFolder = GameFolder:WaitForChild("Machines") :: Folder
     local mergingMachine = MachinesFolder:WaitForChild("MergingMachine") :: Part
     local proximityPrompt = mergingMachine:WaitForChild("ProximityPrompt") :: ProximityPrompt
-    proximityPrompt.Triggered:Connect(function(): () HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
+    proximityPrompt.Triggered:Connect(function() HandledUI:setFocus({ "Screen", "Notification", "AreYouSure", "TradeRequest" }) end)
 
     -- Networking connections.
     do
         MergingGroup.AddPetsToMergingSlots:onClientEvent(
-            function(data): ()
+            function(data)
                 for i: string, PetSchema: PetSchema in pairs(data) do
                     if not PetSchema.HealthDictionary then continue end
 
@@ -212,7 +212,7 @@ local function constructorCallback(): ()
                         local colorConnection: RBXScriptConnection
 
                         colorConnection = RunService.Heartbeat:Connect(
-                            function(dt: number): ()
+                            function(dt: number)
                                 if not CachedPetButtons[i] then colorConnection:Disconnect(); return end
 
                                 if PetSchema.PetStats.color == "Rainbow" then
@@ -275,7 +275,7 @@ local function constructorCallback(): ()
                     local isHovering = false
 
                     HandledUI:handleGuiObjectInput(innerImgButton.MouseEnter,
-                        function(): ()
+                        function()
                             isHovering = true
 
                             local health = NumberFormatLib(PetSchema.HealthDictionary[i], "thousands")
@@ -303,14 +303,14 @@ local function constructorCallback(): ()
                     )
 
                     HandledUI:handleGuiObjectInput(innerImgButton.MouseLeave,
-                        function(): ()
+                        function()
                             isHovering = false
                             PetDetailsComponents().mainFrame.Visible = false
                         end
                     )
 
                     HandledUI:handleButtonPress(innerImgButton,
-                        function(pos1: number, pos2: number): ()
+                        function(pos1: number, pos2: number)
                             if table.find(PetSchema.Locked or {}, i) then return end
 
                             -- Handle selection logic.
@@ -344,7 +344,7 @@ local function constructorCallback(): ()
         )
 
         MergingGroup.RemovePetsFromMergingSlots:onClientEvent(
-            function(data): ()
+            function(data)
                 for i: number, petId: string in ipairs(data) do
                     local PetButton = CachedPetButtons[petId]
                     if not PetButton then continue end
@@ -359,7 +359,7 @@ local function constructorCallback(): ()
         )
 
         MergingGroup.RemoveAllPetsFromMergingSlots:onClientEvent(
-            function(data): ()
+            function(data)
                 for i: string, PetButton: ImageLabel in pairs(CachedPetButtons) do
                     PetButton:Destroy()
                     PetButton.Parent = nil
@@ -370,15 +370,15 @@ local function constructorCallback(): ()
             end
         )
 
-        MergingGroup.NotEnoughPetsToMerge:onClientEvent(function(data): () createNotification(data, "not_enough_pets", clonedMachine.Name) end)
-        MergingGroup.NotEnoughGemsToMerge:onClientEvent(function(data): () createNotification(data, "not_enough_gems", clonedMachine.Name) end)
-        MergingGroup.SuccessfullyMergedPets:onClientEvent(function(data): () createNotification(data, "success", clonedMachine.Name) end)
+        MergingGroup.NotEnoughPetsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_pets", clonedMachine.Name) end)
+        MergingGroup.NotEnoughGemsToMerge:onClientEvent(function(data) createNotification(data, "not_enough_gems", clonedMachine.Name) end)
+        MergingGroup.SuccessfullyMergedPets:onClientEvent(function(data) createNotification(data, "success", clonedMachine.Name) end)
     end
 
     local isExpanded = false
 
     HandledUI:handleButtonPress(mergeBtn,
-        function(pos1: number, pos2: number): ()
+        function(pos1: number, pos2: number)
             MergingGroup.MergePets:fireServer(SelectedMergingPets)
             MergingGroup.RequestMergingData:fireServer()
 
@@ -387,7 +387,7 @@ local function constructorCallback(): ()
     )
 
     HandledUI:handleButtonPress(expandBtn,
-        function(pos1: number, pos2: number): ()
+        function(pos1: number, pos2: number)
             isExpanded = not isExpanded
             if isExpanded then expandBtn.Image = "rbxassetid://78262684079325" else expandBtn.Image = "rbxassetid://130599991371204" end
 
@@ -417,7 +417,7 @@ local function constructorCallback(): ()
         local originalContainerSize = containerFrame.Size
 
         HandledUI:subscribeToSetFocus("opening_subscription",
-            function(self, NamesKeepingFocus): ()
+            function(self, NamesKeepingFocus)
                 containerFrame.Size = UDim2.new(0, 0, 0, 0)
 
                 tweenInst(
@@ -434,7 +434,7 @@ local function constructorCallback(): ()
         )
 
         HandledUI:subscribeToRemoveFocus("closing_subscription",
-            function(self, NamesToBringBackToFocus): ()
+            function(self, NamesToBringBackToFocus)
                 tweenInst(
                     containerFrame,
                     
@@ -450,7 +450,7 @@ local function constructorCallback(): ()
     end
 
     task.spawn(
-        function(): ()
+        function()
             while true do
                 repeat task.wait() until clonedMachine.Enabled; task.wait()
                 scrollingFrame.CanvasSize = UDim2.fromOffset(0, uiListLayout.AbsoluteContentSize.Y)

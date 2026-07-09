@@ -40,9 +40,9 @@ type SavingStackSchema<D> = StackingLib.SavingStackSchema<D>
 
     @return void
 ]]
-local function constuctorCallback(): ()
+local function constuctorCallback()
     Players.PlayerRemoving:Connect(
-        function(player: Player): ()
+        function(player: Player)
             local tradeId = TradesMap.MappedTradingPlayers[player]
             if not tradeId then return end
 

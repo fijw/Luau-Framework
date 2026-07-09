@@ -26,7 +26,7 @@ type DecompressedDataSchema = Types.DecompressedDataSchema
 
     @return void
 ]]
-local function constructorCallback(DecompressedData: DecompressedDataSchema): ()
+local function constructorCallback(DecompressedData: DecompressedDataSchema)
     local reason, targetId, duration = DecompressedData.reason, DecompressedData.targetId, DecompressedData.duration
     if not reason or not targetId or not duration then return end
 

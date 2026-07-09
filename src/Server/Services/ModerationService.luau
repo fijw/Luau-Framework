@@ -29,7 +29,7 @@ type DataClass = Registry.DataClass
 
     @return void
 ]]
-local function kickBannedPlayer(player: Player, isPermanent: true?, banDuration: number?, banReason: string): ()
+local function kickBannedPlayer(player: Player, isPermanent: true?, banDuration: number?, banReason: string)
     if isPermanent == true then
         player:Kick(`\n\nYou have been permanently banned.\nReason: "{banReason}".\n\n\n`)
     elseif banDuration ~= nil then
@@ -46,7 +46,7 @@ end
 
     @return void
 ]]
-local function createModerationDataSubscription(player: Player, PlrDataClass: DataClass): ()
+local function createModerationDataSubscription(player: Player, PlrDataClass: DataClass)
     PlrDataClass()().ModerationData:subscribe(
         function(self, data, key, ...)
             if data == nil or key ~= "BanData" then return end
@@ -73,8 +73,8 @@ end
 
     @return void
 ]]
-local function constructorCallback(): ()
-    local function onPlayerAdded(player: Player): ()
+local function constructorCallback()
+    local function onPlayerAdded(player: Player)
         local PlrDataClass = Registry(player)
         if not PlrDataClass then return end
 

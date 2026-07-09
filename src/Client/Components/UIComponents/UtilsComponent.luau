@@ -70,7 +70,7 @@ end
 
     @return void
 ]]
-function UtilsComponent.createTick(petLabel: ImageLabel, type: "lock" | "delete" | "selected"): ()
+function UtilsComponent.createTick(petLabel: ImageLabel, type: "lock" | "delete" | "selected")
     local newTick = Instance.new("ImageLabel")
     newTick.Image = if type == "lock" then "rbxassetid://138368172974659" elseif type == "selected" then "rbxassetid://120401071933338" else "rbxassetid://138335893507994"
     newTick.BackgroundTransparency = 1
@@ -92,7 +92,7 @@ end
 
     @return void
 ]]
-function UtilsComponent.expandItems(inst: ImageLabel, ExpandingNums: { [string]: number }, expanding: boolean, PetCache: { [string]: PetSchema }): ()
+function UtilsComponent.expandItems(inst: ImageLabel, ExpandingNums: { [string]: number }, expanding: boolean, PetCache: { [string]: PetSchema })
     if inst.Name == "Gigantic" then
         if not expanding then
             inst.Size = UDim2.fromScale(inst.Size.X.Scale * ExpandingNums.gigantic, inst.Size.Y.Scale * ExpandingNums.gigantic)

@@ -200,11 +200,11 @@ end
 
 
 --[[ @section Subscription Callbacks ]]
-local function subscribeToItemsAddedCallback(self: InventoryClass, callback: ItemAddedSubscriptionType): ()
+local function subscribeToItemsAddedCallback(self: InventoryClass, callback: ItemAddedSubscriptionType)
     self.onItemAddedSubscription = callback
 end
 
-local function subscribeToItemsRemovedCallback(self: InventoryClass, callback: ItemRemovedSubscriptionType): ()
+local function subscribeToItemsRemovedCallback(self: InventoryClass, callback: ItemRemovedSubscriptionType)
     self.onItemRemovedSubscription = callback
 end
 --[[ @end_section Subscription Callbacks ]]

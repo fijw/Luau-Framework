@@ -78,12 +78,12 @@ end
 
 -- Initialize client modules when the loading packet is received.
 do
-    task.spawn(function(): () LoadingScreenService() end)
+    task.spawn(function() LoadingScreenService() end)
 
     FrameworkGroup.LoadClientModules:onClientEvent(
-        function(data: nil): ()
+        function(data: nil)
             local result: "success" | "failure"
-            task.spawn(function(): () result = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
+            task.spawn(function() result = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
 
             local retries = 0
             while true do if result or retries >= NUM_OF_RETRIES then break else retries += 1; task.wait() end end
