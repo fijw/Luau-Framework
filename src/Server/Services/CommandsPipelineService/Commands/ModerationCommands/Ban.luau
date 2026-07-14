@@ -57,10 +57,12 @@ local function constructorCallback(sender: Player, args: { string })
 
             -- Update the player's moderation data.
             do
+                if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
                 local numOfBans = (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfBans
 
                 if not numOfBans then
                     PlayerDataClass()().ModerationData(0, "numOfBans", "ModerationHistory")
+                    numOfBans = 0
                 else
                     PlayerDataClass()().ModerationData(
                         numOfBans + 1,
