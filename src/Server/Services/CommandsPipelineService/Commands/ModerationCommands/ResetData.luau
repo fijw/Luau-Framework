@@ -67,10 +67,12 @@ local function constructorCallback(sender: Player, args: { string })
                     (PlayerDataClass() :: StateEngine<{ [string]: StateEngine<any> }>)(Reactor(v), i)
                 end
 
+                if not PlayerDataClass()().ModerationData().ModerationHistory then PlayerDataClass()().ModerationData({}, "ModerationHistory") end
                 local numOfDataResets = (PlayerDataClass()().ModerationData().ModerationHistory :: any).numOfDataResets
 
                 if not numOfDataResets then
                     PlayerDataClass()().ModerationData(0, "numOfDataResets", "ModerationHistory")
+                    numOfDataResets = 0
                 else
                     PlayerDataClass()().ModerationData(
                         numOfDataResets + 1,

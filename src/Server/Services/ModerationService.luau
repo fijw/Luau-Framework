@@ -23,8 +23,8 @@ type DataClass = Registry.DataClass
     @usage Kick a banned player.
 
     @param player Player
-    @param isPermanent boolean
-    @param banDuration number
+    @param isPermanent true?
+    @param banDuration number?
     @param banReason string
 
     @return void
@@ -96,6 +96,9 @@ local function constructorCallback()
                         BanData.banDuration,
                         BanData.banReason
                     )
+
+                    PlrDataClass:saveClass()
+                    PlrDataClass:deleteClass()
                 end
             else
                 kickBannedPlayer(
@@ -104,6 +107,9 @@ local function constructorCallback()
                     BanData.banDuration,
                     BanData.banReason
                 )
+
+                PlrDataClass:saveClass()
+                PlrDataClass:deleteClass()
             end
         end
     end
