@@ -13,25 +13,6 @@ local Initialization = ReplicatedStorage:FindFirstChild("Initialization")
 
 local FrameworkGroup = require(ReplicatedStorage.Networking.PacketGroups.Framework)
 
-
-local FlyingService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.FlyingService
-local PermissionsDisplayService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIServices.PermissionsDisplayService
-local CommandConsoleUIService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIServices.CommandConsoleUIService
-local SpectateService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.SpectateService
-local ChatTagService = StarterPlayer.StarterPlayerScripts.Services.ChatTagService
-
-local InventoryComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Inventory
-local CrateMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.CrateMachine
-local ScreenComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Screen
-local DevPetSpawningComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.DPS
-local RebirthComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.Rebirth
-local MergePetsMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.MergePetsMachine
-local HealingMachineComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.HealingMachine
-local SendTradeComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.SendTrade
-local InTradeComponent = StarterPlayer.StarterPlayerScripts.Components.UIComponents.InTrade
-local PetsHandlingComponent = StarterPlayer.StarterPlayerScripts.Components.PetsHandling
-
-
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
 --[[ @end_section Imports ]]
 
@@ -40,25 +21,7 @@ local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services
 local localPlayer = Players.LocalPlayer :: Player?
 local isServer = RunService:IsServer()
 
-local ModulesToLoad
-= {
-    [FlyingService.Name] = FlyingService,
-    [PermissionsDisplayService.Name] = PermissionsDisplayService,
-    [CommandConsoleUIService.Name] = CommandConsoleUIService,
-    [SpectateService.Name] = SpectateService,
-    [ChatTagService.Name] = ChatTagService,
-    
-    [DevPetSpawningComponent.Name] = DevPetSpawningComponent,
-    [InventoryComponent.Name] = InventoryComponent,
-    [CrateMachineComponent.Name] = CrateMachineComponent,
-    [RebirthComponent.Name] = RebirthComponent,
-    [MergePetsMachineComponent.Name] = MergePetsMachineComponent,
-    [HealingMachineComponent.Name] = HealingMachineComponent,
-    [SendTradeComponent.Name] = SendTradeComponent,
-    [InTradeComponent.Name] = InTradeComponent,
-    [PetsHandlingComponent.Name] = PetsHandlingComponent,
-    [ScreenComponent.Name] = ScreenComponent
-}
+local ModulesToLoad: { [string]: ModuleScript } = {}
 
 local NUM_OF_RETRIES = 10
 --[[ @end_section Variables ]]
@@ -72,6 +35,18 @@ do
     else
         print("Client failed to find the Initialization module.")
         return 
+    end
+end
+
+
+-- Fetch services & components to be initialized.
+do
+    for i: number, module: Instance in ipairs(StarterPlayer.StarterPlayerScripts.Services:GetChildren()) do
+        ModulesToLoad[module.Name] = module :: ModuleScript
+    end
+
+    for i: number, module: Instance in ipairs(StarterPlayer.StarterPlayerScripts.Components:GetChildren()) do
+        ModulesToLoad[module.Name] = module :: ModuleScript
     end
 end
 

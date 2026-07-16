@@ -7,53 +7,18 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Reactor = require(ReplicatedStorage.Libraries.Reactor)
-
-local Data = require(ReplicatedStorage.DataAssets.Pets.Data)
 --[[ @end_section Imports ]]
 
 
 --[[ @section Types ]]
-type PetSchema = Data.PetSchema
-
 --[[ @generic T Source type. ]]
 type StateEngine<T> = Reactor.StateEngine<T>
 
 export type DataTemplateSchema = setmetatable
 <
     {
-        gems: StateEngine<number>,
-        
-        StatsData: StateEngine
-        <
-            {
-                level: number,
-                xp: number,
-                xpToNextLevel: number,
-                levelsNeededToRebirth: number,
-                rebirths: number
-            }
-        >,
-        
-        DungeonsData: StateEngine
-        <
-            {
-                allTimeMaxDungeonLevelReached: number,
-                currentMaxDungeonLevelReached: number
-            }
-        >,
-
-        HealingData: StateEngine
-        <
-            {
-                HealingPets: { [string]: number },
-
-                usedHealingSlots: number,
-                maxHealingSlots: number
-            }
-        >,
-
-        maxPetsEquipped: StateEngine<number>,
-        currentNumOfPetsEquipped: StateEngine<number>
+        clicks: StateEngine<number>,
+        rebirths: StateEngine<number>
     },
 
     {
@@ -93,36 +58,11 @@ local DataSettings
 = {
     DataTemplate
     = {
-        gems = 10_000 :: any,
-        
-        StatsData
-        = {
-            level = 1,
-            xp = 0,
-            xpToNextLevel = 1_000,
-            levelsNeededToRebirth = 25,
-            rebirths = 0
-        } :: any,
-
-        DungeonsData
-        = {
-            allTimeMaxDungeonLevelReached = 0,
-            currentMaxDungeonLevelReached = 0
-        } :: any,
-
-        HealingData
-        = {
-            HealingPets = {},
-
-            usedHealingSlots = 0,
-            maxHealingSlots = 10
-        } :: any,
-
-        maxPetsEquipped = 16 :: any,
-        currentNumOfPetsEquipped = 0 :: any
+        clicks = 0 :: any,
+        rebirths = 0 :: any
     } :: DataTemplateSchema,
 
-    PLAYER_DATA_STORAGE_KEY = "plradag4ggwww4456890112"
+    PLAYER_DATA_STORAGE_KEY = "data_key_4"
 }
 
 

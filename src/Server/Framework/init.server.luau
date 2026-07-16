@@ -34,23 +34,6 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local FrameworkGroup = require(ReplicatedStorage.Networking.PacketGroups.Framework)
 
-
-local CacheService = ServerScriptService.Services.CacheService
-local ModerationService = ServerScriptService.Services.ModerationService
-local CommandsPipelineService = ServerScriptService.Services.CommandsPipelineService
-
-local InventoryComponent = ServerScriptService.Components.Inventory
-local CrateMachineComponent = ServerScriptService.Components.CrateMachine
-local StatsUpdatingComponent = ServerScriptService.Components.StatsUpdating
-local DeveloperSpawningComponent = ServerScriptService.Components.DeveloperSpawning
-local RebirthingComponent = ServerScriptService.Components.Rebirthing
-local MergingMachineComponent = ServerScriptService.Components.MergingMachine
-local HealingMachineComponent = ServerScriptService.Components.HealingMachine
-local TradingComponent = ServerScriptService.Components.Trading
-local PetsHandlingComponent = ServerScriptService.Components.PetsHandling
-local ChatTagsService = ServerScriptService.Services.ChatTagsService
-
-
 local Initialization = script.Initialization
 local Listener = script.Listener
 --[[ @end_section Imports ]]
@@ -59,23 +42,7 @@ local Listener = script.Listener
 --[[ @section Variables ]]
 local serverKickMessage = `\n\n\nServer failed to initialize.\nPlease rejoin.\n\n`
 
-local ModulesToLoad
-= {
-    [CacheService.Name] = CacheService,
-    [ModerationService.Name] = ModerationService,
-    [CommandsPipelineService.Name] = CommandsPipelineService,
-
-    [InventoryComponent.Name] = InventoryComponent,
-    [CrateMachineComponent.Name] = CrateMachineComponent,
-    [StatsUpdatingComponent.Name] = StatsUpdatingComponent,
-    [DeveloperSpawningComponent.Name] = DeveloperSpawningComponent,
-    [RebirthingComponent.Name] = RebirthingComponent,
-    [MergingMachineComponent.Name] = MergingMachineComponent,
-    [HealingMachineComponent.Name] = HealingMachineComponent,
-    [TradingComponent.Name] = TradingComponent,
-    [PetsHandlingComponent.Name] = PetsHandlingComponent,
-    [ChatTagsService.Name] = ChatTagsService
-}
+local ModulesToLoad: { [string]: ModuleScript } = {}
 
 local NUM_OF_RETRIES = 10
 --[[ @end_section Variables ]]
@@ -90,12 +57,24 @@ do
 end
 
 
+-- Fetch services & components to be initialized.
+do
+    for i: number, module: Instance in ipairs(ServerScriptService.Services:GetChildren()) do
+        ModulesToLoad[module.Name] = module :: ModuleScript
+    end
+
+    for i: number, module: Instance in ipairs(ServerScriptService.Components:GetChildren()) do
+        ModulesToLoad[module.Name] = module :: ModuleScript
+    end
+end
+
+
 -- Initialize server modules then signal clients to initialize their modules.
 do
     local initResult: "success" | "failure"
     task.spawn(function() initResult = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
 
-    -- Handle initialization failures.s
+    -- Handle initialization failures.
     do
         local retries = 0
         while true do if initResult or retries >= NUM_OF_RETRIES then break else retries += 1; task.wait() end end
