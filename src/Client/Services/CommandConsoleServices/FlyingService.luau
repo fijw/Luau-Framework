@@ -9,10 +9,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local CommandsGroup = require(ReplicatedStorage.Networking.PacketGroups.Services.Commands)
-
-local TweensLibrary = require(ReplicatedStorage.Libraries.TweensLib)
 --[[ @end_section Imports ]]
 
 
@@ -69,22 +68,17 @@ local function onRenderStepped(deltaTime: number, rootPart: BasePart)
     if move.Magnitude > 0 then
         bodyVelocity.Velocity = move.Unit * SPEED
 
-        TweensLibrary(
+        TweenService:Create(
             bodyGyro,
 
-
-            0.25,
-
-            Enum.EasingStyle.Sine,
-            Enum.EasingDirection.Out,
-
-            0,
-            false,
-            0,
-
-
+            TweenInfo.new(
+                0.25,
+                Enum.EasingStyle.Sine,
+                Enum.EasingDirection.Out
+            ),
+            
             { CFrame = CFrame.lookAt(rootPart.Position, rootPart.Position + cam.CFrame.LookVector) }
-        )
+        ):Play()
     else
         bodyVelocity.Velocity = Vector3.zero
     end

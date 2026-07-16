@@ -7,19 +7,15 @@
 local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local StarterPlayer = game:GetService("StarterPlayer")
 local TeleportService = game:GetService("TeleportService")
+local TweenService = game:GetService("TweenService")
 
 local Components = require(script.Components)
 
 local UILib = require(StarterPlayer.StarterPlayerScripts.Libraries.UILib)
-local TweensLib = require(ReplicatedStorage.Libraries.TweensLib)
 --[[ @end_section Imports ]]
-
-
-type HandledTween = TweensLib.HandledTween
 
 
 --[[ @section Variables ]]
@@ -39,28 +35,23 @@ local fadeTime = 0.5
     @param orientation number
     @param timeInput number
 
-    @return HandledTween
+    @return Tween
 ]]
-local function spinInst(inst: GuiObject, orientation: number, timeInput: number): HandledTween
-    local spinningTween
-    = TweensLib(
+local function spinInst(inst: GuiObject, orientation: number, timeInput: number): Tween
+    local SpinningTween = TweenService:Create(
         inst,
 
-
-        timeInput,
-
-        Enum.EasingStyle.Sine,
-        Enum.EasingDirection.Out,
-
-        0,
-        false,
-        0,
-
+        TweenInfo.new(
+            timeInput,
+            Enum.EasingStyle.Sine,
+            Enum.EasingDirection.Out
+        ),
 
         { Rotation = orientation }
     )
 
-    return spinningTween
+    SpinningTween:Play()
+    return SpinningTween
 end
 
 --[[
@@ -69,23 +60,17 @@ end
     @param inst GuiObject
     @param timeInput number
 
-    @return HandledTween
+    @return Tween
 ]]
-local function hideInst(inst: GuiObject, timeInput: number): HandledTween
-    local spinningTween
-    = TweensLib(
+local function hideInst(inst: GuiObject, timeInput: number): Tween
+    local SpinTween = TweenService:Create(
         inst,
 
-
-        timeInput,
-
-        Enum.EasingStyle.Sine,
-        Enum.EasingDirection.Out,
-
-        0,
-        false,
-        0,
-
+        TweenInfo.new(
+            timeInput,
+            Enum.EasingStyle.Sine,
+            Enum.EasingDirection.Out
+        ),
 
         {
             Transparency
@@ -109,7 +94,8 @@ local function hideInst(inst: GuiObject, timeInput: number): HandledTween
         }
     )
 
-    return spinningTween
+    SpinTween:Play()
+    return SpinTween
 end
 --[[ @end_section Tween Functions ]]
 
@@ -154,7 +140,7 @@ local function constructorCallback()
                 if not isLoading then break end
 
                 if lastSpinStatus == 1 then lastSpinStatus = 2 elseif lastSpinStatus == 2 then lastSpinStatus = 1 end
-                spinInst(newLogoImg, if lastSpinStatus == 1 then 0 else 360, spinTime):waitForCompletion()
+                spinInst(newLogoImg, if lastSpinStatus == 1 then 0 else 360, spinTime).Completed:Wait()
             end
 
             -- Hide the loading screen.
@@ -172,7 +158,7 @@ local function constructorCallback()
                 end
             end
 
-            spinInst(newLogoImg, if lastSpinStatus == 1 then 360 else 0, fadeTime * 2):waitForCompletion()
+            spinInst(newLogoImg, if lastSpinStatus == 1 then 360 else 0, fadeTime * 2).Completed:Wait()
 
             -- Destroy the loading screen.
             do

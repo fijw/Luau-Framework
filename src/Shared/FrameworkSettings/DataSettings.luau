@@ -24,6 +24,8 @@ export type DataTemplateSchema = setmetatable
     {
         __index
         : {
+            GiftedGamepasses: { number },
+
             ModerationData: StateEngine
             <
                 {

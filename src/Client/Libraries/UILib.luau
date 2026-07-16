@@ -60,13 +60,9 @@
 --!optimize 2
 
 
---[[ @section Imports ]]
 local GuiService = game:GetService("GuiService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
-
-local TweensLibrary = require(ReplicatedStorage.Libraries.TweensLib)
---[[ @end_section Imports ]]
+local TweenService = game:GetService("TweenService")
 
 
 --[[ @section Types ]]
@@ -164,22 +160,20 @@ local UILibrary = { CachedUIClasses = {} :: { [string]: HandledUI } }
     @return void
 ]]
 local function scaleInstance(inst: GuiObject, scaledInstanceSize: UDim2)
-    TweensLibrary(
+    local ScaleTween = TweenService:Create(
         inst,
 
-
-        scaleTweenTime,
-
-        Enum.EasingStyle.Sine,
-        Enum.EasingDirection.Out,
-
-        0,
-        false,
-        0,
-
-
+        TweenInfo.new(
+            scaleTweenTime,
+            Enum.EasingStyle.Sine,
+            Enum.EasingDirection.Out
+        ),
+        
         { Size = scaledInstanceSize }
-    ):waitForCompletion()
+    )
+
+    ScaleTween:Play()
+    ScaleTween.Completed:Wait()
 end
 
 
@@ -241,22 +235,23 @@ local function onInputBegan
         
         local newPos = mousePos - Vector2.new(xPos, yPos)
 
-        TweensLibrary(
-            draggingObject,
+        -- Update the position of the draggable object.
+        do
+            local PositionTween = TweenService:Create(
+                draggingObject,
+            
+                TweenInfo.new(
+                    0.1,
+                    Enum.EasingStyle.Sine,
+                    Enum.EasingDirection.Out
+                ),
 
-
-            0.01,
-
-            Enum.EasingStyle.Sine,
-            Enum.EasingDirection.Out,
-
-            0,
-            false,
-            0,
-
-
-            { Position = UDim2.fromOffset(newPos.X, newPos.Y) }
-        ):waitForCompletion()
+                { Position = UDim2.fromOffset(newPos.X, newPos.Y) }
+            )
+                
+            PositionTween:Play()
+            PositionTween.Completed:Wait()
+        end
     end
 end
 
