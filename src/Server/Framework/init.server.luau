@@ -34,6 +34,11 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local FrameworkGroup = require(ReplicatedStorage.Networking.PacketGroups.Framework)
 
+local CacheService = ServerScriptService.Services.CacheService
+local ModerationService = ServerScriptService.Services.ModerationService
+local CommandsPipelineService = ServerScriptService.Services.CommandsPipelineService
+local ChatTagsService = ServerScriptService.Services.ChatTagsService
+
 local Initialization = script.Initialization
 local Listener = script.Listener
 --[[ @end_section Imports ]]
@@ -42,28 +47,31 @@ local Listener = script.Listener
 --[[ @section Variables ]]
 local serverKickMessage = `\n\n\nServer failed to initialize.\nPlease rejoin.\n\n`
 
-local ModulesToLoad: { [string]: ModuleScript } = {}
+local ModulesToLoad: { [string]: ModuleScript }
+= {
+    [CacheService.Name] = CacheService,
+    [ModerationService.Name] = ModerationService,
+    [CommandsPipelineService.Name] = CommandsPipelineService,
+    [ChatTagsService.Name] = ChatTagsService
+}
 
 local NUM_OF_RETRIES = 10
 --[[ @end_section Variables ]]
 
 
--- Move the initialization and listener modules to their respective locations.
+-- Pre-initialization.
 do
-    Listener.Parent = StarterPlayer.StarterPlayerScripts
+    -- Move the initialization and listener modules to their respective locations.
+    do
+        Listener.Parent = StarterPlayer.StarterPlayerScripts
 
-    Initialization.Parent = ReplicatedStorage
-    Initialization = require(ReplicatedStorage:WaitForChild("Initialization")) :: any
-end
-
-
--- Fetch services & components to be initialized.
-do
-    for i: number, module: Instance in ipairs(ServerScriptService.Services:GetChildren()) do
-        ModulesToLoad[module.Name] = module :: ModuleScript
+        Initialization.Parent = ReplicatedStorage
+        Initialization = require(ReplicatedStorage:WaitForChild("Initialization")) :: any
     end
 
-    for i: number, module: Instance in ipairs(ServerScriptService.Components:GetChildren()) do
+
+    -- Add component modules to be initialized.
+    for i: number, module: Instance in ipairs(StarterPlayer.StarterPlayerScripts.Components:GetChildren()) do
         ModulesToLoad[module.Name] = module :: ModuleScript
     end
 end
@@ -74,7 +82,7 @@ do
     local initResult: "success" | "failure"
     task.spawn(function() initResult = Initialization(ModulesToLoad :: { [string]: ModuleScript }) end)
 
-    -- Handle initialization failures.
+    -- Handle initialization failures.s
     do
         local retries = 0
         while true do if initResult or retries >= NUM_OF_RETRIES then break else retries += 1; task.wait() end end

@@ -13,6 +13,12 @@ local Initialization = ReplicatedStorage:FindFirstChild("Initialization")
 
 local FrameworkGroup = require(ReplicatedStorage.Networking.PacketGroups.Framework)
 
+local FlyingService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.FlyingService
+local PermissionsDisplayService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIServices.PermissionsDisplayService
+local CommandConsoleUIService = StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.CommandConsoleUIServices.CommandConsoleUIService
+local SpectateService = StarterPlayer.StarterPlayerScripts.Services.CommandConsoleServices.SpectateService
+local ChatTagService = StarterPlayer.StarterPlayerScripts.Services.ChatTagService
+
 local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services.OnScreenServices.LoadingScreenService)
 --[[ @end_section Imports ]]
 
@@ -21,30 +27,34 @@ local LoadingScreenService = require(StarterPlayer.StarterPlayerScripts.Services
 local localPlayer = Players.LocalPlayer :: Player?
 local isServer = RunService:IsServer()
 
-local ModulesToLoad: { [string]: ModuleScript } = {}
+local ModulesToLoad: { [string]: ModuleScript }
+= {
+    [FlyingService.Name] = FlyingService,
+    [PermissionsDisplayService.Name] = PermissionsDisplayService,
+    [CommandConsoleUIService.Name] = CommandConsoleUIService,
+    [SpectateService.Name] = SpectateService,
+    [ChatTagService.Name] = ChatTagService
+}
 
 local NUM_OF_RETRIES = 10
 --[[ @end_section Variables ]]
 
 
--- Check if the script is running on the server and prepare the initialization module.
+-- Pre-initialization.
 do
-    if isServer then return end
+    -- Check if the script is running on the server and prepare the initialization module.
+    do
+        if isServer then return end
 
-    if Initialization then Initialization = require(Initialization) :: any
-    else
-        print("Client failed to find the Initialization module.")
-        return 
-    end
-end
-
-
--- Fetch services & components to be initialized.
-do
-    for i: number, module: Instance in ipairs(StarterPlayer.StarterPlayerScripts.Services:GetChildren()) do
-        ModulesToLoad[module.Name] = module :: ModuleScript
+        if Initialization then Initialization = require(Initialization) :: any
+        else
+            print("Client failed to find the Initialization module.")
+            return 
+        end
     end
 
+
+    -- Add component modules to be initialized.
     for i: number, module: Instance in ipairs(StarterPlayer.StarterPlayerScripts.Components:GetChildren()) do
         ModulesToLoad[module.Name] = module :: ModuleScript
     end
